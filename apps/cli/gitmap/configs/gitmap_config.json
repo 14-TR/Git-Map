@@ -1,0 +1,8 @@
+{
+    "default_remote_url": "https://www.arcgis.com",
+    "default_branch": "main",
+    "commit_template": "",
+    "output_format": "rich"
+}
+
+

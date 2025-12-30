@@ -1,0 +1,59 @@
+# macOS
+.DS_Store
+.DS_Store?
+._*
+
+# Python
+*.pyc
+__pycache__/
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+*.tar.gz
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.cursor/
+
+# Environment
+.env
+.env.*
+!.env.example
+configs/.env
+*.env
+.venv/
+venv/
+
+# Secrets and credentials
+*.key
+*.pem
+*.p12
+*.pfx
+*.secret
+*_secret
+*_password
+*_token
+*_credential
+secrets/
+credentials/
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+
