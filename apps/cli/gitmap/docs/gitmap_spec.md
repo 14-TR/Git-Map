@@ -120,6 +120,7 @@ The `lsm` command transfers popup settings (`popupInfo`) and form settings (`for
 - **Dry-Run Mode**: Preview changes without applying them using `--dry-run` flag
 - **Smart Matching**: Matches layers by exact name (title or ID)
 - **Graceful Skipping**: Skips layers that don't exist in target with informative messages
+- **Folder Broadcasts**: Use `--target-folder <folderId>` to apply settings from one source map to every web map in a Portal folder (optionally with `--folder-owner`)
 
 **Usage Examples**:
 ```bash
@@ -131,6 +132,9 @@ gitmap lsm abc123def456
 
 # Preview changes without applying
 gitmap lsm source.json target.json --dry-run
+
+# Apply source map settings to all maps in a Portal folder
+gitmap lsm main --target-folder 1234567890abcdef --folder-owner gis-admin
 ```
 
 ## Acceptance Criteria

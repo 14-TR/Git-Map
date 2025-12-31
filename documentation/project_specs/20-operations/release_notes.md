@@ -10,13 +10,22 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 0.0.1   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 0.2.0   | `documentation/project_specs/20-operations/release_notes.md` |
 | gitmap-cli     | 0.2.0   | `apps/cli/gitmap/pyproject.toml`         |
 | gitmap_core    | 0.1.0   | `packages/gitmap_core/pyproject.toml`    |
 
 ## Releases
 
-### [release/0.0.1]
+### [release/0.2.0]
+
+**Type**: Minor
+
+- Enhanced `lsm` command with improved repository discovery and cloning logic
+- Optimized directory searching to prevent performance issues
+- Improved handling of existing directories during map cloning operations
+- Added one-to-many merge capabilities for layer settings transfer
+
+### [release/0.1.0]
 
 **Type**: Minor
 
