@@ -23,6 +23,7 @@ GitMap provides Git-like version control for ArcGIS Online and Enterprise Portal
 - **Diffing**: Compare map versions and see layer-level changes
 - **Merging**: Merge branches with conflict resolution
 - **Portal Integration**: Push and pull maps to/from ArcGIS Portal or ArcGIS Online
+- **Layer Settings Transfer**: Transfer popup and form settings between maps with the `lsm` command
 - **CLI Interface**: Familiar Git-like command-line interface
 - **Rich Output**: Beautiful terminal output with colors and formatting
 
@@ -58,7 +59,7 @@ pip install -e apps/cli/gitmap
 gitmap --version
 ```
 
-You should see: `gitmap, version 0.1.0`
+You should see: `gitmap, version 0.2.0`
 
 ## Quick Start
 
@@ -364,6 +365,39 @@ gitmap pull
 gitmap pull --branch main
 ```
 
+### `gitmap lsm`
+
+Transfer popup and form settings between maps.
+
+```bash
+gitmap lsm <SOURCE> [TARGET] [OPTIONS]
+```
+
+**Description:**
+Transfers `popupInfo` and `formInfo` from layers and tables in a source map to matching layers and tables in a target map. Works with item IDs, branch names, commit IDs, or file paths. Automatically handles nested layers within GroupLayers.
+
+**Options:**
+- `--dry-run` - Preview changes without applying them
+
+**Arguments:**
+- `SOURCE` - Source map (item ID, branch name, commit ID, or file path)
+- `TARGET` - Target map (optional, defaults to current index)
+
+**Examples:**
+```bash
+# Transfer settings between branches
+gitmap lsm main feature/new-layer
+
+# Transfer from Portal item ID to current index
+gitmap lsm abc123def456
+
+# Transfer from file to file with dry-run
+gitmap lsm source.json target.json --dry-run
+
+# Transfer from another repository directory
+gitmap lsm ../other-repo
+```
+
 ## Usage Examples
 
 ### Workflow: Creating a New Feature
@@ -424,6 +458,23 @@ gitmap diff --commit abc123 --commit def456
 
 # View commit history
 gitmap log --limit 20
+```
+
+### Workflow: Transferring Layer Settings
+
+```bash
+# Transfer popup and form settings from one branch to another
+gitmap checkout feature/new-layer
+gitmap lsm main
+
+# Preview what would be transferred (dry-run)
+gitmap lsm main feature/new-layer --dry-run
+
+# Transfer settings from a Portal item ID
+gitmap lsm abc123def456
+
+# Transfer settings between different repositories
+gitmap lsm ../source-repo
 ```
 
 ## Docker Setup
@@ -505,7 +556,7 @@ pytest
   - Remote push/pull operations
 
 - **`gitmap-cli`**: Command-line interface providing:
-  - 11 Git-like commands
+  - 12 Git-like commands (including `lsm` for layer settings transfer)
   - Rich terminal output
   - User-friendly error messages
 
