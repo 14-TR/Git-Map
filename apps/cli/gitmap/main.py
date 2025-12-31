@@ -11,7 +11,7 @@ Dependencies:
     - gitmap_core: Core library
 
 Metadata:
-    Version: 0.1.0
+    Version: 0.2.0
     Author: GitMap Team
 """
 from __future__ import annotations
@@ -49,7 +49,7 @@ layer_settings_merge = _layer_settings_merge_module.layer_settings_merge
 
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="gitmap")
+@click.version_option(version="0.2.0", prog_name="gitmap")
 def cli() -> None:
     """GitMap - Version control for ArcGIS web maps.
 
