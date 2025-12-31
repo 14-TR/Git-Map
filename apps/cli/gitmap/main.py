@@ -11,12 +11,14 @@ Dependencies:
     - gitmap_core: Core library
 
 Metadata:
-    Version: 0.1.0
+    Version: 0.2.0
     Author: GitMap Team
 """
 from __future__ import annotations
 
+import importlib.util
 import sys
+from pathlib import Path
 
 import click
 
@@ -32,12 +34,22 @@ from gitmap_cli.commands.pull import pull
 from gitmap_cli.commands.push import push
 from gitmap_cli.commands.status import status
 
+# Import hyphenated module using importlib.util (kebab-case filename)
+_layer_settings_merge_path = Path(__file__).parent / "commands" / "layer-settings-merge.py"
+_layer_settings_merge_spec = importlib.util.spec_from_file_location(
+    "layer_settings_merge",
+    _layer_settings_merge_path,
+)
+_layer_settings_merge_module = importlib.util.module_from_spec(_layer_settings_merge_spec)
+_layer_settings_merge_spec.loader.exec_module(_layer_settings_merge_module)
+layer_settings_merge = _layer_settings_merge_module.layer_settings_merge
+
 
 # ---- CLI Group ----------------------------------------------------------------------------------------------
 
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="gitmap")
+@click.version_option(version="0.2.0", prog_name="gitmap")
 def cli() -> None:
     """GitMap - Version control for ArcGIS web maps.
 
@@ -58,6 +70,7 @@ cli.add_command(branch)
 cli.add_command(checkout)
 cli.add_command(commit)
 cli.add_command(diff)
+cli.add_command(layer_settings_merge)
 cli.add_command(log)
 cli.add_command(merge)
 cli.add_command(push)

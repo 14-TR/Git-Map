@@ -10,9 +10,21 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 0.0.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 0.0.1   | `documentation/project_specs/20-operations/release_notes.md` |
+| gitmap-cli     | 0.2.0   | `apps/cli/gitmap/pyproject.toml`         |
+| gitmap_core    | 0.1.0   | `packages/gitmap_core/pyproject.toml`    |
 
 ## Releases
+
+### [release/0.0.1]
+
+**Type**: Minor
+
+- Added `lsm` command for transferring popup and form settings between maps
+- Supports item IDs, branches, commits, and file paths as source/target
+- Automatically clones maps from Portal when item ID has no existing repository
+- Recursively handles nested layers within GroupLayers
+- Transfers settings for both operational layers and tables
 
 ### [release/0.0.0]
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitmap-cli"
-version = "0.1.0"
+version = "0.2.0"
 description = "CLI for GitMap - Version control for ArcGIS web maps"
 requires-python = ">=3.11"
 license = {text = "MIT"}

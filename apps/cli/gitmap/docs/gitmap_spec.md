@@ -6,7 +6,7 @@
 
 **Scope**: CLI commands for initializing repositories, managing branches, committing changes, and synchronizing with ArcGIS Portal.
 
-**Version**: 0.1.0
+**Version**: 0.2.0
 
 ## Orchestration Flow
 
@@ -101,14 +101,45 @@ gitmap log
 
 # Push to Portal
 gitmap push
+
+# Transfer layer settings between maps
+gitmap lsm source-branch target-branch
+gitmap lsm abc123def456 --dry-run
+```
+
+## Features
+
+### Layer Settings Merge
+
+The `lsm` command transfers popup settings (`popupInfo`) and form settings (`formInfo`) from layers in a source map to matching layers in a target map. Features:
+
+- **Multiple Source Types**: Supports item IDs, branch names, commit IDs, or file paths
+- **Auto-Detection**: Automatically detects if a map (by item ID) has an existing `.gitmap` repository
+- **Branch Selection**: If a repository exists, prompts user to select which branch to use
+- **Auto-Clone**: If no repository exists for an item ID, automatically clones the map from Portal
+- **Dry-Run Mode**: Preview changes without applying them using `--dry-run` flag
+- **Smart Matching**: Matches layers by exact name (title or ID)
+- **Graceful Skipping**: Skips layers that don't exist in target with informative messages
+
+**Usage Examples**:
+```bash
+# Transfer settings between branches
+gitmap lsm main feature/new-layer
+
+# Transfer from Portal item ID to current index
+gitmap lsm abc123def456
+
+# Preview changes without applying
+gitmap lsm source.json target.json --dry-run
 ```
 
 ## Acceptance Criteria
 
-- [ ] All 11 commands implemented and functional
+- [ ] All commands implemented and functional
 - [ ] Rich terminal output for status, log, diff
 - [ ] Portal authentication via environment variables
 - [ ] Clear error messages for all failure modes
 - [ ] Comprehensive --help for all commands
+- [ ] Layer settings merge supports item IDs, branches, commits, and files
 
 
