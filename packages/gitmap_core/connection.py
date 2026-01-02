@@ -51,13 +51,13 @@ def _load_env_file(
 
     if env_path:
         if env_path.exists():
-            load_dotenv(env_path)
+            load_dotenv(env_path, override=True)
         return
 
     # Try current directory
     cwd_env = Path.cwd() / ".env"
     if cwd_env.exists():
-        load_dotenv(cwd_env)
+        load_dotenv(cwd_env, override=True)
         return
 
     # Try parent directories (up to 3 levels)
@@ -66,7 +66,7 @@ def _load_env_file(
         parent = current.parent
         parent_env = parent / ".env"
         if parent_env.exists():
-            load_dotenv(parent_env)
+            load_dotenv(parent_env, override=True)
             return
         current = parent
 

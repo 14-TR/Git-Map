@@ -97,6 +97,60 @@ def get_webmap_by_id(
         raise RuntimeError(msg) from fetch_error
 
 
+def list_webmaps(
+        gis: GIS,
+        query: str = "",
+        owner: str = "",
+        tag: str = "",
+        max_results: int = 100,
+) -> list[dict[str, str]]:
+    """List available web maps from the Portal.
+
+    Args:
+        gis: Authenticated GIS connection.
+        query: Optional search query string to filter web maps (e.g., "title:MyMap").
+            Defaults to empty string to list all web maps.
+        owner: Optional owner username to filter web maps.
+        tag: Optional tag to filter web maps.
+        max_results: Maximum number of web maps to return (default: 100).
+
+    Returns:
+        List of dictionaries containing web map information (id, title, owner, type).
+
+    Raises:
+        RuntimeError: If web map search fails.
+    """
+    try:
+        # Build search query components
+        query_parts = ['type:"Web Map"']
+        
+        if owner:
+            query_parts.append(f'owner:{owner}')
+        
+        if tag:
+            query_parts.append(f'tags:{tag}')
+        
+        if query:
+            query_parts.append(query)
+        
+        # Combine all query parts with AND
+        search_query = ' AND '.join(query_parts)
+        items = gis.content.search(query=search_query, max_items=max_results)
+        
+        result = []
+        for item in items:
+            result.append({
+                "id": getattr(item, "id", ""),
+                "title": getattr(item, "title", ""),
+                "owner": getattr(item, "owner", ""),
+                "type": getattr(item, "type", ""),
+            })
+        return result
+    except Exception as search_error:
+        msg = f"Failed to search web maps: {search_error}"
+        raise RuntimeError(msg) from search_error
+
+
 # ---- Layer Operations ---------------------------------------------------------------------------------------
 
 

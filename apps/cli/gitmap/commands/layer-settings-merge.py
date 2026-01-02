@@ -1132,7 +1132,7 @@ def _transfer_to_local_folder(
                     try:
                         console.print(f"[dim]Pushing 'main' for {repo_name}...[/dim]")
                         remote_ops = RemoteOperations(repo, connection)
-                        item = remote_ops.push("main")
+                        item, _ = remote_ops.push("main")
                         console.print(f"  [green]  Pushed (Item ID: {item.id})[/green]")
                     except Exception as push_error:
                         console.print(f"  [red]  Failed to push: {push_error}[/red]")
@@ -1385,7 +1385,7 @@ def _transfer_to_remote_folder(
                     try:
                         console.print(f"[dim]Pushing 'main' for {item_title}...[/dim]")
                         remote_ops = RemoteOperations(repo, connection)
-                        item = remote_ops.push("main")
+                        item, _ = remote_ops.push("main")
                         console.print(f"  [green]  Pushed (Item ID: {item.id})[/green]")
                     except Exception as push_error:
                         console.print(f"  [red]  Failed to push: {push_error}[/red]")

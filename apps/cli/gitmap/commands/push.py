@@ -47,20 +47,31 @@ console = Console()
     default="",
     help="Portal username (or use ARCGIS_USERNAME env var).",
 )
+@click.option(
+    "--no-notify",
+    is_flag=True,
+    help="Skip sending notifications even if pushing to production branch.",
+)
 def push(
         branch: str,
         url: str,
         username: str,
+        no_notify: bool,
 ) -> None:
     """Push branch to ArcGIS Portal.
 
     Uploads the current branch as a web map item in Portal. Creates
     a GitMap folder to organize branch items.
 
+    If the branch is configured as the production branch, notifications
+    will be sent to all users in groups that have access to the map.
+    Use --no-notify to skip notifications for this push.
+
     Examples:
         gitmap push
         gitmap push --branch feature/new-layer
         gitmap push --url https://portal.example.com
+        gitmap push --no-notify  # Skip notifications even for production branch
     """
     try:
         repo = find_repository()
@@ -87,7 +98,7 @@ def push(
         console.print(f"[dim]Pushing branch '{target_branch}'...[/dim]")
 
         remote_ops = RemoteOperations(repo, connection)
-        item = remote_ops.push(target_branch)
+        item, notification_status = remote_ops.push(target_branch, skip_notifications=no_notify)
 
         # Display result
         console.print()
@@ -96,6 +107,20 @@ def push(
         console.print(f"  [bold]Item ID:[/bold] {item.id}")
         console.print(f"  [bold]Title:[/bold] {item.title}")
         console.print(f"  [bold]URL:[/bold] {item.homepage}")
+        
+        # Display notification status
+        if notification_status["attempted"]:
+            console.print()
+            if notification_status["sent"]:
+                users_count = len(notification_status["users_notified"])
+                console.print(f"[green]✓ Notifications sent to {users_count} user(s)[/green]")
+                if users_count <= 10:  # Show usernames if not too many
+                    console.print(f"  [dim]Users: {', '.join(notification_status['users_notified'])}[/dim]")
+            else:
+                console.print(f"[yellow]⚠ Notifications not sent[/yellow]")
+                if notification_status["reason"]:
+                    console.print(f"  [dim]Reason: {notification_status['reason']}[/dim]")
+                console.print(f"  [dim]Tip: Share the map with groups that have members to receive notifications[/dim]")
 
     except Exception as push_error:
         msg = f"Push failed: {push_error}"

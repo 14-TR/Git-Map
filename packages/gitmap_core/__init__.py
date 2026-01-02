@@ -11,7 +11,7 @@ Dependencies:
     - deepdiff: JSON comparison
 
 Metadata:
-    Version: 0.1.0
+    Version: 0.2.0
     Author: GitMap Team
 """
 from __future__ import annotations
@@ -21,7 +21,7 @@ from gitmap_core.models import Commit
 from gitmap_core.models import Remote
 from gitmap_core.models import RepoConfig
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "Branch",
