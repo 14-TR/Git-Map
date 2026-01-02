@@ -11,7 +11,7 @@ Dependencies:
     - gitmap_core: Core library
 
 Metadata:
-    Version: 0.2.0
+    Version: 0.3.0
     Author: GitMap Team
 """
 from __future__ import annotations
@@ -26,10 +26,13 @@ from gitmap_cli.commands.branch import branch
 from gitmap_cli.commands.checkout import checkout
 from gitmap_cli.commands.clone import clone
 from gitmap_cli.commands.commit import commit
+from gitmap_cli.commands.config import config
 from gitmap_cli.commands.diff import diff
 from gitmap_cli.commands.init import init
+from gitmap_cli.commands.list import list_maps
 from gitmap_cli.commands.log import log
 from gitmap_cli.commands.merge import merge
+from gitmap_cli.commands.notify import notify
 from gitmap_cli.commands.pull import pull
 from gitmap_cli.commands.push import push
 from gitmap_cli.commands.status import status
@@ -49,7 +52,7 @@ layer_settings_merge = _layer_settings_merge_module.layer_settings_merge
 
 
 @click.group()
-@click.version_option(version="0.2.0", prog_name="gitmap")
+@click.version_option(version="0.3.0", prog_name="gitmap")
 def cli() -> None:
     """GitMap - Version control for ArcGIS web maps.
 
@@ -69,10 +72,13 @@ cli.add_command(status)
 cli.add_command(branch)
 cli.add_command(checkout)
 cli.add_command(commit)
+cli.add_command(config)
 cli.add_command(diff)
 cli.add_command(layer_settings_merge)
+cli.add_command(list_maps, name="list")
 cli.add_command(log)
 cli.add_command(merge)
+cli.add_command(notify)
 cli.add_command(push)
 cli.add_command(pull)
 

@@ -196,6 +196,7 @@ class Remote:
         folder_id: Portal folder ID for GitMap items.
         folder_name: Portal folder name.
         item_id: Original web map item ID (for cloned repos).
+        production_branch: Branch name flagged as production (triggers notifications on push).
     """
 
     name: str
@@ -203,6 +204,7 @@ class Remote:
     folder_id: str | None = None
     folder_name: str | None = None
     item_id: str | None = None
+    production_branch: str | None = None
 
     def to_dict(
             self,

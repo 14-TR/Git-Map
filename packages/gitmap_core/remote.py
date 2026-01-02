@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 
+from gitmap_core.communication import notify_item_group_users
 from gitmap_core.connection import PortalConnection
 from gitmap_core.models import Remote
 from gitmap_core.models import RepoConfig
@@ -200,7 +201,8 @@ class RemoteOperations:
     def push(
             self,
             branch: str | None = None,
-    ) -> Item:
+            skip_notifications: bool = False,
+    ) -> tuple[Item, dict[str, Any]]:
         """Push branch to Portal.
 
         Creates or updates a web map item in the GitMap folder
@@ -208,9 +210,10 @@ class RemoteOperations:
 
         Args:
             branch: Branch name (defaults to current branch).
+            skip_notifications: If True, skip sending notifications even for production branch.
 
         Returns:
-            Created/updated Portal Item.
+            Tuple of (created/updated Portal Item, notification status dict).
 
         Raises:
             RuntimeError: If push fails.
@@ -231,12 +234,76 @@ class RemoteOperations:
                 msg = f"Commit '{commit_id}' not found"
                 raise RuntimeError(msg)
 
-            # For main branch, if we have the original item_id, update it directly (no folder needed)
+            # For main branch, if we have the original item_id, update it directly
             if branch == "main" and self.remote and self.remote.item_id:
                 try:
                     original_item = self.gis.content.get(self.remote.item_id)
                     if original_item and original_item.type == "Web Map":
-                        return self._update_webmap_item(original_item, commit.map_data, commit)
+                        updated_item = self._update_webmap_item(original_item, commit.map_data, commit)
+                        
+                        # Check if this is the production branch and send notifications
+                        notification_status = {
+                            "attempted": False,
+                            "sent": False,
+                            "reason": "",
+                            "users_notified": [],
+                        }
+                        
+                        if not skip_notifications and self.remote.production_branch and branch == self.remote.production_branch:
+                            notification_status["attempted"] = True
+                            try:
+                                # Check if item is shared with groups
+                                # item.sharing is a SharingManager object, not a dict
+                                if updated_item.access == "private":
+                                    notification_status["reason"] = "Item is private (not shared)"
+                                else:
+                                    # Try to get groups from item properties
+                                    groups = []
+                                    try:
+                                        if hasattr(updated_item, "properties") and updated_item.properties:
+                                            sharing_data = updated_item.properties.get("sharing", {})
+                                            if isinstance(sharing_data, dict):
+                                                groups = sharing_data.get("groups", [])
+                                        
+                                        # If not found, query user's groups
+                                        if not groups:
+                                            user = self.gis.users.me
+                                            if user:
+                                                user_groups = user.groups
+                                                for group in user_groups:
+                                                    try:
+                                                        group_items = group.content()
+                                                        if any(g_item.id == updated_item.id for g_item in group_items):
+                                                            groups.append(group.id)
+                                                    except Exception:
+                                                        continue
+                                    except Exception:
+                                        groups = []
+                                    
+                                    if not groups:
+                                        notification_status["reason"] = "Item is not shared with any groups"
+                                    else:
+                                        # Attempt to send notifications
+                                        notified_users = notify_item_group_users(
+                                            gis=self.gis,
+                                            item=updated_item,
+                                            subject=f"Production Map Updated: {updated_item.title}",
+                                            body=f"The production map '{updated_item.title}' has been updated.\n\n"
+                                                 f"Branch: {branch}\n"
+                                                 f"Commit: {commit.id[:8]}\n"
+                                                 f"Message: {commit.message}\n\n"
+                                                 f"View the map: {updated_item.homepage}",
+                                        )
+                                        if notified_users:
+                                            notification_status["sent"] = True
+                                            notification_status["users_notified"] = notified_users
+                                        else:
+                                            notification_status["reason"] = "No users found in groups that have access to the map"
+                            except Exception as notify_error:
+                                # Don't fail the push if notifications fail
+                                notification_status["reason"] = f"Notification error: {notify_error}"
+                        
+                        return updated_item, notification_status
                 except Exception:
                     # Original item not found - fall through to folder-based logic
                     pass
@@ -255,26 +322,79 @@ class RemoteOperations:
                 )
             self.repo.update_config(self.config)
 
-            # For main branch, check if we should update the original cloned item
-            if branch == "main" and self.remote and self.remote.item_id:
-                # Update the original item that was cloned
-                try:
-                    original_item = self.gis.content.get(self.remote.item_id)
-                    if original_item and original_item.type == "Web Map":
-                        return self._update_webmap_item(original_item, commit.map_data, commit)
-                except Exception:
-                    # Original item not found or error - fall through to normal branch item logic
-                    pass
-
             # Check for existing branch item in folder
             existing_item = self._find_branch_item(branch, folder_id)
 
             if existing_item:
                 # Update existing item
-                return self._update_webmap_item(existing_item, commit.map_data, commit)
+                updated_item = self._update_webmap_item(existing_item, commit.map_data, commit)
             else:
                 # Create new item
-                return self._create_webmap_item(branch, commit.map_data, commit, folder_id)
+                updated_item = self._create_webmap_item(branch, commit.map_data, commit, folder_id)
+
+            # Check if this is the production branch and send notifications
+            notification_status = {
+                "attempted": False,
+                "sent": False,
+                "reason": "",
+                "users_notified": [],
+            }
+            
+            if not skip_notifications and self.remote and self.remote.production_branch and branch == self.remote.production_branch:
+                notification_status["attempted"] = True
+                try:
+                    # Check if item is shared with groups
+                    # item.sharing is a SharingManager object, not a dict
+                    if updated_item.access == "private":
+                        notification_status["reason"] = "Item is private (not shared)"
+                    else:
+                        # Try to get groups from item properties
+                        groups = []
+                        try:
+                            if hasattr(updated_item, "properties") and updated_item.properties:
+                                sharing_data = updated_item.properties.get("sharing", {})
+                                if isinstance(sharing_data, dict):
+                                    groups = sharing_data.get("groups", [])
+                            
+                            # If not found, query user's groups
+                            if not groups:
+                                user = self.gis.users.me
+                                if user:
+                                    user_groups = user.groups
+                                    for group in user_groups:
+                                        try:
+                                            group_items = group.content()
+                                            if any(g_item.id == updated_item.id for g_item in group_items):
+                                                groups.append(group.id)
+                                        except Exception:
+                                            continue
+                        except Exception:
+                            groups = []
+                        
+                        if not groups:
+                            notification_status["reason"] = "Item is not shared with any groups"
+                        else:
+                            # Attempt to send notifications
+                            notified_users = notify_item_group_users(
+                                gis=self.gis,
+                                item=updated_item,
+                                subject=f"Production Map Updated: {updated_item.title}",
+                                body=f"The production map '{updated_item.title}' has been updated.\n\n"
+                                     f"Branch: {branch}\n"
+                                     f"Commit: {commit.id[:8]}\n"
+                                     f"Message: {commit.message}\n\n"
+                                     f"View the map: {updated_item.homepage}",
+                            )
+                            if notified_users:
+                                notification_status["sent"] = True
+                                notification_status["users_notified"] = notified_users
+                            else:
+                                notification_status["reason"] = "No users found in groups that have access to the map"
+                except Exception as notify_error:
+                    # Don't fail the push if notifications fail
+                    notification_status["reason"] = f"Notification error: {notify_error}"
+
+            return updated_item, notification_status
 
         except Exception as push_error:
             msg = f"Push failed: {push_error}"

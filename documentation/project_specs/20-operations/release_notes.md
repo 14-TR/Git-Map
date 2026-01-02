@@ -10,11 +10,24 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 0.2.0   | `documentation/project_specs/20-operations/release_notes.md` |
-| gitmap-cli     | 0.2.0   | `apps/cli/gitmap/pyproject.toml`         |
-| gitmap_core    | 0.1.0   | `packages/gitmap_core/pyproject.toml`    |
+| GitMap (repo)  | 0.3.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| gitmap-cli     | 0.3.0   | `apps/cli/gitmap/pyproject.toml`         |
+| gitmap_core    | 0.2.0   | `packages/gitmap_core/pyproject.toml`    |
 
 ## Releases
+
+### [release/0.3.0]
+
+**Type**: Minor
+
+- Added `list` command to list all available web maps from Portal/AGOL
+- Added filtering options to `list` command: `--owner`, `--tag`, and `--query`
+- Improved notification handling with detailed status reporting after push operations
+- Fixed sharing information access issue (SharingManager object handling)
+- Enhanced push command to display notification status and reasons when notifications fail
+- Added better error messages explaining why notifications weren't sent (e.g., item not shared with groups)
+- Updated `notify_item_group_users` to properly access item sharing information
+- Added `list_webmaps` function to `gitmap_core.maps` module
 
 ### [release/0.2.0]
 

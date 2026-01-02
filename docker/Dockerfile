@@ -14,6 +14,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
+# Install gitmap packages
+RUN pip install --no-cache-dir -e packages/gitmap_core
+RUN pip install --no-cache-dir -e apps/cli/gitmap
+
 CMD ["python", "main.py"]
 
 

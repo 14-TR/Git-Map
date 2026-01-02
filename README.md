@@ -59,7 +59,7 @@ pip install -e apps/cli/gitmap
 gitmap --version
 ```
 
-You should see: `gitmap, version 0.2.0`
+You should see: `gitmap, version 0.3.0`
 
 ## Quick Start
 
@@ -396,6 +396,47 @@ gitmap lsm source.json target.json --dry-run
 
 # Transfer from another repository directory
 gitmap lsm ../other-repo
+```
+
+### `gitmap notify`
+
+Send a notification to members of a Portal/AGOL group using the
+ArcGIS API for Python `Group.notify` method (leveraging your Portal/AGOL
+authentication; no SMTP settings required). Notifications go to users in
+the target group according to their ArcGIS notification preferences.
+
+By default, all group members are notified. Use `--user` to target specific
+users (useful for testing).
+
+```bash
+gitmap notify --group <GROUP_ID_OR_TITLE> --subject "Subject" --message "Body"
+```
+
+**Options:**
+- `--group, -g` - Group ID or title to target for notifications (required)
+- `--user` - Specific username(s) to notify (can be used multiple times). If omitted, all group members are notified.
+- `--subject, -s` - Notification subject line
+- `--message, -m` - Notification body (or use `--message-file`)
+- `--message-file` - Load the notification body from a text file
+- `--url, -u` - Portal URL (defaults to ArcGIS Online)
+- `--username` / `--password` - Portal credentials (or use env vars)
+
+**Examples:**
+```bash
+# Notify all members of the editors group
+gitmap notify --group editors --subject "Release planned" \
+  --message "New basemap will be published on Friday."
+
+# Test by sending to a single user
+gitmap notify --group editors --user testuser --subject "Test notification" \
+  --message "This is a test message."
+
+# Notify multiple specific users
+gitmap notify --group editors --user user1 --user user2 --subject "Update" \
+  --message "Please review the changes."
+
+# Load a longer message from a file
+gitmap notify --group "Field Crew" --subject "Inspection prep" --message-file notes.txt
 ```
 
 ## Usage Examples
