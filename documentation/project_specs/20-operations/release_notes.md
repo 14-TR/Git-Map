@@ -10,11 +10,22 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 0.3.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 1.0.0   | `documentation/project_specs/20-operations/release_notes.md` |
 | gitmap-cli     | 0.3.0   | `apps/cli/gitmap/pyproject.toml`         |
 | gitmap_core    | 0.2.0   | `packages/gitmap_core/pyproject.toml`    |
+| gitmap-mcp     | 0.1.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
 
 ## Releases
+
+### [release/1.0.0]
+
+**Type**: Major
+
+- Added GitMap MCP server implementation for Cursor IDE integration
+- MCP server provides tools for repository, branch, commit, remote, layer, and portal management
+- Includes comprehensive configuration documentation and example settings for Cursor integration
+- Enables GitMap functionality to be accessed directly from Cursor IDE via MCP protocol
+- Initial MCP server version 0.1.0
 
 ### [release/0.3.0]
 

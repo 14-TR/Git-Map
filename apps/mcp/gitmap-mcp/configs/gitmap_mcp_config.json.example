@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "gitmap": {
+      "command": "python",
+      "args": ["-m", "gitmap_mcp.main"],
+      "cwd": "${workspaceFolder}"
+    }
+  }
+}

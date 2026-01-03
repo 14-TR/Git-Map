@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gitmap-mcp"
+version = "0.1.0"
+description = "MCP server for GitMap - Version control for ArcGIS web maps"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "GitMap Team"}
+]
+dependencies = [
+    "gitmap_core>=0.1.0",
+    "mcp>=1.0.0",
+]
+
+[project.scripts]
+gitmap-mcp = "gitmap_mcp.main:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+]
+
+[tool.setuptools]
+packages = ["gitmap_mcp", "gitmap_mcp.scripts", "gitmap_mcp.scripts.tools"]
+
+[tool.setuptools.package-dir]
+gitmap_mcp = "."
+"gitmap_mcp.scripts" = "scripts"
+"gitmap_mcp.scripts.tools" = "scripts/tools"
