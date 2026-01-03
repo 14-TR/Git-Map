@@ -89,6 +89,14 @@
 - **Performance**: Efficient algorithms and optimized execution
 - **Documentation**: Comprehensive comments and docstrings
 
+### Tool Output Formatting
+
+**Requirements**:
+- **Use Tool-Provided Format**: When a tool or MCP server returns a formatted output field (e.g., `table`, `formatted_output`), the agent MUST use that format directly without reformatting
+- **Preserve Tool Intent**: Tools that provide pre-formatted output do so for a reason - the format is designed for display and should be presented as-is
+- **Examples**: 
+  - `gitmap_list_maps` returns a `table` field with markdown-formatted output - use this format directly
+  - If a tool provides both raw data and formatted output, prefer the formatted output for user presentation
 
 
 ## References
