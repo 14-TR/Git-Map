@@ -18,6 +18,7 @@ Metadata:
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -35,8 +36,6 @@ from gitmap_core.remote import RemoteOperations
 from gitmap_core.repository import Repository
 from gitmap_core.repository import find_repository
 from gitmap_core.repository import init_repository
-
-from .utils import get_portal_url
 
 console = Console()
 
@@ -195,15 +194,12 @@ def _resolve_source_map(
         console.print(f"[dim]No repository found for item {source}[/dim]")
         console.print("[dim]Cloning map from Portal...[/dim]")
 
-        # Get Portal connection from current repo or environment variable
-        portal_url = None
+        # Get Portal connection from current repo or use defaults
+        portal_url = os.environ.get("PORTAL_URL", "https://www.arcgis.com")
         if current_repo:
             config = current_repo.get_config()
-            if config.remote and config.remote.url:
+            if config.remote:
                 portal_url = config.remote.url
-        
-        # Get from environment variable if not in repo config
-        portal_url = get_portal_url(portal_url)
 
         connection = get_connection(url=portal_url)
         item, map_data = get_webmap_by_id(connection.gis, source)
@@ -352,14 +348,10 @@ def _resolve_target_map(
     # Check if it's an item ID
     if _is_item_id(target):
         # For target, we'll fetch from Portal directly
-        portal_url = None
-        if current_repo:
-            config = current_repo.get_config()
-            if config.remote and config.remote.url:
-                portal_url = config.remote.url
-        
-        # Get from environment variable if not in repo config
-        portal_url = get_portal_url(portal_url)
+        portal_url = os.environ.get("PORTAL_URL", "https://www.arcgis.com")
+        config = current_repo.get_config()
+        if config.remote:
+            portal_url = config.remote.url
 
         connection = get_connection(url=portal_url)
         item, map_data = get_webmap_by_id(connection.gis, target)
@@ -717,15 +709,13 @@ def _render_summary(
 def _get_portal_url(
         current_repo: Repository | None,
 ) -> str:
-    """Get Portal URL from repo config or environment variable."""
-    portal_url = None
+    """Get Portal URL from repo config or default."""
+    portal_url = os.environ.get("PORTAL_URL", "https://www.arcgis.com")
     if current_repo:
         config = current_repo.get_config()
         if config.remote and config.remote.url:
             portal_url = config.remote.url
-    
-    # Get from environment variable if not in repo config
-    return get_portal_url(portal_url)
+    return portal_url
 
 
 def _get_or_clone_repo_for_item(
@@ -1130,16 +1120,13 @@ def _transfer_to_local_folder(
                 default="yes",
             ) == "yes":
                 console.print()
-                # Get portal URL from first repo with remote, or environment variable
-                portal_url = None
+                # Get portal URL from first repo with remote, or use default
+                portal_url = os.environ.get("PORTAL_URL", "https://www.arcgis.com")
                 for repo, _ in repos_with_remotes:
                     config = repo.get_config()
                     if config.remote and config.remote.url:
                         portal_url = config.remote.url
                         break
-                
-                # Get from environment variable if not in repo config
-                portal_url = get_portal_url(portal_url)
                 connection = get_connection(url=portal_url)
                 
                 for repo, repo_name in repos_with_remotes:
