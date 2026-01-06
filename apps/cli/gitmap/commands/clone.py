@@ -26,6 +26,8 @@ from gitmap_core.maps import get_webmap_by_id
 from gitmap_core.models import Remote
 from gitmap_core.repository import Repository
 
+from .utils import get_portal_url
+
 console = Console()
 
 
@@ -46,8 +48,8 @@ console = Console()
 @click.option(
     "--url",
     "-u",
-    default="https://www.arcgis.com",
-    help="Portal URL (defaults to ArcGIS Online).",
+    default="",
+    help="Portal URL (or use PORTAL_URL env var, which is required).",
 )
 @click.option(
     "--username",
@@ -71,9 +73,12 @@ def clone(
         gitmap clone abc123def456 --url https://portal.example.com
     """
     try:
+        # Get Portal URL from parameter or environment variable
+        portal_url = get_portal_url(url if url else None)
+        
         # Connect to Portal
-        console.print(f"[dim]Connecting to {url}...[/dim]")
-        connection = get_connection(url=url, username=username if username else None)
+        console.print(f"[dim]Connecting to {portal_url}...[/dim]")
+        connection = get_connection(url=portal_url, username=username if username else None)
 
         if connection.username:
             console.print(f"[dim]Authenticated as {connection.username}[/dim]")
@@ -110,7 +115,7 @@ def clone(
         config = repo.get_config()
         config.remote = Remote(
             name="origin",
-            url=url,
+            url=portal_url,
             item_id=item_id,
         )
         repo.update_config(config)

@@ -32,6 +32,8 @@ from gitmap_core.communication import list_groups
 from gitmap_core.communication import send_group_notification
 from gitmap_core.connection import get_connection
 
+from .utils import get_portal_url
+
 console = Console()
 
 
@@ -78,7 +80,7 @@ console = Console()
     "--url",
     "-u",
     default="",
-    help="Portal URL (or use PORTAL_URL env var, defaults to ArcGIS Online).",
+    help="Portal URL (or use PORTAL_URL env var, which is required).",
 )
 @click.option(
     "--username",
@@ -111,8 +113,8 @@ def notify(
     # Handle list groups mode
     if list_groups_flag:
         try:
-            # Determine portal URL (from option, env var, or default)
-            portal_url = url or os.environ.get("PORTAL_URL", "https://www.arcgis.com")
+            # Get Portal URL from parameter or environment variable
+            portal_url = get_portal_url(url if url else None)
             
             # Connect to Portal/AGOL
             console.print(f"[dim]Connecting to {portal_url}...[/dim]")
@@ -163,8 +165,8 @@ def notify(
         if not body:
             raise click.ClickException("Notification body is required (use --message or --message-file).")
 
-        # Determine portal URL (from option, env var, or default)
-        portal_url = url or os.environ.get("PORTAL_URL", "https://www.arcgis.com")
+        # Get Portal URL from parameter or environment variable
+        portal_url = get_portal_url(url if url else None)
         
         # Connect to Portal/AGOL
         console.print(f"[dim]Connecting to {portal_url}...[/dim]")
