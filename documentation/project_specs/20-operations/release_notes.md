@@ -10,12 +10,23 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 1.0.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 1.0.1   | `documentation/project_specs/20-operations/release_notes.md` |
 | gitmap-cli     | 0.3.0   | `apps/cli/gitmap/pyproject.toml`         |
 | gitmap_core    | 0.2.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.1.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
 
 ## Releases
+
+### [release/1.0.1]
+
+**Type**: Patch
+
+- Refactored Portal URL handling to require explicit configuration via `PORTAL_URL` environment variable
+- Removed default fallback to ArcGIS Online to prevent unintended behavior
+- Updated MCP server documentation to clarify Portal URL usage and configuration requirements
+- Enhanced Portal URL retrieval functions across all MCP tools (layer, portal, remote, repository tools)
+- Improved error handling and validation for Portal URL configuration
+- Ensures consistent Portal URL handling across all GitMap MCP server tools
 
 ### [release/1.0.0]
 
