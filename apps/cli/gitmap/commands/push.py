@@ -23,6 +23,8 @@ from gitmap_core.connection import get_connection
 from gitmap_core.remote import RemoteOperations
 from gitmap_core.repository import find_repository
 
+from .utils import get_portal_url
+
 console = Console()
 
 
@@ -81,7 +83,15 @@ def push(
 
         # Determine Portal URL
         config = repo.get_config()
-        portal_url = url or (config.remote.url if config.remote else "https://www.arcgis.com")
+        if url:
+            # Use provided URL
+            portal_url = url
+        elif config.remote and config.remote.url:
+            # Use configured remote URL
+            portal_url = config.remote.url
+        else:
+            # Get from environment variable (required)
+            portal_url = get_portal_url()
 
         # Connect to Portal
         console.print(f"[dim]Connecting to {portal_url}...[/dim]")

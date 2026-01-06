@@ -27,6 +27,8 @@ from rich.table import Table
 from gitmap_core.connection import get_connection
 from gitmap_core.maps import list_webmaps
 
+from .utils import get_portal_url
+
 console = Console()
 
 
@@ -63,7 +65,7 @@ console = Console()
     "--url",
     "-u",
     default="",
-    help="Portal URL (or use PORTAL_URL env var, defaults to ArcGIS Online).",
+    help="Portal URL (or use PORTAL_URL env var, which is required).",
 )
 @click.option(
     "--username",
@@ -96,8 +98,8 @@ def list_maps(
         gitmap list --query "title:MyMap"
     """
     try:
-        # Determine portal URL (from option, env var, or default)
-        portal_url = url or os.environ.get("PORTAL_URL", "https://www.arcgis.com")
+        # Get Portal URL from parameter or environment variable
+        portal_url = get_portal_url(url if url else None)
         
         # Connect to Portal/AGOL
         console.print(f"[dim]Connecting to {portal_url}...[/dim]")
