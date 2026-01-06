@@ -23,6 +23,7 @@ from gitmap_core.communication import send_group_notification
 from gitmap_core.connection import get_connection
 from gitmap_core.maps import list_webmaps
 
+from .utils import get_portal_url
 from .utils import get_workspace_directory
 from .utils import resolve_path
 
@@ -48,7 +49,7 @@ def gitmap_notify(
         message: Notification body text (or use message_file).
         message_file: Path to file containing notification body.
         users: Specific usernames to notify (defaults to all group members).
-        url: Portal URL (uses env var or defaults to ArcGIS Online).
+        url: Portal URL (uses PORTAL_URL env var if not provided, which is required).
         username: Portal username (optional, uses env vars if not provided).
         password: Portal password (optional, uses env vars if not provided).
 
@@ -70,8 +71,8 @@ def gitmap_notify(
                 "error": "Notification body is required (use message or message_file)",
             }
 
-        # Determine portal URL
-        portal_url = url or os.environ.get("PORTAL_URL", "https://www.arcgis.com")
+        # Get Portal URL from parameter or environment variable
+        portal_url = get_portal_url(url)
 
         # Connect to Portal
         connection = get_connection(
@@ -124,7 +125,7 @@ def gitmap_list_groups(
     """List all available groups from Portal.
 
     Args:
-        url: Portal URL (uses env var or defaults to ArcGIS Online).
+        url: Portal URL (uses PORTAL_URL env var if not provided, which is required).
         username: Portal username (optional, uses env vars if not provided).
         password: Portal password (optional, uses env vars if not provided).
 
@@ -132,8 +133,8 @@ def gitmap_list_groups(
         Dictionary with list of groups and formatted table.
     """
     try:
-        # Determine portal URL
-        portal_url = url or os.environ.get("PORTAL_URL", "https://www.arcgis.com")
+        # Get Portal URL from parameter or environment variable
+        portal_url = get_portal_url(url)
 
         # Connect to Portal
         connection = get_connection(
@@ -199,7 +200,7 @@ def gitmap_list_maps(
         owner: Filter web maps by owner username.
         tag: Filter web maps by tag.
         max_results: Maximum number of web maps to return.
-        url: Portal URL (uses env var or defaults to ArcGIS Online).
+        url: Portal URL (uses PORTAL_URL env var if not provided, which is required).
         username: Portal username (optional, uses env vars if not provided).
         password: Portal password (optional, uses env vars if not provided).
 
@@ -207,8 +208,8 @@ def gitmap_list_maps(
         Dictionary with list of web maps and formatted table.
     """
     try:
-        # Determine portal URL
-        portal_url = url or os.environ.get("PORTAL_URL", "https://www.arcgis.com")
+        # Get Portal URL from parameter or environment variable
+        portal_url = get_portal_url(url)
 
         # Connect to Portal
         connection = get_connection(
