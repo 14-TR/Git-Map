@@ -16,6 +16,7 @@ Metadata:
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import click
@@ -25,8 +26,6 @@ from gitmap_core.connection import get_connection
 from gitmap_core.maps import get_webmap_by_id
 from gitmap_core.models import Remote
 from gitmap_core.repository import Repository
-
-from .utils import get_portal_url
 
 console = Console()
 
@@ -48,8 +47,8 @@ console = Console()
 @click.option(
     "--url",
     "-u",
-    default="",
-    help="Portal URL (or use PORTAL_URL env var, which is required).",
+    default="https://www.arcgis.com",
+    help="Portal URL (defaults to ArcGIS Online).",
 )
 @click.option(
     "--username",
@@ -73,8 +72,8 @@ def clone(
         gitmap clone abc123def456 --url https://portal.example.com
     """
     try:
-        # Get Portal URL from parameter or environment variable
-        portal_url = get_portal_url(url if url else None)
+        # Use PORTAL_URL from env if set, otherwise use provided URL (or click default)
+        portal_url = os.environ.get("PORTAL_URL") or url
         
         # Connect to Portal
         console.print(f"[dim]Connecting to {portal_url}...[/dim]")
