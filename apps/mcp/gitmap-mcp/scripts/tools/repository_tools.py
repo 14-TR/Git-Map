@@ -22,6 +22,7 @@ from gitmap_core.models import Remote
 from gitmap_core.repository import Repository
 from gitmap_core.repository import find_repository
 
+from .utils import get_portal_url
 from .utils import get_workspace_directory
 from .utils import resolve_path
 
@@ -82,7 +83,7 @@ def gitmap_init(
 def gitmap_clone(
     item_id: str,
     directory: str | None = None,
-    url: str = "https://www.arcgis.com",
+    url: str | None = None,
     username: str | None = None,
 ) -> dict[str, Any]:
     """Clone a web map from Portal.
@@ -92,15 +93,18 @@ def gitmap_clone(
     Args:
         item_id: Portal item ID to clone.
         directory: Directory to clone into (defaults to map title).
-        url: Portal URL (defaults to ArcGIS Online).
+        url: Portal URL (optional, uses PORTAL_URL env var if not provided).
         username: Portal username (optional, uses env vars if not provided).
 
     Returns:
         Dictionary with success status and clone details.
     """
     try:
+        # Get Portal URL from parameter or environment variable
+        portal_url = get_portal_url(url)
+        
         # Connect to Portal
-        connection = get_connection(url=url, username=username)
+        connection = get_connection(url=portal_url, username=username)
 
         # Fetch web map
         item, map_data = get_webmap_by_id(connection.gis, item_id)
@@ -138,7 +142,7 @@ def gitmap_clone(
         config = repo.get_config()
         config.remote = Remote(
             name="origin",
-            url=url,
+            url=portal_url,
             item_id=item_id,
         )
         repo.update_config(config)

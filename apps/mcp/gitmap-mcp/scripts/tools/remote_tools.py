@@ -18,6 +18,7 @@ from gitmap_core.connection import get_connection
 from gitmap_core.remote import RemoteOperations
 from gitmap_core.repository import find_repository
 
+from .utils import get_portal_url
 from .utils import get_workspace_directory
 
 
@@ -51,7 +52,15 @@ def gitmap_push(
 
         # Determine Portal URL
         config = repo.get_config()
-        portal_url = url or (config.remote.url if config.remote else "https://www.arcgis.com")
+        if url:
+            # Use provided URL
+            portal_url = url
+        elif config.remote and config.remote.url:
+            # Use configured remote URL
+            portal_url = config.remote.url
+        else:
+            # Get from environment variable (required)
+            portal_url = get_portal_url()
 
         # Connect to Portal
         connection = get_connection(
@@ -123,13 +132,15 @@ def gitmap_pull(
 
         # Determine Portal URL
         config = repo.get_config()
-        if not config.remote:
-            return {
-                "success": False,
-                "error": "No remote configured. Use gitmap_clone or configure a remote.",
-            }
-
-        portal_url = url or config.remote.url
+        if url:
+            # Use provided URL
+            portal_url = url
+        elif config.remote and config.remote.url:
+            # Use configured remote URL
+            portal_url = config.remote.url
+        else:
+            # Get from environment variable (required)
+            portal_url = get_portal_url()
 
         # Connect to Portal
         connection = get_connection(

@@ -22,6 +22,7 @@ from gitmap_core.maps import load_map_json
 from gitmap_core.repository import Repository
 from gitmap_core.repository import find_repository
 
+from .utils import get_portal_url
 from .utils import get_workspace_directory
 from .utils import resolve_path
 
@@ -89,12 +90,15 @@ def _resolve_source_map(
 
     # Check if it's an item ID
     if _is_item_id(source):
-        # Get Portal connection from current repo or use defaults
-        portal_url = "https://www.arcgis.com"
+        # Get Portal connection from current repo or environment variable
+        portal_url = None
         if current_repo:
             config = current_repo.get_config()
-            if config.remote:
+            if config.remote and config.remote.url:
                 portal_url = config.remote.url
+        
+        # Get from environment variable if not in repo config
+        portal_url = get_portal_url(portal_url)
 
         connection = get_connection(url=portal_url)
         _, map_data = get_webmap_by_id(connection.gis, source)

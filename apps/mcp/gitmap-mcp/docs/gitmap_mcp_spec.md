@@ -67,7 +67,7 @@ Clone a web map from Portal.
 **Parameters**:
 - `item_id` (str, required): Portal item ID to clone
 - `directory` (str, optional): Directory to clone into (defaults to map title)
-- `url` (str, optional): Portal URL (defaults to ArcGIS Online)
+- `url` (str, optional): Portal URL (uses PORTAL_URL env var if not provided, which is required)
 - `username` (str, optional): Portal username (uses env vars if not provided)
 
 **Returns**: Dictionary with success status and clone details
@@ -158,7 +158,7 @@ Push branch to ArcGIS Portal.
 
 **Parameters**:
 - `branch` (str, optional): Branch to push (defaults to current branch)
-- `url` (str, optional): Portal URL (uses configured remote if not specified)
+- `url` (str, optional): Portal URL (uses configured remote or PORTAL_URL env var if not specified)
 - `username` (str, optional): Portal username (uses env vars if not provided)
 - `no_notify` (bool, optional): Skip sending notifications (default: false)
 
@@ -170,7 +170,7 @@ Pull latest changes from Portal.
 
 **Parameters**:
 - `branch` (str, optional): Branch to pull (defaults to current branch)
-- `url` (str, optional): Portal URL (uses configured remote if not specified)
+- `url` (str, optional): Portal URL (uses configured remote or PORTAL_URL env var if not specified)
 - `username` (str, optional): Portal username (uses env vars if not provided)
 
 **Returns**: Dictionary with success status and pull details
@@ -249,11 +249,13 @@ List all available groups from Portal.
 
 All Portal credentials come from environment variables (no hardcoded values):
 
-- `PORTAL_URL` - Portal URL (defaults to `https://www.arcgis.com` for ArcGIS Online)
+- `PORTAL_URL` - **REQUIRED** Portal URL (must be set in .env file, no default fallback)
 - `PORTAL_USER` - Portal username
 - `PORTAL_PASSWORD` - Portal password
 - `ARCGIS_USERNAME` - Alternative username variable
 - `ARCGIS_PASSWORD` - Alternative password variable
+
+**Important**: `PORTAL_URL` is required and must be set in your `.env` file. The MCP server will raise an error if `PORTAL_URL` is not configured. This ensures all operations use your specified Portal instance rather than defaulting to ArcGIS Online.
 
 **Automatic `.env` File Loading**: The MCP server automatically loads the `.env` file from:
 1. Current working directory (where Cursor runs the MCP server)
@@ -431,10 +433,10 @@ result = gitmap_init(
 ### Clone a Map
 
 ```python
+# URL is optional - uses PORTAL_URL from .env if not provided
 result = gitmap_clone(
     item_id="abc123def456",
-    directory="my-project",
-    url="https://www.arcgis.com"
+    directory="my-project"
 )
 ```
 
@@ -456,9 +458,9 @@ gitmap_commit(message="Added new operational layer")
 ### Push to Portal
 
 ```python
+# URL is optional - uses PORTAL_URL from .env or configured remote if not provided
 result = gitmap_push(
-    branch="feature/new-layer",
-    url="https://www.arcgis.com"
+    branch="feature/new-layer"
 )
 ```
 
