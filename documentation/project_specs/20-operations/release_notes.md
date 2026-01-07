@@ -10,12 +10,22 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 1.0.1   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 1.0.3   | `documentation/project_specs/20-operations/release_notes.md` |
 | gitmap-cli     | 0.3.0   | `apps/cli/gitmap/pyproject.toml`         |
 | gitmap_core    | 0.2.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.1.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
 
 ## Releases
+
+### [release/1.0.3]
+
+**Type**: Patch
+
+- Fixed pull logic to mirror push behavior for main branch item retrieval
+- Enhanced `RemoteOperations.pull()` to directly pull from original `item_id` for main branch when configured
+- Ensures consistent behavior between push and pull operations for main branch
+- Properly updates local index and remote tracking reference when pulling from main branch item
+- Falls back to folder-based logic if original item is not found
 
 ### [release/1.0.1]
 
