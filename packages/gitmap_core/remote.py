@@ -535,6 +535,27 @@ class RemoteOperations:
                 msg = "No remote configured"
                 raise RuntimeError(msg)
 
+            # For main branch, if we have the original item_id, pull from it directly
+            if branch == "main" and self.remote.item_id:
+                try:
+                    original_item = self.gis.content.get(self.remote.item_id)
+                    if original_item and original_item.type == "Web Map":
+                        map_data = original_item.get_data()
+                        if not map_data:
+                            msg = "Failed to get data from remote item"
+                            raise RuntimeError(msg)
+
+                        # Update local index
+                        self.repo.update_index(map_data)
+
+                        # Update remote tracking ref
+                        self._update_remote_ref(branch, self.repo.get_head_commit() or "")
+
+                        return map_data
+                except Exception:
+                    # Original item not found - fall through to folder-based logic
+                    pass
+
             folder_id = self.remote.folder_id
             if not folder_id:
                 msg = "Remote folder not configured"

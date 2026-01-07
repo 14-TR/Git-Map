@@ -56,4 +56,7 @@ logs/
 *.temp
 .cache/
 
+#data directories
+data/ 
+
 
