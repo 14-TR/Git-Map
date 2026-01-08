@@ -35,6 +35,7 @@ from gitmap_cli.commands.merge import merge
 from gitmap_cli.commands.notify import notify
 from gitmap_cli.commands.pull import pull
 from gitmap_cli.commands.push import push
+from gitmap_cli.commands.setup_repos import setup_repos
 from gitmap_cli.commands.status import status
 
 # Import hyphenated module using importlib.util (kebab-case filename)
@@ -81,6 +82,7 @@ cli.add_command(merge)
 cli.add_command(notify)
 cli.add_command(push)
 cli.add_command(pull)
+cli.add_command(setup_repos, name="setup-repos")
 
 
 # ---- Main Function ------------------------------------------------------------------------------------------
