@@ -10,12 +10,25 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 1.0.3   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 1.1.0   | `documentation/project_specs/20-operations/release_notes.md` |
 | gitmap-cli     | 0.3.0   | `apps/cli/gitmap/pyproject.toml`         |
 | gitmap_core    | 0.2.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.1.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
 
 ## Releases
+
+### [release/1.1.0]
+
+**Type**: Minor
+
+- Added `setup-repos` command for bulk repository setup automation
+- Automates cloning of multiple web maps from Portal/AGOL into a repositories directory
+- Supports filtering options: `--owner`, `--tag`, `--query`, and `--max-results`
+- Creates organized directory structure with `.gitmap` folders for each cloned map
+- Includes progress tracking with rich terminal output during bulk operations
+- Supports `--skip-existing` flag to skip maps that already have directories
+- Provides detailed summary of successful and failed clones
+- Streamlines workflow for users setting up local repositories for multiple maps
 
 ### [release/1.0.3]
 

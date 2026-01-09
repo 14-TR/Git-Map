@@ -24,6 +24,7 @@ GitMap provides Git-like version control for ArcGIS Online and Enterprise Portal
 - **Merging**: Merge branches with conflict resolution
 - **Portal Integration**: Push and pull maps to/from ArcGIS Portal or ArcGIS Online
 - **Layer Settings Transfer**: Transfer popup and form settings between maps with the `lsm` command
+- **Bulk Repository Setup**: Automate cloning multiple maps with owner filtering
 - **CLI Interface**: Familiar Git-like command-line interface
 - **Rich Output**: Beautiful terminal output with colors and formatting
 
@@ -208,6 +209,46 @@ gitmap clone <ITEM_ID> [OPTIONS]
 gitmap clone abc123def456
 gitmap clone abc123def456 --directory my-project
 gitmap clone abc123def456 --url https://portal.example.com
+```
+
+### `gitmap setup-repos`
+
+Bulk clone web maps into a repositories directory.
+
+```bash
+gitmap setup-repos [OPTIONS]
+```
+
+**Description:**
+Automates the setup of a repositories directory by cloning multiple web maps at once. Each map is cloned into its own subdirectory with a `.gitmap` folder. Useful for setting up local copies of multiple maps owned by a specific user or matching specific criteria.
+
+**Options:**
+- `--directory, -d` - Directory to clone repositories into (defaults to 'repositories')
+- `--owner, -o` - Filter web maps by owner username
+- `--query, -q` - Search query to filter web maps (e.g., 'title:MyMap')
+- `--tag, -t` - Filter web maps by tag
+- `--max-results, -m` - Maximum number of web maps to clone (default: 100)
+- `--url, -u` - Portal URL (or use PORTAL_URL env var)
+- `--username` - Portal username (or use env var)
+- `--password` - Portal password (or use env var)
+- `--skip-existing` - Skip maps that already have directories (instead of failing)
+
+**Examples:**
+```bash
+# Clone all maps owned by a specific user
+gitmap setup-repos --owner myusername
+
+# Clone to a custom directory
+gitmap setup-repos --owner myusername --directory my-repos
+
+# Clone maps with a specific tag
+gitmap setup-repos --tag production --skip-existing
+
+# Clone maps matching a search query
+gitmap setup-repos --query "title:Project*" --owner myusername
+
+# Combine filters
+gitmap setup-repos --owner myusername --tag production --max-results 50
 ```
 
 ### `gitmap status`
@@ -441,6 +482,25 @@ gitmap notify --group "Field Crew" --subject "Inspection prep" --message-file no
 
 ## Usage Examples
 
+### Workflow: Bulk Repository Setup
+
+```bash
+# Set up a repositories directory with all maps owned by a user
+gitmap setup-repos --owner myusername --directory my-maps
+
+# Navigate into one of the cloned repositories
+cd my-maps/MyWebMap
+
+# Check the status
+gitmap status
+
+# Make changes and commit
+gitmap commit -m "Updated layer symbology"
+
+# Push back to Portal
+gitmap push
+```
+
 ### Workflow: Creating a New Feature
 
 ```bash
@@ -597,7 +657,7 @@ pytest
   - Remote push/pull operations
 
 - **`gitmap-cli`**: Command-line interface providing:
-  - 12 Git-like commands (including `lsm` for layer settings transfer)
+  - 13 Git-like commands (including `lsm` for layer settings transfer and `setup-repos` for bulk cloning)
   - Rich terminal output
   - User-friendly error messages
 
