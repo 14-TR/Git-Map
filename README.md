@@ -23,6 +23,7 @@ GitMap provides Git-like version control for ArcGIS Online and Enterprise Portal
 - **Diffing**: Compare map versions and see layer-level changes
 - **Merging**: Merge branches with conflict resolution
 - **Portal Integration**: Push and pull maps to/from ArcGIS Portal or ArcGIS Online
+- **Map Discovery**: List and search available web maps from Portal with the `list` command
 - **Layer Settings Transfer**: Transfer popup and form settings between maps with the `lsm` command
 - **Bulk Repository Setup**: Automate cloning multiple maps with owner filtering
 - **Auto-Pull**: Automatically sync all repositories with Portal to keep them up to date
@@ -254,7 +255,7 @@ gitmap setup-repos --owner myusername --tag production --max-results 50
 
 ### `gitmap auto-pull`
 
-Automatically pull updates for all bitmap repositories in a directory.
+Automatically pull updates for all GitMap repositories in a directory.
 
 ```bash
 gitmap auto-pull [OPTIONS]
@@ -264,7 +265,7 @@ gitmap auto-pull [OPTIONS]
 Scans a directory for GitMap repositories and pulls the latest changes from Portal for each one. Useful for keeping multiple local repositories in sync with their Portal counterparts. Can be run manually or scheduled via cron/systemd timer for automated synchronization.
 
 **Options:**
-- `--directory, -d` - Directory containing bitmap repositories (defaults to 'repositories')
+- `--directory, -d` - Directory containing GitMap repositories (defaults to 'repositories')
 - `--branch, -b` - Branch to pull for each repository (defaults to 'main')
 - `--url, -u` - Portal URL (or use PORTAL_URL env var)
 - `--username` - Portal username (or use env var)
@@ -287,6 +288,47 @@ gitmap auto-pull --url https://portal.example.com
 
 # Schedule with cron (every hour)
 0 * * * * cd /path/to/project && gitmap auto-pull
+```
+
+### `gitmap list`
+
+List all available web maps from Portal or ArcGIS Online.
+
+```bash
+gitmap list [OPTIONS]
+```
+
+**Description:**
+Queries Portal/ArcGIS Online and displays all available web maps in a table format. Useful for discovering web map item IDs before cloning or browsing available maps in your organization.
+
+**Options:**
+- `--query, -q` - Search query to filter web maps (e.g., 'title:MyMap')
+- `--owner, -o` - Filter web maps by owner username
+- `--tag, -t` - Filter web maps by tag
+- `--max-results, -m` - Maximum number of web maps to return (default: 100)
+- `--url, -u` - Portal URL (or use PORTAL_URL env var)
+- `--username` - Portal username (or use env var)
+- `--password` - Portal password (or use env var)
+
+**Examples:**
+```bash
+# List all web maps
+gitmap list
+
+# List web maps owned by a specific user
+gitmap list --owner myusername
+
+# List web maps with a specific tag
+gitmap list --tag production
+
+# Combine filters
+gitmap list --owner myusername --tag production
+
+# Search by title
+gitmap list --query "title:MyMap"
+
+# Limit results
+gitmap list --max-results 50
 ```
 
 ### `gitmap status`
@@ -712,7 +754,7 @@ pytest
   - Remote push/pull operations
 
 - **`gitmap-cli`**: Command-line interface providing:
-  - 13 Git-like commands (including `lsm` for layer settings transfer and `setup-repos` for bulk cloning)
+  - 16 Git-like commands (including `list`, `lsm`, `setup-repos`, `auto-pull`, and `notify`)
   - Rich terminal output
   - User-friendly error messages
 
