@@ -22,6 +22,7 @@ from pathlib import Path
 
 import click
 
+from gitmap_cli.commands.auto_pull import auto_pull
 from gitmap_cli.commands.branch import branch
 from gitmap_cli.commands.checkout import checkout
 from gitmap_cli.commands.clone import clone
@@ -82,6 +83,7 @@ cli.add_command(merge)
 cli.add_command(notify)
 cli.add_command(push)
 cli.add_command(pull)
+cli.add_command(auto_pull, name="auto-pull")
 cli.add_command(setup_repos, name="setup-repos")
 
 

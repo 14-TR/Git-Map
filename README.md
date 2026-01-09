@@ -25,6 +25,7 @@ GitMap provides Git-like version control for ArcGIS Online and Enterprise Portal
 - **Portal Integration**: Push and pull maps to/from ArcGIS Portal or ArcGIS Online
 - **Layer Settings Transfer**: Transfer popup and form settings between maps with the `lsm` command
 - **Bulk Repository Setup**: Automate cloning multiple maps with owner filtering
+- **Auto-Pull**: Automatically sync all repositories with Portal to keep them up to date
 - **CLI Interface**: Familiar Git-like command-line interface
 - **Rich Output**: Beautiful terminal output with colors and formatting
 
@@ -249,6 +250,43 @@ gitmap setup-repos --query "title:Project*" --owner myusername
 
 # Combine filters
 gitmap setup-repos --owner myusername --tag production --max-results 50
+```
+
+### `gitmap auto-pull`
+
+Automatically pull updates for all bitmap repositories in a directory.
+
+```bash
+gitmap auto-pull [OPTIONS]
+```
+
+**Description:**
+Scans a directory for GitMap repositories and pulls the latest changes from Portal for each one. Useful for keeping multiple local repositories in sync with their Portal counterparts. Can be run manually or scheduled via cron/systemd timer for automated synchronization.
+
+**Options:**
+- `--directory, -d` - Directory containing bitmap repositories (defaults to 'repositories')
+- `--branch, -b` - Branch to pull for each repository (defaults to 'main')
+- `--url, -u` - Portal URL (or use PORTAL_URL env var)
+- `--username` - Portal username (or use env var)
+- `--password` - Portal password (or use env var)
+- `--skip-errors` - Continue pulling other repos if one fails (default: True)
+
+**Examples:**
+```bash
+# Pull updates for all repositories in the default 'repositories' directory
+gitmap auto-pull
+
+# Pull from a custom directory
+gitmap auto-pull --directory my-repos
+
+# Pull a specific branch from all repositories
+gitmap auto-pull --branch production
+
+# Pull with custom Portal URL
+gitmap auto-pull --url https://portal.example.com
+
+# Schedule with cron (every hour)
+0 * * * * cd /path/to/project && gitmap auto-pull
 ```
 
 ### `gitmap status`
@@ -499,6 +537,23 @@ gitmap commit -m "Updated layer symbology"
 
 # Push back to Portal
 gitmap push
+```
+
+### Workflow: Keeping Repositories in Sync
+
+```bash
+# Pull updates for all repositories at once
+gitmap auto-pull
+
+# Pull from a specific directory
+gitmap auto-pull --directory my-maps
+
+# Set up automated synchronization with cron (runs every hour)
+# Add this to your crontab (crontab -e):
+0 * * * * cd /path/to/project && /path/to/gitmap auto-pull --directory repositories
+
+# Or use systemd timer for more control
+# Create /etc/systemd/system/gitmap-sync.service and gitmap-sync.timer
 ```
 
 ### Workflow: Creating a New Feature
