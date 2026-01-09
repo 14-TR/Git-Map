@@ -10,12 +10,26 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 1.1.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 1.2.0   | `documentation/project_specs/20-operations/release_notes.md` |
 | gitmap-cli     | 0.3.0   | `apps/cli/gitmap/pyproject.toml`         |
 | gitmap_core    | 0.2.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.1.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
 
 ## Releases
+
+### [release/1.2.0]
+
+**Type**: Minor
+
+- Added `auto-pull` command for automatic repository synchronization
+- Scans directories for GitMap repositories and pulls updates for all found repositories
+- Supports pulling from main branch or specified branch via `--branch` option
+- Provides detailed progress tracking with rich terminal output during bulk pull operations
+- Includes error handling with `--skip-errors` flag to continue processing despite failures
+- Generates comprehensive summary reports showing successful and failed pulls
+- Can be scheduled via cron/systemd timer for automated synchronization workflows
+- Fixed branch checking bug to properly handle string branch names from `list_branches()`
+- Complements existing `setup-repos` command by keeping cloned repositories up to date
 
 ### [release/1.1.0]
 
