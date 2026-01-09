@@ -162,26 +162,23 @@ def auto_pull(
                     # Load repository
                     repo = Repository(repo_path)
 
-                    # Check if repository has the specified branch
+                    # Get the target branch (use specified branch or current branch)
+                    current_branch = repo.get_current_branch()
+
+                    # Check if we should use the specified branch or current branch
                     branches = repo.list_branches()
-                    branch_names = [b.name for b in branches]
-
-                    # Use specified branch or fall back to current branch
-                    target_branch = branch if branch in branch_names else repo.get_current_branch()
-
-                    if branch not in branch_names and branch != repo.get_current_branch():
+                    if branch in branches:
+                        target_branch = branch
+                    elif current_branch:
+                        target_branch = current_branch
+                    else:
+                        # No valid branch found
                         progress.update(
                             task,
-                            description=f"[{idx}/{len(repos_to_pull)}] ⊘ Skipped '{repo_name}' (no '{branch}' branch)"
+                            description=f"[{idx}/{len(repos_to_pull)}] ⊘ Skipped '{repo_name}' (no branches found)"
                         )
                         skipped_count += 1
                         continue
-
-                    # Get Portal URL from repo config if not provided
-                    config = repo.get_config()
-                    repo_portal_url = portal_url
-                    if not url and config.remote and config.remote.url:
-                        repo_portal_url = config.remote.url
 
                     # Perform pull
                     remote_ops = RemoteOperations(repo, connection)
