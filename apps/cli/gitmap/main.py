@@ -28,6 +28,7 @@ from gitmap_cli.commands.checkout import checkout
 from gitmap_cli.commands.clone import clone
 from gitmap_cli.commands.commit import commit
 from gitmap_cli.commands.config import config
+from gitmap_cli.commands.context import context
 from gitmap_cli.commands.diff import diff
 from gitmap_cli.commands.init import init
 from gitmap_cli.commands.list import list_maps
@@ -75,6 +76,7 @@ cli.add_command(branch)
 cli.add_command(checkout)
 cli.add_command(commit)
 cli.add_command(config)
+cli.add_command(context)
 cli.add_command(diff)
 cli.add_command(layer_settings_merge)
 cli.add_command(list_maps, name="list")

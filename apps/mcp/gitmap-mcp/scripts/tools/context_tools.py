@@ -1,7 +1,7 @@
 """Context graph tools for GitMap MCP server.
 
 Provides tools for searching history, getting timelines,
-explaining changes, and recording lessons.
+explaining changes, recording lessons, and visualization.
 
 Execution Context:
     MCP tool module - imported by MCP server
@@ -10,14 +10,16 @@ Dependencies:
     - gitmap_core: Repository and context operations
 
 Metadata:
-    Version: 0.1.0
+    Version: 0.2.0
     Author: GitMap Team
 """
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 from gitmap_core.repository import find_repository
+from gitmap_core.visualize import visualize_context
 
 from .utils import find_repo_from_path
 
@@ -301,4 +303,114 @@ def context_record_lesson(
         return {
             "success": False,
             "error": f"Record lesson failed: {lesson_error}",
+        }
+
+
+def context_visualize(
+    output_format: str = "mermaid",
+    limit: int = 50,
+    event_types: list[str] | None = None,
+    output_file: str | None = None,
+    title: str | None = None,
+    direction: str = "TB",
+    show_annotations: bool = True,
+    theme: str = "light",
+    path: str | None = None,
+) -> dict[str, Any]:
+    """Generate context graph visualization.
+
+    Creates visual representations of the context graph in formats
+    viewable directly in IDEs (Mermaid, ASCII, HTML).
+
+    Args:
+        output_format: Format for visualization. Options:
+            - 'mermaid': Flowchart diagram (default)
+            - 'mermaid-timeline': Timeline diagram
+            - 'mermaid-git': Git-style commit graph
+            - 'ascii': ASCII art timeline
+            - 'ascii-graph': ASCII art relationship graph
+            - 'html': Interactive HTML page
+        limit: Maximum events to include in visualization.
+        event_types: Filter by event types (commit, push, pull, merge, branch, diff).
+        output_file: Optional file path to save visualization.
+        title: Title for the visualization.
+        direction: Graph direction for Mermaid flowcharts (TB, BT, LR, RL).
+        show_annotations: Include annotations in visualization.
+        theme: Color theme for HTML output ('light' or 'dark').
+        path: Optional path to repository directory.
+
+    Returns:
+        Dictionary with visualization content and metadata.
+
+    Examples:
+        # Generate Mermaid diagram
+        context_visualize(output_format="mermaid")
+
+        # Export HTML visualization to file
+        context_visualize(output_format="html", output_file="graph.html")
+
+        # Get ASCII timeline of commits only
+        context_visualize(output_format="ascii", event_types=["commit"])
+    """
+    try:
+        repo = find_repo_from_path(path)
+
+        if not repo:
+            return {
+                "success": False,
+                "error": "Not a GitMap repository. Run gitmap_init first.",
+            }
+
+        # Generate visualization
+        with repo.get_context_store() as store:
+            viz_content = visualize_context(
+                store,
+                output_format=output_format,
+                limit=limit,
+                event_types=event_types,
+                title=title or "Context Graph",
+                direction=direction,
+                show_annotations=show_annotations,
+                theme=theme,
+            )
+
+        result: dict[str, Any] = {
+            "success": True,
+            "format": output_format,
+            "content": viz_content,
+        }
+
+        # Save to file if requested
+        if output_file:
+            output_path = Path(output_file)
+
+            # Wrap Mermaid in markdown code block for .md files
+            if output_format.startswith("mermaid") and output_path.suffix == ".md":
+                file_content = f"# {title or 'Context Graph'}\n\n```mermaid\n{viz_content}\n```\n"
+            else:
+                file_content = viz_content
+
+            output_path.write_text(file_content, encoding="utf-8")
+            result["output_file"] = str(output_path.absolute())
+            result["message"] = f"Visualization saved to {output_file}"
+
+        # Add viewing hints
+        if output_format.startswith("mermaid"):
+            result["viewing_hint"] = "View in VS Code with Mermaid extension, or paste into GitHub markdown"
+        elif output_format == "html":
+            result["viewing_hint"] = "Open in browser or IDE HTML preview panel"
+        elif output_format.startswith("ascii"):
+            result["viewing_hint"] = "View directly in terminal or text editor"
+
+        return result
+
+    except ValueError as format_error:
+        return {
+            "success": False,
+            "error": str(format_error),
+        }
+    except Exception as viz_error:
+        return {
+            "success": False,
+            "error": f"Visualization failed: {viz_error}",
         }

@@ -1,0 +1,1 @@
+"""GitMap core library tests."""
