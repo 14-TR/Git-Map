@@ -40,9 +40,16 @@ console = Console()
     default="",
     help="Override the commit author.",
 )
+@click.option(
+    "--rationale",
+    "-r",
+    default="",
+    help="Optional rationale explaining why this change is being made.",
+)
 def commit(
         message: str,
         author: str,
+        rationale: str,
 ) -> None:
     """Record changes to the repository.
 
@@ -52,6 +59,7 @@ def commit(
     Examples:
         gitmap commit -m "Initial commit"
         gitmap commit -m "Added new layer" --author "John Doe"
+        gitmap commit -m "Fixed symbology" -r "Client requested higher contrast"
     """
     try:
         repo = find_repository()
@@ -68,6 +76,7 @@ def commit(
         new_commit = repo.create_commit(
             message=message,
             author=author if author else None,
+            rationale=rationale if rationale else None,
         )
 
         # Display result
@@ -76,6 +85,9 @@ def commit(
         console.print(f"  [bold]Message:[/bold] {new_commit.message}")
         console.print(f"  [bold]Author:[/bold] {new_commit.author}")
         console.print(f"  [bold]Timestamp:[/bold] {new_commit.timestamp}")
+
+        if rationale:
+            console.print(f"  [bold]Rationale:[/bold] {rationale}")
 
         if new_commit.parent:
             console.print(f"  [bold]Parent:[/bold] {new_commit.parent[:8]}")

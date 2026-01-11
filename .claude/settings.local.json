@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs ls:*)",
+      "Bash(tree:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)"
+    ]
+  }
+}

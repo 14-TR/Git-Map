@@ -67,6 +67,10 @@ try:
     from gitmap_mcp.scripts.tools.commit_tools import gitmap_commit
     from gitmap_mcp.scripts.tools.commit_tools import gitmap_diff
     from gitmap_mcp.scripts.tools.commit_tools import gitmap_log
+    from gitmap_mcp.scripts.tools.context_tools import context_explain_changes
+    from gitmap_mcp.scripts.tools.context_tools import context_get_timeline
+    from gitmap_mcp.scripts.tools.context_tools import context_record_lesson
+    from gitmap_mcp.scripts.tools.context_tools import context_search_history
     from gitmap_mcp.scripts.tools.layer_tools import gitmap_layer_settings_merge
     from gitmap_mcp.scripts.tools.portal_tools import gitmap_list_groups
     from gitmap_mcp.scripts.tools.portal_tools import gitmap_list_maps
@@ -81,7 +85,7 @@ except ImportError:
     _scripts_dir = Path(__file__).parent / "scripts"
     if str(_scripts_dir) not in sys.path:
         sys.path.insert(0, str(_scripts_dir))
-    
+
     from tools.branch_tools import gitmap_branch_create
     from tools.branch_tools import gitmap_branch_delete
     from tools.branch_tools import gitmap_branch_list
@@ -89,6 +93,10 @@ except ImportError:
     from tools.commit_tools import gitmap_commit
     from tools.commit_tools import gitmap_diff
     from tools.commit_tools import gitmap_log
+    from tools.context_tools import context_explain_changes
+    from tools.context_tools import context_get_timeline
+    from tools.context_tools import context_record_lesson
+    from tools.context_tools import context_search_history
     from tools.layer_tools import gitmap_layer_settings_merge
     from tools.portal_tools import gitmap_list_groups
     from tools.portal_tools import gitmap_list_maps
@@ -129,6 +137,12 @@ mcp.tool()(gitmap_layer_settings_merge)
 mcp.tool()(gitmap_notify)
 mcp.tool()(gitmap_list_maps)
 mcp.tool()(gitmap_list_groups)
+
+# Register context tools
+mcp.tool()(context_search_history)
+mcp.tool()(context_get_timeline)
+mcp.tool()(context_explain_changes)
+mcp.tool()(context_record_lesson)
 
 
 def main() -> int:

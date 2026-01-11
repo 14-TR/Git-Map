@@ -18,8 +18,8 @@ from gitmap_core.connection import get_connection
 from gitmap_core.remote import RemoteOperations
 from gitmap_core.repository import find_repository
 
+from .utils import find_repo_from_path
 from .utils import get_portal_url
-from .utils import get_workspace_directory
 
 
 def gitmap_push(
@@ -27,6 +27,7 @@ def gitmap_push(
     url: str | None = None,
     username: str | None = None,
     no_notify: bool = False,
+    path: str | None = None,
 ) -> dict[str, Any]:
     """Push branch to ArcGIS Portal.
 
@@ -35,14 +36,13 @@ def gitmap_push(
         url: Portal URL (uses configured remote if not specified).
         username: Portal username (optional, uses env vars if not provided).
         no_notify: Skip sending notifications.
+        path: Optional path to repository directory.
 
     Returns:
         Dictionary with success status and push details.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {
@@ -108,6 +108,7 @@ def gitmap_pull(
     branch: str | None = None,
     url: str | None = None,
     username: str | None = None,
+    path: str | None = None,
 ) -> dict[str, Any]:
     """Pull latest changes from Portal.
 
@@ -115,14 +116,13 @@ def gitmap_pull(
         branch: Branch to pull (defaults to current branch).
         url: Portal URL (uses configured remote if not specified).
         username: Portal username (optional, uses env vars if not provided).
+        path: Optional path to repository directory.
 
     Returns:
         Dictionary with success status and pull details.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {
