@@ -10,12 +10,28 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 1.2.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 1.3.0   | `documentation/project_specs/20-operations/release_notes.md` |
 | gitmap-cli     | 0.3.0   | `apps/cli/gitmap/pyproject.toml`         |
-| gitmap_core    | 0.2.0   | `packages/gitmap_core/pyproject.toml`    |
-| gitmap-mcp     | 0.1.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
+| gitmap_core    | 0.3.0   | `packages/gitmap_core/pyproject.toml`    |
+| gitmap-mcp     | 0.2.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
 
 ## Releases
+
+### [release/1.3.0]
+
+**Type**: Minor
+
+- Added context graph storage system for episodic memory and event tracking
+- Implemented SQLite-backed event store in `gitmap_core.context` module
+- Added support for recording events with rationales, lessons, outcomes, and issues
+- Introduced relationship tracking between events (caused_by, reverts, related_to, learned_from)
+- Added MCP server context tools: `context_search_history`, `context_get_timeline`, `context_explain_changes`, `context_record_lesson`
+- Enables IDE agents to maintain context awareness across operations and sessions
+- Provides full-text search across events and annotations for historical context retrieval
+- Supports chronological timeline views with optional annotation inclusion
+- Allows recording and querying of lessons learned for knowledge retention
+- Updated `gitmap_core` to version 0.3.0
+- Updated `gitmap-mcp` to version 0.2.0
 
 ### [release/1.2.0]
 
