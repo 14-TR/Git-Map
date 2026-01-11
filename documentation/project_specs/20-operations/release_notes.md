@@ -10,12 +10,22 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 1.3.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 1.3.1   | `documentation/project_specs/20-operations/release_notes.md` |
 | gitmap-cli     | 0.3.0   | `apps/cli/gitmap/pyproject.toml`         |
 | gitmap_core    | 0.3.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.2.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
 
 ## Releases
+
+### [release/1.3.1]
+
+**Type**: Patch
+
+- Fixed `gitmap context export` command AttributeError when accessing repository configuration
+- Corrected improper direct attribute access to `repo.config.name` in `context.py`
+- Updated to use proper `repo.get_config()` method and `config.project_name` attribute
+- Resolves "'Repository' object has no attribute 'config'" error during context graph export
+- Ensures context export functionality works correctly for all output formats (Mermaid, ASCII, HTML)
 
 ### [release/1.3.0]
 
