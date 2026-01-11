@@ -4,7 +4,7 @@ Execution Context:
     MCP tool module - imported by other tool modules
 
 Dependencies:
-    - None (core utilities only)
+    - gitmap_core: Repository finding
 
 Metadata:
     Version: 0.1.0
@@ -14,6 +14,10 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from gitmap_core.repository import Repository
 
 
 def get_workspace_directory() -> Path:
@@ -111,3 +115,48 @@ def get_portal_url(url: str | None = None) -> str:
         )
     
     return portal_url
+
+
+def find_repo_from_path(path: str | None = None) -> "Repository | None":
+    """Find a GitMap repository from an optional path.
+    
+    If path is provided, looks for a repository at that path (directly or
+    by searching upward). If path is not provided, searches from the
+    workspace directory.
+    
+    This enables MCP tools to work with multiple repositories in a
+    repositories directory structure.
+    
+    Args:
+        path: Optional path to a repository directory. Can be:
+              - Direct path to a repo root (containing .gitmap/)
+              - Path inside a repo (will search upward)
+              - None to search from workspace directory
+    
+    Returns:
+        Repository if found, None otherwise.
+    
+    Examples:
+        >>> find_repo_from_path("repositories/Master")
+        <Repository at /app/repositories/Master>
+        >>> find_repo_from_path()  # Uses workspace directory
+        None  # If no .gitmap at workspace root
+    """
+    from gitmap_core.repository import Repository
+    from gitmap_core.repository import find_repository
+    
+    if path:
+        # Resolve the provided path
+        repo_path = resolve_path(path)
+        
+        # First, check if the path directly contains a .gitmap folder
+        repo = Repository(repo_path)
+        if repo.exists() and repo.is_valid():
+            return repo
+        
+        # Otherwise, search upward from that path
+        return find_repository(start_path=repo_path)
+    
+    # No path provided - search from workspace directory
+    workspace_dir = get_workspace_directory()
+    return find_repository(start_path=workspace_dir)

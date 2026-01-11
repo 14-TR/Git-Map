@@ -22,6 +22,7 @@ from gitmap_core.models import Remote
 from gitmap_core.repository import Repository
 from gitmap_core.repository import find_repository
 
+from .utils import find_repo_from_path
 from .utils import get_portal_url
 from .utils import get_workspace_directory
 from .utils import resolve_path
@@ -172,16 +173,18 @@ def gitmap_clone(
         }
 
 
-def gitmap_status() -> dict[str, Any]:
+def gitmap_status(path: str | None = None) -> dict[str, Any]:
     """Show the working tree status.
+
+    Args:
+        path: Optional path to repository directory. If not provided,
+              searches from workspace directory.
 
     Returns:
         Dictionary with current branch, commit info, and change status.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {

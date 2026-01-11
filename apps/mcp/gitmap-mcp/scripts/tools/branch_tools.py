@@ -16,19 +16,20 @@ from typing import Any
 
 from gitmap_core.repository import find_repository
 
-from .utils import get_workspace_directory
+from .utils import find_repo_from_path
 
 
-def gitmap_branch_list() -> dict[str, Any]:
+def gitmap_branch_list(path: str | None = None) -> dict[str, Any]:
     """List all branches in the repository.
+
+    Args:
+        path: Optional path to repository directory.
 
     Returns:
         Dictionary with list of branches and current branch.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {
@@ -52,19 +53,18 @@ def gitmap_branch_list() -> dict[str, Any]:
         }
 
 
-def gitmap_branch_create(name: str) -> dict[str, Any]:
+def gitmap_branch_create(name: str, path: str | None = None) -> dict[str, Any]:
     """Create a new branch.
 
     Args:
         name: Branch name to create.
+        path: Optional path to repository directory.
 
     Returns:
         Dictionary with success status and branch details.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {
@@ -88,19 +88,18 @@ def gitmap_branch_create(name: str) -> dict[str, Any]:
         }
 
 
-def gitmap_branch_delete(name: str) -> dict[str, Any]:
+def gitmap_branch_delete(name: str, path: str | None = None) -> dict[str, Any]:
     """Delete a branch.
 
     Args:
         name: Branch name to delete.
+        path: Optional path to repository directory.
 
     Returns:
         Dictionary with success status.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {
@@ -129,20 +128,19 @@ def gitmap_branch_delete(name: str) -> dict[str, Any]:
         }
 
 
-def gitmap_checkout(branch: str, create: bool = False) -> dict[str, Any]:
+def gitmap_checkout(branch: str, create: bool = False, path: str | None = None) -> dict[str, Any]:
     """Switch to a different branch.
 
     Args:
         branch: Branch name to checkout.
         create: Create branch if it doesn't exist.
+        path: Optional path to repository directory.
 
     Returns:
         Dictionary with success status and branch info.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {

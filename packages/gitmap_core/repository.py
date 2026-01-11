@@ -37,6 +37,7 @@ HEADS_DIR = "heads"
 REMOTES_DIR = "remotes"
 OBJECTS_DIR = "objects"
 COMMITS_DIR = "commits"
+CONTEXT_DB = "context.db"
 
 
 # ---- Repository Class ---------------------------------------------------------------------------------------
@@ -123,6 +124,28 @@ class Repository:
         """Path to objects/commits directory."""
         return self.objects_dir / COMMITS_DIR
 
+    @property
+    def context_db_path(
+            self,
+    ) -> Path:
+        """Path to context.db database."""
+        return self.gitmap_dir / CONTEXT_DB
+
+    def get_context_store(
+            self,
+    ) -> "ContextStore":
+        """Get context store for this repository.
+
+        Returns:
+            ContextStore instance for this repository.
+
+        Note:
+            Caller is responsible for closing the store when done,
+            or use it as a context manager.
+        """
+        from gitmap_core.context import ContextStore
+        return ContextStore(self.context_db_path)
+
     # ---- Repository State -----------------------------------------------------------------------------------
 
     def exists(
@@ -199,6 +222,11 @@ class Repository:
 
             # Create initial main branch file (empty until first commit)
             (self.heads_dir / "main").write_text("")
+
+            # Initialize context database
+            from gitmap_core.context import ContextStore
+            with ContextStore(self.context_db_path):
+                pass  # Schema created on init
 
         except Exception as init_error:
             msg = f"Failed to initialize repository: {init_error}"
@@ -471,12 +499,14 @@ class Repository:
             self,
             message: str,
             author: str | None = None,
+            rationale: str | None = None,
     ) -> Commit:
         """Create a new commit from current index.
 
         Args:
             message: Commit message.
             author: Author name (uses config if not provided).
+            rationale: Optional rationale explaining why this change was made.
 
         Returns:
             Created Commit object.
@@ -513,6 +543,27 @@ class Repository:
             branch = self.get_current_branch()
             if branch:
                 self.update_branch(branch, commit_id)
+
+            # Record event in context store (non-blocking)
+            try:
+                with self.get_context_store() as store:
+                    layers_count = len(map_data.get("operationalLayers", []))
+                    store.record_event(
+                        event_type="commit",
+                        repo=str(self.root),
+                        ref=commit_id,
+                        actor=author,
+                        payload={
+                            "message": message,
+                            "parent": parent,
+                            "parent2": None,
+                            "layers_count": layers_count,
+                        },
+                        rationale=rationale,
+                    )
+            except Exception:
+                # Don't fail commit if context recording fails
+                pass
 
             return commit
 
