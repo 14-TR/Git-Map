@@ -226,7 +226,8 @@ def export(
 
         # Generate title if not provided
         if title is None:
-            title = f"{repo.config.name} Context Graph" if repo.config.name else "Context Graph"
+            config = repo.get_config()
+            title = f"{config.project_name} Context Graph" if config.project_name else "Context Graph"
 
         with repo.get_context_store() as store:
             viz = visualize_context(
