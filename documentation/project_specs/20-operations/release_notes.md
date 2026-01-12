@@ -10,12 +10,23 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 1.4.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 1.4.1   | `documentation/project_specs/20-operations/release_notes.md` |
 | gitmap-cli     | 0.4.0   | `apps/cli/gitmap/pyproject.toml`         |
 | gitmap_core    | 0.4.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.2.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
 
 ## Releases
+
+### [release/1.4.1]
+
+**Type**: Patch
+
+- Fixed `auto_visualize` to trigger for all GitMap commands, not just `commit`
+- Added automatic context graph regeneration after: `merge`, `branch`, `pull`, `push`, `lsm`, and `init` commands
+- Changed context graph direction from TB (top-bottom) to BT (bottom-top)
+- Newest events now appear at the top of the visualization for better visibility
+- Resolves issue where recent commits and operations were not visible in graph preview
+- All commands that record context events now respect the `auto_visualize` config setting
 
 ### [release/1.4.0]
 
