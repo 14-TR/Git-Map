@@ -18,23 +18,22 @@ from gitmap_core.diff import diff_maps
 from gitmap_core.diff import format_diff_summary
 from gitmap_core.repository import find_repository
 
-from .utils import get_workspace_directory
+from .utils import find_repo_from_path
 
 
-def gitmap_commit(message: str, author: str | None = None) -> dict[str, Any]:
+def gitmap_commit(message: str, author: str | None = None, path: str | None = None) -> dict[str, Any]:
     """Create a new commit.
 
     Args:
         message: Commit message describing the changes.
         author: Override commit author (optional).
+        path: Optional path to repository directory.
 
     Returns:
         Dictionary with success status and commit details.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {
@@ -76,20 +75,19 @@ def gitmap_commit(message: str, author: str | None = None) -> dict[str, Any]:
         }
 
 
-def gitmap_log(limit: int = 10, oneline: bool = False) -> dict[str, Any]:
+def gitmap_log(limit: int = 10, oneline: bool = False, path: str | None = None) -> dict[str, Any]:
     """Show commit history.
 
     Args:
         limit: Maximum number of commits to show.
         oneline: Show compact one-line format.
+        path: Optional path to repository directory.
 
     Returns:
         Dictionary with commit history.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {
@@ -132,20 +130,19 @@ def gitmap_log(limit: int = 10, oneline: bool = False) -> dict[str, Any]:
         }
 
 
-def gitmap_diff(target: str | None = None, verbose: bool = False) -> dict[str, Any]:
+def gitmap_diff(target: str | None = None, verbose: bool = False, path: str | None = None) -> dict[str, Any]:
     """Show changes between states.
 
     Args:
         target: Branch name or commit ID to compare with (defaults to HEAD).
         verbose: Show detailed property-level changes.
+        path: Optional path to repository directory.
 
     Returns:
         Dictionary with diff results.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {

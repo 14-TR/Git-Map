@@ -16,19 +16,41 @@ from typing import Any
 
 from gitmap_core.repository import find_repository
 
-from .utils import get_workspace_directory
+from .utils import find_repo_from_path
 
 
-def gitmap_branch_list() -> dict[str, Any]:
+def _record_branch_event(repo, action: str, branch_name: str, commit_id: str | None = None) -> None:
+    """Record a branch event to the context store."""
+    try:
+        config = repo.get_config()
+        actor = config.user_name if config else None
+        with repo.get_context_store() as store:
+            store.record_event(
+                event_type="branch",
+                repo=str(repo.root),
+                ref=branch_name,
+                actor=actor,
+                payload={
+                    "action": action,
+                    "branch_name": branch_name,
+                    "commit_id": commit_id,
+                },
+            )
+    except Exception:
+        pass  # Don't fail branch operation if context recording fails
+
+
+def gitmap_branch_list(path: str | None = None) -> dict[str, Any]:
     """List all branches in the repository.
+
+    Args:
+        path: Optional path to repository directory.
 
     Returns:
         Dictionary with list of branches and current branch.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {
@@ -52,19 +74,18 @@ def gitmap_branch_list() -> dict[str, Any]:
         }
 
 
-def gitmap_branch_create(name: str) -> dict[str, Any]:
+def gitmap_branch_create(name: str, path: str | None = None) -> dict[str, Any]:
     """Create a new branch.
 
     Args:
         name: Branch name to create.
+        path: Optional path to repository directory.
 
     Returns:
         Dictionary with success status and branch details.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {
@@ -73,6 +94,7 @@ def gitmap_branch_create(name: str) -> dict[str, Any]:
             }
 
         new_branch = repo.create_branch(name)
+        _record_branch_event(repo, action="create", branch_name=new_branch.name, commit_id=new_branch.commit_id)
 
         return {
             "success": True,
@@ -88,19 +110,18 @@ def gitmap_branch_create(name: str) -> dict[str, Any]:
         }
 
 
-def gitmap_branch_delete(name: str) -> dict[str, Any]:
+def gitmap_branch_delete(name: str, path: str | None = None) -> dict[str, Any]:
     """Delete a branch.
 
     Args:
         name: Branch name to delete.
+        path: Optional path to repository directory.
 
     Returns:
         Dictionary with success status.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {
@@ -116,6 +137,7 @@ def gitmap_branch_delete(name: str) -> dict[str, Any]:
             }
 
         repo.delete_branch(name)
+        _record_branch_event(repo, action="delete", branch_name=name)
 
         return {
             "success": True,
@@ -129,20 +151,19 @@ def gitmap_branch_delete(name: str) -> dict[str, Any]:
         }
 
 
-def gitmap_checkout(branch: str, create: bool = False) -> dict[str, Any]:
+def gitmap_checkout(branch: str, create: bool = False, path: str | None = None) -> dict[str, Any]:
     """Switch to a different branch.
 
     Args:
         branch: Branch name to checkout.
         create: Create branch if it doesn't exist.
+        path: Optional path to repository directory.
 
     Returns:
         Dictionary with success status and branch info.
     """
     try:
-        # Start search from workspace directory
-        workspace_dir = get_workspace_directory()
-        repo = find_repository(start_path=workspace_dir)
+        repo = find_repo_from_path(path)
 
         if not repo:
             return {

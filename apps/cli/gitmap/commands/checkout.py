@@ -58,8 +58,6 @@ def checkout(
         if not repo:
             raise click.ClickException("Not a GitMap repository")
 
-        current_branch = repo.get_current_branch()
-
         # Check for uncommitted changes
         if repo.has_uncommitted_changes():
             console.print("[yellow]Warning: You have uncommitted changes[/yellow]")

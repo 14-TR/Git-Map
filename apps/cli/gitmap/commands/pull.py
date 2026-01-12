@@ -49,10 +49,17 @@ console = Console()
     default="",
     help="Portal username (or use ARCGIS_USERNAME env var).",
 )
+@click.option(
+    "--rationale",
+    "-r",
+    default="",
+    help="Optional rationale explaining why this pull is being made.",
+)
 def pull(
         branch: str,
         url: str,
         username: str,
+        rationale: str,
 ) -> None:
     """Pull latest changes from Portal.
 
@@ -63,6 +70,7 @@ def pull(
         gitmap pull
         gitmap pull --branch main
         gitmap pull --url https://portal.example.com
+        gitmap pull -r "Syncing production changes"
     """
     try:
         repo = find_repository()
@@ -109,6 +117,27 @@ def pull(
 
         console.print()
         console.print("[dim]Changes staged. Use 'gitmap diff' to review and 'gitmap commit' to save.[/dim]")
+
+        # Record event in context store (non-blocking)
+        try:
+            with repo.get_context_store() as store:
+                store.record_event(
+                    event_type="pull",
+                    repo=str(repo.root),
+                    ref=target_branch,
+                    actor=connection.username,
+                    payload={
+                        "layers_count": len(layers),
+                        "portal_url": portal_url,
+                        "branch": target_branch,  # Track which branch was pulled to
+                    },
+                    rationale=rationale if rationale else None,
+                )
+            if rationale:
+                console.print()
+                console.print(f"  [bold]Rationale:[/bold] {rationale}")
+        except Exception:
+            pass  # Don't fail pull if context recording fails
 
     except Exception as pull_error:
         msg = f"Pull failed: {pull_error}"

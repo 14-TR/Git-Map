@@ -27,6 +27,26 @@ from gitmap_core.repository import Repository
 console = Console()
 
 
+def _record_init_events(repo: Repository, user_name: str | None = None) -> None:
+    """Record initialization events to the context store."""
+    try:
+        with repo.get_context_store() as store:
+            # Record the main branch creation
+            store.record_event(
+                event_type="branch",
+                repo=str(repo.root),
+                ref="main",
+                actor=user_name,
+                payload={
+                    "action": "create",
+                    "branch_name": "main",
+                    "commit_id": None,
+                },
+            )
+    except Exception:
+        pass  # Don't fail init if context recording fails
+
+
 # ---- Init Command -------------------------------------------------------------------------------------------
 
 
@@ -86,6 +106,9 @@ def init(
             user_name=user_name,
             user_email=user_email,
         )
+
+        # Record the main branch creation event
+        _record_init_events(repo, user_name=user_name if user_name else None)
 
         console.print(
             f"[green]Initialized empty GitMap repository in {repo.gitmap_dir}[/green]"

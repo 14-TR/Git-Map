@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs ls:*)",
+      "Bash(tree:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(grep -r \"export\\\\|json\\\\|csv\" /Users/tr/Desktop/Git-Map/apps/cli/gitmap/commands/*.py)",
+      "Bash(xargs:*)",
+      "Bash(uv run pytest:*)"
+    ]
+  }
+}

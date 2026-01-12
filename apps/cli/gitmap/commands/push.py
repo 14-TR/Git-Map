@@ -54,11 +54,18 @@ console = Console()
     is_flag=True,
     help="Skip sending notifications even if pushing to production branch.",
 )
+@click.option(
+    "--rationale",
+    "-r",
+    default="",
+    help="Optional rationale explaining why this push is being made.",
+)
 def push(
         branch: str,
         url: str,
         username: str,
         no_notify: bool,
+        rationale: str,
 ) -> None:
     """Push branch to ArcGIS Portal.
 
@@ -74,6 +81,7 @@ def push(
         gitmap push --branch feature/new-layer
         gitmap push --url https://portal.example.com
         gitmap push --no-notify  # Skip notifications even for production branch
+        gitmap push -r "Deploying accessibility improvements"
     """
     try:
         repo = find_repository()
@@ -123,6 +131,28 @@ def push(
                 if notification_status["reason"]:
                     console.print(f"  [dim]Reason: {notification_status['reason']}[/dim]")
                 console.print(f"  [dim]Tip: Share the map with groups that have members to receive notifications[/dim]")
+
+        # Record event in context store (non-blocking)
+        try:
+            with repo.get_context_store() as store:
+                store.record_event(
+                    event_type="push",
+                    repo=str(repo.root),
+                    ref=target_branch,
+                    actor=connection.username,
+                    payload={
+                        "item_id": item.id,
+                        "item_title": item.title,
+                        "portal_url": portal_url,
+                        "branch": target_branch,  # Track which branch was pushed
+                    },
+                    rationale=rationale if rationale else None,
+                )
+            if rationale:
+                console.print()
+                console.print(f"  [bold]Rationale:[/bold] {rationale}")
+        except Exception:
+            pass  # Don't fail push if context recording fails
 
     except Exception as push_error:
         msg = f"Push failed: {push_error}"

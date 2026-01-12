@@ -37,6 +37,7 @@ HEADS_DIR = "heads"
 REMOTES_DIR = "remotes"
 OBJECTS_DIR = "objects"
 COMMITS_DIR = "commits"
+CONTEXT_DB = "context.db"
 
 
 # ---- Repository Class ---------------------------------------------------------------------------------------
@@ -123,6 +124,75 @@ class Repository:
         """Path to objects/commits directory."""
         return self.objects_dir / COMMITS_DIR
 
+    @property
+    def context_db_path(
+            self,
+    ) -> Path:
+        """Path to context.db database."""
+        return self.gitmap_dir / CONTEXT_DB
+
+    def get_context_store(
+            self,
+    ) -> "ContextStore":
+        """Get context store for this repository.
+
+        Returns:
+            ContextStore instance for this repository.
+
+        Note:
+            Caller is responsible for closing the store when done,
+            or use it as a context manager.
+        """
+        from gitmap_core.context import ContextStore
+        return ContextStore(self.context_db_path)
+
+    def regenerate_context_graph(
+            self,
+            output_file: str = "context-graph.md",
+            output_format: str = "mermaid",
+            limit: int = 50,
+    ) -> Path | None:
+        """Regenerate the context graph visualization.
+
+        Args:
+            output_file: Output file name (relative to repo root).
+            output_format: Output format ('mermaid', 'html', etc.).
+            limit: Maximum events to include.
+
+        Returns:
+            Path to generated file, or None if generation failed.
+        """
+        try:
+            from gitmap_core.visualize import visualize_context
+
+            config = self.get_config()
+            title = f"{config.project_name} Context Graph" if config.project_name else "Context Graph"
+
+            with self.get_context_store() as store:
+                viz = visualize_context(
+                    store,
+                    output_format=output_format,
+                    limit=limit,
+                    title=title,
+                    direction="TB",
+                    show_annotations=True,
+                )
+
+            output_path = self.root / output_file
+
+            # Wrap Mermaid in markdown code block
+            if output_format.startswith("mermaid") and output_path.suffix == ".md":
+                content = f"# {title}\n\n```mermaid\n{viz}\n```\n"
+            else:
+                content = viz
+
+            output_path.write_text(content, encoding="utf-8")
+            return output_path
+
+        except Exception:
+            # Don't fail operations if visualization fails
+            return None
+
     # ---- Repository State -----------------------------------------------------------------------------------
 
     def exists(
@@ -199,6 +269,11 @@ class Repository:
 
             # Create initial main branch file (empty until first commit)
             (self.heads_dir / "main").write_text("")
+
+            # Initialize context database
+            from gitmap_core.context import ContextStore
+            with ContextStore(self.context_db_path):
+                pass  # Schema created on init
 
         except Exception as init_error:
             msg = f"Failed to initialize repository: {init_error}"
@@ -471,12 +546,14 @@ class Repository:
             self,
             message: str,
             author: str | None = None,
+            rationale: str | None = None,
     ) -> Commit:
         """Create a new commit from current index.
 
         Args:
             message: Commit message.
             author: Author name (uses config if not provided).
+            rationale: Optional rationale explaining why this change was made.
 
         Returns:
             Created Commit object.
@@ -513,6 +590,34 @@ class Repository:
             branch = self.get_current_branch()
             if branch:
                 self.update_branch(branch, commit_id)
+
+            # Record event in context store (non-blocking)
+            try:
+                with self.get_context_store() as store:
+                    layers_count = len(map_data.get("operationalLayers", []))
+                    store.record_event(
+                        event_type="commit",
+                        repo=str(self.root),
+                        ref=commit_id,
+                        actor=author,
+                        payload={
+                            "message": message,
+                            "parent": parent,
+                            "parent2": None,
+                            "layers_count": layers_count,
+                            "branch": branch,  # Track which branch the commit was made on
+                        },
+                        rationale=rationale,
+                    )
+
+                # Auto-regenerate context graph if enabled
+                config = self.get_config()
+                if config.auto_visualize:
+                    self.regenerate_context_graph()
+
+            except Exception:
+                # Don't fail commit if context recording fails
+                pass
 
             return commit
 
