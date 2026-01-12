@@ -119,24 +119,25 @@ def pull(
         console.print("[dim]Changes staged. Use 'gitmap diff' to review and 'gitmap commit' to save.[/dim]")
 
         # Record event in context store (non-blocking)
-        if rationale:
-            try:
-                with repo.get_context_store() as store:
-                    store.record_event(
-                        event_type="pull",
-                        repo=str(repo.root),
-                        ref=target_branch,
-                        actor=connection.username,
-                        payload={
-                            "layers_count": len(layers),
-                            "portal_url": portal_url,
-                        },
-                        rationale=rationale,
-                    )
+        try:
+            with repo.get_context_store() as store:
+                store.record_event(
+                    event_type="pull",
+                    repo=str(repo.root),
+                    ref=target_branch,
+                    actor=connection.username,
+                    payload={
+                        "layers_count": len(layers),
+                        "portal_url": portal_url,
+                        "branch": target_branch,  # Track which branch was pulled to
+                    },
+                    rationale=rationale if rationale else None,
+                )
+            if rationale:
                 console.print()
                 console.print(f"  [bold]Rationale:[/bold] {rationale}")
-            except Exception:
-                pass  # Don't fail pull if context recording fails
+        except Exception:
+            pass  # Don't fail pull if context recording fails
 
     except Exception as pull_error:
         msg = f"Pull failed: {pull_error}"

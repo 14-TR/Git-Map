@@ -146,6 +146,53 @@ class Repository:
         from gitmap_core.context import ContextStore
         return ContextStore(self.context_db_path)
 
+    def regenerate_context_graph(
+            self,
+            output_file: str = "context-graph.md",
+            output_format: str = "mermaid",
+            limit: int = 50,
+    ) -> Path | None:
+        """Regenerate the context graph visualization.
+
+        Args:
+            output_file: Output file name (relative to repo root).
+            output_format: Output format ('mermaid', 'html', etc.).
+            limit: Maximum events to include.
+
+        Returns:
+            Path to generated file, or None if generation failed.
+        """
+        try:
+            from gitmap_core.visualize import visualize_context
+
+            config = self.get_config()
+            title = f"{config.project_name} Context Graph" if config.project_name else "Context Graph"
+
+            with self.get_context_store() as store:
+                viz = visualize_context(
+                    store,
+                    output_format=output_format,
+                    limit=limit,
+                    title=title,
+                    direction="TB",
+                    show_annotations=True,
+                )
+
+            output_path = self.root / output_file
+
+            # Wrap Mermaid in markdown code block
+            if output_format.startswith("mermaid") and output_path.suffix == ".md":
+                content = f"# {title}\n\n```mermaid\n{viz}\n```\n"
+            else:
+                content = viz
+
+            output_path.write_text(content, encoding="utf-8")
+            return output_path
+
+        except Exception:
+            # Don't fail operations if visualization fails
+            return None
+
     # ---- Repository State -----------------------------------------------------------------------------------
 
     def exists(
@@ -558,9 +605,16 @@ class Repository:
                             "parent": parent,
                             "parent2": None,
                             "layers_count": layers_count,
+                            "branch": branch,  # Track which branch the commit was made on
                         },
                         rationale=rationale,
                     )
+
+                # Auto-regenerate context graph if enabled
+                config = self.get_config()
+                if config.auto_visualize:
+                    self.regenerate_context_graph()
+
             except Exception:
                 # Don't fail commit if context recording fails
                 pass

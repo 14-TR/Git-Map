@@ -242,6 +242,7 @@ class RepoConfig:
         user_email: Default author email.
         remote: Remote connection configuration.
         project_name: Project name for Portal folder naming.
+        auto_visualize: Automatically regenerate context graph after events.
     """
 
     version: str = "1.0"
@@ -249,6 +250,7 @@ class RepoConfig:
     user_email: str = ""
     remote: Remote | None = None
     project_name: str = ""
+    auto_visualize: bool = False
 
     def to_dict(
             self,
@@ -263,6 +265,7 @@ class RepoConfig:
             "user_name": self.user_name,
             "user_email": self.user_email,
             "project_name": self.project_name,
+            "auto_visualize": self.auto_visualize,
         }
         if self.remote:
             result["remote"] = self.remote.to_dict()
@@ -289,6 +292,7 @@ class RepoConfig:
             user_email=data.get("user_email", ""),
             remote=remote,
             project_name=data.get("project_name", ""),
+            auto_visualize=data.get("auto_visualize", False),
         )
 
     def save(

@@ -24,6 +24,27 @@ from gitmap_core.repository import find_repository
 console = Console()
 
 
+def _record_branch_event(repo, action: str, branch_name: str, commit_id: str | None = None) -> None:
+    """Record a branch event to the context store."""
+    try:
+        config = repo.get_config()
+        actor = config.user_name if config else None
+        with repo.get_context_store() as store:
+            store.record_event(
+                event_type="branch",
+                repo=str(repo.root),
+                ref=branch_name,
+                actor=actor,
+                payload={
+                    "action": action,
+                    "branch_name": branch_name,
+                    "commit_id": commit_id,
+                },
+            )
+    except Exception:
+        pass  # Don't fail branch operation if context recording fails
+
+
 # ---- Branch Command -----------------------------------------------------------------------------------------
 
 
@@ -89,11 +110,13 @@ def branch(
         # Delete branch
         if delete:
             repo.delete_branch(name)
+            _record_branch_event(repo, action="delete", branch_name=name)
             console.print(f"[green]Deleted branch '{name}'[/green]")
             return
 
         # Create branch
         new_branch = repo.create_branch(name)
+        _record_branch_event(repo, action="create", branch_name=new_branch.name, commit_id=new_branch.commit_id)
         console.print(f"[green]Created branch '{new_branch.name}'[/green]")
 
         if new_branch.commit_id:

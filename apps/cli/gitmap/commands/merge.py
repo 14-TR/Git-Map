@@ -30,6 +30,36 @@ from gitmap_core.repository import find_repository
 console = Console()
 
 
+def _record_merge_event(
+    repo,
+    source_branch: str,
+    target_branch: str,
+    commit_id: str | None = None,
+    had_conflicts: bool = False,
+    conflicts_resolved: int = 0,
+) -> None:
+    """Record a merge event to the context store."""
+    try:
+        config = repo.get_config()
+        actor = config.user_name if config else None
+        with repo.get_context_store() as store:
+            store.record_event(
+                event_type="merge",
+                repo=str(repo.root),
+                ref=commit_id or target_branch,
+                actor=actor,
+                payload={
+                    "source_branch": source_branch,
+                    "target_branch": target_branch,
+                    "commit_id": commit_id,
+                    "had_conflicts": had_conflicts,
+                    "conflicts_resolved": conflicts_resolved,
+                },
+            )
+    except Exception:
+        pass  # Don't fail merge if context recording fails
+
+
 # ---- Merge Command ------------------------------------------------------------------------------------------
 
 
@@ -106,6 +136,9 @@ def merge(
             theirs=their_commit.map_data,
             base=None,  # TODO: Find common ancestor
         )
+
+        # Track initial conflicts for event recording
+        initial_conflict_count = len(merge_result.conflicts) if merge_result.has_conflicts else 0
 
         # Handle conflicts
         if merge_result.has_conflicts:
@@ -184,15 +217,27 @@ def merge(
         console.print(format_merge_summary(merge_result))
 
         # Auto-commit unless --no-commit
+        merge_commit_id = None
         if not no_commit:
             commit_msg = f"Merge branch '{branch}' into '{current_branch}'"
             new_commit = repo.create_commit(message=commit_msg)
+            merge_commit_id = new_commit.id
 
             console.print()
             console.print(f"[green]Merge commit: {new_commit.id[:8]}[/green]")
         else:
             console.print()
             console.print("[dim]Merge staged. Use 'gitmap commit' to finalize.[/dim]")
+
+        # Record merge event
+        _record_merge_event(
+            repo,
+            source_branch=branch,
+            target_branch=current_branch,
+            commit_id=merge_commit_id,
+            had_conflicts=initial_conflict_count > 0,
+            conflicts_resolved=initial_conflict_count,
+        )
 
     except Exception as merge_error:
         msg = f"Merge failed: {merge_error}"
