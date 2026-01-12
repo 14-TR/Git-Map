@@ -43,6 +43,11 @@ def _record_init_events(repo: Repository, user_name: str | None = None) -> None:
                     "commit_id": None,
                 },
             )
+        
+        # Auto-regenerate context graph if enabled
+        config = repo.get_config()
+        if config.auto_visualize:
+            repo.regenerate_context_graph()
     except Exception:
         pass  # Don't fail init if context recording fails
 

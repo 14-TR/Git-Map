@@ -148,6 +148,12 @@ def push(
                     },
                     rationale=rationale if rationale else None,
                 )
+            
+            # Auto-regenerate context graph if enabled
+            config = repo.get_config()
+            if config.auto_visualize:
+                repo.regenerate_context_graph()
+            
             if rationale:
                 console.print()
                 console.print(f"  [bold]Rationale:[/bold] {rationale}")

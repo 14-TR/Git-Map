@@ -111,12 +111,30 @@ def branch(
         if delete:
             repo.delete_branch(name)
             _record_branch_event(repo, action="delete", branch_name=name)
+            
+            # Auto-regenerate context graph if enabled
+            try:
+                config = repo.get_config()
+                if config.auto_visualize:
+                    repo.regenerate_context_graph()
+            except Exception:
+                pass  # Don't fail branch operation if visualization fails
+            
             console.print(f"[green]Deleted branch '{name}'[/green]")
             return
 
         # Create branch
         new_branch = repo.create_branch(name)
         _record_branch_event(repo, action="create", branch_name=new_branch.name, commit_id=new_branch.commit_id)
+        
+        # Auto-regenerate context graph if enabled
+        try:
+            config = repo.get_config()
+            if config.auto_visualize:
+                repo.regenerate_context_graph()
+        except Exception:
+            pass  # Don't fail branch operation if visualization fails
+        
         console.print(f"[green]Created branch '{new_branch.name}'[/green]")
 
         if new_branch.commit_id:

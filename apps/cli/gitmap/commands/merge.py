@@ -239,6 +239,14 @@ def merge(
             conflicts_resolved=initial_conflict_count,
         )
 
+        # Auto-regenerate context graph if enabled
+        try:
+            config = repo.get_config()
+            if config.auto_visualize:
+                repo.regenerate_context_graph()
+        except Exception:
+            pass  # Don't fail merge if visualization fails
+
     except Exception as merge_error:
         msg = f"Merge failed: {merge_error}"
         raise click.ClickException(msg) from merge_error
