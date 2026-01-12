@@ -66,6 +66,10 @@ def _record_lsm_event(
                     "branch": current_branch,  # Track which branch the LSM was done on
                 },
             )
+        
+        # Auto-regenerate context graph if enabled
+        if config.auto_visualize:
+            repo.regenerate_context_graph()
     except Exception:
         pass  # Don't fail LSM if context recording fails
 

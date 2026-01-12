@@ -174,7 +174,7 @@ class Repository:
                     output_format=output_format,
                     limit=limit,
                     title=title,
-                    direction="TB",
+                    direction="BT",  # Bottom-to-top: newest events at top
                     show_annotations=True,
                 )
 
