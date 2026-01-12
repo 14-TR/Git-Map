@@ -10,12 +10,31 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 1.3.1   | `documentation/project_specs/20-operations/release_notes.md` |
-| gitmap-cli     | 0.3.0   | `apps/cli/gitmap/pyproject.toml`         |
-| gitmap_core    | 0.3.0   | `packages/gitmap_core/pyproject.toml`    |
+| GitMap (repo)  | 1.4.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| gitmap-cli     | 0.4.0   | `apps/cli/gitmap/pyproject.toml`         |
+| gitmap_core    | 0.4.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.2.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
 
 ## Releases
+
+### [release/1.4.0]
+
+**Type**: Minor
+
+- Improved context graph visualization with branch-aware event tracking
+- Events now track which branch they occurred on (commit, lsm, push, pull)
+- Fixed Mermaid syntax for reliable rendering across all viewers
+- Parallel branches displayed correctly with events grouped by branch
+- Merge commits shown with distinct hexagon shape and orange color
+- Both parent branches connect to merge points showing branch rejoin
+- Deduplicated merge events when corresponding commit event exists
+- Removed annotation nodes for cleaner graph visualization
+- Temporal links flow from oldest to newest (chronological order)
+- Records main branch event during `gitmap init`
+- Added `auto_visualize` config option for automatic graph regeneration
+- Added `regenerate_context_graph()` method to Repository class
+- Push and pull events now always recorded (not just with rationale)
+- Added `gitmap config --auto-visualize` CLI option
 
 ### [release/1.3.1]
 

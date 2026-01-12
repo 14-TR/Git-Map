@@ -37,17 +37,20 @@ EVENT_ICONS = {
     "pull": "fa:fa-cloud-download",
     "merge": "fa:fa-code-merge",
     "branch": "fa:fa-code-branch",
+    "lsm": "fa:fa-layer-group",
     "diff": "fa:fa-file-diff",
 }
 
 # Event type shapes for Mermaid
+# Using simpler shapes that render reliably across Mermaid versions
 EVENT_SHAPES = {
-    "commit": ("([", "])"),  # Stadium shape
-    "push": ("[[", "]]"),  # Subroutine shape
-    "pull": ("[[", "]]"),  # Subroutine shape
+    "commit": ("([", "])"),  # Stadium shape (pill)
+    "push": ("[[", "]]"),  # Subroutine shape (double border)
+    "pull": ("[[", "]]"),  # Subroutine shape (double border)
     "merge": ("{{", "}}"),  # Hexagon shape
-    "branch": (">", "]"),  # Asymmetric shape
-    "diff": ("[/", "/]"),  # Parallelogram shape
+    "branch": ("[", "]"),  # Rectangle (simple, reliable)
+    "lsm": ("[", "]"),  # Rectangle (trapezoid syntax unreliable)
+    "diff": ("[", "]"),  # Rectangle (parallelogram syntax unreliable)
 }
 
 # Relationship arrow styles for Mermaid
@@ -257,25 +260,81 @@ def generate_mermaid_flowchart(
     if title:
         lines.insert(0, f"%% {title}")
 
+    # Track merge commits for special handling
+    merge_commits: set[str] = set()
+    # Track commit refs that have merge events (to deduplicate)
+    merge_commit_refs: set[str] = set()
+    # Events to skip (duplicates)
+    skip_events: set[str] = set()
+    # Map merge commit IDs to their source branch (from merge events)
+    merge_source_branches: dict[str, str] = {}  # commit_id[:8] -> source_branch
+
+    # First pass: identify merge events and their associated commits
+    # If a merge event has a commit_id, we'll skip it if there's a matching commit
+    for event in data.events:
+        if event.event_type == "merge":
+            payload = event.payload or {}
+            commit_id = payload.get("commit_id")
+            source_branch = payload.get("source_branch")
+            if commit_id:
+                merge_commit_refs.add(commit_id[:8])
+                if source_branch:
+                    merge_source_branches[commit_id[:8]] = source_branch
+
+    # Check for duplicate merge events (skip merge event if commit exists)
+    for event in data.events:
+        if event.event_type == "merge":
+            payload = event.payload or {}
+            commit_id = payload.get("commit_id")
+            if commit_id:
+                # Check if there's a commit event with matching ref
+                for other in data.events:
+                    if other.event_type == "commit" and other.ref:
+                        if other.ref.startswith(commit_id[:8]):
+                            # Skip this merge event, keep the commit
+                            skip_events.add(event.id)
+                            break
+
     # Add event nodes
     for event in data.events:
+        # Skip duplicate events
+        if event.id in skip_events:
+            continue
+
         node_id = f"e_{event.id[:8]}"
         label = _sanitize_mermaid_text(_format_event_label(event))
+        payload = event.payload or {}
 
-        # Get shape for event type
-        shape_l, shape_r = EVENT_SHAPES.get(event.event_type, ("[", "]"))
+        # Check if this is a merge commit:
+        # 1. Has parent2 set, OR
+        # 2. Message starts with "Merge", OR
+        # 3. It's a merge event type
+        is_merge_commit = False
+        if event.event_type == "commit":
+            message = payload.get("message", "")
+            has_parent2 = payload.get("parent2") is not None
+            is_merge_message = message.lower().startswith("merge")
+            is_merge_commit = has_parent2 or is_merge_message
+        elif event.event_type == "merge":
+            is_merge_commit = True
+
+        if is_merge_commit:
+            merge_commits.add(event.id)
+            # Use merge shape for merge commits
+            shape_l, shape_r = EVENT_SHAPES.get("merge", ("{{", "}}"))
+            # Update label to indicate it's a merge
+            if "COMMIT" in label:
+                label = label.replace("COMMIT", "MERGE")
+        else:
+            # Get shape for event type
+            shape_l, shape_r = EVENT_SHAPES.get(event.event_type, ("[", "]"))
 
         lines.append(f"    {node_id}{shape_l}\"{label}\"{shape_r}")
 
-        # Add annotation nodes if enabled
-        if show_annotations and event.id in data.annotations:
-            for i, ann in enumerate(data.annotations[event.id][:3]):  # Max 3 annotations
-                ann_id = f"a_{event.id[:6]}_{i}"
-                ann_label = _sanitize_mermaid_text(f"{ann.annotation_type}: {ann.content}")
-                lines.append(f"    {ann_id}[\"{ann_label}\"]")
-                lines.append(f"    {node_id} -.- {ann_id}")
+    # Track which node pairs are connected by explicit edges
+    connected_pairs: set[tuple[str, str]] = set()
 
-    # Add edge connections
+    # Add explicit edge connections
     for edge in data.edges:
         source_id = f"e_{edge.source_id[:8]}"
         target_id = f"e_{edge.target_id[:8]}"
@@ -286,10 +345,158 @@ def generate_mermaid_flowchart(
         target_exists = any(e.id == edge.target_id for e in data.events)
 
         if source_exists and target_exists:
+            connected_pairs.add((source_id, target_id))
+            connected_pairs.add((target_id, source_id))  # Mark both directions
             if edge.relationship in ("reverts", "learned_from"):
                 lines.append(f"    {source_id} {arrow} {target_id}")
             else:
                 lines.append(f"    {source_id} --> |{edge.relationship}| {target_id}")
+
+    # Sort events oldest first for chronological flow (excluding skipped duplicates)
+    sorted_events = sorted(
+        [e for e in data.events if e.id not in skip_events],
+        key=lambda e: e.timestamp
+    )
+    branch_events = [e for e in sorted_events if e.event_type == "branch"]
+    commit_events = [e for e in sorted_events if e.event_type == "commit"]
+    non_branch_events = [e for e in sorted_events if e.event_type != "branch"]
+
+    # Group commits by branch for proper parallel visualization
+    commits_by_branch: dict[str, list[Event]] = {}
+    commits_without_branch: list[Event] = []
+
+    for event in non_branch_events:
+        payload = event.payload or {}
+        branch_name = payload.get("branch")
+        if branch_name:
+            if branch_name not in commits_by_branch:
+                commits_by_branch[branch_name] = []
+            commits_by_branch[branch_name].append(event)
+        else:
+            commits_without_branch.append(event)
+
+    # Link events within the same branch chronologically
+    for branch_name, events in commits_by_branch.items():
+        sorted_branch_events = sorted(events, key=lambda e: e.timestamp)
+        for i in range(len(sorted_branch_events) - 1):
+            current_event = sorted_branch_events[i]
+            next_event = sorted_branch_events[i + 1]
+            current_id = f"e_{current_event.id[:8]}"
+            next_id = f"e_{next_event.id[:8]}"
+            if (current_id, next_id) not in connected_pairs:
+                lines.append(f"    {current_id} --> {next_id}")
+
+    # For events without branch info, link them chronologically (legacy support)
+    for i in range(len(commits_without_branch) - 1):
+        current_event = commits_without_branch[i]
+        next_event = commits_without_branch[i + 1]
+        current_id = f"e_{current_event.id[:8]}"
+        next_id = f"e_{next_event.id[:8]}"
+        if (current_id, next_id) not in connected_pairs:
+            lines.append(f"    {current_id} --> {next_id}")
+
+    # Link branch events properly
+    # 1. If branch has a source commit, link FROM that commit (fork point)
+    # 2. If branch has no source commit (initial branch), link TO the first commit on that branch
+    for branch_event in branch_events:
+        branch_id = f"e_{branch_event.id[:8]}"
+        payload = branch_event.payload or {}
+        source_commit = payload.get("commit_id")
+        branch_name = payload.get("branch_name")
+
+        if source_commit:
+            # Branch was created from a specific commit - link FROM that commit
+            for commit in commit_events:
+                if commit.ref and commit.ref.startswith(source_commit[:8]):
+                    commit_id = f"e_{commit.id[:8]}"
+                    if (commit_id, branch_id) not in connected_pairs:
+                        lines.append(f"    {commit_id} -.-> {branch_id}")
+                    break
+
+        # Link branch to first commit ON that branch
+        if branch_name and branch_name in commits_by_branch:
+            first_commit_on_branch = commits_by_branch[branch_name][0]
+            first_commit_id = f"e_{first_commit_on_branch.id[:8]}"
+            if (branch_id, first_commit_id) not in connected_pairs:
+                lines.append(f"    {branch_id} --> {first_commit_id}")
+        elif not source_commit:
+            # Initial branch without branch tracking - link to first commit after it
+            for commit in commit_events:
+                if commit.timestamp > branch_event.timestamp:
+                    commit_id = f"e_{commit.id[:8]}"
+                    if (branch_id, commit_id) not in connected_pairs:
+                        lines.append(f"    {branch_id} --> {commit_id}")
+                    break
+
+    # Connect merge commits to BOTH parent branches
+    # This shows where branches rejoin
+    for event in data.events:
+        if event.id in merge_commits:
+            payload = event.payload or {}
+            merge_id = f"e_{event.id[:8]}"
+
+            if event.event_type == "commit":
+                # For commit events, use parent and parent2
+                parent1 = payload.get("parent")
+                parent2 = payload.get("parent2")
+
+                # Find parent1 commit event and connect
+                if parent1:
+                    for commit in commit_events:
+                        if commit.ref and commit.ref.startswith(parent1[:8]):
+                            parent1_id = f"e_{commit.id[:8]}"
+                            if (parent1_id, merge_id) not in connected_pairs:
+                                lines.append(f"    {parent1_id} --> {merge_id}")
+                                connected_pairs.add((parent1_id, merge_id))
+                            break
+
+                # Find parent2 commit event and connect (the merged-in branch)
+                if parent2:
+                    for commit in commit_events:
+                        if commit.ref and commit.ref.startswith(parent2[:8]):
+                            parent2_id = f"e_{commit.id[:8]}"
+                            if (parent2_id, merge_id) not in connected_pairs:
+                                lines.append(f"    {parent2_id} --> {merge_id}")
+                                connected_pairs.add((parent2_id, merge_id))
+                            break
+
+                # If no parent2 but we have source_branch info from merge event
+                if not parent2 and event.ref:
+                    source_branch = merge_source_branches.get(event.ref[:8])
+                    if source_branch and source_branch in commits_by_branch:
+                        source_commits = commits_by_branch[source_branch]
+                        if source_commits:
+                            last_source = source_commits[-1]
+                            source_id = f"e_{last_source.id[:8]}"
+                            if (source_id, merge_id) not in connected_pairs:
+                                lines.append(f"    {source_id} --> {merge_id}")
+                                connected_pairs.add((source_id, merge_id))
+
+            elif event.event_type == "merge":
+                # For merge events, use source_branch and target_branch
+                source_branch = payload.get("source_branch")
+                target_branch = payload.get("target_branch")
+
+                # Find the last commit on source branch and connect to merge
+                if source_branch and source_branch in commits_by_branch:
+                    source_commits = commits_by_branch[source_branch]
+                    if source_commits:
+                        last_source = source_commits[-1]  # Last commit on source branch
+                        source_id = f"e_{last_source.id[:8]}"
+                        if (source_id, merge_id) not in connected_pairs:
+                            lines.append(f"    {source_id} --> {merge_id}")
+                            connected_pairs.add((source_id, merge_id))
+
+                # Find the last commit on target branch before merge and connect
+                if target_branch and target_branch in commits_by_branch:
+                    target_commits = [c for c in commits_by_branch[target_branch] 
+                                      if c.timestamp < event.timestamp]
+                    if target_commits:
+                        last_target = target_commits[-1]
+                        target_id = f"e_{last_target.id[:8]}"
+                        if (target_id, merge_id) not in connected_pairs:
+                            lines.append(f"    {target_id} --> {merge_id}")
+                            connected_pairs.add((target_id, merge_id))
 
     # Add styling
     lines.append("")
@@ -301,18 +508,19 @@ def generate_mermaid_flowchart(
     lines.append("    classDef branch fill:#00BCD4,color:#fff")
     lines.append("    classDef annotation fill:#FFF9C4,color:#333")
 
-    # Apply styles to nodes
+    # Apply styles to nodes (skip duplicates)
     for event in data.events:
+        if event.id in skip_events:
+            continue
         node_id = f"e_{event.id[:8]}"
-        if event.event_type in ("commit", "push", "pull", "merge", "branch"):
+        if event.id in merge_commits:
+            # Merge commits get merge styling (orange hexagon)
+            lines.append(f"    class {node_id} merge")
+        elif event.event_type in ("commit", "push", "pull", "merge", "branch"):
             lines.append(f"    class {node_id} {event.event_type}")
 
-    # Style annotation nodes
-    if show_annotations:
-        for event_id, annotations in data.annotations.items():
-            for i in range(min(3, len(annotations))):
-                ann_id = f"a_{event_id[:6]}_{i}"
-                lines.append(f"    class {ann_id} annotation")
+    # Note: Annotations are no longer shown as separate nodes
+    # They can be viewed via context show or other commands
 
     return "\n".join(lines)
 
@@ -375,10 +583,12 @@ def generate_mermaid_git_graph(
     data: GraphData,
     branch_name: str = "main",
 ) -> str:
-    """Generate Mermaid gitGraph diagram from commit events.
+    """Generate Mermaid gitGraph diagram from commit/merge/branch events.
 
-    This focuses on commit events and their relationships,
-    mimicking a git log visualization.
+    This shows the git history with proper branch topology including:
+    - Commits on branches
+    - Branch creation points
+    - Merge points where branches join
 
     Args:
         data: Graph data to visualize.
@@ -390,27 +600,108 @@ def generate_mermaid_git_graph(
     lines = []
     lines.append("gitGraph")
 
-    # Filter to commit events only
+    # Filter relevant events (commits, merges, branches)
     commits = [e for e in data.events if e.event_type == "commit"]
-    commits.sort(key=lambda e: e.timestamp)
+    merges = [e for e in data.events if e.event_type == "merge"]
+    branches = [e for e in data.events if e.event_type == "branch"]
+    lsms = [e for e in data.events if e.event_type == "lsm"]
 
-    # Build commit chain
-    for commit in commits:
-        # Get commit message from payload
-        msg = commit.payload.get("message", "")
-        if not msg:
-            msg = f"Commit {commit.ref[:8] if commit.ref else commit.id[:8]}"
-        msg = _sanitize_mermaid_text(msg)
+    # Sort all events by timestamp
+    all_events = commits + merges + branches + lsms
+    all_events.sort(key=lambda e: e.timestamp)
 
-        # Get commit ID
-        commit_id = commit.ref[:8] if commit.ref else commit.id[:8]
+    # Track active branches
+    active_branches: set[str] = {branch_name}
+    current_branch = branch_name
 
-        lines.append(f'    commit id: "{commit_id}" msg: "{msg}"')
+    # Build parent-to-children map for branch detection
+    parent_to_children: dict[str, list[str]] = {}
+    commit_to_branch: dict[str, str] = {}
 
-    if not commits:
+    # First pass: analyze branch structure from events
+    for event in all_events:
+        if event.event_type == "branch":
+            payload = event.payload or {}
+            action = payload.get("action", "")
+            br_name = payload.get("branch_name", "")
+            if action == "create" and br_name:
+                active_branches.add(br_name)
+        elif event.event_type == "commit":
+            payload = event.payload or {}
+            parent = payload.get("parent")
+            commit_id = event.ref or event.id[:12]
+            if parent:
+                if parent not in parent_to_children:
+                    parent_to_children[parent] = []
+                parent_to_children[parent].append(commit_id)
+
+    # Second pass: generate mermaid commands
+    for event in all_events:
+        if event.event_type == "branch":
+            payload = event.payload or {}
+            action = payload.get("action", "")
+            br_name = payload.get("branch_name", "")
+            if action == "create" and br_name and br_name != branch_name:
+                lines.append(f"    branch {_sanitize_branch_name(br_name)}")
+                current_branch = br_name
+
+        elif event.event_type == "commit":
+            payload = event.payload or {}
+            msg = payload.get("message", "")
+            if not msg:
+                msg = f"Commit {event.ref[:8] if event.ref else event.id[:8]}"
+            msg = _sanitize_mermaid_text(msg)
+            commit_id = (event.ref[:8] if event.ref else event.id[:8])
+
+            # Check if this is a merge commit (has parent2)
+            parent2 = payload.get("parent2")
+            if parent2:
+                lines.append(f'    commit id: "{commit_id}" msg: "{msg}" type: HIGHLIGHT')
+            else:
+                lines.append(f'    commit id: "{commit_id}" msg: "{msg}"')
+
+        elif event.event_type == "merge":
+            payload = event.payload or {}
+            source_branch = payload.get("source_branch", "feature")
+            target_branch = payload.get("target_branch", branch_name)
+            commit_id = payload.get("commit_id", "")
+
+            # Checkout target branch and merge
+            if target_branch != current_branch:
+                lines.append(f"    checkout {_sanitize_branch_name(target_branch)}")
+                current_branch = target_branch
+
+            lines.append(f"    merge {_sanitize_branch_name(source_branch)}")
+
+        elif event.event_type == "lsm":
+            payload = event.payload or {}
+            source = payload.get("source", "source")
+            transferred = payload.get("transferred_count", 0)
+            msg = f"LSM from {source} ({transferred} transferred)"
+            msg = _sanitize_mermaid_text(msg)
+            lines.append(f'    commit id: "lsm-{event.id[:6]}" msg: "{msg}" type: REVERSE')
+
+    if not all_events:
         lines.append('    commit id: "initial" msg: "No commits yet"')
 
     return "\n".join(lines)
+
+
+def _sanitize_branch_name(name: str) -> str:
+    """Sanitize branch name for Mermaid gitGraph.
+
+    Args:
+        name: Branch name to sanitize.
+
+    Returns:
+        Sanitized branch name (alphanumeric and dashes only).
+    """
+    # Replace slashes and other special chars with dashes
+    sanitized = re.sub(r"[^a-zA-Z0-9-]", "-", name)
+    # Remove consecutive dashes
+    sanitized = re.sub(r"-+", "-", sanitized)
+    # Remove leading/trailing dashes
+    return sanitized.strip("-") or "branch"
 
 
 # ---- ASCII Art Generation ------------------------------------------------------------------------------------

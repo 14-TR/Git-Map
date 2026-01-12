@@ -40,6 +40,36 @@ from gitmap_core.repository import init_repository
 console = Console()
 
 
+def _record_lsm_event(
+    repo: Repository,
+    source: str,
+    target: str | None,
+    transferred_count: int,
+    skipped_count: int,
+) -> None:
+    """Record a layer settings merge event to the context store."""
+    try:
+        config = repo.get_config()
+        actor = config.user_name if config else None
+        current_branch = repo.get_current_branch()
+        with repo.get_context_store() as store:
+            store.record_event(
+                event_type="lsm",
+                repo=str(repo.root),
+                ref=target or "index",
+                actor=actor,
+                payload={
+                    "source": source,
+                    "target": target or "index",
+                    "transferred_count": transferred_count,
+                    "skipped_count": skipped_count,
+                    "branch": current_branch,  # Track which branch the LSM was done on
+                },
+            )
+    except Exception:
+        pass  # Don't fail LSM if context recording fails
+
+
 # ---- Helper Functions -----------------------------------------------------------------------------------------
 
 
@@ -564,8 +594,12 @@ def layer_settings_merge(
 
         # Apply changes unless dry-run
         if not dry_run:
+            transferred_count = len(summary.get("transferred_layers", [])) + len(summary.get("transferred_tables", []))
+            skipped_count = len(summary.get("skipped_layers", [])) + len(summary.get("skipped_tables", []))
+
             if not target:
                 current_repo.update_index(updated_map)
+                _record_lsm_event(current_repo, source, target, transferred_count, skipped_count)
                 console.print()
                 console.print("[green]Settings transferred to index[/green]")
                 console.print("[dim]Use 'gitmap commit' to save changes[/dim]")
@@ -573,10 +607,12 @@ def layer_settings_merge(
                 target_path = Path(target)
                 if target_path.exists() and target_path.is_file():
                     target_path.write_text(json.dumps(updated_map, indent=2))
+                    _record_lsm_event(current_repo, source, target, transferred_count, skipped_count)
                     console.print()
                     console.print(f"[green]Settings saved to {target}[/green]")
                 else:
                     current_repo.update_index(updated_map)
+                    _record_lsm_event(current_repo, source, target, transferred_count, skipped_count)
                     console.print()
                     console.print("[green]Settings transferred to index[/green]")
         else:
