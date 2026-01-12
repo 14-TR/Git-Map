@@ -61,3 +61,4 @@ data/
 
 # repositories
 repositories/  
+docker-compose.yml
