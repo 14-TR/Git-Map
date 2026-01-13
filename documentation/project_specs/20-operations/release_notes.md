@@ -10,12 +10,22 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 1.4.1   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 1.4.2   | `documentation/project_specs/20-operations/release_notes.md` |
 | gitmap-cli     | 0.4.0   | `apps/cli/gitmap/pyproject.toml`         |
 | gitmap_core    | 0.4.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.2.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
 
 ## Releases
+
+### [release/1.4.2]
+
+**Type**: Patch
+
+- Fixed CLI version synchronization between `pyproject.toml` and hardcoded version strings
+- Updated `__version__` in `apps/cli/gitmap/__init__.py` from 0.3.0 to 0.4.0
+- Updated version in `apps/cli/gitmap/main.py` docstring and `@click.version_option` decorator
+- Updated version in `apps/cli/gitmap/docs/gitmap_spec.md` documentation
+- Resolves issue where `gitmap --version` displayed 0.3.0 despite package being 0.4.0
 
 ### [release/1.4.1]
 
