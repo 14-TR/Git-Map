@@ -10,12 +10,27 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 1.4.2   | `documentation/project_specs/20-operations/release_notes.md` |
-| gitmap-cli     | 0.4.0   | `apps/cli/gitmap/pyproject.toml`         |
+| GitMap (repo)  | 1.5.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| gitmap-cli     | 0.5.0   | `apps/cli/gitmap/pyproject.toml`         |
 | gitmap_core    | 0.4.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.2.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
 
 ## Releases
+
+### [release/1.5.0] (Pending)
+
+**Type**: Minor
+
+- Added auto-commit functionality to `auto-pull` command
+- Introduced `--auto-commit` flag to automatically commit changes after successful pulls
+- Added `--commit-message` option with template variable support (`{repo}`, `{date}`)
+- Enhanced progress display to show commit IDs when auto-commit is enabled
+- Added `auto_pull` configuration section to `gitmap_config.json` with default settings
+- Updated summary messages to provide guidance based on auto-commit status
+- Maintains backward compatibility with auto-commit disabled by default
+- Updated `gitmap-cli` documentation with auto-commit feature usage examples
+
+### [release/1.4.2]
 
 ### [release/1.4.2]
 

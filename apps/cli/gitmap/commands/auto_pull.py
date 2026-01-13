@@ -12,12 +12,13 @@ Dependencies:
     - gitmap_core: Repository and connection management
 
 Metadata:
-    Version: 0.1.0
+    Version: 0.2.0
     Author: GitMap Team
 """
 from __future__ import annotations
 
 import os
+from datetime import datetime
 from pathlib import Path
 
 import click
@@ -71,6 +72,18 @@ console = Console()
     default=True,
     help="Continue pulling other repos if one fails (default: True).",
 )
+@click.option(
+    "--auto-commit",
+    is_flag=True,
+    default=False,
+    help="Automatically commit changes after successful pull (default: False).",
+)
+@click.option(
+    "--commit-message",
+    "-m",
+    default="",
+    help="Custom commit message template (use {repo} for repository name, {date} for timestamp).",
+)
 def auto_pull(
         directory: str,
         branch: str,
@@ -78,6 +91,8 @@ def auto_pull(
         username: str,
         password: str,
         skip_errors: bool,
+        auto_commit: bool,
+        commit_message: str,
 ) -> None:
     """Automatically pull updates for all bitmap repositories.
 
@@ -85,11 +100,15 @@ def auto_pull(
     from Portal for each one. Useful for keeping multiple local repositories
     in sync with their Portal counterparts.
 
+    Optionally auto-commits changes after successful pulls using the --auto-commit flag.
+
     Examples:
         gitmap auto-pull
         gitmap auto-pull --directory my-repos
         gitmap auto-pull --branch main --skip-errors
         gitmap auto-pull --directory repositories --url https://portal.example.com
+        gitmap auto-pull --auto-commit
+        gitmap auto-pull --auto-commit --commit-message "Auto-pull from Portal on {date}"
     """
     try:
         # Resolve base directory
@@ -188,10 +207,39 @@ def auto_pull(
                     layers = map_data.get("operationalLayers", [])
                     layer_count = len(layers)
 
-                    progress.update(
-                        task,
-                        description=f"[{idx}/{len(repos_to_pull)}] ✓ Pulled '{repo_name}' ({layer_count} layers)"
-                    )
+                    # Auto-commit if enabled
+                    commit_id = None
+                    if auto_commit:
+                        # Check if there are changes to commit
+                        if repo.has_uncommitted_changes():
+                            # Generate commit message
+                            if commit_message:
+                                # Replace template variables
+                                msg = commit_message.replace("{repo}", repo_name)
+                                msg = msg.replace("{date}", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                            else:
+                                # Default commit message
+                                msg = f"Auto-pull from Portal ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
+                            
+                            # Create commit
+                            new_commit = repo.create_commit(
+                                message=msg,
+                                author=None,
+                                rationale=None,
+                            )
+                            commit_id = new_commit.id[:8]
+
+                    # Update progress display
+                    if commit_id:
+                        progress.update(
+                            task,
+                            description=f"[{idx}/{len(repos_to_pull)}] ✓ Pulled & Committed '{repo_name}' ({layer_count} layers, {commit_id})"
+                        )
+                    else:
+                        progress.update(
+                            task,
+                            description=f"[{idx}/{len(repos_to_pull)}] ✓ Pulled '{repo_name}' ({layer_count} layers)"
+                        )
                     success_count += 1
 
                 except Exception as pull_error:
@@ -233,8 +281,13 @@ def auto_pull(
         if success_count > 0:
             console.print("[dim]All repositories updated successfully![/dim]")
             console.print()
-            console.print("[dim]Note: Changes are staged but not committed.[/dim]")
-            console.print("[dim]Use 'gitmap diff' and 'gitmap commit' in each repo to review and save changes.[/dim]")
+            if auto_commit:
+                console.print("[dim]Changes have been automatically committed.[/dim]")
+                console.print("[dim]Use 'gitmap log' in each repo to review commits.[/dim]")
+            else:
+                console.print("[dim]Note: Changes are staged but not committed.[/dim]")
+                console.print("[dim]Use 'gitmap diff' and 'gitmap commit' in each repo to review and save changes.[/dim]")
+                console.print("[dim]Tip: Use '--auto-commit' flag to automatically commit changes.[/dim]")
 
     except Exception as auto_pull_error:
         msg = f"Auto-pull failed: {auto_pull_error}"

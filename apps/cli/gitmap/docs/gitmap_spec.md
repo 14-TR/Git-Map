@@ -6,7 +6,7 @@
 
 **Scope**: CLI commands for initializing repositories, managing branches, committing changes, and synchronizing with ArcGIS Portal.
 
-**Version**: 0.4.0
+**Version**: 0.5.0
 
 ## Orchestration Flow
 
@@ -46,6 +46,21 @@ Configuration is stored in `.gitmap/config.json`:
         "url": "https://www.arcgis.com",
         "folder_id": "abc123",
         "item_id": "def456"
+    }
+}
+```
+
+Global configuration is stored in `configs/gitmap_config.json`:
+
+```json
+{
+    "default_remote_url": "https://www.arcgis.com",
+    "default_branch": "main",
+    "commit_template": "",
+    "output_format": "rich",
+    "auto_pull": {
+        "auto_commit": false,
+        "commit_message_template": "Auto-pull from Portal on {date}"
     }
 }
 ```
@@ -108,6 +123,31 @@ gitmap lsm abc123def456 --dry-run
 ```
 
 ## Features
+
+### Auto-Pull with Auto-Commit
+
+The `auto-pull` command scans a directory for GitMap repositories and pulls the latest changes from Portal for each one. Features:
+
+- **Batch Updates**: Processes multiple repositories in a single command
+- **Auto-Commit Option**: Use `--auto-commit` flag to automatically commit changes after successful pull
+- **Custom Commit Messages**: Use `--commit-message` with template variables `{repo}` and `{date}` to customize commit messages
+- **Error Handling**: Continue processing other repositories if one fails using `--skip-errors` (default: True)
+- **Progress Display**: Real-time progress indication with layer counts and commit IDs
+
+**Usage Examples**:
+```bash
+# Basic auto-pull (stages changes but doesn't commit)
+gitmap auto-pull
+
+# Auto-pull with automatic commits
+gitmap auto-pull --auto-commit
+
+# Auto-pull with custom commit message
+gitmap auto-pull --auto-commit --commit-message "Synced {repo} on {date}"
+
+# Auto-pull specific directory
+gitmap auto-pull --directory my-repos --auto-commit
+```
 
 ### Layer Settings Merge
 
