@@ -2,7 +2,11 @@
     "default_remote_url": "https://www.arcgis.com",
     "default_branch": "main",
     "commit_template": "",
-    "output_format": "rich"
+    "output_format": "rich",
+    "auto_pull": {
+        "auto_commit": false,
+        "commit_message_template": "Auto-pull from Portal on {date}"
+    }
 }
 
 
