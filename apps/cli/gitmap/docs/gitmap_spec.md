@@ -6,7 +6,7 @@
 
 **Scope**: CLI commands for initializing repositories, managing branches, committing changes, and synchronizing with ArcGIS Portal.
 
-**Version**: 0.4.0
+**Version**: 0.5.0
 
 ## Orchestration Flow
 

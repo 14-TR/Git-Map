@@ -11,11 +11,11 @@ Dependencies:
     - gitmap_core: Core library
 
 Metadata:
-    Version: 0.1.0
+    Version: 0.5.0
     Author: GitMap Team
 """
 from __future__ import annotations
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 
