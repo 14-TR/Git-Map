@@ -26,7 +26,8 @@ GitMap provides Git-like version control for ArcGIS Online and Enterprise Portal
 - **Map Discovery**: List and search available web maps from Portal with the `list` command
 - **Layer Settings Transfer**: Transfer popup and form settings between maps with the `lsm` command
 - **Bulk Repository Setup**: Automate cloning multiple maps with owner filtering
-- **Auto-Pull**: Automatically sync all repositories with Portal to keep them up to date
+- **Auto-Pull**: Automatically sync all repositories with Portal to keep them up to date (with optional auto-commit)
+- **Context Visualization**: Visualize event history and relationships in multiple formats (Mermaid, ASCII, HTML)
 - **CLI Interface**: Familiar Git-like command-line interface
 - **Rich Output**: Beautiful terminal output with colors and formatting
 
@@ -62,7 +63,7 @@ pip install -e apps/cli/gitmap
 gitmap --version
 ```
 
-You should see: `gitmap, version 0.3.0`
+You should see: `gitmap, version 0.5.0`
 
 ## Quick Start
 
@@ -271,6 +272,8 @@ Scans a directory for GitMap repositories and pulls the latest changes from Port
 - `--username` - Portal username (or use env var)
 - `--password` - Portal password (or use env var)
 - `--skip-errors` - Continue pulling other repos if one fails (default: True)
+- `--auto-commit` - Automatically commit changes after successful pull (default: False)
+- `--commit-message, -m` - Custom commit message template (use {repo} for repository name, {date} for timestamp)
 
 **Examples:**
 ```bash
@@ -286,8 +289,14 @@ gitmap auto-pull --branch production
 # Pull with custom Portal URL
 gitmap auto-pull --url https://portal.example.com
 
+# Automatically commit changes after pulling
+gitmap auto-pull --auto-commit
+
+# Use a custom commit message template
+gitmap auto-pull --auto-commit --commit-message "Auto-pull from Portal on {date}"
+
 # Schedule with cron (every hour)
-0 * * * * cd /path/to/project && gitmap auto-pull
+0 * * * * cd /path/to/project && gitmap auto-pull --auto-commit
 ```
 
 ### `gitmap list`
@@ -560,6 +569,104 @@ gitmap notify --group editors --user user1 --user user2 --subject "Update" \
 gitmap notify --group "Field Crew" --subject "Inspection prep" --message-file notes.txt
 ```
 
+### `gitmap context`
+
+Visualize and manage the context graph showing events, relationships, and annotations.
+
+```bash
+gitmap context <SUBCOMMAND> [OPTIONS]
+```
+
+**Description:**
+The context command provides tools for visualizing the event history and relationships in your GitMap repository. It tracks all operations (commits, pushes, pulls, merges, branches, diffs) and displays them in various formats suitable for terminal viewing or export to IDEs.
+
+**Subcommands:**
+- `show` - Display context graph in terminal (ASCII, Mermaid, or Mermaid Timeline formats)
+- `export` - Export context graph to file (Mermaid, ASCII, or HTML)
+- `timeline` - Show ASCII timeline of context events
+- `graph` - Show ASCII graph of event relationships
+
+**Options (for `show` and `timeline`):**
+- `--format, -f` - Output format: `ascii`, `mermaid`, or `mermaid-timeline` (default: ascii)
+- `--limit, -n` - Maximum events to display (default: 20)
+- `--type, -t` - Filter by event types (can be used multiple times): `commit`, `push`, `pull`, `merge`, `branch`, `diff`
+- `--no-unicode` - Use simple ASCII characters (no Unicode)
+
+**Options (for `export`):**
+- `--format, -f` - Output format: `mermaid`, `mermaid-timeline`, `mermaid-git`, `ascii`, `ascii-graph`, or `html` (default: mermaid)
+- `--output, -o` - Output file path (defaults to context.<ext>)
+- `--limit, -n` - Maximum events to include (default: 50)
+- `--type, -t` - Filter by event types
+- `--title` - Title for the visualization
+- `--theme` - Color theme for HTML output: `light` or `dark` (default: light)
+- `--direction` - Graph direction for Mermaid flowcharts: `TB`, `BT`, `LR`, or `RL` (default: TB)
+- `--no-annotations` - Exclude annotations from visualization
+
+**Examples:**
+```bash
+# Display context graph in terminal
+gitmap context show
+
+# Display as Mermaid diagram
+gitmap context show --format mermaid
+
+# Show only commits and pushes
+gitmap context show --type commit --type push
+
+# Export to Mermaid file for IDE viewing
+gitmap context export
+
+# Export to HTML with dark theme
+gitmap context export --format html --theme dark -o context.html
+
+# Export with custom title and direction
+gitmap context export --format mermaid --direction LR --title "My Project Timeline"
+
+# Show timeline of recent events
+gitmap context timeline
+
+# Show event relationship graph
+gitmap context graph -n 15
+```
+
+### `gitmap config`
+
+Manage repository configuration settings.
+
+```bash
+gitmap config [OPTIONS]
+```
+
+**Description:**
+Configure repository settings such as the production branch (which triggers notifications on push) and auto-visualization (automatically regenerates context graph after events).
+
+**Options:**
+- `--production-branch, -p` - Set the production branch name (branch that triggers notifications on push)
+- `--unset-production` - Remove the production branch setting
+- `--auto-visualize` - Enable automatic context graph regeneration after events
+- `--no-auto-visualize` - Disable automatic context graph regeneration
+
+**Examples:**
+```bash
+# View current configuration
+gitmap config
+
+# Set production branch
+gitmap config --production-branch main
+
+# Set production branch to a release branch
+gitmap config --production-branch release/1.0.0
+
+# Remove production branch setting
+gitmap config --unset-production
+
+# Enable auto-visualization
+gitmap config --auto-visualize
+
+# Disable auto-visualization
+gitmap config --no-auto-visualize
+```
+
 ## Usage Examples
 
 ### Workflow: Bulk Repository Setup
@@ -754,7 +861,7 @@ pytest
   - Remote push/pull operations
 
 - **`gitmap-cli`**: Command-line interface providing:
-  - 16 Git-like commands (including `list`, `lsm`, `setup-repos`, `auto-pull`, and `notify`)
+  - 18 Git-like commands (including `list`, `lsm`, `setup-repos`, `auto-pull`, `notify`, `context`, and `config`)
   - Rich terminal output
   - User-friendly error messages
 
