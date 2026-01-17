@@ -15,6 +15,7 @@ dependencies = [
     "gitmap_core>=0.1.0",
     "click>=8.1.0",
     "rich>=13.0.0",
+    "apscheduler>=3.10.0",
 ]
 
 [project.scripts]
