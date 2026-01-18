@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gitmap-client"
+version = "0.1.0"
+description = "TUI Client for GitMap - Interactive visual interface for GitMap operations"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "GitMap Team"}
+]
+dependencies = [
+    "gitmap_core>=0.4.0",
+    "textual>=0.47.0",
+    "rich>=13.0.0",
+]
+
+[project.scripts]
+gitmap-client = "gitmap_client.app:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "textual-dev>=1.0.0",
+]
+
+[tool.setuptools]
+packages = ["gitmap_client", "gitmap_client.widgets", "gitmap_client.screens"]
+
+[tool.setuptools.package-dir]
+gitmap_client = "."
+"gitmap_client.widgets" = "widgets"
+"gitmap_client.screens" = "screens"
