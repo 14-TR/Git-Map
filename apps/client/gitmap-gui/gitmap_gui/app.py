@@ -1,7 +1,27 @@
 """GitMap GUI - Web-based graphical interface.
 
 A beautiful web GUI for GitMap version control operations.
-Run with: gitmap-gui [--repo PATH] [--port PORT]
+
+This Flask application provides a web-based interface for GitMap operations including:
+- Repository management and browsing
+- Branch and commit operations
+- Merge operations with conflict resolution
+- Portal integration (clone, pull, push)
+- Real-time diff viewing
+
+The application uses a modular architecture:
+- Routes organized into blueprints by feature (repository, branch, commit, etc.)
+- Static files (CSS/JS) separated from templates
+- Global state management in config.py
+- Utility functions in utils.py
+
+Run with: gitmap-gui [--repo PATH] [--port PORT] [--repositories-dir DIR]
+
+Examples:
+    gitmap-gui                                    # Scan /app/repositories
+    gitmap-gui --repo /path/to/repo               # Use specific repository
+    gitmap-gui --port 8080                        # Run on port 8080
+    gitmap-gui --repositories-dir /path/to/repos  # Scan custom directory
 """
 from __future__ import annotations
 
