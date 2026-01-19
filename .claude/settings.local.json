@@ -7,7 +7,10 @@
       "Bash(python3:*)",
       "Bash(grep -r \"export\\\\|json\\\\|csv\" /Users/tr/Desktop/Git-Map/apps/cli/gitmap/commands/*.py)",
       "Bash(xargs:*)",
-      "Bash(uv run pytest:*)"
+      "Bash(uv run pytest:*)",
+      "Bash(docker compose run:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker compose logs:*)"
     ]
   }
 }

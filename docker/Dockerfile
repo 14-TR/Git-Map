@@ -17,6 +17,8 @@ COPY . .
 # Install gitmap packages
 RUN pip install --no-cache-dir -e packages/gitmap_core
 RUN pip install --no-cache-dir -e apps/cli/gitmap
+RUN pip install --no-cache-dir -e apps/client/gitmap-client
+RUN pip install --no-cache-dir -e apps/client/gitmap-gui
 RUN pip install --no-cache-dir -e apps/mcp/gitmap-mcp
 
 CMD ["python", "main.py"]

@@ -10,17 +10,19 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 1.5.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 2.0.0   | `documentation/project_specs/20-operations/release_notes.md` |
 | gitmap-cli     | 0.5.0   | `apps/cli/gitmap/pyproject.toml`         |
 | gitmap_core    | 0.4.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.2.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
+| gitmap-gui     | 0.1.0   | `apps/client/gitmap-gui/pyproject.toml`  |
 
 ## Releases
 
-### [release/1.5.0] (Pending)
+### [release/2.0.0] (Pending)
 
-**Type**: Minor
+**Type**: Major
 
+**CLI & Core:**
 - Added auto-commit functionality to `auto-pull` command
 - Introduced `--auto-commit` flag to automatically commit changes after successful pulls
 - Added `--commit-message` option with template variable support (`{repo}`, `{date}`)
@@ -29,6 +31,24 @@
 - Updated summary messages to provide guidance based on auto-commit status
 - Maintains backward compatibility with auto-commit disabled by default
 - Updated `gitmap-cli` documentation with auto-commit feature usage examples
+
+**Web GUI (gitmap-gui):**
+- Major refactoring: Modularized frontend architecture for improved maintainability
+- Separated CSS, JavaScript, and HTML into dedicated files (`static/css/style.css`, `static/js/app.js`, `templates/base.html`)
+- Broke up monolithic `app.py` into modular route blueprints organized by feature:
+  - Repository routes (`routes/repository.py`)
+  - Branch operations (`routes/branch.py`)
+  - Commit operations (`routes/commit.py`)
+  - Merge operations (`routes/merge.py`)
+  - Diff operations (`routes/diff.py`)
+  - Portal integration (`routes/portal.py`)
+  - Remote operations (`routes/remote.py`)
+- Improved commit history display to show commits from all branches (not just current branch)
+- Enhanced changes page to fetch and display detailed diff information with layer-level changes
+- Better change detection handling for repositories with no HEAD commit yet
+- Added comprehensive API endpoint documentation organized by feature category
+- Improved error handling and debugging information in API responses
+- Reduced main `app.py` from ~2900 lines to ~100 lines for better maintainability
 
 ### [release/1.4.2]
 

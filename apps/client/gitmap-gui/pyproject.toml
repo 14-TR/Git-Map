@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gitmap-gui"
+version = "0.1.0"
+description = "Web-based GUI for GitMap version control"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "flask>=3.0.0",
+    "gitmap-core",
+]
+
+[project.scripts]
+gitmap-gui = "gitmap_gui.app:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gitmap_gui*"]
+
+[tool.setuptools.package-data]
+gitmap_gui = ["static/*", "templates/*"]
