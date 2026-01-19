@@ -1,6 +1,6 @@
 {
   "name": "GitMap ArcGIS",
-  "dockerComposeFile": ["../docker-compose.yml"],
+  "dockerComposeFile": ["../docker-compose.yml", "docker-compose.override.yml"],
   "service": "dev",
   "workspaceFolder": "/app",
   "customizations": {

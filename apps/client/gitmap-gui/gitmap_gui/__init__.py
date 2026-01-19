@@ -1,0 +1,1 @@
+"""GitMap GUI package."""
