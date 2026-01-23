@@ -4,13 +4,29 @@ A beautiful web-based GUI for GitMap version control operations.
 
 ## Features
 
-- 🏠 **Repository Overview** - See current branch, commits, branches, and pending changes
-- 📋 **Commit History** - Browse commits with visual graph from all branches
-- 🌿 **Branches** - View and manage branches
-- 📝 **Changes** - See detailed pending modifications with layer-level diff
-- 📁 **Repository Browser** - Browse all repositories in `/app/repositories`
-- 🔄 **Portal Integration** - Connect to Portal, clone, pull, and push maps
-- 🔀 **Merge Operations** - Preview and execute branch merges with conflict resolution
+### Core Features
+- **Repository Overview** - See current branch, commits, branches, and pending changes
+- **Commit History** - Browse commits with visual graph from all branches, with search and filter
+- **Commit Details** - Click any commit to see full details, parent commits, and changes
+- **Branches** - View and manage branches (create, checkout, delete, merge)
+- **Changes** - See detailed pending modifications with layer-level diff
+- **Repository Browser** - Browse all repositories in `/app/repositories`
+
+### Portal Integration
+- **Portal Browser** - Browse and search available web maps from Portal before cloning
+- **Portal Connection** - Connect to ArcGIS Portal with credentials
+- **Clone/Pull/Push** - Full remote sync operations with Portal
+
+### Advanced Features
+- **Merge Operations** - Preview and execute branch merges with conflict resolution
+- **Layer Settings Merge (LSM)** - Transfer popup and form settings between branches
+- **Context Timeline** - View event history (commits, pushes, pulls, merges)
+- **Settings** - Configure repository settings (project name, production branch, auto-visualize)
+
+### User Experience
+- **Dark/Light Theme** - Toggle between dark and light themes
+- **Keyboard Shortcuts** - Quick navigation (R=refresh, N=new commit, B=new branch, 1-6=pages)
+- **Search & Filter** - Filter commits by message, author
 
 ## Architecture
 
@@ -156,6 +172,15 @@ gui:
 - `POST /api/pull` - Pull changes from Portal
 - `POST /api/push` - Push changes to Portal
 
+### Config
+- `GET /api/config` - Get repository configuration
+- `POST /api/config` - Update repository configuration
+
+### Layer Settings Merge (LSM)
+- `GET /api/lsm/sources` - Get available branches for LSM source
+- `POST /api/lsm/preview` - Preview layer settings merge without applying
+- `POST /api/lsm/execute` - Execute layer settings merge to index
+
 ## Development
 
 ### Project Structure
@@ -181,3 +206,15 @@ gitmap-gui --repositories-dir /path/to/repos
 2. **Styling**: Modify `static/css/style.css`
 3. **Frontend logic**: Modify `static/js/app.js`
 4. **HTML structure**: Modify `templates/base.html`
+
+## Future Enhancements
+
+- [ ] Side-by-side diff viewer for JSON changes
+- [ ] Map preview with embedded ArcGIS viewer
+- [ ] Layer tree view with expand/collapse
+- [ ] Bulk operations (clone multiple maps, push/pull all repos)
+- [ ] Notifications interface (send to Portal groups)
+- [ ] Undo/revert commit operations
+- [ ] Export context graph to file (Mermaid, HTML)
+- [ ] Webhook configuration for Portal notifications
+- [ ] Session persistence (remember credentials, last repo)
