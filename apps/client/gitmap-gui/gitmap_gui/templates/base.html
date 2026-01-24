@@ -29,8 +29,9 @@
         </header>
 
         <aside class="sidebar">
+            <!-- REPOSITORY Section -->
             <nav class="nav-section">
-                <div class="nav-section-title">Navigation</div>
+                <div class="nav-section-title">Repository</div>
                 <div class="nav-item active" data-page="overview" onclick="showPage('overview')">
                     <span class="nav-icon">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -74,6 +75,11 @@
                     </span>
                     Changes
                 </div>
+            </nav>
+
+            <!-- TOOLS Section -->
+            <nav class="nav-section">
+                <div class="nav-section-title">Tools</div>
                 <div class="nav-item" data-page="lsm" onclick="showPage('lsm')">
                     <span class="nav-icon">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -86,10 +92,19 @@
                     </span>
                     Layer Settings
                 </div>
+                <div class="nav-item" data-page="context" onclick="showPage('context')">
+                    <span class="nav-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                    </span>
+                    Context Timeline
+                </div>
             </nav>
 
+            <!-- PORTAL Section -->
             <nav class="nav-section">
-                <div class="nav-section-title">Actions</div>
+                <div class="nav-section-title">Portal</div>
                 <div class="nav-item" data-page="portal" onclick="showPage('portal')">
                     <span class="nav-icon">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -98,7 +113,7 @@
                             <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
                         </svg>
                     </span>
-                    Portal Browser
+                    Browse Maps
                 </div>
                 <div class="nav-item" data-page="remote" onclick="showPage('remote')">
                     <span class="nav-icon">
@@ -106,8 +121,13 @@
                             <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
                         </svg>
                     </span>
-                    Remote
+                    Sync
                 </div>
+            </nav>
+
+            <!-- SYSTEM Section -->
+            <nav class="nav-section">
+                <div class="nav-section-title">System</div>
                 <div class="nav-item" data-page="repositories" onclick="showPage('repositories')">
                     <span class="nav-icon">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -120,14 +140,6 @@
                         </svg>
                     </span>
                     Repositories
-                </div>
-                <div class="nav-item" data-page="context" onclick="showPage('context')">
-                    <span class="nav-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                        </svg>
-                    </span>
-                    Context Timeline
                 </div>
                 <div class="nav-item" data-page="settings" onclick="showPage('settings')">
                     <span class="nav-icon">

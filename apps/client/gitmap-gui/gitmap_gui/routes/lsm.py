@@ -11,6 +11,12 @@ from ..utils import get_repo
 bp = Blueprint('lsm', __name__, url_prefix='/api')
 
 
+@bp.route('/lsm/health')
+def api_lsm_health():
+    """Health check for LSM blueprint - verifies blueprint is loaded."""
+    return jsonify({'status': 'ok', 'blueprint': 'lsm', 'routes': ['/api/lsm/health', '/api/lsm/sources', '/api/lsm/preview', '/api/lsm/execute']})
+
+
 def _find_layer_by_name(
         layers: list[dict[str, Any]],
         layer_name: str,
