@@ -15,6 +15,7 @@
 | gitmap_core    | 0.4.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.2.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
 | gitmap-gui     | 0.1.0   | `apps/client/gitmap-gui/pyproject.toml`  |
+| gitmap-client  | 0.1.0   | `apps/client/gitmap-client/pyproject.toml` |
 
 ## Releases
 
@@ -31,6 +32,13 @@
 - Updated summary messages to provide guidance based on auto-commit status
 - Maintains backward compatibility with auto-commit disabled by default
 - Updated `gitmap-cli` documentation with auto-commit feature usage examples
+- Added auto-pull daemon with interval-based scheduling for automated synchronization
+
+**TUI Client (gitmap-client):**
+- New Terminal UI client built with Textual framework
+- Repository selection and management interface
+- Improved commit history display with branch visualization
+- Interactive navigation for GitMap operations
 
 **Web GUI (gitmap-gui):**
 - Major refactoring: Modularized frontend architecture for improved maintainability
@@ -49,6 +57,12 @@
 - Added comprehensive API endpoint documentation organized by feature category
 - Improved error handling and debugging information in API responses
 - Reduced main `app.py` from ~2900 lines to ~100 lines for better maintainability
+- Reorganized navigation structure for improved usability
+- Added LSM (Layer Settings Merge) health check functionality
+
+**Documentation:**
+- Added CLAUDE.md project guide for AI assistants (Claude Code, Cursor, etc.)
+- MIT License added to repository
 
 ### [release/1.4.2]
 

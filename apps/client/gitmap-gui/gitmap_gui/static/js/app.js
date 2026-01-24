@@ -136,6 +136,63 @@ async function createCommit() {
     }
 }
 
+function showCommitDetail(commitId) {
+    const { commits } = repoData;
+    const commit = (commits?.commits || []).find(c => c.id === commitId);
+
+    if (!commit) {
+        showToast('Commit not found', 'error');
+        return;
+    }
+
+    const modalBody = document.getElementById('commit-detail-body');
+
+    modalBody.innerHTML = `
+        <div class="commit-detail">
+            <div class="commit-detail-header">
+                <div class="commit-detail-hash">${escapeHtml(commit.id || '')}</div>
+                ${commit.branches && commit.branches.length > 0 ?
+                    `<div class="commit-detail-branches">
+                        ${commit.branches.map(b => `<span class="branch-badge">${escapeHtml(b)}</span>`).join(' ')}
+                    </div>` : ''
+                }
+            </div>
+
+            <div class="commit-detail-message">${escapeHtml(commit.message || 'No message')}</div>
+
+            <div class="commit-detail-meta">
+                <div class="meta-row">
+                    <span class="meta-label">Author</span>
+                    <span class="meta-value">${escapeHtml(commit.author || 'Unknown')}</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">Date</span>
+                    <span class="meta-value">${formatDate(commit.timestamp)}</span>
+                </div>
+                ${commit.parent ? `
+                    <div class="meta-row">
+                        <span class="meta-label">Parent</span>
+                        <span class="meta-value commit-hash clickable" onclick="showCommitDetail('${escapeHtml(commit.parent)}')">${commit.parent.substring(0, 8)}</span>
+                    </div>
+                ` : ''}
+            </div>
+
+            ${commit.changes ? `
+                <div class="commit-detail-changes">
+                    <h4>Changes</h4>
+                    <div class="changes-summary">
+                        <span class="change-stat added">+${commit.changes.added || 0} added</span>
+                        <span class="change-stat modified">~${commit.changes.modified || 0} modified</span>
+                        <span class="change-stat removed">-${commit.changes.removed || 0} removed</span>
+                    </div>
+                </div>
+            ` : ''}
+        </div>
+    `;
+
+    openModal('commit-detail-modal');
+}
+
 // ============================================================================
 // Merge Operations
 // ============================================================================
@@ -371,8 +428,11 @@ function showPage(page) {
 
 function renderPage() {
     const content = document.getElementById('main-content');
-    
-    if (!repoData || repoData.status?.error) {
+
+    // Pages that don't require a repository
+    const noRepoPages = ['portal', 'repositories'];
+
+    if (!noRepoPages.includes(currentPage) && (!repoData || repoData.status?.error)) {
         content.innerHTML = `
             <div class="error-state">
                 <h3>No Repository Found</h3>
@@ -403,6 +463,18 @@ function renderPage() {
             break;
         case 'repositories':
             renderRepositories();
+            break;
+        case 'portal':
+            renderPortalBrowser();
+            break;
+        case 'context':
+            renderContextTimeline();
+            break;
+        case 'settings':
+            renderSettings();
+            break;
+        case 'lsm':
+            renderLayerSettingsMerge();
             break;
     }
 }
@@ -496,16 +568,13 @@ function renderOverview() {
     `;
 }
 
+let commitSearchQuery = '';
+let commitAuthorFilter = '';
+
 function renderCommits() {
     const { commits, status } = repoData;
     const content = document.getElementById('main-content');
-    
-    // Debug: Log what we received
-    console.log('Commits data:', commits);
-    console.log('Commits commits:', commits?.commits);
-    console.log('Commits debug:', commits?.debug);
-    console.log('Status:', status);
-    
+
     // Check for errors
     if (commits?.error) {
         content.innerHTML = `
@@ -516,29 +585,59 @@ function renderCommits() {
                     Repository path: ${status?.path || 'Not set'}<br>
                     Try refreshing the page or switching to a different repository.
                 </p>
-                ${commits.debug ? `<pre style="background: var(--bg-card); padding: 1rem; margin-top: 1rem; border-radius: 8px; overflow: auto;">${JSON.stringify(commits.debug, null, 2)}</pre>` : ''}
             </div>
         `;
         return;
     }
-    
-    const commitList = commits?.commits || [];
-    const debugInfo = commits?.debug || {};
-    
+
+    let commitList = commits?.commits || [];
+
+    // Apply filters
+    if (commitSearchQuery) {
+        const query = commitSearchQuery.toLowerCase();
+        commitList = commitList.filter(c =>
+            (c.message || '').toLowerCase().includes(query) ||
+            (c.id || '').toLowerCase().includes(query)
+        );
+    }
+    if (commitAuthorFilter) {
+        const author = commitAuthorFilter.toLowerCase();
+        commitList = commitList.filter(c =>
+            (c.author || '').toLowerCase().includes(author)
+        );
+    }
+
+    // Get unique authors for filter dropdown
+    const authors = [...new Set((commits?.commits || []).map(c => c.author).filter(Boolean))];
+
     content.innerHTML = `
         <h1 class="page-title">Commit History</h1>
-        <p class="page-subtitle">
-            ${commitList.length} commits in repository
-            ${status?.path ? `<br><span style="font-size: 0.8em; color: var(--text-muted);">Repository: ${status.path}</span>` : ''}
-            ${debugInfo.current_branch ? `<br><span style="font-size: 0.8em; color: var(--text-muted);">Branch: ${debugInfo.current_branch}, HEAD: ${debugInfo.head_commit ? debugInfo.head_commit.substring(0, 8) : 'none'}</span>` : ''}
-            ${debugInfo.total_commits !== undefined ? `<br><span style="font-size: 0.8em; color: var(--accent-primary);">Debug: total_commits=${debugInfo.total_commits}, all_commits=${debugInfo.all_commits_count || 0}</span>` : ''}
-        </p>
-        
+        <p class="page-subtitle">${commits?.commits?.length || 0} commits in repository</p>
+
+        <div class="card">
+            <div class="filter-bar">
+                <input type="text" class="form-input" id="commit-search"
+                       placeholder="Search commits by message or hash..."
+                       value="${escapeHtml(commitSearchQuery)}"
+                       oninput="filterCommits()">
+                <select class="form-input" id="commit-author-filter" onchange="filterCommits()">
+                    <option value="">All Authors</option>
+                    ${authors.map(a => `<option value="${escapeHtml(a)}" ${commitAuthorFilter === a ? 'selected' : ''}>${escapeHtml(a)}</option>`).join('')}
+                </select>
+                ${(commitSearchQuery || commitAuthorFilter) ? `
+                    <button class="btn btn-secondary" onclick="clearCommitFilters()">Clear Filters</button>
+                ` : ''}
+            </div>
+        </div>
+
         <div class="card">
             ${commitList.length > 0 ? `
+                <div class="card-header">
+                    <span style="color: var(--text-muted);">Showing ${commitList.length} of ${commits?.commits?.length || 0} commits</span>
+                </div>
                 <div class="commit-list">
                     ${commitList.map((commit, i) => `
-                        <div class="commit-item">
+                        <div class="commit-item" onclick="showCommitDetail('${escapeHtml(commit.id || '')}')">
                             <div class="commit-graph">
                                 <div class="commit-dot"></div>
                             </div>
@@ -547,8 +646,8 @@ function renderCommits() {
                                 <div class="commit-meta">
                                     <span>${commit.author || 'Unknown'}</span>
                                     <span>${formatDate(commit.timestamp)}</span>
-                                    ${commit.branches && commit.branches.length > 0 ? 
-                                        `<span style="color: var(--accent-primary);">Branches: ${commit.branches.join(', ')}</span>` 
+                                    ${commit.branches && commit.branches.length > 0 ?
+                                        `<span style="color: var(--accent-primary);">Branches: ${commit.branches.join(', ')}</span>`
                                         : ''}
                                 </div>
                             </div>
@@ -558,14 +657,28 @@ function renderCommits() {
                 </div>
             ` : `
                 <div class="empty-state">
-                    <div class="empty-icon">📝</div>
-                    <div class="empty-title">No commits yet</div>
-                    <p>Create your first commit with <code>gitmap commit -m "message"</code></p>
-                    ${status?.path ? `<p style="margin-top: 0.5rem; color: var(--text-muted);">Repository: ${status.path}</p>` : ''}
+                    <div class="empty-icon">${commitSearchQuery || commitAuthorFilter ? '🔍' : '📝'}</div>
+                    <div class="empty-title">${commitSearchQuery || commitAuthorFilter ? 'No matching commits' : 'No commits yet'}</div>
+                    <p>${commitSearchQuery || commitAuthorFilter ?
+                        'Try adjusting your search criteria.' :
+                        'Create your first commit with <code>gitmap commit -m "message"</code>'
+                    }</p>
                 </div>
             `}
         </div>
     `;
+}
+
+function filterCommits() {
+    commitSearchQuery = document.getElementById('commit-search').value;
+    commitAuthorFilter = document.getElementById('commit-author-filter').value;
+    renderCommits();
+}
+
+function clearCommitFilters() {
+    commitSearchQuery = '';
+    commitAuthorFilter = '';
+    renderCommits();
 }
 
 function renderBranches() {
@@ -988,8 +1101,691 @@ async function refreshData() {
     showToast('Data refreshed', 'success');
 }
 
+// ============================================================================
+// Portal Browser Page
+// ============================================================================
+
+let portalWebmaps = [];
+let portalSearchQuery = '';
+let portalSearchOwner = '';
+
+async function renderPortalBrowser() {
+    const content = document.getElementById('main-content');
+
+    // Check portal status first
+    await checkPortalStatus();
+
+    if (!portalStatus.connected) {
+        content.innerHTML = `
+            <h1 class="page-title">Portal Browser</h1>
+            <p class="page-subtitle">Browse and clone web maps from ArcGIS Portal</p>
+
+            <div class="card">
+                <div class="empty-state">
+                    <div class="empty-icon">🔌</div>
+                    <div class="empty-title">Not Connected</div>
+                    <p>Connect to ArcGIS Portal to browse available web maps.</p>
+                    <button class="btn btn-primary" style="margin-top: 1rem;" onclick="openPortalModal()">
+                        Connect to Portal
+                    </button>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    content.innerHTML = `
+        <h1 class="page-title">Portal Browser</h1>
+        <p class="page-subtitle">Connected to ${escapeHtml(portalStatus.url || 'Portal')} as ${escapeHtml(portalStatus.username || 'user')}</p>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Search Web Maps</h3>
+            </div>
+            <div class="search-filters">
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label">Search Query</label>
+                    <input type="text" class="form-input" id="portal-search-query"
+                           placeholder="Search by title, tags, or description..."
+                           value="${escapeHtml(portalSearchQuery)}"
+                           onkeypress="if(event.key==='Enter') searchPortalMaps()">
+                </div>
+                <div class="form-group" style="width: 200px;">
+                    <label class="form-label">Owner</label>
+                    <input type="text" class="form-input" id="portal-search-owner"
+                           placeholder="Username"
+                           value="${escapeHtml(portalSearchOwner)}"
+                           onkeypress="if(event.key==='Enter') searchPortalMaps()">
+                </div>
+                <div class="form-group" style="align-self: flex-end;">
+                    <button class="btn btn-primary" onclick="searchPortalMaps()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="webmaps-results">
+            <div class="empty-state">
+                <div class="empty-icon">🗺️</div>
+                <div class="empty-title">Search for Web Maps</div>
+                <p>Enter a search query or owner to find web maps, or click Search to list all available maps.</p>
+            </div>
+        </div>
+    `;
+}
+
+async function searchPortalMaps() {
+    const query = document.getElementById('portal-search-query').value.trim();
+    const owner = document.getElementById('portal-search-owner').value.trim();
+
+    portalSearchQuery = query;
+    portalSearchOwner = owner;
+
+    const resultsContainer = document.getElementById('webmaps-results');
+    resultsContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+    try {
+        const params = new URLSearchParams();
+        if (query) params.append('query', query);
+        if (owner) params.append('owner', owner);
+
+        const response = await fetch(`/api/portal/webmaps?${params.toString()}`);
+        const data = await response.json();
+
+        if (!data.success) {
+            resultsContainer.innerHTML = `<div class="error-state">${escapeHtml(data.error)}</div>`;
+            return;
+        }
+
+        portalWebmaps = data.webmaps || [];
+
+        if (portalWebmaps.length === 0) {
+            resultsContainer.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">🔍</div>
+                    <div class="empty-title">No Web Maps Found</div>
+                    <p>Try adjusting your search criteria.</p>
+                </div>
+            `;
+            return;
+        }
+
+        resultsContainer.innerHTML = `
+            <div class="card-header">
+                <h3 class="card-title">${portalWebmaps.length} Web Maps Found</h3>
+            </div>
+            <div class="webmap-grid">
+                ${portalWebmaps.map(map => `
+                    <div class="webmap-card" onclick="selectWebmapForClone('${escapeHtml(map.id)}', '${escapeHtml(map.title || 'Untitled')}')">
+                        <div class="webmap-thumbnail">
+                            ${map.thumbnail ?
+                                `<img src="${escapeHtml(map.thumbnail)}" alt="${escapeHtml(map.title)}" onerror="this.style.display='none'">` :
+                                '<div class="webmap-thumbnail-placeholder">🗺️</div>'
+                            }
+                        </div>
+                        <div class="webmap-info">
+                            <div class="webmap-title">${escapeHtml(map.title || 'Untitled')}</div>
+                            <div class="webmap-meta">
+                                <span>Owner: ${escapeHtml(map.owner || 'Unknown')}</span>
+                                ${map.numLayers !== undefined ? `<span>${map.numLayers} layers</span>` : ''}
+                            </div>
+                            <div class="webmap-id">${escapeHtml(map.id)}</div>
+                        </div>
+                        <button class="btn btn-primary btn-small webmap-clone-btn" onclick="event.stopPropagation(); cloneWebmap('${escapeHtml(map.id)}')">
+                            Clone
+                        </button>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } catch (error) {
+        resultsContainer.innerHTML = `<div class="error-state">Error: ${escapeHtml(error.message)}</div>`;
+    }
+}
+
+function selectWebmapForClone(itemId, title) {
+    document.getElementById('clone-item-id').value = itemId;
+    document.getElementById('clone-directory').value = '';
+    openModal('clone-modal');
+}
+
+async function cloneWebmap(itemId) {
+    showToast('Cloning map...', 'info');
+    const result = await postAPI('/clone', { item_id: itemId });
+
+    if (result.success) {
+        showToast(`Cloned '${result.title}' (${result.layers} layers)`, 'success');
+        await loadRepoData();
+        showPage('overview');
+    } else {
+        showToast(result.error || 'Clone failed', 'error');
+    }
+}
+
+// ============================================================================
+// Context Timeline Page
+// ============================================================================
+
+async function renderContextTimeline() {
+    const content = document.getElementById('main-content');
+    const { status } = repoData;
+
+    content.innerHTML = `
+        <h1 class="page-title">Context Timeline</h1>
+        <p class="page-subtitle">Event history and relationships</p>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    Activity Timeline
+                </h3>
+                <div style="display: flex; gap: 0.5rem;">
+                    <select class="form-input" id="context-filter" style="width: auto;" onchange="filterContextEvents()">
+                        <option value="all">All Events</option>
+                        <option value="commit">Commits</option>
+                        <option value="push">Pushes</option>
+                        <option value="pull">Pulls</option>
+                        <option value="merge">Merges</option>
+                        <option value="branch">Branches</option>
+                    </select>
+                </div>
+            </div>
+            <div id="context-timeline-content">
+                ${renderContextEvents()}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Export Context</h3>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Export the context graph for documentation or visualization.
+            </p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button class="btn btn-secondary" onclick="exportContext('mermaid')">Export Mermaid</button>
+                <button class="btn btn-secondary" onclick="exportContext('ascii')">Export ASCII</button>
+                <button class="btn btn-secondary" onclick="exportContext('html')">Export HTML</button>
+            </div>
+        </div>
+    `;
+}
+
+function renderContextEvents() {
+    const { commits } = repoData;
+    const commitList = commits?.commits || [];
+
+    if (commitList.length === 0) {
+        return `
+            <div class="empty-state" style="padding: 2rem;">
+                <div class="empty-icon">📊</div>
+                <div class="empty-title">No Events Yet</div>
+                <p>Activity will appear here as you make commits, push, pull, and merge.</p>
+            </div>
+        `;
+    }
+
+    // Build timeline from commits (we can expand this to include other events)
+    return `
+        <div class="timeline">
+            ${commitList.slice(0, 20).map((commit, i) => `
+                <div class="timeline-item" data-type="commit">
+                    <div class="timeline-marker commit"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-type">Commit</span>
+                            <span class="timeline-hash">${(commit.id || '').substring(0, 8)}</span>
+                        </div>
+                        <div class="timeline-message">${escapeHtml(commit.message || 'No message')}</div>
+                        <div class="timeline-meta">
+                            <span>${escapeHtml(commit.author || 'Unknown')}</span>
+                            <span>${formatDate(commit.timestamp)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function filterContextEvents() {
+    const filter = document.getElementById('context-filter').value;
+    const items = document.querySelectorAll('.timeline-item');
+
+    items.forEach(item => {
+        if (filter === 'all' || item.dataset.type === filter) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+async function exportContext(format) {
+    showToast(`Exporting context as ${format}...`, 'info');
+    // This would call a backend API to generate the export
+    // For now, show a placeholder message
+    showToast(`Export to ${format} - Coming soon!`, 'warning');
+}
+
+// ============================================================================
+// Settings Page
+// ============================================================================
+
+async function renderSettings() {
+    const content = document.getElementById('main-content');
+    const { status } = repoData || {};
+
+    // Fetch current config
+    let config = {};
+    try {
+        const configData = await fetchAPI('/config');
+        config = configData.config || {};
+    } catch (e) {
+        // Config endpoint may not exist yet
+    }
+
+    content.innerHTML = `
+        <h1 class="page-title">Settings</h1>
+        <p class="page-subtitle">Repository and application configuration</p>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+                    </svg>
+                    Repository Configuration
+                </h3>
+            </div>
+            <div class="settings-form">
+                <div class="form-group">
+                    <label class="form-label">Project Name</label>
+                    <input type="text" class="form-input" id="setting-project-name"
+                           value="${escapeHtml(config.project_name || status?.project_name || '')}"
+                           placeholder="My Web Map Project">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">User Name</label>
+                    <input type="text" class="form-input" id="setting-user-name"
+                           value="${escapeHtml(config.user_name || '')}"
+                           placeholder="Your Name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">User Email</label>
+                    <input type="text" class="form-input" id="setting-user-email"
+                           value="${escapeHtml(config.user_email || '')}"
+                           placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Production Branch</label>
+                    <input type="text" class="form-input" id="setting-production-branch"
+                           value="${escapeHtml(config.production_branch || '')}"
+                           placeholder="main (triggers notifications on push)">
+                    <small style="color: var(--text-muted);">Branch that triggers notifications when pushed to Portal</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="setting-auto-visualize" ${config.auto_visualize ? 'checked' : ''}>
+                        Auto-visualize context after events
+                    </label>
+                </div>
+                <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="9" y1="21" x2="9" y2="9"/>
+                    </svg>
+                    Theme
+                </h3>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-secondary theme-btn ${!document.body.classList.contains('light-theme') ? 'active' : ''}" onclick="setTheme('dark')">
+                    🌙 Dark
+                </button>
+                <button class="btn btn-secondary theme-btn ${document.body.classList.contains('light-theme') ? 'active' : ''}" onclick="setTheme('light')">
+                    ☀️ Light
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                        <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
+                    </svg>
+                    Keyboard Shortcuts
+                </h3>
+            </div>
+            <div class="shortcuts-grid">
+                <div class="shortcut-item"><kbd>R</kbd> Refresh data</div>
+                <div class="shortcut-item"><kbd>N</kbd> New commit</div>
+                <div class="shortcut-item"><kbd>B</kbd> New branch</div>
+                <div class="shortcut-item"><kbd>1-6</kbd> Switch pages</div>
+                <div class="shortcut-item"><kbd>Esc</kbd> Close modal</div>
+                <div class="shortcut-item"><kbd>?</kbd> Show shortcuts</div>
+            </div>
+        </div>
+    `;
+}
+
+async function saveSettings() {
+    const settings = {
+        project_name: document.getElementById('setting-project-name').value.trim(),
+        user_name: document.getElementById('setting-user-name').value.trim(),
+        user_email: document.getElementById('setting-user-email').value.trim(),
+        production_branch: document.getElementById('setting-production-branch').value.trim(),
+        auto_visualize: document.getElementById('setting-auto-visualize').checked,
+    };
+
+    const result = await postAPI('/config', settings);
+
+    if (result.success) {
+        showToast('Settings saved', 'success');
+        await loadRepoData();
+    } else {
+        showToast(result.error || 'Failed to save settings', 'error');
+    }
+}
+
+function setTheme(theme) {
+    if (theme === 'light') {
+        document.body.classList.add('light-theme');
+        localStorage.setItem('gitmap-theme', 'light');
+    } else {
+        document.body.classList.remove('light-theme');
+        localStorage.setItem('gitmap-theme', 'dark');
+    }
+    // Update active state
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+
+// ============================================================================
+// Layer Settings Merge (LSM) Page
+// ============================================================================
+
+let lsmSources = [];
+let selectedLsmSource = null;
+
+async function renderLayerSettingsMerge() {
+    const content = document.getElementById('main-content');
+
+    content.innerHTML = `
+        <h1 class="page-title">Layer Settings Merge</h1>
+        <p class="page-subtitle">Transfer popup and form settings between branches</p>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="2" width="8" height="8" rx="1"/>
+                        <rect x="14" y="2" width="8" height="8" rx="1"/>
+                    </svg>
+                    Select Source Branch
+                </h3>
+            </div>
+            <div id="lsm-sources-container">
+                <div class="loading"><div class="spinner"></div></div>
+            </div>
+        </div>
+
+        <div class="card" id="lsm-preview-card" style="display: none;">
+            <div class="card-header">
+                <h3 class="card-title">Transfer Preview</h3>
+            </div>
+            <div id="lsm-preview-content"></div>
+        </div>
+    `;
+
+    // Load available sources
+    await loadLsmSources();
+}
+
+async function loadLsmSources() {
+    const container = document.getElementById('lsm-sources-container');
+
+    try {
+        const data = await fetchAPI('/lsm/sources');
+
+        if (!data.success) {
+            container.innerHTML = `<div class="error-state">${escapeHtml(data.error)}</div>`;
+            return;
+        }
+
+        lsmSources = data.sources || [];
+        const currentBranch = data.current_branch;
+
+        if (lsmSources.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="padding: 2rem;">
+                    <div class="empty-icon">🌿</div>
+                    <div class="empty-title">No branches available</div>
+                    <p>Create branches and commits to use Layer Settings Merge.</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = `
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Select a source branch to transfer popup and form settings from.
+                Settings will be applied to your current working index.
+            </p>
+            <div class="lsm-source-list">
+                ${lsmSources.map(source => `
+                    <div class="lsm-source-item ${source.name === currentBranch ? 'current' : ''}"
+                         onclick="selectLsmSource('${escapeHtml(source.name)}')">
+                        <div class="lsm-source-info">
+                            <div class="lsm-source-name">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="6" y1="3" x2="6" y2="15"/>
+                                    <circle cx="18" cy="6" r="3"/>
+                                    <circle cx="6" cy="18" r="3"/>
+                                    <path d="M18 9a9 9 0 01-9 9"/>
+                                </svg>
+                                ${escapeHtml(source.name)}
+                                ${source.name === currentBranch ? '<span class="branch-badge">Current</span>' : ''}
+                            </div>
+                            <div class="lsm-source-meta">
+                                <span>${escapeHtml(source.message || 'No message')}</span>
+                                <span>${source.timestamp ? formatDate(source.timestamp) : ''}</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); previewLsm('${escapeHtml(source.name)}')">
+                            Preview
+                        </button>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } catch (error) {
+        container.innerHTML = `<div class="error-state">Error: ${escapeHtml(error.message)}</div>`;
+    }
+}
+
+function selectLsmSource(sourceName) {
+    selectedLsmSource = sourceName;
+    document.querySelectorAll('.lsm-source-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+    event.currentTarget.classList.add('selected');
+}
+
+async function previewLsm(sourceBranch) {
+    selectedLsmSource = sourceBranch;
+    const previewCard = document.getElementById('lsm-preview-card');
+    const previewContent = document.getElementById('lsm-preview-content');
+
+    previewCard.style.display = 'block';
+    previewContent.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+    try {
+        const result = await postAPI('/lsm/preview', { source_branch: sourceBranch });
+
+        if (!result.success) {
+            previewContent.innerHTML = `<div class="error-state">${escapeHtml(result.error)}</div>`;
+            return;
+        }
+
+        const summary = result.summary;
+
+        previewContent.innerHTML = `
+            <div class="lsm-summary">
+                <div class="lsm-summary-header">
+                    <span>Transferring from <strong>${escapeHtml(sourceBranch)}</strong> to <strong>current index</strong></span>
+                </div>
+
+                <div class="lsm-stats">
+                    <div class="lsm-stat success">
+                        <span class="lsm-stat-value">${summary.total_transferred}</span>
+                        <span class="lsm-stat-label">Will Transfer</span>
+                    </div>
+                    <div class="lsm-stat warning">
+                        <span class="lsm-stat-value">${summary.total_skipped}</span>
+                        <span class="lsm-stat-label">Will Skip</span>
+                    </div>
+                </div>
+
+                ${summary.transferred_layers.length > 0 ? `
+                    <div class="lsm-section">
+                        <h4>Layers to Transfer</h4>
+                        <ul class="lsm-list success">
+                            ${summary.transferred_layers.map(l => `<li>${escapeHtml(l)}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+                ${summary.transferred_tables.length > 0 ? `
+                    <div class="lsm-section">
+                        <h4>Tables to Transfer</h4>
+                        <ul class="lsm-list success">
+                            ${summary.transferred_tables.map(t => `<li>${escapeHtml(t)}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+                ${summary.skipped_layers.length > 0 ? `
+                    <div class="lsm-section">
+                        <h4>Layers to Skip (not in target)</h4>
+                        <ul class="lsm-list warning">
+                            ${summary.skipped_layers.map(l => `<li>${escapeHtml(l)}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+                ${summary.skipped_tables.length > 0 ? `
+                    <div class="lsm-section">
+                        <h4>Tables to Skip (not in target)</h4>
+                        <ul class="lsm-list warning">
+                            ${summary.skipped_tables.map(t => `<li>${escapeHtml(t)}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+                <div style="margin-top: 1.5rem;">
+                    <button class="btn btn-primary" onclick="executeLsm('${escapeHtml(sourceBranch)}')"
+                            ${summary.total_transferred === 0 ? 'disabled style="opacity: 0.5;"' : ''}>
+                        Apply Settings to Index
+                    </button>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        previewContent.innerHTML = `<div class="error-state">Error: ${escapeHtml(error.message)}</div>`;
+    }
+}
+
+async function executeLsm(sourceBranch) {
+    const result = await postAPI('/lsm/execute', { source_branch: sourceBranch });
+
+    if (result.success) {
+        showToast(`Transferred ${result.summary.total_transferred} layer settings to index`, 'success');
+        await loadRepoData();
+        showPage('changes');
+    } else {
+        showToast(result.error || 'Layer settings merge failed', 'error');
+    }
+}
+
+// ============================================================================
+// Keyboard Shortcuts
+// ============================================================================
+
+document.addEventListener('keydown', (e) => {
+    // Don't trigger shortcuts when typing in inputs
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+    // Check for modal open
+    const modalOpen = document.querySelector('.modal-overlay.active');
+
+    if (modalOpen) {
+        if (e.key === 'Escape') {
+            modalOpen.classList.remove('active');
+        }
+        return;
+    }
+
+    switch (e.key.toLowerCase()) {
+        case 'r':
+            refreshData();
+            break;
+        case 'n':
+            openCommitModal();
+            break;
+        case 'b':
+            openModal('create-branch-modal');
+            break;
+        case '1':
+            showPage('overview');
+            break;
+        case '2':
+            showPage('commits');
+            break;
+        case '3':
+            showPage('branches');
+            break;
+        case '4':
+            showPage('changes');
+            break;
+        case '5':
+            showPage('portal');
+            break;
+        case '6':
+            showPage('remote');
+            break;
+        case '?':
+            showPage('settings');
+            break;
+    }
+});
+
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
+    // Load saved theme
+    const savedTheme = localStorage.getItem('gitmap-theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+    }
+
     await loadRepoData();
     await checkPortalStatus();
     renderPage();
