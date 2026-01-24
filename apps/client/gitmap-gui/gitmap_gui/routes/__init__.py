@@ -1,7 +1,7 @@
 """Route blueprints for GitMap GUI."""
 from flask import Blueprint
 
-from . import branch, commit, diff, main, merge, portal, remote, repository
+from . import branch, commit, config, diff, lsm, main, merge, portal, remote, repository
 
 # Register all blueprints
 blueprints = [
@@ -13,6 +13,8 @@ blueprints = [
     diff.bp,
     portal.bp,
     remote.bp,
+    config.bp,
+    lsm.bp,
 ]
 
 
