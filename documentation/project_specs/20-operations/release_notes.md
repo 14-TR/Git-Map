@@ -23,6 +23,14 @@
 
 **Type**: Minor
 
+**CLI & Core:**
+- Added `merge-from` command for cross-repository merges
+- Merge branches from one GitMap repository into another repository
+- Supports interactive conflict resolution (same as regular merge)
+- Records merge events in context store for tracking cross-repo operations
+- Enables workflow: `gitmap merge-from <source_repo> <source_branch>`
+- Useful for merging changes from master/test repositories or different Portal items
+
 **Web GUI (gitmap-gui):**
 - Added Services Browser page for browsing Portal services
 - Browse Feature Services, Map Services, Image Services, and Vector Tile Services
