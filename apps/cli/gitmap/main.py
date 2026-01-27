@@ -41,7 +41,7 @@ from gitmap_cli.commands.push import push
 from gitmap_cli.commands.setup_repos import setup_repos
 from gitmap_cli.commands.status import status
 
-# Import hyphenated module using importlib.util (kebab-case filename)
+# Import hyphenated modules using importlib.util (kebab-case filenames)
 _layer_settings_merge_path = Path(__file__).parent / "commands" / "layer-settings-merge.py"
 _layer_settings_merge_spec = importlib.util.spec_from_file_location(
     "layer_settings_merge",
@@ -50,6 +50,15 @@ _layer_settings_merge_spec = importlib.util.spec_from_file_location(
 _layer_settings_merge_module = importlib.util.module_from_spec(_layer_settings_merge_spec)
 _layer_settings_merge_spec.loader.exec_module(_layer_settings_merge_module)
 layer_settings_merge = _layer_settings_merge_module.layer_settings_merge
+
+_merge_from_path = Path(__file__).parent / "commands" / "merge-from.py"
+_merge_from_spec = importlib.util.spec_from_file_location(
+    "merge_from",
+    _merge_from_path,
+)
+_merge_from_module = importlib.util.module_from_spec(_merge_from_spec)
+_merge_from_spec.loader.exec_module(_merge_from_module)
+merge_from = _merge_from_module.merge_from
 
 
 # ---- CLI Group ----------------------------------------------------------------------------------------------
@@ -84,6 +93,7 @@ cli.add_command(layer_settings_merge)
 cli.add_command(list_maps, name="list")
 cli.add_command(log)
 cli.add_command(merge)
+cli.add_command(merge_from, name="merge-from")
 cli.add_command(notify)
 cli.add_command(push)
 cli.add_command(pull)
