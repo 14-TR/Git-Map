@@ -1338,3 +1338,103 @@ kbd {
     color: var(--warning);
     background: rgba(245, 158, 11, 0.1);
 }
+
+/* ============================================================================
+   Services Browser
+   ============================================================================ */
+
+.services-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.service-item {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.service-item:hover {
+    border-color: var(--accent-primary);
+    background: var(--bg-hover);
+}
+
+.service-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.service-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.service-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.service-type-badge {
+    background: var(--gradient-2);
+    color: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.service-id-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.service-id-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.service-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent-secondary);
+    background: var(--bg-dark);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    user-select: all;
+}
+
+.btn-copy {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 0.4rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-copy:hover {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: white;
+}
+
+.btn-copy.copied {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}

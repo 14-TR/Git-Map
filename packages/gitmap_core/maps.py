@@ -123,20 +123,20 @@ def list_webmaps(
     try:
         # Build search query components
         query_parts = ['type:"Web Map"']
-        
+
         if owner:
             query_parts.append(f'owner:{owner}')
-        
+
         if tag:
             query_parts.append(f'tags:{tag}')
-        
+
         if query:
             query_parts.append(query)
-        
+
         # Combine all query parts with AND
         search_query = ' AND '.join(query_parts)
         items = gis.content.search(query=search_query, max_items=max_results)
-        
+
         result = []
         for item in items:
             result.append({
@@ -148,6 +148,62 @@ def list_webmaps(
         return result
     except Exception as search_error:
         msg = f"Failed to search web maps: {search_error}"
+        raise RuntimeError(msg) from search_error
+
+
+def list_services(
+        gis: GIS,
+        query: str = "",
+        owner: str = "",
+        service_type: str = "",
+        max_results: int = 100,
+) -> list[dict[str, str]]:
+    """List available services (Feature Services, Map Services, etc.) from the Portal.
+
+    Args:
+        gis: Authenticated GIS connection.
+        query: Optional search query string to filter services.
+        owner: Optional owner username to filter services.
+        service_type: Optional service type filter (e.g., "Feature Service", "Map Service").
+            Defaults to empty string to list Feature Services.
+        max_results: Maximum number of services to return (default: 100).
+
+    Returns:
+        List of dictionaries containing service information (id, title, owner, type, url).
+
+    Raises:
+        RuntimeError: If service search fails.
+    """
+    try:
+        # Build search query components
+        # Default to Feature Service if no type specified
+        if service_type:
+            query_parts = [f'type:"{service_type}"']
+        else:
+            query_parts = ['type:"Feature Service"']
+
+        if owner:
+            query_parts.append(f'owner:{owner}')
+
+        if query:
+            query_parts.append(query)
+
+        # Combine all query parts with AND
+        search_query = ' AND '.join(query_parts)
+        items = gis.content.search(query=search_query, max_items=max_results)
+
+        result = []
+        for item in items:
+            result.append({
+                "id": getattr(item, "id", ""),
+                "title": getattr(item, "title", ""),
+                "owner": getattr(item, "owner", ""),
+                "type": getattr(item, "type", ""),
+                "url": getattr(item, "url", ""),
+            })
+        return result
+    except Exception as search_error:
+        msg = f"Failed to search services: {search_error}"
         raise RuntimeError(msg) from search_error
 
 
