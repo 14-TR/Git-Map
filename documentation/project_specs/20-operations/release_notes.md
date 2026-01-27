@@ -19,7 +19,7 @@
 
 ## Releases
 
-### [release/2.0.0] (Pending)
+### [release/2.0.0] 
 
 **Type**: Major
 
