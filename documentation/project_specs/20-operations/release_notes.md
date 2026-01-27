@@ -10,7 +10,7 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 2.0.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 2.1.0   | `documentation/project_specs/20-operations/release_notes.md` |
 | gitmap-cli     | 0.5.0   | `apps/cli/gitmap/pyproject.toml`         |
 | gitmap_core    | 0.4.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.2.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
@@ -19,7 +19,19 @@
 
 ## Releases
 
-### [release/2.0.0] 
+### [release/2.1.0] (Pending)
+
+**Type**: Minor
+
+**Web GUI (gitmap-gui):**
+- Added Services Browser page for browsing Portal services
+- Browse Feature Services, Map Services, Image Services, and Vector Tile Services
+- Search services by query string, owner, and service type
+- One-click Item ID copy functionality with visual feedback
+- Displays service metadata including title, type, owner, and Item ID
+- Integrated with Portal connection for seamless service discovery
+
+### [release/2.0.0] (Pending)
 
 **Type**: Major
 
