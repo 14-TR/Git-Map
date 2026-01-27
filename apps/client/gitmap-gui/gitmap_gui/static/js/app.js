@@ -430,7 +430,7 @@ function renderPage() {
     const content = document.getElementById('main-content');
 
     // Pages that don't require a repository
-    const noRepoPages = ['portal', 'repositories'];
+    const noRepoPages = ['portal', 'repositories', 'services'];
 
     if (!noRepoPages.includes(currentPage) && (!repoData || repoData.status?.error)) {
         content.innerHTML = `
@@ -466,6 +466,9 @@ function renderPage() {
             break;
         case 'portal':
             renderPortalBrowser();
+            break;
+        case 'services':
+            renderServices();
             break;
         case 'context':
             renderContextTimeline();
@@ -1264,6 +1267,202 @@ async function cloneWebmap(itemId) {
         showPage('overview');
     } else {
         showToast(result.error || 'Clone failed', 'error');
+    }
+}
+
+// ============================================================================
+// Services Browser Page
+// ============================================================================
+
+let portalServices = [];
+let servicesSearchQuery = '';
+let servicesSearchOwner = '';
+let servicesSearchType = '';
+
+async function renderServices() {
+    const content = document.getElementById('main-content');
+
+    // Check portal status first
+    await checkPortalStatus();
+
+    if (!portalStatus.connected) {
+        content.innerHTML = `
+            <h1 class="page-title">Services Browser</h1>
+            <p class="page-subtitle">Browse Feature Services and their Item IDs</p>
+
+            <div class="card">
+                <div class="empty-state">
+                    <div class="empty-icon">🔌</div>
+                    <div class="empty-title">Not Connected</div>
+                    <p>Connect to ArcGIS Portal to browse available services.</p>
+                    <button class="btn btn-primary" style="margin-top: 1rem;" onclick="openPortalModal()">
+                        Connect to Portal
+                    </button>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    content.innerHTML = `
+        <h1 class="page-title">Services Browser</h1>
+        <p class="page-subtitle">Connected to ${escapeHtml(portalStatus.url || 'Portal')} as ${escapeHtml(portalStatus.username || 'user')}</p>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Search Services</h3>
+            </div>
+            <div class="search-filters">
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label">Search Query</label>
+                    <input type="text" class="form-input" id="services-search-query"
+                           placeholder="Search by title, tags, or description..."
+                           value="${escapeHtml(servicesSearchQuery)}"
+                           onkeypress="if(event.key==='Enter') searchServices()">
+                </div>
+                <div class="form-group" style="width: 150px;">
+                    <label class="form-label">Owner</label>
+                    <input type="text" class="form-input" id="services-search-owner"
+                           placeholder="Username"
+                           value="${escapeHtml(servicesSearchOwner)}"
+                           onkeypress="if(event.key==='Enter') searchServices()">
+                </div>
+                <div class="form-group" style="width: 180px;">
+                    <label class="form-label">Service Type</label>
+                    <select class="form-input" id="services-search-type">
+                        <option value="" ${servicesSearchType === '' ? 'selected' : ''}>Feature Service</option>
+                        <option value="Map Service" ${servicesSearchType === 'Map Service' ? 'selected' : ''}>Map Service</option>
+                        <option value="Image Service" ${servicesSearchType === 'Image Service' ? 'selected' : ''}>Image Service</option>
+                        <option value="Vector Tile Service" ${servicesSearchType === 'Vector Tile Service' ? 'selected' : ''}>Vector Tile Service</option>
+                    </select>
+                </div>
+                <div class="form-group" style="align-self: flex-end;">
+                    <button class="btn btn-primary" onclick="searchServices()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="services-results">
+            <div class="empty-state">
+                <div class="empty-icon">🗄️</div>
+                <div class="empty-title">Search for Services</div>
+                <p>Enter a search query or owner to find services, or click Search to list all available Feature Services.</p>
+            </div>
+        </div>
+    `;
+}
+
+async function searchServices() {
+    const query = document.getElementById('services-search-query').value.trim();
+    const owner = document.getElementById('services-search-owner').value.trim();
+    const serviceType = document.getElementById('services-search-type').value;
+
+    servicesSearchQuery = query;
+    servicesSearchOwner = owner;
+    servicesSearchType = serviceType;
+
+    const resultsContainer = document.getElementById('services-results');
+    resultsContainer.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+    try {
+        const params = new URLSearchParams();
+        if (query) params.append('query', query);
+        if (owner) params.append('owner', owner);
+        if (serviceType) params.append('service_type', serviceType);
+
+        const response = await fetch(`/api/portal/services?${params.toString()}`);
+        const data = await response.json();
+
+        if (!data.success) {
+            resultsContainer.innerHTML = `<div class="error-state">${escapeHtml(data.error)}</div>`;
+            return;
+        }
+
+        portalServices = data.services || [];
+
+        if (portalServices.length === 0) {
+            resultsContainer.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">🔍</div>
+                    <div class="empty-title">No Services Found</div>
+                    <p>Try adjusting your search criteria.</p>
+                </div>
+            `;
+            return;
+        }
+
+        resultsContainer.innerHTML = `
+            <div class="card-header">
+                <h3 class="card-title">${portalServices.length} Services Found</h3>
+            </div>
+            <div class="services-list">
+                ${portalServices.map(service => `
+                    <div class="service-item">
+                        <div class="service-info">
+                            <div class="service-title">${escapeHtml(service.title || 'Untitled')}</div>
+                            <div class="service-meta">
+                                <span class="service-type-badge">${escapeHtml(service.type || 'Service')}</span>
+                                <span>Owner: ${escapeHtml(service.owner || 'Unknown')}</span>
+                            </div>
+                            <div class="service-id-row">
+                                <span class="service-id-label">Item ID:</span>
+                                <code class="service-id">${escapeHtml(service.id)}</code>
+                                <button class="btn btn-copy" onclick="copyServiceId('${escapeHtml(service.id)}', this)" title="Copy Item ID">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } catch (error) {
+        resultsContainer.innerHTML = `<div class="error-state">Error: ${escapeHtml(error.message)}</div>`;
+    }
+}
+
+async function copyServiceId(itemId, button) {
+    try {
+        await navigator.clipboard.writeText(itemId);
+        showToast(`Copied: ${itemId}`, 'success');
+
+        // Visual feedback on button
+        const originalHtml = button.innerHTML;
+        button.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+        `;
+        button.classList.add('copied');
+
+        setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.classList.remove('copied');
+        }, 2000);
+    } catch (error) {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = itemId;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showToast(`Copied: ${itemId}`, 'success');
+        } catch (e) {
+            showToast('Failed to copy to clipboard', 'error');
+        }
+        document.body.removeChild(textArea);
     }
 }
 
