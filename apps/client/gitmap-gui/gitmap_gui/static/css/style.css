@@ -1192,6 +1192,199 @@ kbd {
    Layer Settings Merge (LSM)
    ============================================================================ */
 
+/* Two-column container */
+.lsm-container {
+    display: flex;
+    gap: 1rem;
+    align-items: stretch;
+    margin-bottom: 1.5rem;
+}
+
+.lsm-panel {
+    flex: 1;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.lsm-source-panel {
+    border-left: 3px solid var(--accent-secondary);
+}
+
+.lsm-target-panel {
+    border-left: 3px solid var(--accent-primary);
+}
+
+.lsm-panel-header {
+    margin-bottom: 1rem;
+}
+
+.lsm-panel-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+}
+
+.lsm-panel-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.lsm-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-primary);
+    padding: 0 0.5rem;
+}
+
+.lsm-selector {
+    margin-bottom: 1rem;
+}
+
+.lsm-selector label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.lsm-selector select {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--bg-main);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.lsm-selector select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.lsm-branches-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+}
+
+.lsm-branches-section label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.lsm-branch-table {
+    flex: 1;
+    background: var(--bg-main);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: auto;
+    max-height: 300px;
+}
+
+.lsm-empty-hint {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.lsm-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.lsm-table thead {
+    position: sticky;
+    top: 0;
+    background: var(--bg-panel);
+    z-index: 1;
+}
+
+.lsm-table th {
+    text-align: left;
+    padding: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.lsm-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.lsm-branch-row {
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.lsm-branch-row:hover {
+    background: var(--bg-hover);
+}
+
+.lsm-branch-row.selected {
+    background: var(--accent-glow);
+}
+
+.lsm-branch-row.current {
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.lsm-branch-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.lsm-branch-message {
+    color: var(--text-secondary);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lsm-branch-date {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.branch-badge.small {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.4rem;
+}
+
+.lsm-actions {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+/* Legacy styles for backwards compatibility */
 .lsm-source-list {
     display: flex;
     flex-direction: column;
