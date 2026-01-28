@@ -153,7 +153,7 @@ def api_lsm_sources():
                         'name': branch,
                         'commit_id': commit_id,
                         'message': commit.message,
-                        'timestamp': commit.timestamp.isoformat() if commit.timestamp else None,
+                        'timestamp': commit.timestamp.isoformat() if hasattr(commit.timestamp, 'isoformat') else commit.timestamp,
                     })
 
         return jsonify({
