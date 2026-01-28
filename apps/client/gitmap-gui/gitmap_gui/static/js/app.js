@@ -391,11 +391,15 @@ async function pushToPortal() {
 async function fetchAPI(endpoint) {
     try {
         const response = await fetch(`/api${endpoint}`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return await response.json();
+        const data = await response.json();
+        if (!response.ok) {
+            // For non-2xx responses, return the parsed error if available
+            return { success: false, error: data.error || `HTTP ${response.status}` };
+        }
+        return data;
     } catch (error) {
         console.error('API Error:', error);
-        return { error: error.message };
+        return { success: false, error: error.message };
     }
 }
 
