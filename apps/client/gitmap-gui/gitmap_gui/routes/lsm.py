@@ -2,13 +2,27 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import Any
 
 from flask import Blueprint, jsonify, request
 
-from ..utils import get_repo
+from ..utils import get_repo, scan_repositories
+import gitmap_gui.config as config_module
 
 bp = Blueprint('lsm', __name__, url_prefix='/api')
+
+
+def _get_repo_by_path(repo_path: str):
+    """Get a Repository instance for a given path."""
+    from gitmap_core.repository import Repository
+    try:
+        repo = Repository(Path(repo_path))
+        if repo.exists() and repo.is_valid():
+            return repo
+    except Exception:
+        pass
+    return None
 
 
 @bp.route('/lsm/health')
@@ -131,6 +145,55 @@ def _transfer_settings_between_maps(
     return updated_map, summary
 
 
+@bp.route('/lsm/repositories')
+def api_lsm_repositories():
+    """Get all repositories with their branches for LSM selection."""
+    if not config_module.repositories_dir:
+        return jsonify({'success': False, 'error': 'Repositories directory not configured'}), 400
+
+    try:
+        repos_data = []
+        repos = scan_repositories(config_module.repositories_dir)
+
+        for repo_info in repos:
+            repo = _get_repo_by_path(repo_info['path'])
+            if not repo:
+                continue
+
+            branches = []
+            for branch in repo.list_branches():
+                commit_id = repo.get_branch_commit(branch)
+                if commit_id:
+                    commit = repo.get_commit(commit_id)
+                    if commit:
+                        branches.append({
+                            'name': branch,
+                            'commit_id': commit_id,
+                            'message': commit.message,
+                            'timestamp': commit.timestamp.isoformat() if hasattr(commit.timestamp, 'isoformat') else commit.timestamp,
+                        })
+
+            repos_data.append({
+                'path': repo_info['path'],
+                'name': repo_info['name'],
+                'project_name': repo_info.get('project_name', repo_info['name']),
+                'current_branch': repo_info.get('current_branch', 'main'),
+                'branches': branches,
+            })
+
+        # Get current repo info
+        current_repo = get_repo()
+        current_repo_path = str(current_repo.root) if current_repo else None
+
+        return jsonify({
+            'success': True,
+            'repositories': repos_data,
+            'current_repo_path': current_repo_path,
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 400
+
+
 @bp.route('/lsm/sources')
 def api_lsm_sources():
     """Get available LSM sources (branches and commits)."""
@@ -168,32 +231,62 @@ def api_lsm_sources():
 @bp.route('/lsm/preview', methods=['POST'])
 def api_lsm_preview():
     """Preview layer settings merge without applying."""
-    repo = get_repo()
-    if not repo:
-        return jsonify({'success': False, 'error': 'No repository loaded'}), 400
-
     try:
         data = request.get_json() or {}
+
+        # Support both old (single repo) and new (cross-repo) API
+        source_repo_path = data.get('source_repo_path')
         source_branch = data.get('source_branch')
+        target_repo_path = data.get('target_repo_path')
+        target_branch = data.get('target_branch')
 
         if not source_branch:
             return jsonify({'success': False, 'error': 'Source branch is required'}), 400
 
+        # Get source repository
+        if source_repo_path:
+            source_repo = _get_repo_by_path(source_repo_path)
+            if not source_repo:
+                return jsonify({'success': False, 'error': f"Source repository not found: {source_repo_path}"}), 400
+        else:
+            source_repo = get_repo()
+            if not source_repo:
+                return jsonify({'success': False, 'error': 'No repository loaded'}), 400
+
+        # Get target repository
+        if target_repo_path:
+            target_repo = _get_repo_by_path(target_repo_path)
+            if not target_repo:
+                return jsonify({'success': False, 'error': f"Target repository not found: {target_repo_path}"}), 400
+        else:
+            target_repo = get_repo()
+            if not target_repo:
+                return jsonify({'success': False, 'error': 'No repository loaded'}), 400
+
         # Get source map from branch
-        commit_id = repo.get_branch_commit(source_branch)
-        if not commit_id:
+        source_commit_id = source_repo.get_branch_commit(source_branch)
+        if not source_commit_id:
             return jsonify({'success': False, 'error': f"Branch '{source_branch}' has no commits"}), 400
 
-        commit = repo.get_commit(commit_id)
-        if not commit:
-            return jsonify({'success': False, 'error': f"Commit '{commit_id}' not found"}), 400
+        source_commit = source_repo.get_commit(source_commit_id)
+        if not source_commit:
+            return jsonify({'success': False, 'error': f"Commit '{source_commit_id}' not found"}), 400
 
-        source_map = commit.map_data
+        source_map = source_commit.map_data
 
-        # Get target map from current index
-        target_map = repo.get_index()
-        if not target_map:
-            return jsonify({'success': False, 'error': 'No map data in index'}), 400
+        # Get target map - either from specified branch or current index
+        if target_branch:
+            target_commit_id = target_repo.get_branch_commit(target_branch)
+            if not target_commit_id:
+                return jsonify({'success': False, 'error': f"Target branch '{target_branch}' has no commits"}), 400
+            target_commit = target_repo.get_commit(target_commit_id)
+            if not target_commit:
+                return jsonify({'success': False, 'error': f"Target commit '{target_commit_id}' not found"}), 400
+            target_map = target_commit.map_data
+        else:
+            target_map = target_repo.get_index()
+            if not target_map:
+                return jsonify({'success': False, 'error': 'No map data in target index'}), 400
 
         # Preview transfer
         _, summary = _transfer_settings_between_maps(source_map, target_map)
@@ -216,38 +309,68 @@ def api_lsm_preview():
 @bp.route('/lsm/execute', methods=['POST'])
 def api_lsm_execute():
     """Execute layer settings merge."""
-    repo = get_repo()
-    if not repo:
-        return jsonify({'success': False, 'error': 'No repository loaded'}), 400
-
     try:
         data = request.get_json() or {}
+
+        # Support both old (single repo) and new (cross-repo) API
+        source_repo_path = data.get('source_repo_path')
         source_branch = data.get('source_branch')
+        target_repo_path = data.get('target_repo_path')
+        target_branch = data.get('target_branch')
 
         if not source_branch:
             return jsonify({'success': False, 'error': 'Source branch is required'}), 400
 
+        # Get source repository
+        if source_repo_path:
+            source_repo = _get_repo_by_path(source_repo_path)
+            if not source_repo:
+                return jsonify({'success': False, 'error': f"Source repository not found: {source_repo_path}"}), 400
+        else:
+            source_repo = get_repo()
+            if not source_repo:
+                return jsonify({'success': False, 'error': 'No repository loaded'}), 400
+
+        # Get target repository
+        if target_repo_path:
+            target_repo = _get_repo_by_path(target_repo_path)
+            if not target_repo:
+                return jsonify({'success': False, 'error': f"Target repository not found: {target_repo_path}"}), 400
+        else:
+            target_repo = get_repo()
+            if not target_repo:
+                return jsonify({'success': False, 'error': 'No repository loaded'}), 400
+
         # Get source map from branch
-        commit_id = repo.get_branch_commit(source_branch)
-        if not commit_id:
+        source_commit_id = source_repo.get_branch_commit(source_branch)
+        if not source_commit_id:
             return jsonify({'success': False, 'error': f"Branch '{source_branch}' has no commits"}), 400
 
-        commit = repo.get_commit(commit_id)
-        if not commit:
-            return jsonify({'success': False, 'error': f"Commit '{commit_id}' not found"}), 400
+        source_commit = source_repo.get_commit(source_commit_id)
+        if not source_commit:
+            return jsonify({'success': False, 'error': f"Commit '{source_commit_id}' not found"}), 400
 
-        source_map = commit.map_data
+        source_map = source_commit.map_data
 
-        # Get target map from current index
-        target_map = repo.get_index()
-        if not target_map:
-            return jsonify({'success': False, 'error': 'No map data in index'}), 400
+        # Get target map - either from specified branch or current index
+        if target_branch:
+            target_commit_id = target_repo.get_branch_commit(target_branch)
+            if not target_commit_id:
+                return jsonify({'success': False, 'error': f"Target branch '{target_branch}' has no commits"}), 400
+            target_commit = target_repo.get_commit(target_commit_id)
+            if not target_commit:
+                return jsonify({'success': False, 'error': f"Target commit '{target_commit_id}' not found"}), 400
+            target_map = target_commit.map_data
+        else:
+            target_map = target_repo.get_index()
+            if not target_map:
+                return jsonify({'success': False, 'error': 'No map data in target index'}), 400
 
         # Execute transfer
         updated_map, summary = _transfer_settings_between_maps(source_map, target_map)
 
-        # Update index with transferred settings
-        repo.update_index(updated_map)
+        # Update target repository's index with transferred settings
+        target_repo.update_index(updated_map)
 
         return jsonify({
             'success': True,
@@ -259,7 +382,7 @@ def api_lsm_execute():
                 'total_transferred': len(summary['transferred_layers']) + len(summary['transferred_tables']),
                 'total_skipped': len(summary['skipped_layers']) + len(summary['skipped_tables']),
             },
-            'message': 'Settings transferred to index. Use commit to save changes.',
+            'message': 'Settings transferred to target index. Use commit to save changes.',
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 400

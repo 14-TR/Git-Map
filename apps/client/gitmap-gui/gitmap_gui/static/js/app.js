@@ -1726,29 +1726,69 @@ function setTheme(theme) {
 // Layer Settings Merge (LSM) Page
 // ============================================================================
 
-let lsmSources = [];
-let selectedLsmSource = null;
+let lsmRepositories = [];
+let lsmSelectedSourceRepo = null;
+let lsmSelectedSourceBranch = null;
+let lsmSelectedTargetRepo = null;
+let lsmSelectedTargetBranch = null;
 
 async function renderLayerSettingsMerge() {
     const content = document.getElementById('main-content');
 
     content.innerHTML = `
         <h1 class="page-title">Layer Settings Merge</h1>
-        <p class="page-subtitle">Transfer popup and form settings between branches</p>
+        <p class="page-subtitle">Transfer popup and form settings between repositories and branches</p>
 
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="2" y="2" width="8" height="8" rx="1"/>
-                        <rect x="14" y="2" width="8" height="8" rx="1"/>
-                    </svg>
-                    Select Source Branch
-                </h3>
+        <div class="lsm-container">
+            <div class="lsm-panel lsm-source-panel">
+                <div class="lsm-panel-header">
+                    <h3>Source</h3>
+                    <span class="lsm-panel-hint">Select where to copy settings from</span>
+                </div>
+                <div class="lsm-selector">
+                    <label>Repository</label>
+                    <select id="lsm-source-repo" onchange="onLsmSourceRepoChange()">
+                        <option value="">Select repository...</option>
+                    </select>
+                </div>
+                <div class="lsm-branches-section">
+                    <label>Branch</label>
+                    <div id="lsm-source-branches" class="lsm-branch-table">
+                        <div class="lsm-empty-hint">Select a repository first</div>
+                    </div>
+                </div>
             </div>
-            <div id="lsm-sources-container">
-                <div class="loading"><div class="spinner"></div></div>
+
+            <div class="lsm-arrow">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
             </div>
+
+            <div class="lsm-panel lsm-target-panel">
+                <div class="lsm-panel-header">
+                    <h3>Target</h3>
+                    <span class="lsm-panel-hint">Select where to apply settings to</span>
+                </div>
+                <div class="lsm-selector">
+                    <label>Repository</label>
+                    <select id="lsm-target-repo" onchange="onLsmTargetRepoChange()">
+                        <option value="">Select repository...</option>
+                    </select>
+                </div>
+                <div class="lsm-branches-section">
+                    <label>Branch</label>
+                    <div id="lsm-target-branches" class="lsm-branch-table">
+                        <div class="lsm-empty-hint">Select a repository first</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lsm-actions">
+            <button class="btn btn-primary" id="lsm-preview-btn" onclick="previewLsmTransfer()" disabled>
+                Preview Transfer
+            </button>
         </div>
 
         <div class="card" id="lsm-preview-card" style="display: none;">
@@ -1759,78 +1799,251 @@ async function renderLayerSettingsMerge() {
         </div>
     `;
 
-    // Load available sources
-    await loadLsmSources();
+    await loadLsmRepositories();
 }
 
-async function loadLsmSources() {
-    const container = document.getElementById('lsm-sources-container');
-
+async function loadLsmRepositories() {
     try {
-        const data = await fetchAPI('/lsm/sources');
+        const data = await fetchAPI('/lsm/repositories');
 
         if (!data.success) {
-            container.innerHTML = `<div class="error-state">${escapeHtml(data.error)}</div>`;
+            showToast(data.error || 'Failed to load repositories', 'error');
             return;
         }
 
-        lsmSources = data.sources || [];
-        const currentBranch = data.current_branch;
+        lsmRepositories = data.repositories || [];
+        const currentRepoPath = data.current_repo_path;
 
-        if (lsmSources.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state" style="padding: 2rem;">
-                    <div class="empty-icon">🌿</div>
-                    <div class="empty-title">No branches available</div>
-                    <p>Create branches and commits to use Layer Settings Merge.</p>
-                </div>
-            `;
-            return;
+        const sourceSelect = document.getElementById('lsm-source-repo');
+        const targetSelect = document.getElementById('lsm-target-repo');
+
+        const repoOptions = lsmRepositories.map(repo =>
+            `<option value="${escapeHtml(repo.path)}" ${repo.path === currentRepoPath ? 'data-current="true"' : ''}>
+                ${escapeHtml(repo.project_name || repo.name)}${repo.path === currentRepoPath ? ' (current)' : ''}
+            </option>`
+        ).join('');
+
+        sourceSelect.innerHTML = `<option value="">Select repository...</option>${repoOptions}`;
+        targetSelect.innerHTML = `<option value="">Select repository...</option>${repoOptions}`;
+
+        // Auto-select current repo for target
+        if (currentRepoPath) {
+            targetSelect.value = currentRepoPath;
+            onLsmTargetRepoChange();
         }
-
-        container.innerHTML = `
-            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                Select a source branch to transfer popup and form settings from.
-                Settings will be applied to your current working index.
-            </p>
-            <div class="lsm-source-list">
-                ${lsmSources.map(source => `
-                    <div class="lsm-source-item ${source.name === currentBranch ? 'current' : ''}"
-                         onclick="selectLsmSource('${escapeHtml(source.name)}')">
-                        <div class="lsm-source-info">
-                            <div class="lsm-source-name">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="6" y1="3" x2="6" y2="15"/>
-                                    <circle cx="18" cy="6" r="3"/>
-                                    <circle cx="6" cy="18" r="3"/>
-                                    <path d="M18 9a9 9 0 01-9 9"/>
-                                </svg>
-                                ${escapeHtml(source.name)}
-                                ${source.name === currentBranch ? '<span class="branch-badge">Current</span>' : ''}
-                            </div>
-                            <div class="lsm-source-meta">
-                                <span>${escapeHtml(source.message || 'No message')}</span>
-                                <span>${source.timestamp ? formatDate(source.timestamp) : ''}</span>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); previewLsm('${escapeHtml(source.name)}')">
-                            Preview
-                        </button>
-                    </div>
-                `).join('')}
-            </div>
-        `;
     } catch (error) {
-        container.innerHTML = `<div class="error-state">Error: ${escapeHtml(error.message)}</div>`;
+        showToast(`Error loading repositories: ${error.message}`, 'error');
     }
 }
 
-function selectLsmSource(sourceName) {
-    selectedLsmSource = sourceName;
-    document.querySelectorAll('.lsm-source-item').forEach(item => {
-        item.classList.remove('selected');
+function onLsmSourceRepoChange() {
+    const repoPath = document.getElementById('lsm-source-repo').value;
+    const container = document.getElementById('lsm-source-branches');
+
+    lsmSelectedSourceRepo = repoPath;
+    lsmSelectedSourceBranch = null;
+    updateLsmPreviewButton();
+
+    if (!repoPath) {
+        container.innerHTML = '<div class="lsm-empty-hint">Select a repository first</div>';
+        return;
+    }
+
+    const repo = lsmRepositories.find(r => r.path === repoPath);
+    if (!repo || !repo.branches || repo.branches.length === 0) {
+        container.innerHTML = '<div class="lsm-empty-hint">No branches available</div>';
+        return;
+    }
+
+    renderLsmBranchTable(container, repo.branches, 'source', repo.current_branch);
+}
+
+function onLsmTargetRepoChange() {
+    const repoPath = document.getElementById('lsm-target-repo').value;
+    const container = document.getElementById('lsm-target-branches');
+
+    lsmSelectedTargetRepo = repoPath;
+    lsmSelectedTargetBranch = null;
+    updateLsmPreviewButton();
+
+    if (!repoPath) {
+        container.innerHTML = '<div class="lsm-empty-hint">Select a repository first</div>';
+        return;
+    }
+
+    const repo = lsmRepositories.find(r => r.path === repoPath);
+    if (!repo || !repo.branches || repo.branches.length === 0) {
+        container.innerHTML = '<div class="lsm-empty-hint">No branches available</div>';
+        return;
+    }
+
+    renderLsmBranchTable(container, repo.branches, 'target', repo.current_branch);
+}
+
+function renderLsmBranchTable(container, branches, side, currentBranch) {
+    container.innerHTML = `
+        <table class="lsm-table">
+            <thead>
+                <tr>
+                    <th>Branch</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${branches.map(branch => `
+                    <tr class="lsm-branch-row ${branch.name === currentBranch ? 'current' : ''}"
+                        onclick="selectLsmBranch('${side}', '${escapeHtml(branch.name)}', this)">
+                        <td class="lsm-branch-name">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="6" y1="3" x2="6" y2="15"/>
+                                <circle cx="18" cy="6" r="3"/>
+                                <circle cx="6" cy="18" r="3"/>
+                                <path d="M18 9a9 9 0 01-9 9"/>
+                            </svg>
+                            ${escapeHtml(branch.name)}
+                            ${branch.name === currentBranch ? '<span class="branch-badge small">current</span>' : ''}
+                        </td>
+                        <td class="lsm-branch-message">${escapeHtml(branch.message || 'No message')}</td>
+                        <td class="lsm-branch-date">${branch.timestamp ? formatDate(branch.timestamp) : '-'}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
+
+function selectLsmBranch(side, branchName, rowElement) {
+    const container = side === 'source' ? document.getElementById('lsm-source-branches') : document.getElementById('lsm-target-branches');
+    container.querySelectorAll('.lsm-branch-row').forEach(row => row.classList.remove('selected'));
+    rowElement.classList.add('selected');
+
+    if (side === 'source') {
+        lsmSelectedSourceBranch = branchName;
+    } else {
+        lsmSelectedTargetBranch = branchName;
+    }
+
+    updateLsmPreviewButton();
+}
+
+function updateLsmPreviewButton() {
+    const btn = document.getElementById('lsm-preview-btn');
+    const canPreview = lsmSelectedSourceRepo && lsmSelectedSourceBranch && lsmSelectedTargetRepo && lsmSelectedTargetBranch;
+    btn.disabled = !canPreview;
+}
+
+async function previewLsmTransfer() {
+    if (!lsmSelectedSourceRepo || !lsmSelectedSourceBranch || !lsmSelectedTargetRepo || !lsmSelectedTargetBranch) {
+        showToast('Please select source and target repositories and branches', 'error');
+        return;
+    }
+
+    const previewCard = document.getElementById('lsm-preview-card');
+    const previewContent = document.getElementById('lsm-preview-content');
+
+    previewCard.style.display = 'block';
+    previewContent.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+    try {
+        const result = await postAPI('/lsm/preview', {
+            source_repo_path: lsmSelectedSourceRepo,
+            source_branch: lsmSelectedSourceBranch,
+            target_repo_path: lsmSelectedTargetRepo,
+            target_branch: lsmSelectedTargetBranch,
+        });
+
+        if (!result.success) {
+            previewContent.innerHTML = `<div class="error-state">${escapeHtml(result.error)}</div>`;
+            return;
+        }
+
+        const summary = result.summary;
+        const sourceRepo = lsmRepositories.find(r => r.path === lsmSelectedSourceRepo);
+        const targetRepo = lsmRepositories.find(r => r.path === lsmSelectedTargetRepo);
+
+        previewContent.innerHTML = `
+            <div class="lsm-summary">
+                <div class="lsm-summary-header">
+                    <span>Transferring from <strong>${escapeHtml(sourceRepo?.project_name || 'Source')}/${escapeHtml(lsmSelectedSourceBranch)}</strong>
+                    to <strong>${escapeHtml(targetRepo?.project_name || 'Target')}/${escapeHtml(lsmSelectedTargetBranch)}</strong> index</span>
+                </div>
+
+                <div class="lsm-stats">
+                    <div class="lsm-stat success">
+                        <span class="lsm-stat-value">${summary.total_transferred}</span>
+                        <span class="lsm-stat-label">Will Transfer</span>
+                    </div>
+                    <div class="lsm-stat warning">
+                        <span class="lsm-stat-value">${summary.total_skipped}</span>
+                        <span class="lsm-stat-label">Will Skip</span>
+                    </div>
+                </div>
+
+                ${summary.transferred_layers.length > 0 ? `
+                    <div class="lsm-section">
+                        <h4>Layers to Transfer</h4>
+                        <ul class="lsm-list success">
+                            ${summary.transferred_layers.map(l => `<li>${escapeHtml(l)}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+                ${summary.transferred_tables.length > 0 ? `
+                    <div class="lsm-section">
+                        <h4>Tables to Transfer</h4>
+                        <ul class="lsm-list success">
+                            ${summary.transferred_tables.map(t => `<li>${escapeHtml(t)}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+                ${summary.skipped_layers.length > 0 ? `
+                    <div class="lsm-section">
+                        <h4>Layers to Skip (not in target)</h4>
+                        <ul class="lsm-list warning">
+                            ${summary.skipped_layers.map(l => `<li>${escapeHtml(l)}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+                ${summary.skipped_tables.length > 0 ? `
+                    <div class="lsm-section">
+                        <h4>Tables to Skip (not in target)</h4>
+                        <ul class="lsm-list warning">
+                            ${summary.skipped_tables.map(t => `<li>${escapeHtml(t)}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+                <div style="margin-top: 1.5rem;">
+                    <button class="btn btn-primary" onclick="executeLsmTransfer()"
+                            ${summary.total_transferred === 0 ? 'disabled style="opacity: 0.5;"' : ''}>
+                        Apply Settings to Target Index
+                    </button>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        previewContent.innerHTML = `<div class="error-state">Error: ${escapeHtml(error.message)}</div>`;
+    }
+}
+
+async function executeLsmTransfer() {
+    const result = await postAPI('/lsm/execute', {
+        source_repo_path: lsmSelectedSourceRepo,
+        source_branch: lsmSelectedSourceBranch,
+        target_repo_path: lsmSelectedTargetRepo,
+        target_branch: lsmSelectedTargetBranch,
     });
-    event.currentTarget.classList.add('selected');
+
+    if (result.success) {
+        showToast(`Transferred ${result.summary.total_transferred} layer settings to target index`, 'success');
+        await loadRepoData();
+        showPage('changes');
+    } else {
+        showToast(result.error || 'Layer settings merge failed', 'error');
+    }
 }
 
 async function previewLsm(sourceBranch) {
