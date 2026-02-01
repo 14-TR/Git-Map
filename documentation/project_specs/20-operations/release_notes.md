@@ -19,7 +19,24 @@
 
 ## Releases
 
-### [release/2.1.0] (Pending)
+### [release/2.2.0] (Pending)
+
+**Type**: Minor
+
+**Web GUI (gitmap-gui):**
+- Redesigned LSM page with source/target repository and branch selection
+- Cross-repository LSM support: transfer layer settings between different repositories
+- Branch-aware LSM: select specific branches for source and target maps
+- Repository browser dropdown for selecting source and target repositories
+- Improved error handling with meaningful JSON error messages from API
+- Fixed timestamp handling for string timestamps in LSM sources endpoint
+
+**Testing:**
+- Added comprehensive unit tests for `diff` module (layer comparison, map diffing, diff formatting)
+- Added comprehensive unit tests for `models.py` (Commit, Branch, Remote, RepoConfig)
+- Tests cover serialization, file I/O, and factory methods
+
+### [release/2.1.0]
 
 **Type**: Minor
 
@@ -39,7 +56,7 @@
 - Displays service metadata including title, type, owner, and Item ID
 - Integrated with Portal connection for seamless service discovery
 
-### [release/2.0.0] (Pending)
+### [release/2.0.0]
 
 **Type**: Major
 
