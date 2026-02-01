@@ -10,16 +10,16 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 2.1.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| GitMap (repo)  | 2.2.0   | `documentation/project_specs/20-operations/release_notes.md` |
 | gitmap-cli     | 0.5.0   | `apps/cli/gitmap/pyproject.toml`         |
 | gitmap_core    | 0.4.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.2.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
-| gitmap-gui     | 0.1.0   | `apps/client/gitmap-gui/pyproject.toml`  |
+| gitmap-gui     | 0.2.0   | `apps/client/gitmap-gui/pyproject.toml`  |
 | gitmap-client  | 0.1.0   | `apps/client/gitmap-client/pyproject.toml` |
 
 ## Releases
 
-### [release/2.2.0] (Pending)
+### [release/2.2.0]
 
 **Type**: Minor
 
