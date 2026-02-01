@@ -498,6 +498,24 @@ def generate_mermaid_flowchart(
                             lines.append(f"    {target_id} --> {merge_id}")
                             connected_pairs.add((target_id, merge_id))
 
+    # Add annotation nodes when enabled
+    annotation_node_ids: list[str] = []
+    if show_annotations and data.annotations:
+        lines.append("")
+        lines.append("    %% Annotations")
+        for event_id, annotations in data.annotations.items():
+            event_node_id = f"e_{event_id[:8]}"
+            for ann in annotations:
+                ann_node_id = f"a_{ann.id[:8]}"
+                annotation_node_ids.append(ann_node_id)
+                # Use note shape for annotations (asymmetric)
+                ann_label = _sanitize_mermaid_text(
+                    f"{ann.annotation_type.upper()}: {ann.content}"
+                )
+                lines.append(f"    {ann_node_id}>{{\"{ann_label}\"}}")
+                # Connect annotation to its event with dashed line
+                lines.append(f"    {ann_node_id} -.-> {event_node_id}")
+
     # Add styling
     lines.append("")
     lines.append("    %% Styling")
@@ -519,8 +537,9 @@ def generate_mermaid_flowchart(
         elif event.event_type in ("commit", "push", "pull", "merge", "branch"):
             lines.append(f"    class {node_id} {event.event_type}")
 
-    # Note: Annotations are no longer shown as separate nodes
-    # They can be viewed via context show or other commands
+    # Apply annotation styling
+    for ann_node_id in annotation_node_ids:
+        lines.append(f"    class {ann_node_id} annotation")
 
     return "\n".join(lines)
 
