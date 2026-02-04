@@ -25,6 +25,7 @@ import click
 from gitmap_cli.commands.auto_pull import auto_pull
 from gitmap_cli.commands.branch import branch
 from gitmap_cli.commands.checkout import checkout
+from gitmap_cli.commands.cherry_pick import cherry_pick
 from gitmap_cli.commands.clone import clone
 from gitmap_cli.commands.commit import commit
 from gitmap_cli.commands.config import config
@@ -83,6 +84,7 @@ def cli() -> None:
 
 cli.add_command(init)
 cli.add_command(clone)
+cli.add_command(cherry_pick, name="cherry-pick")
 cli.add_command(status)
 cli.add_command(branch)
 cli.add_command(checkout)
