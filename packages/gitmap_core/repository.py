@@ -35,8 +35,10 @@ INDEX_FILE = "index.json"
 REFS_DIR = "refs"
 HEADS_DIR = "heads"
 REMOTES_DIR = "remotes"
+TAGS_DIR = "tags"
 OBJECTS_DIR = "objects"
 COMMITS_DIR = "commits"
+STASH_DIR = "stash"
 CONTEXT_DB = "context.db"
 
 
@@ -109,6 +111,20 @@ class Repository:
     ) -> Path:
         """Path to refs/remotes directory."""
         return self.refs_dir / REMOTES_DIR
+
+    @property
+    def tags_dir(
+            self,
+    ) -> Path:
+        """Path to refs/tags directory."""
+        return self.refs_dir / TAGS_DIR
+
+    @property
+    def stash_dir(
+            self,
+    ) -> Path:
+        """Path to stash directory."""
+        return self.gitmap_dir / STASH_DIR
 
     @property
     def objects_dir(
@@ -926,6 +942,152 @@ class Repository:
                 result.append(layer)
 
         return result
+
+    # ---- Tag Operations -------------------------------------------------------------------------------------
+
+    def list_tags(
+            self,
+    ) -> list[str]:
+        """List all tags in the repository.
+
+        Returns:
+            List of tag names sorted alphabetically.
+        """
+        if not self.tags_dir.exists():
+            return []
+
+        tags = []
+        for path in self.tags_dir.rglob("*"):
+            if path.is_file():
+                rel_path = path.relative_to(self.tags_dir)
+                tags.append(str(rel_path))
+        return sorted(tags)
+
+    def get_tag(
+            self,
+            name: str,
+    ) -> str | None:
+        """Get the commit ID a tag points to.
+
+        Args:
+            name: Tag name.
+
+        Returns:
+            Commit ID or None if tag doesn't exist.
+        """
+        tag_path = self.tags_dir / name
+        if not tag_path.exists():
+            return None
+
+        return tag_path.read_text().strip()
+
+    def create_tag(
+            self,
+            name: str,
+            commit_id: str | None = None,
+    ) -> str:
+        """Create a new tag pointing to a commit.
+
+        Args:
+            name: Tag name (e.g., 'v1.0.0').
+            commit_id: Commit to tag (defaults to HEAD).
+
+        Returns:
+            The commit ID the tag points to.
+
+        Raises:
+            RuntimeError: If tag already exists or commit not found.
+        """
+        # Validate tag name (no spaces, no special chars except - _ /)
+        if not name or " " in name:
+            msg = f"Invalid tag name: '{name}'"
+            raise RuntimeError(msg)
+
+        tag_path = self.tags_dir / name
+
+        if tag_path.exists():
+            msg = f"Tag '{name}' already exists"
+            raise RuntimeError(msg)
+
+        # Use HEAD commit if not specified
+        if commit_id is None:
+            commit_id = self.get_head_commit()
+
+        if not commit_id:
+            msg = "Cannot create tag: no commits in repository"
+            raise RuntimeError(msg)
+
+        # Verify commit exists
+        if not self.get_commit(commit_id):
+            msg = f"Commit '{commit_id}' not found"
+            raise RuntimeError(msg)
+
+        # Create tags directory if needed
+        tag_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write tag
+        tag_path.write_text(commit_id)
+
+        # Record event in context store
+        try:
+            config = self.get_config()
+            actor = config.user_name if config else None
+            with self.get_context_store() as store:
+                store.record_event(
+                    event_type="tag",
+                    repo=str(self.root),
+                    ref=commit_id,
+                    actor=actor,
+                    payload={
+                        "tag_name": name,
+                        "commit_id": commit_id,
+                        "action": "create",
+                    },
+                )
+        except Exception:
+            pass  # Don't fail tag creation if context recording fails
+
+        return commit_id
+
+    def delete_tag(
+            self,
+            name: str,
+    ) -> None:
+        """Delete a tag.
+
+        Args:
+            name: Tag name to delete.
+
+        Raises:
+            RuntimeError: If tag doesn't exist.
+        """
+        tag_path = self.tags_dir / name
+
+        if not tag_path.exists():
+            msg = f"Tag '{name}' does not exist"
+            raise RuntimeError(msg)
+
+        commit_id = tag_path.read_text().strip()
+        tag_path.unlink()
+
+        # Record event in context store
+        try:
+            config = self.get_config()
+            actor = config.user_name if config else None
+            with self.get_context_store() as store:
+                store.record_event(
+                    event_type="tag",
+                    repo=str(self.root),
+                    ref=commit_id,
+                    actor=actor,
+                    payload={
+                        "tag_name": name,
+                        "commit_id": commit_id,
+                        "action": "delete",
+                    },
+                )
+        except Exception:
+            pass  # Don't fail tag deletion if context recording fails
 
 
 # ---- Module Functions ---------------------------------------------------------------------------------------
