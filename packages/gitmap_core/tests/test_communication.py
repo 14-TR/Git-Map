@@ -7,7 +7,7 @@ from __future__ import annotations
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from communication import (
+from gitmap_core.communication import (
     _ensure_gis,
     _resolve_group,
     get_group_member_usernames,
@@ -23,7 +23,7 @@ class TestEnsureGis:
 
     def test_raises_when_gis_module_unavailable(self):
         """Should raise RuntimeError if arcgis module not installed."""
-        with patch("communication.GIS", None):
+        with patch("gitmap_core.communication.GIS", None):
             with pytest.raises(RuntimeError, match="not installed"):
                 _ensure_gis(Mock())
 
