@@ -733,6 +733,200 @@ class Repository:
         index = self.get_index()
         return index != commit.map_data
 
+    # ---- Revert Operations ----------------------------------------------------------------------------------
+
+    def revert(
+            self,
+            commit_id: str,
+            rationale: str | None = None,
+    ) -> Commit:
+        """Revert a specific commit by creating an inverse commit.
+
+        Creates a new commit that undoes the changes introduced by the
+        specified commit. Does not remove history - adds a new commit
+        that reverses the changes.
+
+        Args:
+            commit_id: ID of the commit to revert.
+            rationale: Optional rationale explaining why the revert is being made.
+
+        Returns:
+            The new revert Commit object.
+
+        Raises:
+            RuntimeError: If commit not found or revert fails.
+        """
+        try:
+            # Get the commit to revert
+            commit_to_revert = self.get_commit(commit_id)
+            if not commit_to_revert:
+                msg = f"Commit '{commit_id}' not found"
+                raise RuntimeError(msg)
+
+            # Get the parent state (state before the commit)
+            parent_data: dict[str, Any] = {}
+            if commit_to_revert.parent:
+                parent_commit = self.get_commit(commit_to_revert.parent)
+                if parent_commit:
+                    parent_data = parent_commit.map_data
+
+            # Get current HEAD state
+            current_data = self.get_index()
+
+            # Compute the reverted state by applying inverse changes
+            reverted_data = self._compute_revert(
+                current_data=current_data,
+                commit_data=commit_to_revert.map_data,
+                parent_data=parent_data,
+            )
+
+            # Update index with reverted data
+            self.update_index(reverted_data)
+
+            # Create the revert commit
+            config = self.get_config()
+            author = config.user_name or "Unknown"
+            message = f"Revert \"{commit_to_revert.message}\"\n\nThis reverts commit {commit_id[:8]}."
+
+            revert_commit = self.create_commit(
+                message=message,
+                author=author,
+                rationale=rationale,
+            )
+
+            # Record revert event in context store
+            try:
+                with self.get_context_store() as store:
+                    event = store.record_event(
+                        event_type="revert",
+                        repo=str(self.root),
+                        ref=revert_commit.id,
+                        actor=author,
+                        payload={
+                            "reverted_commit": commit_id,
+                            "reverted_message": commit_to_revert.message,
+                            "revert_commit": revert_commit.id,
+                            "branch": self.get_current_branch(),
+                        },
+                        rationale=rationale,
+                    )
+                    # Link revert to original commit
+                    store.add_edge(
+                        source_id=event.id,
+                        target_id=commit_id,
+                        relationship="reverts",
+                        metadata={"commit_id": revert_commit.id},
+                    )
+            except Exception:
+                # Don't fail revert if context recording fails
+                pass
+
+            return revert_commit
+
+        except Exception as revert_error:
+            if isinstance(revert_error, RuntimeError):
+                raise
+            msg = f"Failed to revert commit: {revert_error}"
+            raise RuntimeError(msg) from revert_error
+
+    def _compute_revert(
+            self,
+            current_data: dict[str, Any],
+            commit_data: dict[str, Any],
+            parent_data: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Compute the reverted state by applying inverse changes.
+
+        For each change introduced by the commit (comparing commit_data to parent_data),
+        apply the inverse change to the current_data.
+
+        Args:
+            current_data: Current HEAD state.
+            commit_data: State at the commit to revert.
+            parent_data: State before the commit to revert.
+
+        Returns:
+            New state with the commit's changes reverted.
+        """
+        reverted = json.loads(json.dumps(current_data))  # Deep copy
+
+        # Handle operationalLayers
+        reverted["operationalLayers"] = self._revert_layers(
+            current_layers=current_data.get("operationalLayers", []),
+            commit_layers=commit_data.get("operationalLayers", []),
+            parent_layers=parent_data.get("operationalLayers", []),
+        )
+
+        # Handle tables
+        reverted["tables"] = self._revert_layers(
+            current_layers=current_data.get("tables", []),
+            commit_layers=commit_data.get("tables", []),
+            parent_layers=parent_data.get("tables", []),
+        )
+
+        # Handle baseMap (simpler - just restore if changed)
+        if commit_data.get("baseMap") != parent_data.get("baseMap"):
+            # Commit changed baseMap, revert to parent's baseMap
+            if "baseMap" in parent_data:
+                reverted["baseMap"] = parent_data["baseMap"]
+            elif "baseMap" in reverted:
+                del reverted["baseMap"]
+
+        return reverted
+
+    def _revert_layers(
+            self,
+            current_layers: list[dict[str, Any]],
+            commit_layers: list[dict[str, Any]],
+            parent_layers: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Revert layer changes from a commit.
+
+        Args:
+            current_layers: Current layers in HEAD.
+            commit_layers: Layers at the commit to revert.
+            parent_layers: Layers before the commit to revert.
+
+        Returns:
+            Layers with the commit's changes reverted.
+        """
+        # Build ID maps for efficient lookup
+        current_by_id = {l.get("id"): l for l in current_layers if l.get("id")}
+        commit_by_id = {l.get("id"): l for l in commit_layers if l.get("id")}
+        parent_by_id = {l.get("id"): l for l in parent_layers if l.get("id")}
+
+        result = []
+
+        # Process current layers
+        for layer in current_layers:
+            layer_id = layer.get("id")
+            if not layer_id:
+                result.append(layer)
+                continue
+
+            # Was this layer added by the commit? (in commit but not in parent)
+            if layer_id in commit_by_id and layer_id not in parent_by_id:
+                # Skip it - reverting the addition
+                continue
+
+            # Was this layer modified by the commit?
+            if layer_id in commit_by_id and layer_id in parent_by_id:
+                if commit_by_id[layer_id] != parent_by_id[layer_id]:
+                    # Restore to parent version
+                    result.append(parent_by_id[layer_id])
+                    continue
+
+            # No changes from this commit, keep as is
+            result.append(layer)
+
+        # Add back any layers that were removed by the commit
+        for layer_id, layer in parent_by_id.items():
+            if layer_id not in commit_by_id and layer_id not in current_by_id:
+                # Layer was removed by the commit, add it back
+                result.append(layer)
+
+        return result
+
 
 # ---- Module Functions ---------------------------------------------------------------------------------------
 
