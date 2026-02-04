@@ -35,6 +35,8 @@ from gitmap_core.repository import (
     OBJECTS_DIR,
     REFS_DIR,
     REMOTES_DIR,
+    STASH_DIR,
+    TAGS_DIR,
     Repository,
     find_repository,
     init_repository,
@@ -1101,3 +1103,120 @@ class TestRevertLayers:
         current = [{"title": "No ID"}]
         result = initialized_repo._revert_layers(current, current, current)
         assert result == current
+
+
+# ---- Tag Tests ----------------------------------------------------------------------------------------------
+
+
+class TestTags:
+    """Tests for tag operations."""
+
+    def test_list_tags_empty(self, initialized_repo: Repository) -> None:
+        """Test listing tags when none exist."""
+        tags = initialized_repo.list_tags()
+        assert tags == []
+
+    def test_create_tag(self, repo_with_commit: Repository) -> None:
+        """Test creating a tag."""
+        head_commit = repo_with_commit.get_head_commit()
+        commit_id = repo_with_commit.create_tag("v1.0.0")
+
+        assert commit_id == head_commit
+        assert repo_with_commit.tags_dir.exists()
+        assert (repo_with_commit.tags_dir / "v1.0.0").exists()
+
+    def test_create_tag_with_specific_commit(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test creating a tag pointing to specific commit."""
+        # Create a second commit
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
+        repo_with_commit.update_index(modified_data)
+        second_commit = repo_with_commit.create_commit("Second commit")
+
+        # Get first commit
+        first_commit = repo_with_commit.get_commit(second_commit.parent)
+
+        # Tag the first commit
+        commit_id = repo_with_commit.create_tag("v0.1.0", first_commit.id)
+
+        assert commit_id == first_commit.id
+
+    def test_create_tag_already_exists(self, repo_with_commit: Repository) -> None:
+        """Test creating a tag that already exists raises error."""
+        repo_with_commit.create_tag("v1.0.0")
+
+        with pytest.raises(RuntimeError, match="already exists"):
+            repo_with_commit.create_tag("v1.0.0")
+
+    def test_create_tag_no_commits(self, initialized_repo: Repository) -> None:
+        """Test creating a tag with no commits raises error."""
+        with pytest.raises(RuntimeError, match="no commits"):
+            initialized_repo.create_tag("v1.0.0")
+
+    def test_create_tag_invalid_commit(self, repo_with_commit: Repository) -> None:
+        """Test creating a tag with invalid commit raises error."""
+        with pytest.raises(RuntimeError, match="not found"):
+            repo_with_commit.create_tag("v1.0.0", "nonexistent123")
+
+    def test_create_tag_invalid_name(self, repo_with_commit: Repository) -> None:
+        """Test creating a tag with invalid name raises error."""
+        with pytest.raises(RuntimeError, match="Invalid tag name"):
+            repo_with_commit.create_tag("bad tag name")
+
+        with pytest.raises(RuntimeError, match="Invalid tag name"):
+            repo_with_commit.create_tag("")
+
+    def test_get_tag(self, repo_with_commit: Repository) -> None:
+        """Test getting a tag's commit ID."""
+        head_commit = repo_with_commit.get_head_commit()
+        repo_with_commit.create_tag("v1.0.0")
+
+        commit_id = repo_with_commit.get_tag("v1.0.0")
+        assert commit_id == head_commit
+
+    def test_get_tag_not_found(self, repo_with_commit: Repository) -> None:
+        """Test getting a non-existent tag returns None."""
+        commit_id = repo_with_commit.get_tag("nonexistent")
+        assert commit_id is None
+
+    def test_list_tags(self, repo_with_commit: Repository) -> None:
+        """Test listing multiple tags."""
+        repo_with_commit.create_tag("v1.0.0")
+        repo_with_commit.create_tag("v2.0.0")
+        repo_with_commit.create_tag("alpha")
+
+        tags = repo_with_commit.list_tags()
+
+        assert len(tags) == 3
+        assert "alpha" in tags
+        assert "v1.0.0" in tags
+        assert "v2.0.0" in tags
+        # Should be sorted
+        assert tags == sorted(tags)
+
+    def test_delete_tag(self, repo_with_commit: Repository) -> None:
+        """Test deleting a tag."""
+        repo_with_commit.create_tag("v1.0.0")
+        assert repo_with_commit.get_tag("v1.0.0") is not None
+
+        repo_with_commit.delete_tag("v1.0.0")
+
+        assert repo_with_commit.get_tag("v1.0.0") is None
+        assert "v1.0.0" not in repo_with_commit.list_tags()
+
+    def test_delete_tag_not_found(self, repo_with_commit: Repository) -> None:
+        """Test deleting a non-existent tag raises error."""
+        with pytest.raises(RuntimeError, match="does not exist"):
+            repo_with_commit.delete_tag("nonexistent")
+
+    def test_tag_nested_name(self, repo_with_commit: Repository) -> None:
+        """Test creating a tag with nested path name."""
+        repo_with_commit.create_tag("release/v1.0.0")
+
+        tags = repo_with_commit.list_tags()
+        assert "release/v1.0.0" in tags
+
+        commit_id = repo_with_commit.get_tag("release/v1.0.0")
+        assert commit_id == repo_with_commit.get_head_commit()
