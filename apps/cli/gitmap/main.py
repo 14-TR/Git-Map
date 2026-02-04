@@ -41,6 +41,7 @@ from gitmap_cli.commands.pull import pull
 from gitmap_cli.commands.push import push
 from gitmap_cli.commands.revert import revert
 from gitmap_cli.commands.setup_repos import setup_repos
+from gitmap_cli.commands.stash import stash
 from gitmap_cli.commands.status import status
 from gitmap_cli.commands.tag import tag
 
@@ -102,6 +103,7 @@ cli.add_command(notify)
 cli.add_command(push)
 cli.add_command(pull)
 cli.add_command(revert)
+cli.add_command(stash)
 cli.add_command(tag)
 cli.add_command(auto_pull, name="auto-pull")
 cli.add_command(setup_repos, name="setup-repos")
