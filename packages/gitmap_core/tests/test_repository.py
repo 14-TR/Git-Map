@@ -864,3 +864,240 @@ class TestGenerateCommitId:
         id2 = initialized_repo._generate_commit_id("msg", {}, "parent123")
 
         assert id1 != id2
+
+
+# ---- Revert Tests -------------------------------------------------------------------------------------------
+
+
+class TestRevert:
+    """Tests for commit revert operations."""
+
+    def test_revert_commit_not_found(self, initialized_repo: Repository) -> None:
+        """Test revert raises error when commit not found."""
+        with pytest.raises(RuntimeError, match="not found"):
+            initialized_repo.revert("nonexistent")
+
+    def test_revert_creates_new_commit(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test revert creates a new commit."""
+        # Create a second commit with changes
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "New Layer"})
+        repo_with_commit.update_index(modified_data)
+        second_commit = repo_with_commit.create_commit("Add new layer")
+
+        # Revert the second commit
+        revert_commit = repo_with_commit.revert(second_commit.id)
+
+        assert revert_commit is not None
+        assert revert_commit.id != second_commit.id
+        assert "Revert" in revert_commit.message
+        assert second_commit.id[:8] in revert_commit.message
+
+    def test_revert_restores_layer_removal(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test revert restores a removed layer."""
+        # Create commit that removes a layer
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"] = [{"id": "layer-1", "title": "Roads"}]
+        repo_with_commit.update_index(modified_data)
+        removal_commit = repo_with_commit.create_commit("Remove layer-2")
+
+        # Revert the removal
+        revert_commit = repo_with_commit.revert(removal_commit.id)
+
+        # Check that layer-2 is back
+        layers = revert_commit.map_data.get("operationalLayers", [])
+        layer_ids = [l.get("id") for l in layers]
+        assert "layer-2" in layer_ids
+
+    def test_revert_removes_added_layer(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test revert removes an added layer."""
+        # Create commit that adds a layer
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
+        repo_with_commit.update_index(modified_data)
+        addition_commit = repo_with_commit.create_commit("Add layer-3")
+
+        # Revert the addition
+        revert_commit = repo_with_commit.revert(addition_commit.id)
+
+        # Check that layer-3 is gone
+        layers = revert_commit.map_data.get("operationalLayers", [])
+        layer_ids = [l.get("id") for l in layers]
+        assert "layer-3" not in layer_ids
+        assert "layer-1" in layer_ids
+        assert "layer-2" in layer_ids
+
+    def test_revert_restores_modified_layer(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test revert restores a modified layer to original state."""
+        # Create commit that modifies a layer
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"][0]["title"] = "Modified Roads"
+        repo_with_commit.update_index(modified_data)
+        modification_commit = repo_with_commit.create_commit("Modify layer-1")
+
+        # Revert the modification
+        revert_commit = repo_with_commit.revert(modification_commit.id)
+
+        # Check that layer-1 has original title
+        layers = revert_commit.map_data.get("operationalLayers", [])
+        layer_1 = next((l for l in layers if l.get("id") == "layer-1"), None)
+        assert layer_1 is not None
+        assert layer_1["title"] == "Roads"
+
+    def test_revert_with_rationale(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test revert accepts rationale parameter."""
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
+        repo_with_commit.update_index(modified_data)
+        commit = repo_with_commit.create_commit("Add layer")
+
+        revert_commit = repo_with_commit.revert(
+            commit.id,
+            rationale="Reverting because layer was added by mistake",
+        )
+
+        assert revert_commit is not None
+
+    def test_revert_updates_branch(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test revert updates the current branch."""
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
+        repo_with_commit.update_index(modified_data)
+        commit = repo_with_commit.create_commit("Add layer")
+
+        revert_commit = repo_with_commit.revert(commit.id)
+
+        # Branch should point to revert commit
+        branch_commit = repo_with_commit.get_branch_commit("main")
+        assert branch_commit == revert_commit.id
+
+    def test_revert_initial_commit(self, repo_with_commit: Repository) -> None:
+        """Test reverting the initial commit."""
+        # Get the initial commit
+        history = repo_with_commit.get_commit_history()
+        initial_commit = history[0]
+
+        # Revert it
+        revert_commit = repo_with_commit.revert(initial_commit.id)
+
+        # All layers should be removed (back to empty state)
+        assert revert_commit is not None
+        layers = revert_commit.map_data.get("operationalLayers", [])
+        assert len(layers) == 0
+
+
+class TestComputeRevert:
+    """Tests for _compute_revert helper method."""
+
+    def test_compute_revert_layer_addition(
+        self, initialized_repo: Repository
+    ) -> None:
+        """Test computing revert for layer addition."""
+        parent_data = {"operationalLayers": [{"id": "1", "title": "A"}]}
+        commit_data = {
+            "operationalLayers": [
+                {"id": "1", "title": "A"},
+                {"id": "2", "title": "B"},
+            ]
+        }
+        current_data = commit_data.copy()
+
+        result = initialized_repo._compute_revert(
+            current_data, commit_data, parent_data
+        )
+
+        layer_ids = [l["id"] for l in result["operationalLayers"]]
+        assert "1" in layer_ids
+        assert "2" not in layer_ids
+
+    def test_compute_revert_layer_removal(
+        self, initialized_repo: Repository
+    ) -> None:
+        """Test computing revert for layer removal."""
+        parent_data = {
+            "operationalLayers": [
+                {"id": "1", "title": "A"},
+                {"id": "2", "title": "B"},
+            ]
+        }
+        commit_data = {"operationalLayers": [{"id": "1", "title": "A"}]}
+        current_data = commit_data.copy()
+
+        result = initialized_repo._compute_revert(
+            current_data, commit_data, parent_data
+        )
+
+        layer_ids = [l["id"] for l in result["operationalLayers"]]
+        assert "1" in layer_ids
+        assert "2" in layer_ids
+
+    def test_compute_revert_layer_modification(
+        self, initialized_repo: Repository
+    ) -> None:
+        """Test computing revert for layer modification."""
+        parent_data = {"operationalLayers": [{"id": "1", "title": "Original"}]}
+        commit_data = {"operationalLayers": [{"id": "1", "title": "Modified"}]}
+        current_data = commit_data.copy()
+
+        result = initialized_repo._compute_revert(
+            current_data, commit_data, parent_data
+        )
+
+        layer = result["operationalLayers"][0]
+        assert layer["title"] == "Original"
+
+    def test_compute_revert_preserves_unrelated_changes(
+        self, initialized_repo: Repository
+    ) -> None:
+        """Test revert preserves changes not from the reverted commit."""
+        parent_data = {"operationalLayers": [{"id": "1", "title": "A"}]}
+        commit_data = {
+            "operationalLayers": [
+                {"id": "1", "title": "A"},
+                {"id": "2", "title": "B"},
+            ]
+        }
+        # Current has additional layer-3 that wasn't part of commit
+        current_data = {
+            "operationalLayers": [
+                {"id": "1", "title": "A"},
+                {"id": "2", "title": "B"},
+                {"id": "3", "title": "C"},
+            ]
+        }
+
+        result = initialized_repo._compute_revert(
+            current_data, commit_data, parent_data
+        )
+
+        layer_ids = [l["id"] for l in result["operationalLayers"]]
+        assert "1" in layer_ids
+        assert "2" not in layer_ids  # Reverted
+        assert "3" in layer_ids  # Preserved
+
+
+class TestRevertLayers:
+    """Tests for _revert_layers helper method."""
+
+    def test_revert_layers_empty(self, initialized_repo: Repository) -> None:
+        """Test reverting with empty layers."""
+        result = initialized_repo._revert_layers([], [], [])
+        assert result == []
+
+    def test_revert_layers_no_id(self, initialized_repo: Repository) -> None:
+        """Test layers without id are preserved."""
+        current = [{"title": "No ID"}]
+        result = initialized_repo._revert_layers(current, current, current)
+        assert result == current
