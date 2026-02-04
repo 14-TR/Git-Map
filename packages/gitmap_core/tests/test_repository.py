@@ -1363,6 +1363,47 @@ class TestCherryPick:
         repo_with_commit.create_branch("feature")
         repo_with_commit.checkout_branch("feature")
 
+
+class TestStash:
+    """Tests for stash operations."""
+
+    def test_stash_list_empty(self, initialized_repo: Repository) -> None:
+        """Test listing stashes when none exist."""
+        stashes = initialized_repo.stash_list()
+        assert stashes == []
+
+    def test_stash_push_no_changes(self, repo_with_commit: Repository) -> None:
+        """Test stash push with no uncommitted changes."""
+        with pytest.raises(RuntimeError, match="No changes to stash"):
+            repo_with_commit.stash_push()
+
+    def test_stash_push(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test pushing changes to stash."""
+        # Make changes
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
+        repo_with_commit.update_index(modified_data)
+
+        # Stash changes
+        stash_entry = repo_with_commit.stash_push(message="WIP feature")
+
+        assert stash_entry is not None
+        assert "WIP feature" in stash_entry["message"]
+        assert stash_entry["index_data"] == modified_data
+
+        # Index should be restored to HEAD state
+        current_index = repo_with_commit.get_index()
+        layer_ids = [l.get("id") for l in current_index.get("operationalLayers", [])]
+        assert "layer-3" not in layer_ids
+
+    def test_stash_push_creates_dir(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test stash push creates stash directory."""
+        assert not repo_with_commit.stash_dir.exists()
+
         modified_data = sample_map_data.copy()
         modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
         repo_with_commit.update_index(modified_data)
@@ -1435,3 +1476,168 @@ class TestApplyLayerChanges:
         # Should not duplicate layer-2
         layer_ids = [l["id"] for l in result]
         assert layer_ids.count("2") == 1
+
+
+
+        repo_with_commit.stash_push()
+
+        assert repo_with_commit.stash_dir.exists()
+
+    def test_stash_list_after_push(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test listing stashes after push."""
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
+        repo_with_commit.update_index(modified_data)
+
+        repo_with_commit.stash_push(message="First stash")
+
+        stashes = repo_with_commit.stash_list()
+        assert len(stashes) == 1
+        assert "First stash" in stashes[0]["message"]
+
+    def test_stash_multiple(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test pushing multiple stashes."""
+        # First stash
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "First"})
+        repo_with_commit.update_index(modified_data)
+        repo_with_commit.stash_push(message="First")
+
+        # Second stash
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-4", "title": "Second"})
+        repo_with_commit.update_index(modified_data)
+        repo_with_commit.stash_push(message="Second")
+
+        stashes = repo_with_commit.stash_list()
+        assert len(stashes) == 2
+        # Newest first
+        assert "Second" in stashes[0]["message"]
+        assert "First" in stashes[1]["message"]
+
+    def test_stash_pop_empty(self, initialized_repo: Repository) -> None:
+        """Test pop with empty stash list."""
+        with pytest.raises(RuntimeError, match="No stash entries"):
+            initialized_repo.stash_pop()
+
+    def test_stash_pop(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test popping a stash."""
+        # Make changes and stash
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "Stashed"})
+        repo_with_commit.update_index(modified_data)
+        repo_with_commit.stash_push(message="Stash to pop")
+
+        # Verify index is clean
+        current_index = repo_with_commit.get_index()
+        layer_ids = [l.get("id") for l in current_index.get("operationalLayers", [])]
+        assert "layer-3" not in layer_ids
+
+        # Pop stash
+        stash_entry = repo_with_commit.stash_pop()
+
+        # Verify changes are restored
+        current_index = repo_with_commit.get_index()
+        layer_ids = [l.get("id") for l in current_index.get("operationalLayers", [])]
+        assert "layer-3" in layer_ids
+
+        # Stash list should be empty
+        assert len(repo_with_commit.stash_list()) == 0
+
+    def test_stash_pop_specific_index(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test popping a specific stash index."""
+        # Create two stashes
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "First"})
+        repo_with_commit.update_index(modified_data)
+        repo_with_commit.stash_push(message="First")
+
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-4", "title": "Second"})
+        repo_with_commit.update_index(modified_data)
+        repo_with_commit.stash_push(message="Second")
+
+        # Pop index 1 (first stash, older one)
+        stash_entry = repo_with_commit.stash_pop(index=1)
+
+        assert "First" in stash_entry["message"]
+
+        # Verify layer-3 is restored (from first stash)
+        current_index = repo_with_commit.get_index()
+        layer_ids = [l.get("id") for l in current_index.get("operationalLayers", [])]
+        assert "layer-3" in layer_ids
+        assert "layer-4" not in layer_ids
+
+        # Second stash should still exist
+        stashes = repo_with_commit.stash_list()
+        assert len(stashes) == 1
+        assert "Second" in stashes[0]["message"]
+
+    def test_stash_pop_invalid_index(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test pop with invalid index."""
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
+        repo_with_commit.update_index(modified_data)
+        repo_with_commit.stash_push()
+
+        with pytest.raises(RuntimeError, match="Invalid stash index"):
+            repo_with_commit.stash_pop(index=5)
+
+    def test_stash_drop(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test dropping a stash."""
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
+        repo_with_commit.update_index(modified_data)
+        repo_with_commit.stash_push(message="Stash to drop")
+
+        assert len(repo_with_commit.stash_list()) == 1
+
+        stash_ref = repo_with_commit.stash_drop()
+
+        assert "Stash to drop" in stash_ref.get("message", "")
+        assert len(repo_with_commit.stash_list()) == 0
+
+        # Index should NOT be modified (unlike pop)
+        current_index = repo_with_commit.get_index()
+        layer_ids = [l.get("id") for l in current_index.get("operationalLayers", [])]
+        assert "layer-3" not in layer_ids
+
+    def test_stash_drop_empty(self, initialized_repo: Repository) -> None:
+        """Test drop with empty stash list."""
+        with pytest.raises(RuntimeError, match="No stash entries"):
+            initialized_repo.stash_drop()
+
+    def test_stash_clear(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test clearing all stashes."""
+        # Create multiple stashes
+        for i in range(3):
+            modified_data = sample_map_data.copy()
+            modified_data["operationalLayers"].append({"id": f"layer-{i+3}", "title": f"New {i}"})
+            repo_with_commit.update_index(modified_data)
+            repo_with_commit.stash_push(message=f"Stash {i}")
+
+        assert len(repo_with_commit.stash_list()) == 3
+
+        count = repo_with_commit.stash_clear()
+
+        assert count == 3
+        assert len(repo_with_commit.stash_list()) == 0
+
+    def test_stash_clear_empty(self, initialized_repo: Repository) -> None:
+        """Test clear with empty stash list."""
+        count = initialized_repo.stash_clear()
+        assert count == 0

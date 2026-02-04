@@ -40,6 +40,8 @@ OBJECTS_DIR = "objects"
 COMMITS_DIR = "commits"
 STASH_DIR = "stash"
 CONTEXT_DB = "context.db"
+STASH_DIR = "stash"
+TAGS_DIR = "tags"
 
 
 # ---- Repository Class ---------------------------------------------------------------------------------------
@@ -113,18 +115,18 @@ class Repository:
         return self.refs_dir / REMOTES_DIR
 
     @property
-    def tags_dir(
-            self,
-    ) -> Path:
-        """Path to refs/tags directory."""
-        return self.refs_dir / TAGS_DIR
-
-    @property
     def stash_dir(
             self,
     ) -> Path:
         """Path to stash directory."""
         return self.gitmap_dir / STASH_DIR
+
+    @property
+    def tags_dir(
+            self,
+    ) -> Path:
+        """Path to refs/tags directory."""
+        return self.refs_dir / TAGS_DIR
 
     @property
     def objects_dir(
@@ -1276,6 +1278,300 @@ class Repository:
                 result = [l for l in result if l.get("id") != layer_id]
 
         return result
+
+    # ---- Stash Operations -----------------------------------------------------------------------------------
+
+    def _get_stash_list_path(
+            self,
+    ) -> Path:
+        """Get path to stash list file."""
+        return self.stash_dir / "stash_list.json"
+
+    def _load_stash_list(
+            self,
+    ) -> list[dict[str, Any]]:
+        """Load the stash stack from disk.
+
+        Returns:
+            List of stash entries (newest first).
+        """
+        stash_list_path = self._get_stash_list_path()
+        if not stash_list_path.exists():
+            return []
+
+        try:
+            return json.loads(stash_list_path.read_text())
+        except json.JSONDecodeError:
+            return []
+
+    def _save_stash_list(
+            self,
+            stash_list: list[dict[str, Any]],
+    ) -> None:
+        """Save the stash stack to disk.
+
+        Args:
+            stash_list: List of stash entries.
+        """
+        self.stash_dir.mkdir(parents=True, exist_ok=True)
+        self._get_stash_list_path().write_text(json.dumps(stash_list, indent=2))
+
+    def stash_push(
+            self,
+            message: str | None = None,
+    ) -> dict[str, Any]:
+        """Save current index state to the stash stack.
+
+        Args:
+            message: Optional message describing the stash.
+
+        Returns:
+            The stash entry that was created.
+
+        Raises:
+            RuntimeError: If there are no changes to stash.
+        """
+        if not self.has_uncommitted_changes():
+            msg = "No changes to stash"
+            raise RuntimeError(msg)
+
+        # Get current index state
+        index_data = self.get_index()
+        branch = self.get_current_branch()
+        head_commit = self.get_head_commit()
+
+        # Generate stash ID
+        import time
+        stash_id = f"stash@{{{int(time.time())}}}"
+
+        # Create stash entry
+        stash_entry = {
+            "id": stash_id,
+            "timestamp": hashlib.sha256(str(time.time()).encode()).hexdigest()[:8],
+            "message": message or f"WIP on {branch}: {head_commit[:8] if head_commit else 'initial'}",
+            "branch": branch,
+            "head_commit": head_commit,
+            "index_data": index_data,
+        }
+
+        # Save stash data to file
+        self.stash_dir.mkdir(parents=True, exist_ok=True)
+        stash_file = self.stash_dir / f"{stash_entry['timestamp']}.json"
+        stash_file.write_text(json.dumps(stash_entry, indent=2))
+
+        # Update stash list (prepend - newest first)
+        stash_list = self._load_stash_list()
+        stash_list.insert(0, {
+            "id": stash_id,
+            "file": stash_entry["timestamp"],
+            "message": stash_entry["message"],
+            "branch": branch,
+        })
+        self._save_stash_list(stash_list)
+
+        # Restore index to HEAD state
+        if head_commit:
+            commit = self.get_commit(head_commit)
+            if commit:
+                self._write_index(commit.map_data)
+        else:
+            self._write_index({})
+
+        # Record stash event
+        try:
+            config = self.get_config()
+            actor = config.user_name if config else None
+            with self.get_context_store() as store:
+                store.record_event(
+                    event_type="stash",
+                    repo=str(self.root),
+                    ref=stash_id,
+                    actor=actor,
+                    payload={
+                        "action": "push",
+                        "stash_id": stash_id,
+                        "message": stash_entry["message"],
+                        "branch": branch,
+                    },
+                )
+        except Exception:
+            pass
+
+        return stash_entry
+
+    def stash_pop(
+            self,
+            index: int = 0,
+    ) -> dict[str, Any]:
+        """Apply and remove a stash entry.
+
+        Args:
+            index: Index in stash list (0 = most recent).
+
+        Returns:
+            The stash entry that was applied.
+
+        Raises:
+            RuntimeError: If stash is empty or index out of range.
+        """
+        stash_list = self._load_stash_list()
+
+        if not stash_list:
+            msg = "No stash entries"
+            raise RuntimeError(msg)
+
+        if index < 0 or index >= len(stash_list):
+            msg = f"Invalid stash index: {index}"
+            raise RuntimeError(msg)
+
+        # Get stash entry
+        stash_ref = stash_list[index]
+        stash_file = self.stash_dir / f"{stash_ref['file']}.json"
+
+        if not stash_file.exists():
+            msg = f"Stash data not found: {stash_ref['id']}"
+            raise RuntimeError(msg)
+
+        stash_entry = json.loads(stash_file.read_text())
+
+        # Apply stash to index
+        self._write_index(stash_entry["index_data"])
+
+        # Remove from stash list and delete file
+        stash_list.pop(index)
+        self._save_stash_list(stash_list)
+        stash_file.unlink()
+
+        # Record stash event
+        try:
+            config = self.get_config()
+            actor = config.user_name if config else None
+            with self.get_context_store() as store:
+                store.record_event(
+                    event_type="stash",
+                    repo=str(self.root),
+                    ref=stash_ref["id"],
+                    actor=actor,
+                    payload={
+                        "action": "pop",
+                        "stash_id": stash_ref["id"],
+                        "message": stash_entry["message"],
+                    },
+                )
+        except Exception:
+            pass
+
+        return stash_entry
+
+    def stash_list(
+            self,
+    ) -> list[dict[str, Any]]:
+        """List all stash entries.
+
+        Returns:
+            List of stash entries (newest first).
+        """
+        return self._load_stash_list()
+
+    def stash_drop(
+            self,
+            index: int = 0,
+    ) -> dict[str, Any]:
+        """Remove a stash entry without applying.
+
+        Args:
+            index: Index in stash list (0 = most recent).
+
+        Returns:
+            The stash entry that was dropped.
+
+        Raises:
+            RuntimeError: If stash is empty or index out of range.
+        """
+        stash_list = self._load_stash_list()
+
+        if not stash_list:
+            msg = "No stash entries"
+            raise RuntimeError(msg)
+
+        if index < 0 or index >= len(stash_list):
+            msg = f"Invalid stash index: {index}"
+            raise RuntimeError(msg)
+
+        # Get stash entry
+        stash_ref = stash_list[index]
+        stash_file = self.stash_dir / f"{stash_ref['file']}.json"
+
+        # Remove from stash list and delete file
+        stash_list.pop(index)
+        self._save_stash_list(stash_list)
+
+        if stash_file.exists():
+            stash_file.unlink()
+
+        # Record stash event
+        try:
+            config = self.get_config()
+            actor = config.user_name if config else None
+            with self.get_context_store() as store:
+                store.record_event(
+                    event_type="stash",
+                    repo=str(self.root),
+                    ref=stash_ref["id"],
+                    actor=actor,
+                    payload={
+                        "action": "drop",
+                        "stash_id": stash_ref["id"],
+                        "message": stash_ref.get("message", ""),
+                    },
+                )
+        except Exception:
+            pass
+
+        return stash_ref
+
+    def stash_clear(
+            self,
+    ) -> int:
+        """Remove all stash entries.
+
+        Returns:
+            Number of stash entries that were removed.
+        """
+        stash_list = self._load_stash_list()
+        count = len(stash_list)
+
+        if count == 0:
+            return 0
+
+        # Delete all stash files
+        for stash_ref in stash_list:
+            stash_file = self.stash_dir / f"{stash_ref['file']}.json"
+            if stash_file.exists():
+                stash_file.unlink()
+
+        # Clear stash list
+        self._save_stash_list([])
+
+        # Record stash event
+        try:
+            config = self.get_config()
+            actor = config.user_name if config else None
+            with self.get_context_store() as store:
+                store.record_event(
+                    event_type="stash",
+                    repo=str(self.root),
+                    ref="all",
+                    actor=actor,
+                    payload={
+                        "action": "clear",
+                        "count": count,
+                    },
+                )
+        except Exception:
+            pass
+
+        return count
 
 
 
