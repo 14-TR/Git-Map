@@ -265,6 +265,154 @@ class TestFolderManagement:
 
         assert result == "obj-folder-id"
 
+    def test_get_or_create_folder_finds_folder_through_user_content(
+        self, mock_repository: MagicMock, mock_connection: MagicMock
+    ) -> None:
+        """Test finding folder by searching through user content when not in folders list."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(name="origin", url="https://test.com", folder_id=None),
+        )
+        mock_repository.get_config.return_value = config
+
+        # No folders in direct list
+        mock_connection.gis.users.me.folders = []
+        
+        # Item in folder with matching name
+        item_in_folder = MagicMock()
+        item_in_folder.ownerFolder = "hidden-folder-id"
+        mock_connection.gis.users.me.items.return_value = [item_in_folder]
+        
+        # Folder info returns matching folder
+        folder_info = MagicMock()
+        folder_info.title = "TestProject"
+        folder_info.id = "hidden-folder-id"
+        mock_connection.gis.content.get_folder.return_value = folder_info
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        result = ops.get_or_create_folder()
+
+        assert result == "hidden-folder-id"
+
+    def test_get_or_create_folder_handles_folder_exists_error_and_finds_it(
+        self, mock_repository: MagicMock, mock_connection: MagicMock
+    ) -> None:
+        """Test recovery when folder creation fails because folder exists."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(name="origin", url="https://test.com", folder_id=None),
+        )
+        mock_repository.get_config.return_value = config
+        
+        # Initially no folders found
+        mock_connection.gis.users.me.folders = []
+        mock_connection.gis.users.me.items.return_value = []
+        
+        # Creation fails with "already exists" error
+        mock_connection.gis.content.folders.create.side_effect = Exception(
+            "Folder name is not available"
+        )
+        
+        # On retry, folder is found
+        found_folder = MagicMock()
+        found_folder.title = "TestProject"
+        found_folder.id = "retry-found-folder-id"
+        
+        # Use a counter to return empty first, then the folder
+        call_count = [0]
+        def folders_side_effect():
+            call_count[0] += 1
+            if call_count[0] > 1:
+                return [found_folder]
+            return []
+        
+        type(mock_connection.gis.users.me).folders = PropertyMock(side_effect=folders_side_effect)
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        result = ops.get_or_create_folder()
+
+        assert result == "retry-found-folder-id"
+
+    def test_get_or_create_folder_raises_when_folder_exists_but_not_locatable(
+        self, mock_repository: MagicMock, mock_connection: MagicMock
+    ) -> None:
+        """Test error when folder exists but cannot be found after creation fails."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(name="origin", url="https://test.com", folder_id=None),
+        )
+        mock_repository.get_config.return_value = config
+        
+        # No folders found ever
+        mock_connection.gis.users.me.folders = []
+        mock_connection.gis.users.me.items.return_value = []
+        
+        # Creation fails with "already exists" error
+        mock_connection.gis.content.folders.create.side_effect = Exception(
+            "unable to create folder"
+        )
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        
+        with pytest.raises(RuntimeError) as exc_info:
+            ops.get_or_create_folder()
+
+        assert "exists in Portal but could not be located" in str(exc_info.value)
+
+    def test_get_or_create_folder_raises_on_creation_error(
+        self, mock_repository: MagicMock, mock_connection: MagicMock
+    ) -> None:
+        """Test error propagation when folder creation fails with non-exists error."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(name="origin", url="https://test.com", folder_id=None),
+        )
+        mock_repository.get_config.return_value = config
+        
+        mock_connection.gis.users.me.folders = []
+        mock_connection.gis.users.me.items.return_value = []
+        
+        # Creation fails with unexpected error
+        mock_connection.gis.content.folders.create.side_effect = Exception(
+            "Network error: connection refused"
+        )
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        
+        with pytest.raises(RuntimeError) as exc_info:
+            ops.get_or_create_folder()
+
+        assert "Failed to create folder" in str(exc_info.value)
+
+    def test_get_or_create_folder_handles_dict_folder_info(
+        self, mock_repository: MagicMock, mock_connection: MagicMock
+    ) -> None:
+        """Test finding folder when get_folder returns dict instead of object."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(name="origin", url="https://test.com", folder_id=None),
+        )
+        mock_repository.get_config.return_value = config
+
+        # No folders in direct list
+        mock_connection.gis.users.me.folders = []
+        
+        # Item in folder
+        item_in_folder = MagicMock()
+        item_in_folder.ownerFolder = "dict-folder-id"
+        mock_connection.gis.users.me.items.return_value = [item_in_folder]
+        
+        # Folder info returns dict (not object)
+        mock_connection.gis.content.get_folder.return_value = {
+            "title": "TestProject",
+            "id": "dict-folder-id"
+        }
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        result = ops.get_or_create_folder()
+
+        assert result == "dict-folder-id"
+
 
 # ---- Push Tests ---------------------------------------------------------------------------------------------
 
@@ -433,6 +581,192 @@ class TestPushOperations:
 
         assert notification_status["attempted"] is False
 
+    def test_push_notification_attempted_for_production_branch(
+        self, remote_ops: RemoteOperations, mock_portal_item: MagicMock
+    ) -> None:
+        """Test notification is attempted when pushing to production branch."""
+        # Set up as production branch
+        remote_ops.config.remote.production_branch = "main"
+        mock_portal_item.access = "private"  # Private item, no groups
+        remote_ops.connection.gis.content.get.return_value = mock_portal_item
+
+        _, notification_status = remote_ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["sent"] is False
+        assert "private" in notification_status["reason"].lower()
+
+    def test_push_notification_no_groups_shared(
+        self, remote_ops: RemoteOperations, mock_portal_item: MagicMock
+    ) -> None:
+        """Test notification reports no groups when item not shared with any."""
+        remote_ops.config.remote.production_branch = "main"
+        mock_portal_item.access = "org"
+        mock_portal_item.properties = None
+        remote_ops.connection.gis.users.me.groups = []
+        remote_ops.connection.gis.content.get.return_value = mock_portal_item
+
+        _, notification_status = remote_ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["sent"] is False
+        assert "not shared with any groups" in notification_status["reason"]
+
+    def test_push_notification_sends_to_group_users(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Test notification sends to users in shared groups."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                item_id="original-item-id",
+                production_branch="main",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "main"
+        mock_repository.get_branch_commit.return_value = sample_commit.id
+        mock_repository.get_commit.return_value = sample_commit
+
+        mock_portal_item.access = "org"
+        mock_portal_item.id = "original-item-id"
+        mock_portal_item.title = "Test Map"
+        mock_portal_item.homepage = "https://test.com/item"
+        mock_portal_item.properties = {"sharing": {"groups": ["group-123"]}}
+        mock_connection.gis.content.get.return_value = mock_portal_item
+
+        # Mock notify_item_group_users
+        with patch("gitmap_core.remote.notify_item_group_users") as mock_notify:
+            mock_notify.return_value = ["user1", "user2"]
+            
+            ops = RemoteOperations(mock_repository, mock_connection)
+            _, notification_status = ops.push()
+
+            assert notification_status["attempted"] is True
+            assert notification_status["sent"] is True
+            assert notification_status["users_notified"] == ["user1", "user2"]
+
+    def test_push_notification_handles_notify_error(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Test push succeeds even if notification fails."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                item_id="original-item-id",
+                production_branch="main",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "main"
+        mock_repository.get_branch_commit.return_value = sample_commit.id
+        mock_repository.get_commit.return_value = sample_commit
+
+        mock_portal_item.access = "org"
+        mock_portal_item.properties = {"sharing": {"groups": ["group-123"]}}
+        mock_connection.gis.content.get.return_value = mock_portal_item
+
+        # Mock notify to raise exception
+        with patch("gitmap_core.remote.notify_item_group_users") as mock_notify:
+            mock_notify.side_effect = Exception("Notification service unavailable")
+            
+            ops = RemoteOperations(mock_repository, mock_connection)
+            item, notification_status = ops.push()
+
+            # Push should succeed
+            assert item is not None
+            assert notification_status["attempted"] is True
+            assert notification_status["sent"] is False
+            assert "Notification error" in notification_status["reason"]
+
+    def test_push_falls_through_when_original_item_not_found(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Test push falls through to folder logic when original item fails."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                folder_id="folder-123",
+                item_id="missing-item-id",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "main"
+        mock_repository.get_branch_commit.return_value = sample_commit.id
+        mock_repository.get_commit.return_value = sample_commit
+        mock_repository.remotes_dir = Path(tempfile.mkdtemp()) / "remotes"
+        mock_repository.remotes_dir.mkdir(parents=True)
+
+        # Original item not found
+        mock_connection.gis.content.get.side_effect = Exception("Item not found")
+        
+        # No existing items in folder
+        mock_connection.gis.users.me.items.return_value = []
+        
+        # Create new item
+        new_item = MagicMock()
+        new_item.id = "new-item-id"
+        new_item.access = "private"
+        mock_connection.gis.content.add.return_value = new_item
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        item, _ = ops.push()
+
+        assert item == new_item
+        mock_connection.gis.content.add.assert_called_once()
+
+    def test_push_feature_branch_with_production_config(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Test feature branch push doesn't trigger notifications even with production config."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                folder_id="folder-123",
+                production_branch="main",  # Production is main, but we're on feature
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "feature/test"
+        mock_repository.get_branch_commit.return_value = sample_commit.id
+        mock_repository.get_commit.return_value = sample_commit
+        mock_repository.remotes_dir = Path(tempfile.mkdtemp()) / "remotes"
+        mock_repository.remotes_dir.mkdir(parents=True)
+
+        mock_connection.gis.users.me.items.return_value = []
+        
+        new_item = MagicMock()
+        new_item.id = "feature-item-id"
+        new_item.access = "private"
+        mock_connection.gis.content.add.return_value = new_item
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        _, notification_status = ops.push()
+
+        assert notification_status["attempted"] is False
+
 
 # ---- Pull Tests ---------------------------------------------------------------------------------------------
 
@@ -592,6 +926,148 @@ class TestPullOperations:
         ref_path = mock_repository.remotes_dir / "origin" / "main"
         assert ref_path.exists()
         assert ref_path.read_text() == "commit-456"
+
+    def test_pull_from_main_original_item_empty_data_falls_through(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        sample_map_data: dict,
+    ) -> None:
+        """Test pull falls through to folder logic when original item returns empty data."""
+        config = RepoConfig(
+            project_name="Test",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                folder_id="folder-123",
+                item_id="original-item-id",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "main"
+        mock_repository.get_head_commit.return_value = "commit-123"
+        mock_repository.remotes_dir = Path(tempfile.mkdtemp()) / "remotes"
+        mock_repository.remotes_dir.mkdir(parents=True)
+
+        # Original item returns empty data
+        original_item = MagicMock()
+        original_item.type = "Web Map"
+        original_item.get_data.return_value = None
+        mock_connection.gis.content.get.return_value = original_item
+
+        # Fallback to folder item with valid data
+        folder_item = MagicMock()
+        folder_item.title = "main"
+        folder_item.type = "Web Map"
+        folder_item.get_data.return_value = sample_map_data
+        mock_connection.gis.users.me.items.return_value = [folder_item]
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        result = ops.pull()
+
+        # Should successfully pull from folder fallback
+        assert result == sample_map_data
+        mock_repository.update_index.assert_called_once_with(sample_map_data)
+
+    def test_pull_from_main_falls_through_on_item_error(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_map_data: dict,
+    ) -> None:
+        """Test pull falls through to folder logic when original item fails."""
+        config = RepoConfig(
+            project_name="Test",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                folder_id="folder-123",
+                item_id="original-item-id",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "main"
+        mock_repository.get_head_commit.return_value = "commit-123"
+        mock_repository.remotes_dir = Path(tempfile.mkdtemp()) / "remotes"
+        mock_repository.remotes_dir.mkdir(parents=True)
+
+        # Original item access fails
+        mock_connection.gis.content.get.side_effect = Exception("Item access denied")
+        
+        # Fallback to folder-based search
+        mock_portal_item.title = "main"
+        mock_connection.gis.users.me.items.return_value = [mock_portal_item]
+        mock_connection.gis.content.get.side_effect = None  # Reset for folder item
+        mock_portal_item.get_data.return_value = sample_map_data
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        result = ops.pull()
+
+        assert result == sample_map_data
+        mock_repository.update_index.assert_called_once_with(sample_map_data)
+
+    def test_pull_raises_without_folder_when_not_main(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+    ) -> None:
+        """Test pull raises error for feature branch without folder_id."""
+        config = RepoConfig(
+            project_name="Test",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                folder_id=None,  # No folder configured
+                item_id=None,
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "feature/test"
+        mock_repository.remotes_dir = Path(tempfile.mkdtemp()) / "remotes"
+        mock_repository.remotes_dir.mkdir(parents=True)
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+
+        with pytest.raises(RuntimeError) as exc_info:
+            ops.pull()
+
+        assert "Remote folder not configured" in str(exc_info.value)
+
+    def test_pull_branch_with_slash_updates_ref_correctly(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_map_data: dict,
+    ) -> None:
+        """Test pull correctly names remote ref for branch with slashes."""
+        config = RepoConfig(
+            project_name="Test",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                folder_id="folder-123",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "feature/add/layers"
+        mock_repository.get_head_commit.return_value = "commit-789"
+        
+        temp_dir = Path(tempfile.mkdtemp())
+        mock_repository.remotes_dir = temp_dir / "remotes"
+        mock_repository.remotes_dir.mkdir(parents=True)
+
+        mock_portal_item.title = "feature_add_layers"
+        mock_connection.gis.users.me.items.return_value = [mock_portal_item]
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        ops.pull()
+
+        # Check remote ref uses sanitized name
+        ref_path = mock_repository.remotes_dir / "origin" / "feature_add_layers"
+        assert ref_path.exists()
+        assert ref_path.read_text() == "commit-789"
 
 
 # ---- Branch to Item Title Tests -----------------------------------------------------------------------------
