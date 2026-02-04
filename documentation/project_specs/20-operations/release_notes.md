@@ -10,14 +10,32 @@
 
 | Component         | Version | Source                                   |
 | ---               | ---     | ---                                      |
-| GitMap (repo)  | 2.2.0   | `documentation/project_specs/20-operations/release_notes.md` |
-| gitmap-cli     | 0.5.0   | `apps/cli/gitmap/pyproject.toml`         |
-| gitmap_core    | 0.4.0   | `packages/gitmap_core/pyproject.toml`    |
+| GitMap (repo)  | 2.3.0   | `documentation/project_specs/20-operations/release_notes.md` |
+| gitmap-cli     | 0.6.0   | `apps/cli/gitmap/pyproject.toml`         |
+| gitmap_core    | 0.5.0   | `packages/gitmap_core/pyproject.toml`    |
 | gitmap-mcp     | 0.2.0   | `apps/mcp/gitmap-mcp/pyproject.toml`     |
 | gitmap-gui     | 0.2.0   | `apps/client/gitmap-gui/pyproject.toml`  |
 | gitmap-client  | 0.1.0   | `apps/client/gitmap-client/pyproject.toml` |
 
 ## Releases
+
+### [release/2.3.0]
+
+**Type**: Minor
+
+**New Commands (CLI & Core):**
+- Added `revert` command to undo specific commits by creating inverse changes
+- Added `tag` command for version marking and release management (stored in `.gitmap/refs/tags/`)
+- Added `cherry-pick` command to apply specific commits across branches
+- Added `stash` command to save work-in-progress without committing (stored in `.gitmap/stash/`)
+
+**Testing:**
+- Added comprehensive unit tests for `maps.py` module (48 tests)
+- Added comprehensive unit tests for `remote.py` module (41 tests)
+- Added comprehensive unit tests for `repository.py` module (84 tests)
+- Improved `remote.py` test coverage from 57% to 79% (15 additional tests)
+- Fixed absolute imports in `test_communication.py`
+- Total test count: 453+ passing tests
 
 ### [release/2.2.0]
 
