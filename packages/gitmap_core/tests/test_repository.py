@@ -1220,3 +1220,218 @@ class TestTags:
 
         commit_id = repo_with_commit.get_tag("release/v1.0.0")
         assert commit_id == repo_with_commit.get_head_commit()
+
+
+class TestCherryPick:
+    """Tests for cherry-pick operations."""
+
+    def test_cherry_pick_commit_not_found(self, initialized_repo: Repository) -> None:
+        """Test cherry-pick raises error when commit not found."""
+        with pytest.raises(RuntimeError, match="not found"):
+            initialized_repo.cherry_pick("nonexistent")
+
+    def test_cherry_pick_creates_new_commit(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test cherry-pick creates a new commit."""
+        # Create feature branch with new commit
+        repo_with_commit.create_branch("feature")
+        repo_with_commit.checkout_branch("feature")
+
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "Feature Layer"})
+        repo_with_commit.update_index(modified_data)
+        feature_commit = repo_with_commit.create_commit("Add feature layer")
+
+        # Switch back to main
+        repo_with_commit.checkout_branch("main")
+
+        # Cherry-pick the feature commit
+        new_commit = repo_with_commit.cherry_pick(feature_commit.id)
+
+        assert new_commit is not None
+        assert new_commit.id != feature_commit.id
+        assert feature_commit.id[:8] in new_commit.message
+
+    def test_cherry_pick_applies_added_layer(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test cherry-pick applies layer additions."""
+        # Create feature branch
+        repo_with_commit.create_branch("feature")
+        repo_with_commit.checkout_branch("feature")
+
+        # Add a layer
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "Feature"})
+        repo_with_commit.update_index(modified_data)
+        feature_commit = repo_with_commit.create_commit("Add layer")
+
+        # Switch back to main
+        repo_with_commit.checkout_branch("main")
+
+        # Verify main doesn't have layer-3
+        current = repo_with_commit.get_index()
+        layer_ids = [l.get("id") for l in current.get("operationalLayers", [])]
+        assert "layer-3" not in layer_ids
+
+        # Cherry-pick
+        new_commit = repo_with_commit.cherry_pick(feature_commit.id)
+
+        # Main should now have layer-3
+        layers = new_commit.map_data.get("operationalLayers", [])
+        layer_ids = [l.get("id") for l in layers]
+        assert "layer-3" in layer_ids
+
+    def test_cherry_pick_applies_removed_layer(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test cherry-pick applies layer removals."""
+        # Create feature branch
+        repo_with_commit.create_branch("feature")
+        repo_with_commit.checkout_branch("feature")
+
+        # Remove a layer
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"] = [{"id": "layer-1", "title": "Roads"}]
+        repo_with_commit.update_index(modified_data)
+        feature_commit = repo_with_commit.create_commit("Remove layer-2")
+
+        # Switch back to main
+        repo_with_commit.checkout_branch("main")
+
+        # Cherry-pick
+        new_commit = repo_with_commit.cherry_pick(feature_commit.id)
+
+        # Main should no longer have layer-2
+        layers = new_commit.map_data.get("operationalLayers", [])
+        layer_ids = [l.get("id") for l in layers]
+        assert "layer-2" not in layer_ids
+        assert "layer-1" in layer_ids
+
+    def test_cherry_pick_applies_modified_layer(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test cherry-pick applies layer modifications."""
+        # Create feature branch
+        repo_with_commit.create_branch("feature")
+        repo_with_commit.checkout_branch("feature")
+
+        # Modify a layer
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"][0]["title"] = "Modified Roads"
+        repo_with_commit.update_index(modified_data)
+        feature_commit = repo_with_commit.create_commit("Modify layer")
+
+        # Switch back to main
+        repo_with_commit.checkout_branch("main")
+
+        # Cherry-pick
+        new_commit = repo_with_commit.cherry_pick(feature_commit.id)
+
+        # Layer-1 should be modified
+        layers = new_commit.map_data.get("operationalLayers", [])
+        layer_1 = next((l for l in layers if l.get("id") == "layer-1"), None)
+        assert layer_1 is not None
+        assert layer_1["title"] == "Modified Roads"
+
+    def test_cherry_pick_with_rationale(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test cherry-pick accepts rationale parameter."""
+        repo_with_commit.create_branch("feature")
+        repo_with_commit.checkout_branch("feature")
+
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "Fix"})
+        repo_with_commit.update_index(modified_data)
+        feature_commit = repo_with_commit.create_commit("Add fix")
+
+        repo_with_commit.checkout_branch("main")
+
+        new_commit = repo_with_commit.cherry_pick(
+            feature_commit.id,
+            rationale="Backporting critical fix to main",
+        )
+
+        assert new_commit is not None
+
+    def test_cherry_pick_updates_branch(
+        self, repo_with_commit: Repository, sample_map_data: dict
+    ) -> None:
+        """Test cherry-pick updates the current branch."""
+        repo_with_commit.create_branch("feature")
+        repo_with_commit.checkout_branch("feature")
+
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
+        repo_with_commit.update_index(modified_data)
+        feature_commit = repo_with_commit.create_commit("Add layer")
+
+        repo_with_commit.checkout_branch("main")
+        old_head = repo_with_commit.get_head_commit()
+
+        new_commit = repo_with_commit.cherry_pick(feature_commit.id)
+
+        # Branch should point to new commit
+        branch_commit = repo_with_commit.get_branch_commit("main")
+        assert branch_commit == new_commit.id
+        assert branch_commit != old_head
+
+
+class TestApplyLayerChanges:
+    """Tests for _apply_layer_changes helper method."""
+
+    def test_apply_layer_changes_addition(
+        self, initialized_repo: Repository
+    ) -> None:
+        """Test applying layer additions."""
+        current = [{"id": "1", "title": "A"}]
+        parent = [{"id": "1", "title": "A"}]
+        commit = [{"id": "1", "title": "A"}, {"id": "2", "title": "B"}]
+
+        result = initialized_repo._apply_layer_changes(current, commit, parent)
+
+        layer_ids = [l["id"] for l in result]
+        assert "1" in layer_ids
+        assert "2" in layer_ids
+
+    def test_apply_layer_changes_removal(
+        self, initialized_repo: Repository
+    ) -> None:
+        """Test applying layer removals."""
+        current = [{"id": "1", "title": "A"}, {"id": "2", "title": "B"}]
+        parent = [{"id": "1", "title": "A"}, {"id": "2", "title": "B"}]
+        commit = [{"id": "1", "title": "A"}]
+
+        result = initialized_repo._apply_layer_changes(current, commit, parent)
+
+        layer_ids = [l["id"] for l in result]
+        assert "1" in layer_ids
+        assert "2" not in layer_ids
+
+    def test_apply_layer_changes_modification(
+        self, initialized_repo: Repository
+    ) -> None:
+        """Test applying layer modifications."""
+        current = [{"id": "1", "title": "Original"}]
+        parent = [{"id": "1", "title": "Original"}]
+        commit = [{"id": "1", "title": "Modified"}]
+
+        result = initialized_repo._apply_layer_changes(current, commit, parent)
+
+        assert result[0]["title"] == "Modified"
+
+    def test_apply_layer_changes_no_duplicate(
+        self, initialized_repo: Repository
+    ) -> None:
+        """Test adding a layer that already exists."""
+        current = [{"id": "1", "title": "A"}, {"id": "2", "title": "B"}]
+        parent = [{"id": "1", "title": "A"}]
+        commit = [{"id": "1", "title": "A"}, {"id": "2", "title": "B"}]
+
+        result = initialized_repo._apply_layer_changes(current, commit, parent)
+
+        # Should not duplicate layer-2
+        layer_ids = [l["id"] for l in result]
+        assert layer_ids.count("2") == 1

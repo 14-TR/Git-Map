@@ -1090,6 +1090,195 @@ class Repository:
             pass  # Don't fail tag deletion if context recording fails
 
 
+
+    # ---- Cherry-Pick Operations ---------------------------------------------------------------------------------
+
+    def cherry_pick(
+            self,
+            commit_id: str,
+            rationale: str | None = None,
+    ) -> Commit:
+        """Apply changes from a specific commit to the current branch.
+
+        Creates a new commit with the same changes as the source commit
+        but with a new commit ID. The original commit is not modified.
+
+        Args:
+            commit_id: ID of the commit to cherry-pick.
+            rationale: Optional rationale explaining why this cherry-pick is being made.
+
+        Returns:
+            The new Commit object.
+
+        Raises:
+            RuntimeError: If commit not found or cherry-pick fails.
+        """
+        try:
+            # Get the commit to cherry-pick
+            source_commit = self.get_commit(commit_id)
+            if not source_commit:
+                msg = f"Commit '{commit_id}' not found"
+                raise RuntimeError(msg)
+
+            # Get the parent of the source commit to compute the diff
+            source_parent_data: dict[str, Any] = {}
+            if source_commit.parent:
+                source_parent = self.get_commit(source_commit.parent)
+                if source_parent:
+                    source_parent_data = source_parent.map_data
+
+            # Get current HEAD state
+            current_data = self.get_index()
+
+            # Apply the changes from source commit to current state
+            cherry_picked_data = self._apply_cherry_pick(
+                current_data=current_data,
+                commit_data=source_commit.map_data,
+                parent_data=source_parent_data,
+            )
+
+            # Update index with cherry-picked data
+            self.update_index(cherry_picked_data)
+
+            # Create the new commit
+            config = self.get_config()
+            author = config.user_name or "Unknown"
+            message = f"{source_commit.message}\n\n(cherry picked from commit {commit_id[:8]})"
+
+            new_commit = self.create_commit(
+                message=message,
+                author=author,
+                rationale=rationale,
+            )
+
+            # Record cherry-pick event in context store
+            try:
+                with self.get_context_store() as store:
+                    event = store.record_event(
+                        event_type="cherry-pick",
+                        repo=str(self.root),
+                        ref=new_commit.id,
+                        actor=author,
+                        payload={
+                            "source_commit": commit_id,
+                            "source_message": source_commit.message,
+                            "new_commit": new_commit.id,
+                            "branch": self.get_current_branch(),
+                        },
+                        rationale=rationale,
+                    )
+                    # Link cherry-pick to source commit
+                    store.add_edge(
+                        source_id=event.id,
+                        target_id=commit_id,
+                        relationship="cherry_picked_from",
+                        metadata={"new_commit_id": new_commit.id},
+                    )
+            except Exception:
+                # Don't fail cherry-pick if context recording fails
+                pass
+
+            return new_commit
+
+        except Exception as cherry_pick_error:
+            if isinstance(cherry_pick_error, RuntimeError):
+                raise
+            msg = f"Failed to cherry-pick commit: {cherry_pick_error}"
+            raise RuntimeError(msg) from cherry_pick_error
+
+    def _apply_cherry_pick(
+            self,
+            current_data: dict[str, Any],
+            commit_data: dict[str, Any],
+            parent_data: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Apply changes from a commit to the current state.
+
+        Computes the diff between commit and its parent, then applies
+        those changes to the current state.
+
+        Args:
+            current_data: Current HEAD state.
+            commit_data: State at the commit to cherry-pick.
+            parent_data: State before the commit to cherry-pick (its parent).
+
+        Returns:
+            New state with the commit's changes applied.
+        """
+        result = json.loads(json.dumps(current_data))  # Deep copy
+
+        # Apply layer changes
+        result["operationalLayers"] = self._apply_layer_changes(
+            current_layers=current_data.get("operationalLayers", []),
+            commit_layers=commit_data.get("operationalLayers", []),
+            parent_layers=parent_data.get("operationalLayers", []),
+        )
+
+        # Apply table changes
+        result["tables"] = self._apply_layer_changes(
+            current_layers=current_data.get("tables", []),
+            commit_layers=commit_data.get("tables", []),
+            parent_layers=parent_data.get("tables", []),
+        )
+
+        # Apply baseMap changes (if changed in commit)
+        if commit_data.get("baseMap") != parent_data.get("baseMap"):
+            result["baseMap"] = commit_data.get("baseMap", {})
+
+        return result
+
+    def _apply_layer_changes(
+            self,
+            current_layers: list[dict[str, Any]],
+            commit_layers: list[dict[str, Any]],
+            parent_layers: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Apply layer changes from a commit to current state.
+
+        Args:
+            current_layers: Current layers in HEAD.
+            commit_layers: Layers at the commit to cherry-pick.
+            parent_layers: Layers before the commit to cherry-pick.
+
+        Returns:
+            Layers with the commit's changes applied.
+        """
+        # Build ID maps for efficient lookup
+        current_by_id = {l.get("id"): l for l in current_layers if l.get("id")}
+        commit_by_id = {l.get("id"): l for l in commit_layers if l.get("id")}
+        parent_by_id = {l.get("id"): l for l in parent_layers if l.get("id")}
+
+        result = list(current_layers)  # Start with current layers
+
+        # Find layers added by the commit (in commit but not in parent)
+        for layer_id, layer in commit_by_id.items():
+            if layer_id not in parent_by_id:
+                # This layer was added by the commit
+                if layer_id not in current_by_id:
+                    # Add it to current if not already present
+                    result.append(layer)
+
+        # Find layers modified by the commit
+        for layer_id, layer in commit_by_id.items():
+            if layer_id in parent_by_id and commit_by_id[layer_id] != parent_by_id[layer_id]:
+                # This layer was modified by the commit
+                if layer_id in current_by_id:
+                    # Update the layer in result
+                    for i, l in enumerate(result):
+                        if l.get("id") == layer_id:
+                            result[i] = layer
+                            break
+
+        # Find layers removed by the commit (in parent but not in commit)
+        for layer_id in parent_by_id:
+            if layer_id not in commit_by_id:
+                # This layer was removed by the commit
+                result = [l for l in result if l.get("id") != layer_id]
+
+        return result
+
+
+
 # ---- Module Functions ---------------------------------------------------------------------------------------
 
 
