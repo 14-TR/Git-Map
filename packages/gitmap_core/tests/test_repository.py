@@ -1363,6 +1363,21 @@ class TestCherryPick:
         repo_with_commit.create_branch("feature")
         repo_with_commit.checkout_branch("feature")
 
+        modified_data = sample_map_data.copy()
+        modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
+        repo_with_commit.update_index(modified_data)
+        feature_commit = repo_with_commit.create_commit("Add layer")
+
+        repo_with_commit.checkout_branch("main")
+        old_head = repo_with_commit.get_head_commit()
+
+        new_commit = repo_with_commit.cherry_pick(feature_commit.id)
+
+        # Branch should point to new commit
+        branch_commit = repo_with_commit.get_branch_commit("main")
+        assert branch_commit == new_commit.id
+        assert branch_commit != old_head
+
 
 class TestStash:
     """Tests for stash operations."""
@@ -1407,17 +1422,10 @@ class TestStash:
         modified_data = sample_map_data.copy()
         modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
         repo_with_commit.update_index(modified_data)
-        feature_commit = repo_with_commit.create_commit("Add layer")
 
-        repo_with_commit.checkout_branch("main")
-        old_head = repo_with_commit.get_head_commit()
+        repo_with_commit.stash_push()
 
-        new_commit = repo_with_commit.cherry_pick(feature_commit.id)
-
-        # Branch should point to new commit
-        branch_commit = repo_with_commit.get_branch_commit("main")
-        assert branch_commit == new_commit.id
-        assert branch_commit != old_head
+        assert repo_with_commit.stash_dir.exists()
 
 
 class TestApplyLayerChanges:
@@ -1476,12 +1484,6 @@ class TestApplyLayerChanges:
         # Should not duplicate layer-2
         layer_ids = [l["id"] for l in result]
         assert layer_ids.count("2") == 1
-
-
-
-        repo_with_commit.stash_push()
-
-        assert repo_with_commit.stash_dir.exists()
 
     def test_stash_list_after_push(
         self, repo_with_commit: Repository, sample_map_data: dict
