@@ -324,6 +324,172 @@ class TestMermaidGitGraph:
         result = generate_mermaid_git_graph(data)
         assert "No commits yet" in result
 
+    def test_handles_merge_commits_with_parent2(self) -> None:
+        """Test that merge commits with parent2 are highlighted."""
+        base_time = datetime.now()
+        events = [
+            Event(
+                id="commit-001-uuid",
+                timestamp=(base_time - timedelta(hours=2)).isoformat(),
+                event_type="commit",
+                actor="user1",
+                repo="/test/repo",
+                ref="abc12345",
+                payload={"message": "Initial commit"},
+            ),
+            Event(
+                id="commit-002-uuid",
+                timestamp=(base_time - timedelta(hours=1)).isoformat(),
+                event_type="commit",
+                actor="user1",
+                repo="/test/repo",
+                ref="def67890",
+                payload={
+                    "message": "Merge feature into main",
+                    "parent": "abc12345",
+                    "parent2": "xyz98765",
+                },
+            ),
+        ]
+        data = GraphData(events=events, edges=[], annotations={})
+        result = generate_mermaid_git_graph(data)
+        assert "HIGHLIGHT" in result
+
+    def test_handles_merge_events(self) -> None:
+        """Test that merge events generate proper merge commands."""
+        base_time = datetime.now()
+        events = [
+            Event(
+                id="commit-001-uuid",
+                timestamp=(base_time - timedelta(hours=2)).isoformat(),
+                event_type="commit",
+                actor="user1",
+                repo="/test/repo",
+                ref="abc12345",
+                payload={"message": "Initial commit"},
+            ),
+            Event(
+                id="merge-001-uuid",
+                timestamp=(base_time - timedelta(hours=1)).isoformat(),
+                event_type="merge",
+                actor="user1",
+                repo="/test/repo",
+                ref="def67890",
+                payload={
+                    "source_branch": "feature/login",
+                    "target_branch": "main",
+                    "commit_id": "def67890",
+                },
+            ),
+        ]
+        data = GraphData(events=events, edges=[], annotations={})
+        result = generate_mermaid_git_graph(data)
+        assert "merge" in result
+        # Branch name should be sanitized (slashes become dashes)
+        assert "feature-login" in result
+
+    def test_handles_lsm_events(self) -> None:
+        """Test that LSM events are rendered as reverse commits."""
+        base_time = datetime.now()
+        events = [
+            Event(
+                id="lsm-001-uuid",
+                timestamp=base_time.isoformat(),
+                event_type="lsm",
+                actor="user1",
+                repo="/test/repo",
+                ref=None,
+                payload={
+                    "source": "Portal",
+                    "transferred_count": 5,
+                },
+            ),
+        ]
+        data = GraphData(events=events, edges=[], annotations={})
+        result = generate_mermaid_git_graph(data)
+        assert "REVERSE" in result
+        assert "LSM from Portal" in result
+        assert "5 transferred" in result
+
+    def test_handles_branch_creation_events(self) -> None:
+        """Test that branch creation events generate branch commands."""
+        base_time = datetime.now()
+        events = [
+            Event(
+                id="commit-001-uuid",
+                timestamp=(base_time - timedelta(hours=2)).isoformat(),
+                event_type="commit",
+                actor="user1",
+                repo="/test/repo",
+                ref="abc12345",
+                payload={"message": "Initial commit"},
+            ),
+            Event(
+                id="branch-001-uuid",
+                timestamp=(base_time - timedelta(hours=1)).isoformat(),
+                event_type="branch",
+                actor="user1",
+                repo="/test/repo",
+                ref=None,
+                payload={
+                    "action": "create",
+                    "branch_name": "feature/new-feature",
+                },
+            ),
+        ]
+        data = GraphData(events=events, edges=[], annotations={})
+        result = generate_mermaid_git_graph(data)
+        assert "branch feature-new-feature" in result
+
+    def test_handles_commit_without_message(self) -> None:
+        """Test that commits without messages get default message."""
+        base_time = datetime.now()
+        events = [
+            Event(
+                id="commit-001-uuid",
+                timestamp=base_time.isoformat(),
+                event_type="commit",
+                actor="user1",
+                repo="/test/repo",
+                ref="abc12345",
+                payload={},  # No message
+            ),
+        ]
+        data = GraphData(events=events, edges=[], annotations={})
+        result = generate_mermaid_git_graph(data)
+        assert "Commit abc12345" in result
+
+    def test_handles_checkout_on_merge(self) -> None:
+        """Test that merge to different branch triggers checkout."""
+        base_time = datetime.now()
+        events = [
+            Event(
+                id="branch-001-uuid",
+                timestamp=(base_time - timedelta(hours=2)).isoformat(),
+                event_type="branch",
+                actor="user1",
+                repo="/test/repo",
+                ref=None,
+                payload={"action": "create", "branch_name": "develop"},
+            ),
+            Event(
+                id="merge-001-uuid",
+                timestamp=base_time.isoformat(),
+                event_type="merge",
+                actor="user1",
+                repo="/test/repo",
+                ref=None,
+                payload={
+                    "source_branch": "develop",
+                    "target_branch": "main",
+                },
+            ),
+        ]
+        data = GraphData(events=events, edges=[], annotations={})
+        result = generate_mermaid_git_graph(data)
+        assert "checkout main" in result
+        assert "merge develop" in result
+
 
 # ---- ASCII Generation Tests ----------------------------------------------------------------------------------
 
