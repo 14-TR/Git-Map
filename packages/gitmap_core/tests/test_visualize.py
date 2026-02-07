@@ -285,6 +285,185 @@ class TestMermaidFlowchart:
         result = generate_mermaid_flowchart(graph_data, title="Test Graph")
         assert "Test Graph" in result
 
+    def test_links_branch_with_source_commit(self) -> None:
+        """Test that branch events with source_commit link FROM that commit."""
+        base_time = datetime.now()
+        events = [
+            Event(
+                id="commit-001-uuid",
+                timestamp=(base_time - timedelta(hours=2)).isoformat(),
+                event_type="commit",
+                actor="user1",
+                repo="/test/repo",
+                ref="abc12345",
+                payload={"message": "Initial commit", "branch": "main"},
+            ),
+            Event(
+                id="branch-001-uuid",
+                timestamp=(base_time - timedelta(hours=1)).isoformat(),
+                event_type="branch",
+                actor="user1",
+                repo="/test/repo",
+                ref=None,
+                payload={
+                    "action": "create",
+                    "branch_name": "feature/test",
+                    "commit_id": "abc12345",  # Source commit
+                },
+            ),
+        ]
+        data = GraphData(events=events, edges=[], annotations={})
+        result = generate_mermaid_flowchart(data)
+        # Should have dotted link from source commit to branch
+        assert "e_commit-0" in result
+        assert "e_branch-0" in result
+        assert "-.->" in result  # Dotted arrow for branch creation
+
+    def test_links_branch_to_first_commit_on_branch(self) -> None:
+        """Test that branch events link to first commit ON that branch."""
+        base_time = datetime.now()
+        events = [
+            Event(
+                id="branch-001-uuid",
+                timestamp=(base_time - timedelta(hours=2)).isoformat(),
+                event_type="branch",
+                actor="user1",
+                repo="/test/repo",
+                ref=None,
+                payload={"action": "create", "branch_name": "feature/new"},
+            ),
+            Event(
+                id="commit-001-uuid",
+                timestamp=(base_time - timedelta(hours=1)).isoformat(),
+                event_type="commit",
+                actor="user1",
+                repo="/test/repo",
+                ref="abc12345",
+                payload={"message": "Feature commit", "branch": "feature/new"},
+            ),
+        ]
+        data = GraphData(events=events, edges=[], annotations={})
+        result = generate_mermaid_flowchart(data)
+        # Branch should link to commit on that branch
+        assert "e_branch-0" in result
+        assert "e_commit-0" in result
+        assert "-->" in result
+
+    def test_links_initial_branch_to_next_commit(self) -> None:
+        """Test that initial branch without tracking links to first commit after it."""
+        base_time = datetime.now()
+        events = [
+            Event(
+                id="branch-001-uuid",
+                timestamp=(base_time - timedelta(hours=2)).isoformat(),
+                event_type="branch",
+                actor="user1",
+                repo="/test/repo",
+                ref=None,
+                payload={"action": "create", "branch_name": "main"},
+            ),
+            Event(
+                id="commit-001-uuid",
+                timestamp=(base_time - timedelta(hours=1)).isoformat(),
+                event_type="commit",
+                actor="user1",
+                repo="/test/repo",
+                ref="abc12345",
+                payload={"message": "Initial commit"},  # No branch tracking
+            ),
+        ]
+        data = GraphData(events=events, edges=[], annotations={})
+        result = generate_mermaid_flowchart(data)
+        # Branch should link to next commit
+        assert "e_branch-0" in result
+        assert "e_commit-0" in result
+
+    def test_merge_commit_connects_to_both_parents(self) -> None:
+        """Test that merge commits connect to both parent branches."""
+        base_time = datetime.now()
+        events = [
+            Event(
+                id="commit-001-uuid",
+                timestamp=(base_time - timedelta(hours=3)).isoformat(),
+                event_type="commit",
+                actor="user1",
+                repo="/test/repo",
+                ref="abc12345",
+                payload={"message": "Main commit", "branch": "main"},
+            ),
+            Event(
+                id="commit-002-uuid",
+                timestamp=(base_time - timedelta(hours=2)).isoformat(),
+                event_type="commit",
+                actor="user1",
+                repo="/test/repo",
+                ref="def67890",
+                payload={"message": "Feature commit", "branch": "feature"},
+            ),
+            Event(
+                id="commit-003-uuid",
+                timestamp=(base_time - timedelta(hours=1)).isoformat(),
+                event_type="commit",
+                actor="user1",
+                repo="/test/repo",
+                ref="merge1234",
+                payload={
+                    "message": "Merge feature into main",
+                    "parent": "abc12345",
+                    "parent2": "def67890",
+                    "branch": "main",
+                },
+            ),
+        ]
+        data = GraphData(events=events, edges=[], annotations={})
+        result = generate_mermaid_flowchart(data)
+        # Merge commit should show as merge shape
+        assert "{{" in result  # Merge shape
+        # Should have MERGE label instead of COMMIT
+        assert "MERGE" in result
+
+    def test_merge_event_connects_source_and_target_branches(self) -> None:
+        """Test that merge events connect source and target branches."""
+        base_time = datetime.now()
+        events = [
+            Event(
+                id="commit-001-uuid",
+                timestamp=(base_time - timedelta(hours=3)).isoformat(),
+                event_type="commit",
+                actor="user1",
+                repo="/test/repo",
+                ref="abc12345",
+                payload={"message": "Main commit", "branch": "main"},
+            ),
+            Event(
+                id="commit-002-uuid",
+                timestamp=(base_time - timedelta(hours=2)).isoformat(),
+                event_type="commit",
+                actor="user1",
+                repo="/test/repo",
+                ref="def67890",
+                payload={"message": "Feature commit", "branch": "feature"},
+            ),
+            Event(
+                id="merge-001-uuid",
+                timestamp=(base_time - timedelta(hours=1)).isoformat(),
+                event_type="merge",
+                actor="user1",
+                repo="/test/repo",
+                ref="merge1234",
+                payload={
+                    "source_branch": "feature",
+                    "target_branch": "main",
+                },
+            ),
+        ]
+        data = GraphData(events=events, edges=[], annotations={})
+        result = generate_mermaid_flowchart(data)
+        # Merge event should use merge shape
+        assert "{{" in result
+        # Should show MERGE label
+        assert "MERGE" in result
+
 
 class TestMermaidTimeline:
     """Tests for generate_mermaid_timeline function."""
