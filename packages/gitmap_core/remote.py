@@ -144,9 +144,14 @@ class RemoteOperations:
                 if result:
                     # Result might be dict or object with 'id' attribute
                     if isinstance(result, dict):
-                        return result.get("id", "")
+                        folder_id = result.get("id", "")
                     else:
-                        return getattr(result, "id", None) or ""
+                        folder_id = getattr(result, "id", None) or ""
+                    if folder_id:
+                        return folder_id
+                # If result is falsy or has no id, raise to trigger fallback search
+                msg = f"Folder creation returned no ID for '{folder_name}'"
+                raise RuntimeError(msg)
             except Exception as create_error:
                 # If creation fails because folder exists, search one more time
                 error_msg = str(create_error).lower()
