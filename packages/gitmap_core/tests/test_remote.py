@@ -265,6 +265,36 @@ class TestFolderManagement:
 
         assert result == "obj-folder-id"
 
+    def test_get_or_create_folder_handles_empty_creation_result(
+        self, mock_repository: MagicMock, mock_connection: MagicMock
+    ) -> None:
+        """Test fallback search when folder creation returns result without ID."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(name="origin", url="https://test.com", folder_id=None),
+        )
+        mock_repository.get_config.return_value = config
+
+        # No folders initially
+        mock_connection.gis.users.me.folders = []
+        mock_connection.gis.users.me.items.return_value = []
+        
+        # Creation returns object with no ID
+        empty_result = MagicMock()
+        empty_result.id = None
+        mock_connection.gis.content.folders.create.return_value = empty_result
+        
+        # After fallback, folder is found
+        found_folder = MagicMock()
+        found_folder.title = "TestProject"
+        found_folder.id = "fallback-folder-id"
+        mock_connection.gis.users.me.folders = [found_folder]
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        result = ops.get_or_create_folder()
+
+        assert result == "fallback-folder-id"
+
     def test_get_or_create_folder_finds_folder_through_user_content(
         self, mock_repository: MagicMock, mock_connection: MagicMock
     ) -> None:
