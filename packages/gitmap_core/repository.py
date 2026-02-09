@@ -19,6 +19,10 @@ import hashlib
 import json
 from pathlib import Path
 from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from gitmap_core.context import ContextStore
 
 from gitmap_core.models import Branch
 from gitmap_core.models import Commit
@@ -682,7 +686,7 @@ class Repository:
         Returns:
             List of commits in reverse chronological order.
         """
-        commits = []
+        commits: list[Commit] = []
         current_id = start_commit or self.get_head_commit()
 
         while current_id:
