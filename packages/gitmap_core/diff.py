@@ -173,7 +173,7 @@ def diff_layers(
     for layer_id, layer in index1.items():
         if layer_id not in index2:
             changes.append(LayerChange(
-                layer_id=layer_id,
+                layer_id=str(layer_id),
                 layer_title=layer.get("title", "Untitled"),
                 change_type="added",
             ))
@@ -182,7 +182,7 @@ def diff_layers(
     for layer_id, layer in index2.items():
         if layer_id not in index1:
             changes.append(LayerChange(
-                layer_id=layer_id,
+                layer_id=str(layer_id),
                 layer_title=layer.get("title", "Untitled"),
                 change_type="removed",
             ))
@@ -196,7 +196,7 @@ def diff_layers(
             if layer1 != layer2:
                 deep_diff = DeepDiff(layer2, layer1, ignore_order=True)
                 changes.append(LayerChange(
-                    layer_id=layer_id,
+                    layer_id=str(layer_id),
                     layer_title=layer1.get("title", "Untitled"),
                     change_type="modified",
                     details=deep_diff.to_dict() if deep_diff else {},
