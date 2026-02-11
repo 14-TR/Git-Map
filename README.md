@@ -35,7 +35,7 @@ GitMap provides Git-like version control for ArcGIS Online and Enterprise Portal
 
 ### Prerequisites
 
-- Python 3.11 or higher
+- Python 3.11, 3.12, or 3.13 (arcgis SDK requires Python <3.14)
 - ArcGIS Portal or ArcGIS Online account
 - pip (Python package manager)
 
