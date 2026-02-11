@@ -204,6 +204,46 @@ class TestFolderShims:
         assert folders[0]["id"] == "f1"
         assert folders[1]["title"] == "Folder2"
 
+    @patch("gitmap_core.compat.check_minimum_version")
+    def test_create_folder_empty_result_fallback(self, mock_check: MagicMock) -> None:
+        """Test folder creation falls back to search when API returns empty."""
+        mock_check.return_value = True
+        
+        mock_gis = MagicMock()
+        # API returns empty/None
+        mock_gis.content.folders.create.return_value = None
+        
+        # But folder exists when we search
+        found_folder = MagicMock()
+        found_folder.id = "found123"
+        found_folder.title = "TestFolder"
+        mock_gis.users.me.folders = [found_folder]
+        
+        result = compat.create_folder(mock_gis, "TestFolder")
+        
+        assert result is not None
+        assert result["id"] == "found123"
+
+    @patch("gitmap_core.compat.check_minimum_version")
+    def test_create_folder_already_exists_fallback(self, mock_check: MagicMock) -> None:
+        """Test folder creation falls back to search when folder exists."""
+        mock_check.return_value = True
+        
+        mock_gis = MagicMock()
+        # API raises "not available" error
+        mock_gis.content.folders.create.side_effect = Exception("Folder name not available")
+        
+        # But folder exists when we search
+        found_folder = MagicMock()
+        found_folder.id = "existing456"
+        found_folder.title = "ExistingFolder"
+        mock_gis.users.me.folders = [found_folder]
+        
+        result = compat.create_folder(mock_gis, "ExistingFolder")
+        
+        assert result is not None
+        assert result["id"] == "existing456"
+
 
 # ---- Content API Shim Tests ---------------------------------------------------------------------------------
 
