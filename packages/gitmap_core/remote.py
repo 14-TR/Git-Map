@@ -307,29 +307,15 @@ class RemoteOperations:
                     # Original item not found - fall through to folder-based logic
                     pass
 
-            # Get or create folder (for feature branches or if main item not found)
-            folder_id = self.get_or_create_folder()
-
-            # Update config with folder info
-            if self.config.remote:
-                self.config.remote.folder_id = folder_id
-            else:
-                self.config.remote = Remote(
-                    name="origin",
-                    url=self.connection.url,
-                    folder_id=folder_id,
-                )
-            self.repo.update_config(self.config)
-
-            # Check for existing branch item in folder
-            existing_item = self._find_branch_item(branch, folder_id)
+            # Check for existing branch item in user's root content (no folder)
+            existing_item = self._find_branch_item_in_root(branch)
 
             if existing_item:
                 # Update existing item
                 updated_item = self._update_webmap_item(existing_item, commit.map_data, commit)
             else:
-                # Create new item
-                updated_item = self._create_webmap_item(branch, commit.map_data, commit, folder_id)
+                # Create new item in root content (no folder)
+                updated_item = self._create_webmap_item_in_root(branch, commit.map_data, commit)
 
             # Check if this is the production branch and send notifications
             notification_status = {
@@ -442,6 +428,74 @@ class RemoteOperations:
         # Replace slashes with underscores for Portal compatibility
         return branch.replace("/", "_")
 
+    def _find_branch_item_in_root(
+            self,
+            branch: str,
+    ) -> Item | None:
+        """Find existing web map item for branch in user's root content.
+
+        Args:
+            branch: Branch name.
+
+        Returns:
+            Item if found, None otherwise.
+        """
+        try:
+            user = self.gis.users.me
+            # Get items from root (no folder)
+            items = user.items()
+
+            item_title = self._branch_to_item_title(branch)
+            # Also check with project name prefix for uniqueness
+            prefixed_title = f"{self.config.project_name}_{item_title}"
+            
+            for item in items:
+                if item.type == "Web Map":
+                    if item.title == prefixed_title or item.title == item_title:
+                        # Verify it's a GitMap item by checking tags
+                        if "GitMap" in (item.tags or []):
+                            return item
+
+            return None
+
+        except Exception:
+            return None
+
+    def _create_webmap_item_in_root(
+            self,
+            branch: str,
+            map_data: dict[str, Any],
+            commit: Any,
+    ) -> Item:
+        """Create new web map item in user's root content (no folder).
+
+        Args:
+            branch: Branch name.
+            map_data: Web map JSON.
+            commit: Commit object.
+
+        Returns:
+            Created Item.
+        """
+        item_title = self._branch_to_item_title(branch)
+        # Prefix with project name to avoid collisions
+        prefixed_title = f"{self.config.project_name}_{item_title}"
+
+        item_properties = {
+            "title": prefixed_title,
+            "type": "Web Map",
+            "tags": ["GitMap", f"project:{self.config.project_name}", f"branch:{branch}", f"commit:{commit.id[:8]}"],
+            "description": f"GitMap project: {self.config.project_name}\nBranch: {branch}\nCommit: {commit.id}\n{commit.message}",
+        }
+
+        # Create in root content (no folder parameter)
+        item = self.gis.content.add(
+            item_properties=item_properties,
+            data=json.dumps(map_data),
+        )
+
+        return item
+
     def _create_webmap_item(
             self,
             branch: str,
@@ -449,7 +503,7 @@ class RemoteOperations:
             commit: Any,
             folder_id: str,
     ) -> Item:
-        """Create new web map item in Portal.
+        """Create new web map item in Portal folder.
 
         Args:
             branch: Branch name.
