@@ -110,10 +110,10 @@ class RemoteOperations:
             # Check existing folders first using compat layer
             folders = get_user_folders(self.gis)
 
-            # Search for existing folder
+            # Search for existing folder (case-insensitive)
             for folder in folders:
-                folder_title = folder.get("title")
-                if folder_title == folder_name:
+                folder_title = folder.get("title") or ""
+                if folder_title.lower() == folder_name.lower():
                     folder_id = folder.get("id")
                     if folder_id:
                         return folder_id
@@ -156,8 +156,8 @@ class RemoteOperations:
                     # Folder exists but we didn't find it - search all folders again
                     folders = get_user_folders(self.gis)
                     for folder in folders:
-                        folder_title = folder.get("title")
-                        if folder_title == folder_name:
+                        folder_title = folder.get("title") or ""
+                        if folder_title.lower() == folder_name.lower():
                             folder_id = folder.get("id")
                             if folder_id:
                                 return folder_id
