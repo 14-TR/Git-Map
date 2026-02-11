@@ -194,33 +194,79 @@ def create_folder(gis: GIS, folder_name: str) -> dict[str, Any] | None:
     Note:
         - arcgis >= 2.3.0: Uses gis.content.folders.create()
         - arcgis < 2.3.0: Uses gis.content.create_folder()
+        
+    The function will search for the folder after creation if the API
+    returns an empty result (common on some Portal versions).
     """
+    def _extract_folder_info(result: Any) -> dict[str, Any] | None:
+        """Extract folder info from API result."""
+        if not result:
+            return None
+        if isinstance(result, dict):
+            folder_id = result.get("id") or result.get("folderId") or result.get("folder_id")
+            if folder_id:
+                return {"id": folder_id, "title": result.get("title", folder_name)}
+        else:
+            # Object with attributes - try multiple attribute names
+            folder_id = (
+                getattr(result, "id", None) or 
+                getattr(result, "folderId", None) or
+                getattr(result, "folder_id", None)
+            )
+            if folder_id:
+                return {"id": folder_id, "title": getattr(result, "title", folder_name)}
+        return None
+    
+    def _search_for_folder() -> dict[str, Any] | None:
+        """Search for folder in user's folders after creation."""
+        try:
+            user = gis.users.me
+            # Refresh folder list
+            folders = user.folders
+            for folder in folders:
+                if isinstance(folder, dict):
+                    if folder.get("title") == folder_name:
+                        return {"id": folder.get("id"), "title": folder_name}
+                else:
+                    if getattr(folder, "title", None) == folder_name:
+                        return {"id": getattr(folder, "id", None), "title": folder_name}
+        except Exception:
+            pass
+        return None
+    
     try:
+        result = None
+        
         if check_minimum_version(*FOLDERS_API_CHANGE_VERSION):
             # New API (2.3.0+)
             result = gis.content.folders.create(folder_name)
-            if result:
-                if isinstance(result, dict):
-                    return result
-                else:
-                    # Object with attributes
-                    return {
-                        "id": getattr(result, "id", None),
-                        "title": getattr(result, "title", folder_name),
-                    }
         else:
             # Legacy API (< 2.3.0)
             result = gis.content.create_folder(folder_name)
-            if result:
-                if isinstance(result, dict):
-                    return result
-                else:
-                    return {
-                        "id": getattr(result, "id", None),
-                        "title": getattr(result, "title", folder_name),
-                    }
+        
+        # Try to extract folder info from result
+        folder_info = _extract_folder_info(result)
+        if folder_info and folder_info.get("id"):
+            return folder_info
+        
+        # If result was empty/missing ID, search for the folder
+        # (some Portal versions create the folder but return empty result)
+        logger.debug(f"Folder creation returned no ID, searching for folder '{folder_name}'...")
+        folder_info = _search_for_folder()
+        if folder_info and folder_info.get("id"):
+            logger.debug(f"Found folder '{folder_name}' with ID {folder_info['id']}")
+            return folder_info
+        
         return None
+        
     except Exception as e:
+        error_msg = str(e).lower()
+        # If folder already exists, try to find it
+        if "not available" in error_msg or "already exists" in error_msg or "unable to create" in error_msg:
+            logger.debug(f"Folder '{folder_name}' may already exist, searching...")
+            folder_info = _search_for_folder()
+            if folder_info and folder_info.get("id"):
+                return folder_info
         logger.debug(f"Folder creation failed: {e}")
         raise
 
@@ -228,29 +274,74 @@ def create_folder(gis: GIS, folder_name: str) -> dict[str, Any] | None:
 def get_user_folders(gis: GIS) -> list[dict[str, Any]]:
     """Get user's folders with version-appropriate API.
     
+    Tries multiple approaches to ensure folder discovery works across
+    different Portal versions and configurations.
+    
     Args:
         gis: Authenticated GIS connection.
         
     Returns:
         List of folder dicts with 'id' and 'title' keys.
     """
+    result = []
+    seen_ids: set[str] = set()
+    
+    def _add_folder(folder: Any) -> None:
+        """Extract and add folder info if not already seen."""
+        if isinstance(folder, dict):
+            fid = folder.get("id") or folder.get("folderId")
+            title = folder.get("title") or folder.get("name")
+        else:
+            fid = getattr(folder, "id", None) or getattr(folder, "folderId", None)
+            title = getattr(folder, "title", None) or getattr(folder, "name", None)
+        
+        if fid and fid not in seen_ids:
+            seen_ids.add(fid)
+            result.append({"id": fid, "title": title})
+    
     try:
         user = gis.users.me
-        folders = user.folders
         
-        result = []
-        for folder in folders:
-            if isinstance(folder, dict):
-                result.append(folder)
-            else:
-                result.append({
-                    "id": getattr(folder, "id", None),
-                    "title": getattr(folder, "title", None),
-                })
+        # Method 1: user.folders (standard approach)
+        try:
+            folders = user.folders
+            for folder in folders:
+                _add_folder(folder)
+        except Exception:
+            pass
+        
+        # Method 2: gis.content.folders.list() (newer API, 2.3.0+)
+        if check_minimum_version(*FOLDERS_API_CHANGE_VERSION):
+            try:
+                folders = gis.content.folders.list()
+                for folder in folders:
+                    _add_folder(folder)
+            except Exception:
+                pass
+        
+        # Method 3: Search through user's items to discover folders
+        try:
+            user_items = user.items()
+            for item in user_items:
+                owner_folder = getattr(item, "ownerFolder", None)
+                if owner_folder and owner_folder not in seen_ids:
+                    # Try to get folder info
+                    try:
+                        folder_info = gis.content.get_folder(owner_folder, user.username)
+                        if folder_info:
+                            _add_folder(folder_info)
+                    except Exception:
+                        # If we can't get info, just add the ID
+                        seen_ids.add(owner_folder)
+                        result.append({"id": owner_folder, "title": None})
+        except Exception:
+            pass
+        
         return result
+        
     except Exception as e:
         logger.debug(f"Failed to get folders: {e}")
-        return []
+        return result
 
 
 # ---- Content API Shims --------------------------------------------------------------------------------------
