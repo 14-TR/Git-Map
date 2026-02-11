@@ -721,6 +721,59 @@ class TestPushOperations:
             assert notification_status["sent"] is False
             assert "Notification error" in notification_status["reason"]
 
+    def test_push_notification_queries_user_groups_when_no_properties(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Test notification queries user groups when item.properties lacks sharing data."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                item_id="original-item-id",
+                production_branch="main",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "main"
+        mock_repository.get_branch_commit.return_value = sample_commit.id
+        mock_repository.get_commit.return_value = sample_commit
+
+        mock_portal_item.access = "org"
+        mock_portal_item.id = "original-item-id"
+        mock_portal_item.title = "Test Map"
+        mock_portal_item.homepage = "https://test.com/item"
+        # No properties or sharing data in properties
+        mock_portal_item.properties = None
+        mock_connection.gis.content.get.return_value = mock_portal_item
+
+        # Mock user and groups
+        mock_user = MagicMock()
+        mock_group = MagicMock()
+        mock_group.id = "group-456"
+        mock_group_item = MagicMock()
+        mock_group_item.id = "original-item-id"
+        mock_group.content.return_value = [mock_group_item]
+        mock_user.groups = [mock_group]
+        mock_connection.gis.users.me = mock_user
+
+        # Mock notify_item_group_users
+        with patch("gitmap_core.remote.notify_item_group_users") as mock_notify:
+            mock_notify.return_value = ["user3", "user4"]
+            
+            ops = RemoteOperations(mock_repository, mock_connection)
+            _, notification_status = ops.push()
+
+            assert notification_status["attempted"] is True
+            assert notification_status["sent"] is True
+            assert notification_status["users_notified"] == ["user3", "user4"]
+            # Verify notify was called
+            mock_notify.assert_called_once()
+
     def test_push_falls_through_when_original_item_not_found(
         self,
         mock_repository: MagicMock,
