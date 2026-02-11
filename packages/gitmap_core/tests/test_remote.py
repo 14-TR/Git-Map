@@ -484,17 +484,19 @@ class TestPushOperations:
         # No existing item in folder
         mock_connection.gis.users.me.items.return_value = []
         
-        # Mock item creation
+        # Mock item creation via folder API
         new_item = MagicMock()
         new_item.id = "new-item-id"
         new_item.access = "private"
-        mock_connection.gis.content.add.return_value = new_item
+        mock_folder = MagicMock()
+        mock_folder.add.return_value = new_item
+        mock_connection.gis.content.folders.get.return_value = mock_folder
 
         ops = RemoteOperations(mock_repository, mock_connection)
         item, notification_status = ops.push()
 
         assert item == new_item
-        mock_connection.gis.content.add.assert_called_once()
+        mock_folder.add.assert_called_once()
 
     def test_push_updates_existing_branch_item(
         self,
@@ -750,17 +752,19 @@ class TestPushOperations:
         # No existing items in folder
         mock_connection.gis.users.me.items.return_value = []
         
-        # Create new item
+        # Create new item via folder API
         new_item = MagicMock()
         new_item.id = "new-item-id"
         new_item.access = "private"
-        mock_connection.gis.content.add.return_value = new_item
+        mock_folder = MagicMock()
+        mock_folder.add.return_value = new_item
+        mock_connection.gis.content.folders.get.return_value = mock_folder
 
         ops = RemoteOperations(mock_repository, mock_connection)
         item, _ = ops.push()
 
         assert item == new_item
-        mock_connection.gis.content.add.assert_called_once()
+        mock_folder.add.assert_called_once()
 
     def test_push_feature_branch_with_production_config(
         self,
@@ -1188,7 +1192,10 @@ class TestItemCreationUpdate:
     ) -> None:
         """Test creating new web map item."""
         new_item = MagicMock()
-        remote_ops.connection.gis.content.add.return_value = new_item
+        # Mock the new folder-based API
+        mock_folder = MagicMock()
+        mock_folder.add.return_value = new_item
+        remote_ops.connection.gis.content.folders.get.return_value = mock_folder
 
         result = remote_ops._create_webmap_item(
             branch="feature/test",
@@ -1198,7 +1205,9 @@ class TestItemCreationUpdate:
         )
 
         assert result == new_item
-        call_kwargs = remote_ops.connection.gis.content.add.call_args
+        remote_ops.connection.gis.content.folders.get.assert_called_once_with("folder-123")
+        mock_folder.add.assert_called_once()
+        call_kwargs = mock_folder.add.call_args
         props = call_kwargs.kwargs["item_properties"]
         assert props["title"] == "feature_test"
         assert props["type"] == "Web Map"

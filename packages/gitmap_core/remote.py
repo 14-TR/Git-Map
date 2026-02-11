@@ -469,11 +469,20 @@ class RemoteOperations:
             "description": f"GitMap branch: {branch}\nCommit: {commit.id}\n{commit.message}",
         }
 
-        item = self.gis.content.add(
-            item_properties=item_properties,
-            data=json.dumps(map_data),
-            folder=folder_id,
-        )
+        # Try new folder-based API first (2.3.0+), fall back to legacy
+        try:
+            folder = self.gis.content.folders.get(folder_id)
+            item = folder.add(
+                item_properties=item_properties,
+                text=json.dumps(map_data),
+            )
+        except (AttributeError, TypeError):
+            # Fallback for older API versions
+            item = self.gis.content.add(
+                item_properties=item_properties,
+                data=json.dumps(map_data),
+                folder=folder_id,
+            )
 
         return item
 
