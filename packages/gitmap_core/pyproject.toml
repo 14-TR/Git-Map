@@ -21,7 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "arcgis>=2.3.0",
+    "arcgis>=2.2.0,<3.0.0",
     "deepdiff>=6.0.0",
 ]
 

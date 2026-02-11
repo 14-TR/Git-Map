@@ -23,6 +23,8 @@ from typing import TYPE_CHECKING
 from typing import Any
 
 from gitmap_core.communication import notify_item_group_users
+from gitmap_core.compat import create_folder as compat_create_folder
+from gitmap_core.compat import get_user_folders
 from gitmap_core.connection import PortalConnection
 from gitmap_core.models import Remote
 from gitmap_core.models import RepoConfig
@@ -105,21 +107,20 @@ class RemoteOperations:
             return self.remote.folder_id
 
         try:
-            # Check existing folders first
-            user = self.gis.users.me
-            folders = user.folders
+            # Check existing folders first using compat layer
+            folders = get_user_folders(self.gis)
 
             # Search for existing folder
             for folder in folders:
-                # Folder objects have 'title' and 'id' as attributes
-                folder_title = getattr(folder, "title", None)
+                folder_title = folder.get("title")
                 if folder_title == folder_name:
-                    folder_id = getattr(folder, "id", None)
+                    folder_id = folder.get("id")
                     if folder_id:
                         return folder_id
 
             # Try to get folder by searching user's content
             # Sometimes folders aren't in user.folders but exist
+            user = self.gis.users.me
             try:
                 user_content = user.items()
                 for item in user_content:
@@ -138,15 +139,11 @@ class RemoteOperations:
                 # If folder search fails, continue to creation
                 pass
 
-            # Create new folder using new API
+            # Create new folder using compat layer (handles API differences)
             try:
-                result = self.gis.content.folders.create(folder_name)
+                result = compat_create_folder(self.gis, folder_name)
                 if result:
-                    # Result might be dict or object with 'id' attribute
-                    if isinstance(result, dict):
-                        folder_id = result.get("id", "")
-                    else:
-                        folder_id = getattr(result, "id", None) or ""
+                    folder_id = result.get("id", "")
                     if folder_id:
                         return folder_id
                 # If result is falsy or has no id, raise to trigger fallback search
@@ -157,21 +154,18 @@ class RemoteOperations:
                 error_msg = str(create_error).lower()
                 if "not available" in error_msg or "already exists" in error_msg or "unable to create" in error_msg:
                     # Folder exists but we didn't find it - search all folders again
-                    try:
-                        folders = user.folders
-                        for folder in folders:
-                            folder_title = getattr(folder, "title", None)
-                            if folder_title == folder_name:
-                                folder_id = getattr(folder, "id", None)
-                                if folder_id:
-                                    return folder_id
-                    except Exception:
-                        pass
+                    folders = get_user_folders(self.gis)
+                    for folder in folders:
+                        folder_title = folder.get("title")
+                        if folder_title == folder_name:
+                            folder_id = folder.get("id")
+                            if folder_id:
+                                return folder_id
                     
                     # Try searching through user's items to find the folder
                     try:
                         user_items = user.items()
-                        seen_folders = set()
+                        seen_folders: set[str] = set()
                         for item in user_items:
                             item_folder = getattr(item, "ownerFolder", None)
                             if item_folder and item_folder not in seen_folders:
