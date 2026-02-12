@@ -9,8 +9,6 @@ Uses mocks to avoid actual ArcGIS API calls.
 """
 from __future__ import annotations
 
-import os
-from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
@@ -24,7 +22,7 @@ from gitmap_core.connection import (
 )
 
 if TYPE_CHECKING:
-    from arcgis.gis import GIS
+    pass
 
 
 # ---- Fixtures -----------------------------------------------------------------------------------------

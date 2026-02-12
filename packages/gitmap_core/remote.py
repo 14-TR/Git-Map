@@ -18,7 +18,6 @@ Metadata:
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 
@@ -27,7 +26,6 @@ from gitmap_core.compat import create_folder as compat_create_folder
 from gitmap_core.compat import get_user_folders
 from gitmap_core.connection import PortalConnection
 from gitmap_core.models import Remote
-from gitmap_core.models import RepoConfig
 
 if TYPE_CHECKING:
     from arcgis.gis import GIS

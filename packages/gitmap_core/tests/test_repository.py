@@ -16,13 +16,9 @@ import json
 import tempfile
 from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock
-from unittest.mock import patch
 
 import pytest
 
-from gitmap_core.models import Branch
-from gitmap_core.models import Commit
 from gitmap_core.models import RepoConfig
 from gitmap_core.repository import (
     COMMITS_DIR,
@@ -35,8 +31,6 @@ from gitmap_core.repository import (
     OBJECTS_DIR,
     REFS_DIR,
     REMOTES_DIR,
-    STASH_DIR,
-    TAGS_DIR,
     Repository,
     find_repository,
     init_repository,
