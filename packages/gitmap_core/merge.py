@@ -20,8 +20,6 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any
 
-from gitmap_core.diff import diff_layers
-from gitmap_core.diff import LayerChange
 
 
 # ---- Data Classes -------------------------------------------------------------------------------------------

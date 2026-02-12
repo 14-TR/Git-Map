@@ -5,7 +5,7 @@ Tests cover Portal/AGOL notification helpers using mocked GIS connections.
 from __future__ import annotations
 
 import pytest
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, patch
 
 from gitmap_core.communication import (
     _ensure_gis,
