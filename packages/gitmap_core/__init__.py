@@ -11,7 +11,7 @@ Dependencies:
     - deepdiff: JSON comparison
 
 Metadata:
-    Version: 0.3.0
+    Version: 0.5.0
     Author: GitMap Team
 """
 from __future__ import annotations
@@ -33,7 +33,7 @@ from gitmap_core.visualize import generate_mermaid_git_graph
 from gitmap_core.visualize import generate_mermaid_timeline
 from gitmap_core.visualize import visualize_context
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 __all__ = [
     "Annotation",
