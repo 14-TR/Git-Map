@@ -38,6 +38,9 @@ packages = ["gitmap_core"]
 [tool.setuptools.package-dir]
 gitmap_core = "."
 
+[tool.setuptools.package-data]
+gitmap_core = ["py.typed"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
