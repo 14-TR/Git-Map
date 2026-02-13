@@ -361,6 +361,80 @@ class TestMergeMaps:
         assert len(result.merged_data["tables"]) == 1
         assert "table1" in result.added_layers
 
+    def test_merge_tables_conflict_two_way(self):
+        """Test two-way table merge (no base) creates conflict when both differ."""
+        ours = {
+            "operationalLayers": [],
+            "tables": [
+                {"id": "table1", "title": "Table One - Ours", "url": "http://example.com/t1-ours"},
+            ],
+        }
+        theirs = {
+            "operationalLayers": [],
+            "tables": [
+                {"id": "table1", "title": "Table One - Theirs", "url": "http://example.com/t1-theirs"},
+            ],
+        }
+
+        # Two-way merge: no base argument
+        result = merge_maps(ours, theirs)
+
+        assert result.has_conflicts is True
+        assert len(result.conflicts) == 1
+        conflict = result.conflicts[0]
+        assert conflict.layer_id == "table1"
+        assert conflict.layer_title == "Table One - Ours"
+        assert conflict.ours == ours["tables"][0]
+        assert conflict.theirs == theirs["tables"][0]
+        assert conflict.base is None  # No base in two-way merge
+
+    def test_merge_they_modified_table_we_deleted(self, base_map):
+        """Test conflict when they modify a table we deleted."""
+        # We deleted table1 (not in our map)
+        ours = {
+            "operationalLayers": base_map["operationalLayers"],
+            "tables": [],  # We deleted table1
+        }
+        # They modified table1
+        theirs = {
+            "operationalLayers": base_map["operationalLayers"],
+            "tables": [
+                {"id": "table1", "title": "Table One Modified By Them", "url": "http://example.com/t1-modified"},
+            ],
+        }
+
+        result = merge_maps(ours, theirs, base_map)
+
+        # Should create a conflict: they modified, we deleted
+        assert result.has_conflicts is True
+        conflict = next((c for c in result.conflicts if c.layer_id == "table1"), None)
+        assert conflict is not None
+        assert conflict.ours == {}  # We deleted it
+        assert conflict.theirs["title"] == "Table One Modified By Them"
+        assert conflict.base == base_map["tables"][0]
+
+    def test_merge_they_kept_table_we_deleted_unchanged(self, base_map):
+        """Test that when they don't change a table we deleted, we respect our deletion."""
+        # We deleted table1
+        ours = {
+            "operationalLayers": base_map["operationalLayers"],
+            "tables": [],
+        }
+        # They didn't modify table1 (same as base)
+        theirs = {
+            "operationalLayers": base_map["operationalLayers"],
+            "tables": base_map["tables"].copy(),  # Same as base
+        }
+
+        result = merge_maps(ours, theirs, base_map)
+
+        # No conflict - we deleted, they didn't change, so deletion is respected
+        table_conflicts = [c for c in result.conflicts if c.layer_id == "table1"]
+        assert len(table_conflicts) == 0
+        # Table should not be in merged result
+        merged_table_ids = [t["id"] for t in result.merged_data.get("tables", [])]
+        assert "table1" not in merged_table_ids
+
     def test_merge_preserves_non_layer_properties(self):
         """Test that merge preserves map properties outside layers."""
         ours = {
