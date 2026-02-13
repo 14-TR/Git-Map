@@ -110,11 +110,11 @@ def mock_connection() -> MagicMock:
     """Create mock PortalConnection."""
     conn = MagicMock()
     conn.url = "https://portal.example.com/arcgis"
-    
+
     # Mock GIS object
     gis = MagicMock()
     conn.gis = gis
-    
+
     # Mock user
     user = MagicMock()
     user.username = "test_user"
@@ -122,11 +122,11 @@ def mock_connection() -> MagicMock:
     user.items.return_value = []
     user.groups = []
     gis.users.me = user
-    
+
     # Mock content
     content = MagicMock()
     gis.content = content
-    
+
     return conn
 
 
@@ -234,7 +234,7 @@ class TestFolderManagement:
 
         # No existing folders
         mock_connection.gis.users.me.folders = []
-        
+
         # Mock folder creation
         mock_connection.gis.content.folders.create.return_value = {"id": "new-folder-id"}
 
@@ -254,7 +254,7 @@ class TestFolderManagement:
         )
         mock_repository.get_config.return_value = config
         mock_connection.gis.users.me.folders = []
-        
+
         # Return object with id attribute
         folder_obj = MagicMock()
         folder_obj.id = "obj-folder-id"
@@ -278,12 +278,12 @@ class TestFolderManagement:
         # No folders initially
         mock_connection.gis.users.me.folders = []
         mock_connection.gis.users.me.items.return_value = []
-        
+
         # Creation returns object with no ID
         empty_result = MagicMock()
         empty_result.id = None
         mock_connection.gis.content.folders.create.return_value = empty_result
-        
+
         # After fallback, folder is found
         found_folder = MagicMock()
         found_folder.title = "TestProject"
@@ -307,12 +307,12 @@ class TestFolderManagement:
 
         # No folders in direct list
         mock_connection.gis.users.me.folders = []
-        
+
         # Item in folder with matching name
         item_in_folder = MagicMock()
         item_in_folder.ownerFolder = "hidden-folder-id"
         mock_connection.gis.users.me.items.return_value = [item_in_folder]
-        
+
         # Folder info returns matching folder
         folder_info = MagicMock()
         folder_info.title = "TestProject"
@@ -333,21 +333,21 @@ class TestFolderManagement:
             remote=Remote(name="origin", url="https://test.com", folder_id=None),
         )
         mock_repository.get_config.return_value = config
-        
+
         # Initially no folders found
         mock_connection.gis.users.me.folders = []
         mock_connection.gis.users.me.items.return_value = []
-        
+
         # Creation fails with "already exists" error
         mock_connection.gis.content.folders.create.side_effect = Exception(
             "Folder name is not available"
         )
-        
+
         # On retry, folder is found
         found_folder = MagicMock()
         found_folder.title = "TestProject"
         found_folder.id = "retry-found-folder-id"
-        
+
         # Use a counter to return empty first, then the folder
         call_count = [0]
         def folders_side_effect():
@@ -355,7 +355,7 @@ class TestFolderManagement:
             if call_count[0] > 1:
                 return [found_folder]
             return []
-        
+
         type(mock_connection.gis.users.me).folders = PropertyMock(side_effect=folders_side_effect)
 
         ops = RemoteOperations(mock_repository, mock_connection)
@@ -372,18 +372,18 @@ class TestFolderManagement:
             remote=Remote(name="origin", url="https://test.com", folder_id=None),
         )
         mock_repository.get_config.return_value = config
-        
+
         # No folders found ever
         mock_connection.gis.users.me.folders = []
         mock_connection.gis.users.me.items.return_value = []
-        
+
         # Creation fails with "already exists" error
         mock_connection.gis.content.folders.create.side_effect = Exception(
             "unable to create folder"
         )
 
         ops = RemoteOperations(mock_repository, mock_connection)
-        
+
         with pytest.raises(RuntimeError) as exc_info:
             ops.get_or_create_folder()
 
@@ -398,17 +398,17 @@ class TestFolderManagement:
             remote=Remote(name="origin", url="https://test.com", folder_id=None),
         )
         mock_repository.get_config.return_value = config
-        
+
         mock_connection.gis.users.me.folders = []
         mock_connection.gis.users.me.items.return_value = []
-        
+
         # Creation fails with unexpected error
         mock_connection.gis.content.folders.create.side_effect = Exception(
             "Network error: connection refused"
         )
 
         ops = RemoteOperations(mock_repository, mock_connection)
-        
+
         with pytest.raises(RuntimeError) as exc_info:
             ops.get_or_create_folder()
 
@@ -426,12 +426,12 @@ class TestFolderManagement:
 
         # No folders in direct list
         mock_connection.gis.users.me.folders = []
-        
+
         # Item in folder
         item_in_folder = MagicMock()
         item_in_folder.ownerFolder = "dict-folder-id"
         mock_connection.gis.users.me.items.return_value = [item_in_folder]
-        
+
         # Folder info returns dict (not object)
         mock_connection.gis.content.get_folder.return_value = {
             "title": "TestProject",
@@ -483,7 +483,7 @@ class TestPushOperations:
 
         # No existing item in root content
         mock_connection.gis.users.me.items.return_value = []
-        
+
         # Mock item creation in root content (no folder)
         new_item = MagicMock()
         new_item.id = "new-item-id"
@@ -674,7 +674,7 @@ class TestPushOperations:
         # Mock notify_item_group_users
         with patch("gitmap_core.remote.notify_item_group_users") as mock_notify:
             mock_notify.return_value = ["user1", "user2"]
-            
+
             ops = RemoteOperations(mock_repository, mock_connection)
             _, notification_status = ops.push()
 
@@ -711,7 +711,7 @@ class TestPushOperations:
         # Mock notify to raise exception
         with patch("gitmap_core.remote.notify_item_group_users") as mock_notify:
             mock_notify.side_effect = Exception("Notification service unavailable")
-            
+
             ops = RemoteOperations(mock_repository, mock_connection)
             item, notification_status = ops.push()
 
@@ -764,7 +764,7 @@ class TestPushOperations:
         # Mock notify_item_group_users
         with patch("gitmap_core.remote.notify_item_group_users") as mock_notify:
             mock_notify.return_value = ["user3", "user4"]
-            
+
             ops = RemoteOperations(mock_repository, mock_connection)
             _, notification_status = ops.push()
 
@@ -799,10 +799,10 @@ class TestPushOperations:
 
         # Original item not found
         mock_connection.gis.content.get.side_effect = Exception("Item not found")
-        
+
         # No existing items in root content
         mock_connection.gis.users.me.items.return_value = []
-        
+
         # Create new item in root content (no folder)
         new_item = MagicMock()
         new_item.id = "new-item-id"
@@ -839,7 +839,7 @@ class TestPushOperations:
         mock_repository.remotes_dir.mkdir(parents=True)
 
         mock_connection.gis.users.me.items.return_value = []
-        
+
         new_item = MagicMock()
         new_item.id = "feature-item-id"
         new_item.access = "private"
@@ -937,7 +937,7 @@ class TestPullOperations:
         mock_repository.get_current_branch.return_value = "nonexistent"
         mock_repository.remotes_dir = Path(tempfile.mkdtemp()) / "remotes"
         mock_repository.remotes_dir.mkdir(parents=True)
-        
+
         # No matching items
         mock_connection.gis.users.me.items.return_value = []
 
@@ -995,7 +995,7 @@ class TestPullOperations:
         mock_repository.get_config.return_value = config
         mock_repository.get_current_branch.return_value = "main"
         mock_repository.get_head_commit.return_value = "commit-456"
-        
+
         temp_dir = Path(tempfile.mkdtemp())
         mock_repository.remotes_dir = temp_dir / "remotes"
         mock_repository.remotes_dir.mkdir(parents=True)
@@ -1077,7 +1077,7 @@ class TestPullOperations:
 
         # Original item access fails
         mock_connection.gis.content.get.side_effect = Exception("Item access denied")
-        
+
         # Fallback to folder-based search
         mock_portal_item.title = "main"
         mock_connection.gis.users.me.items.return_value = [mock_portal_item]
@@ -1136,7 +1136,7 @@ class TestPullOperations:
         mock_repository.get_config.return_value = config
         mock_repository.get_current_branch.return_value = "feature/add/layers"
         mock_repository.get_head_commit.return_value = "commit-789"
-        
+
         temp_dir = Path(tempfile.mkdtemp())
         mock_repository.remotes_dir = temp_dir / "remotes"
         mock_repository.remotes_dir.mkdir(parents=True)
@@ -1186,7 +1186,7 @@ class TestMetadataOperations:
     ) -> None:
         """Test pushing metadata creates new item."""
         remote_ops.connection.gis.users.me.items.return_value = []
-        
+
         new_item = MagicMock()
         remote_ops.connection.gis.content.add.return_value = new_item
 
@@ -1215,7 +1215,7 @@ class TestMetadataOperations:
     ) -> None:
         """Test metadata includes branch information."""
         remote_ops.connection.gis.users.me.items.return_value = []
-        
+
         new_item = MagicMock()
         remote_ops.connection.gis.content.add.return_value = new_item
 

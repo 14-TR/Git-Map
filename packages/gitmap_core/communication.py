@@ -214,7 +214,7 @@ def get_item_group_users(
                 sharing_data = item.properties.get("sharing", {})
                 if isinstance(sharing_data, dict):
                     groups = sharing_data.get("groups", [])
-            
+
             # Method 2: If not found, query user's groups to find which have access
             if not groups:
                 user = gis.users.me
@@ -231,7 +231,7 @@ def get_item_group_users(
                             continue
         except Exception:
             groups = []
-        
+
         if not groups:
             return []
 
@@ -294,7 +294,7 @@ def notify_item_group_users(
                 sharing_data = item.properties.get("sharing", {})
                 if isinstance(sharing_data, dict):
                     groups = sharing_data.get("groups", [])
-            
+
             # Method 2: If not found, query user's groups to find which have access
             if not groups:
                 user = gis.users.me
@@ -311,7 +311,7 @@ def notify_item_group_users(
                             continue
         except Exception:
             groups = []
-        
+
         if not groups:
             return []
 
