@@ -159,7 +159,7 @@ class RemoteOperations:
                             folder_id = folder.get("id")
                             if folder_id:
                                 return folder_id
-                    
+
                     # Try searching through user's items to find the folder
                     try:
                         user_items = user.items()
@@ -180,7 +180,7 @@ class RemoteOperations:
                                     continue
                     except Exception:
                         pass
-                    
+
                     # If still not found, the folder exists but we can't locate it
                     msg = f"Folder '{folder_name}' exists in Portal but could not be located automatically. Please check Portal and update config manually if needed."
                     raise RuntimeError(msg) from create_error
@@ -237,7 +237,7 @@ class RemoteOperations:
                     original_item = self.gis.content.get(self.remote.item_id)
                     if original_item and original_item.type == "Web Map":
                         updated_item = self._update_webmap_item(original_item, commit.map_data, commit)
-                        
+
                         # Check if this is the production branch and send notifications
                         notification_status = {
                             "attempted": False,
@@ -245,7 +245,7 @@ class RemoteOperations:
                             "reason": "",
                             "users_notified": [],
                         }
-                        
+
                         if not skip_notifications and self.remote.production_branch and branch == self.remote.production_branch:
                             notification_status["attempted"] = True
                             try:
@@ -261,7 +261,7 @@ class RemoteOperations:
                                             sharing_data = updated_item.properties.get("sharing", {})
                                             if isinstance(sharing_data, dict):
                                                 groups = sharing_data.get("groups", [])
-                                        
+
                                         # If not found, query user's groups
                                         if not groups:
                                             user = self.gis.users.me
@@ -276,7 +276,7 @@ class RemoteOperations:
                                                         continue
                                     except Exception:
                                         groups = []
-                                    
+
                                     if not groups:
                                         notification_status["reason"] = "Item is not shared with any groups"
                                     else:
@@ -299,7 +299,7 @@ class RemoteOperations:
                             except Exception as notify_error:
                                 # Don't fail the push if notifications fail
                                 notification_status["reason"] = f"Notification error: {notify_error}"
-                        
+
                         return updated_item, notification_status
                 except Exception:
                     # Original item not found - fall through to folder-based logic
@@ -322,7 +322,7 @@ class RemoteOperations:
                 "reason": "",
                 "users_notified": [],
             }
-            
+
             if not skip_notifications and self.remote and self.remote.production_branch and branch == self.remote.production_branch:
                 notification_status["attempted"] = True
                 try:
@@ -338,7 +338,7 @@ class RemoteOperations:
                                 sharing_data = updated_item.properties.get("sharing", {})
                                 if isinstance(sharing_data, dict):
                                     groups = sharing_data.get("groups", [])
-                            
+
                             # If not found, query user's groups
                             if not groups:
                                 user = self.gis.users.me
@@ -353,7 +353,7 @@ class RemoteOperations:
                                             continue
                         except Exception:
                             groups = []
-                        
+
                         if not groups:
                             notification_status["reason"] = "Item is not shared with any groups"
                         else:
@@ -446,7 +446,7 @@ class RemoteOperations:
             item_title = self._branch_to_item_title(branch)
             # Also check with project name prefix for uniqueness
             prefixed_title = f"{self.config.project_name}_{item_title}"
-            
+
             for item in items:
                 if item.type == "Web Map":
                     if item.title == prefixed_title or item.title == item_title:

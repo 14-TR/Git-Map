@@ -198,9 +198,9 @@ class TestMergeMaps:
         """Test three-way merge when they modified a layer we didn't."""
         # Revert our modification to layer1 to test "theirs wins"
         our_map["operationalLayers"][0]["title"] = "Layer One"  # Same as base
-        
+
         result = merge_maps(our_map, their_map, base_map)
-        
+
         # Layer2 should use their version since we didn't change it
         layer2 = next(
             (l for l in result.merged_data["operationalLayers"] if l["id"] == "layer2"),
@@ -227,9 +227,9 @@ class TestMergeMaps:
                 {"id": "layer1", "title": "Layer One", "url": "http://example.com/1"},
             ],
         }
-        
+
         result = merge_maps(ours, theirs, base)
-        
+
         # Our modification should be kept
         layer1 = result.merged_data["operationalLayers"][0]
         assert layer1["title"] == "Layer One Modified"
@@ -252,9 +252,9 @@ class TestMergeMaps:
                 {"id": "layer1", "title": "Layer One", "url": "http://example.com/1"},
             ],
         }
-        
+
         result = merge_maps(ours, theirs, base)
-        
+
         assert result.success is False
         assert result.has_conflicts is True
         assert len(result.conflicts) == 1
@@ -272,9 +272,9 @@ class TestMergeMaps:
                 {"id": "layer1", "title": "Layer One - Theirs"},
             ],
         }
-        
+
         result = merge_maps(ours, theirs)
-        
+
         assert result.success is False
         assert len(result.conflicts) == 1
 
@@ -292,9 +292,9 @@ class TestMergeMaps:
                 # layer2 deleted
             ],
         }
-        
+
         result = merge_maps(ours, theirs, base_map)
-        
+
         # We kept layer2, it should be in merged result
         layer_ids = [l["id"] for l in result.merged_data["operationalLayers"]]
         assert "layer2" in layer_ids
@@ -313,9 +313,9 @@ class TestMergeMaps:
                 {"id": "layer2", "title": "Layer Two Modified", "url": "http://example.com/2-new"},
             ],
         }
-        
+
         result = merge_maps(ours, theirs, base_map)
-        
+
         # Conflict: we deleted, they modified
         assert result.has_conflicts is True
         conflict = result.conflicts[0]
@@ -336,9 +336,9 @@ class TestMergeMaps:
                 {"id": "table1", "title": "Table One - Theirs", "url": "http://example.com/t1"},
             ],
         }
-        
+
         result = merge_maps(ours, theirs, base_map)
-        
+
         assert result.has_conflicts is True
         conflict = result.conflicts[0]
         assert conflict.layer_id == "table1"
@@ -355,9 +355,9 @@ class TestMergeMaps:
                 {"id": "table1", "title": "New Table"},
             ],
         }
-        
+
         result = merge_maps(ours, theirs)
-        
+
         assert len(result.merged_data["tables"]) == 1
         assert "table1" in result.added_layers
 
@@ -373,9 +373,9 @@ class TestMergeMaps:
             "basemap": "satellite",
             "operationalLayers": [],
         }
-        
+
         result = merge_maps(ours, theirs)
-        
+
         # Should keep ours since we start with our map
         assert result.merged_data["mapTitle"] == "My Map"
         assert result.merged_data["basemap"] == "topo"
@@ -455,13 +455,13 @@ class TestApplyResolution:
                 ),
             ],
         )
-        
+
         result = apply_resolution(
             merge_result,
             "layer1",
             {"id": "layer1", "title": "Resolved"},
         )
-        
+
         assert len(result.conflicts) == 0
         assert result.success is True
         assert result.merged_data["operationalLayers"][0]["title"] == "Resolved"
@@ -484,13 +484,13 @@ class TestApplyResolution:
                 ),
             ],
         )
-        
+
         result = apply_resolution(
             merge_result,
             "table1",
             {"id": "table1", "title": "Resolved"},
         )
-        
+
         assert len(result.conflicts) == 0
         assert result.merged_data["tables"][0]["title"] == "Resolved"
 
@@ -512,9 +512,9 @@ class TestApplyResolution:
                 ),
             ],
         )
-        
+
         result = apply_resolution(merge_result, "layer1", {})
-        
+
         assert len(result.merged_data["operationalLayers"]) == 0
 
     def test_apply_resolution_adds_missing_layer(self):
@@ -533,13 +533,13 @@ class TestApplyResolution:
                 ),
             ],
         )
-        
+
         result = apply_resolution(
             merge_result,
             "layer1",
             {"id": "layer1", "title": "New"},
         )
-        
+
         assert len(result.merged_data["operationalLayers"]) == 1
         assert result.merged_data["operationalLayers"][0]["title"] == "New"
 

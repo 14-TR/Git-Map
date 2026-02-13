@@ -489,7 +489,7 @@ def generate_mermaid_flowchart(
 
                 # Find the last commit on target branch before merge and connect
                 if target_branch and target_branch in commits_by_branch:
-                    target_commits = [c for c in commits_by_branch[target_branch] 
+                    target_commits = [c for c in commits_by_branch[target_branch]
                                       if c.timestamp < event.timestamp]
                     if target_commits:
                         last_target = target_commits[-1]

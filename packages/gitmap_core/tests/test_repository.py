@@ -454,7 +454,7 @@ class TestBranchOperations:
         """Test checkout loads branch commit state to index."""
         # Modify index
         repo_with_commit.update_index({"modified": True})
-        
+
         # Create and checkout new branch
         repo_with_commit.create_branch("feature/test")
         repo_with_commit.checkout_branch("feature/test")
