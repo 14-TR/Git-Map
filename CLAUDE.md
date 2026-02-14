@@ -36,8 +36,11 @@ GitMap/
 ## Quick Start Commands
 
 ```bash
-# Install core library
+# Install core library (required for running tests)
 pip install -e packages/gitmap_core
+
+# Run tests (no editable install required - pythonpath configured in pyproject.toml)
+pytest
 
 # Install CLI
 pip install -e apps/cli/gitmap
