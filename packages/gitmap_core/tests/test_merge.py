@@ -435,6 +435,71 @@ class TestMergeMaps:
         merged_table_ids = [t["id"] for t in result.merged_data.get("tables", [])]
         assert "table1" not in merged_table_ids
 
+    def test_merge_tables_same_content_no_conflict(self):
+        """Test that identical tables in ours and theirs produce no conflict."""
+        same_table = {"id": "table1", "title": "Identical Table", "url": "http://example.com/t1"}
+        ours = {
+            "operationalLayers": [],
+            "tables": [same_table.copy()],
+        }
+        theirs = {
+            "operationalLayers": [],
+            "tables": [same_table.copy()],
+        }
+
+        result = merge_maps(ours, theirs)
+
+        assert result.success is True
+        assert result.has_conflicts is False
+        assert len(result.merged_data["tables"]) == 1
+        assert result.merged_data["tables"][0]["title"] == "Identical Table"
+
+    def test_merge_table_three_way_we_changed_they_didnt(self, base_map):
+        """Test three-way table merge where we changed but they didn't."""
+        # Base has table1
+        # We modified table1
+        ours = {
+            "operationalLayers": base_map["operationalLayers"],
+            "tables": [
+                {"id": "table1", "title": "Table One - Our Change", "url": "http://example.com/t1-ours"},
+            ],
+        }
+        # They kept table1 same as base
+        theirs = {
+            "operationalLayers": base_map["operationalLayers"],
+            "tables": base_map["tables"].copy(),  # Same as base
+        }
+
+        result = merge_maps(ours, theirs, base_map)
+
+        # No conflict - we changed, they didn't, use ours
+        table_conflicts = [c for c in result.conflicts if c.layer_id == "table1"]
+        assert len(table_conflicts) == 0
+        assert result.merged_data["tables"][0]["title"] == "Table One - Our Change"
+
+    def test_merge_table_three_way_they_changed_we_didnt(self, base_map):
+        """Test three-way table merge where they changed but we didn't."""
+        # Base has table1
+        # We kept table1 same as base
+        ours = {
+            "operationalLayers": base_map["operationalLayers"],
+            "tables": base_map["tables"].copy(),  # Same as base
+        }
+        # They modified table1
+        theirs = {
+            "operationalLayers": base_map["operationalLayers"],
+            "tables": [
+                {"id": "table1", "title": "Table One - Their Change", "url": "http://example.com/t1-theirs"},
+            ],
+        }
+
+        result = merge_maps(ours, theirs, base_map)
+
+        # No conflict - they changed, we didn't, use theirs
+        table_conflicts = [c for c in result.conflicts if c.layer_id == "table1"]
+        assert len(table_conflicts) == 0
+        assert result.merged_data["tables"][0]["title"] == "Table One - Their Change"
+
     def test_merge_preserves_non_layer_properties(self):
         """Test that merge preserves map properties outside layers."""
         ours = {
@@ -616,6 +681,30 @@ class TestApplyResolution:
 
         assert len(result.merged_data["operationalLayers"]) == 1
         assert result.merged_data["operationalLayers"][0]["title"] == "New"
+
+    def test_apply_table_resolution_deletes_table(self):
+        """Test that empty table resolution deletes the table."""
+        merge_result = MergeResult(
+            merged_data={
+                "operationalLayers": [],
+                "tables": [
+                    {"id": "table1", "title": "To Delete"},
+                ],
+            },
+            conflicts=[
+                MergeConflict(
+                    layer_id="table1",
+                    layer_title="Conflict Table",
+                    ours={"id": "table1", "title": "Ours"},
+                    theirs={"id": "table1", "title": "Theirs"},
+                ),
+            ],
+        )
+
+        result = apply_resolution(merge_result, "table1", {})
+
+        assert len(result.conflicts) == 0
+        assert len(result.merged_data["tables"]) == 0
 
 
 # ---- format_merge_summary Tests -----------------------------------------------------------------------------
