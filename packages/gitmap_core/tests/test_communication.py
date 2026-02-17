@@ -425,128 +425,6 @@ class TestGetItemGroupUsers:
         assert "owner" in result
 
 
-class TestGetItemGroupUsersMethod2:
-    """Tests for get_item_group_users user-groups fallback path."""
-
-    def test_finds_groups_via_user_groups_fallback(self):
-        """Should find groups via user's groups when item.properties lacks sharing info."""
-        mock_gis = Mock()
-        mock_item = Mock()
-        mock_item.access = "org"
-        mock_item.id = "item-123"
-        mock_item.properties = {}  # No sharing info in properties
-
-        # User with groups
-        mock_user = Mock()
-        mock_group = Mock()
-        mock_group.id = "group-from-user"
-        
-        # Group content includes our item
-        mock_group_item = Mock()
-        mock_group_item.id = "item-123"
-        mock_group.content.return_value = [mock_group_item]
-        
-        mock_user.groups = [mock_group]
-        mock_gis.users.me = mock_user
-
-        # For get_group_member_usernames call
-        mock_resolved_group = Mock()
-        mock_resolved_group.get_members.return_value = {
-            "owner": "owner",
-            "admins": [],
-            "users": ["user1"],
-        }
-        mock_gis.groups.get.return_value = mock_resolved_group
-
-        result = get_item_group_users(mock_gis, mock_item)
-
-        assert set(result) == {"owner", "user1"}
-
-    def test_skips_groups_without_item_access(self):
-        """Should skip groups that don't contain the item."""
-        mock_gis = Mock()
-        mock_item = Mock()
-        mock_item.access = "org"
-        mock_item.id = "item-123"
-        mock_item.properties = {}
-
-        mock_user = Mock()
-        mock_group = Mock()
-        mock_group.id = "group-no-access"
-        
-        # Group content does NOT include our item
-        mock_other_item = Mock()
-        mock_other_item.id = "other-item"
-        mock_group.content.return_value = [mock_other_item]
-        
-        mock_user.groups = [mock_group]
-        mock_gis.users.me = mock_user
-
-        result = get_item_group_users(mock_gis, mock_item)
-
-        assert result == []
-
-    def test_handles_group_content_exception(self):
-        """Should skip groups that raise exceptions when checking content."""
-        mock_gis = Mock()
-        mock_item = Mock()
-        mock_item.access = "org"
-        mock_item.id = "item-123"
-        mock_item.properties = {}
-
-        mock_user = Mock()
-        mock_group_fail = Mock()
-        mock_group_fail.id = "group-fail"
-        mock_group_fail.content.side_effect = Exception("Access denied")
-        
-        mock_group_ok = Mock()
-        mock_group_ok.id = "group-ok"
-        mock_group_item = Mock()
-        mock_group_item.id = "item-123"
-        mock_group_ok.content.return_value = [mock_group_item]
-        
-        mock_user.groups = [mock_group_fail, mock_group_ok]
-        mock_gis.users.me = mock_user
-
-        mock_resolved_group = Mock()
-        mock_resolved_group.get_members.return_value = {
-            "owner": "owner",
-            "admins": [],
-            "users": [],
-        }
-        mock_gis.groups.get.return_value = mock_resolved_group
-
-        result = get_item_group_users(mock_gis, mock_item)
-
-        assert "owner" in result
-
-    def test_handles_missing_user(self):
-        """Should return empty when no user available."""
-        mock_gis = Mock()
-        mock_item = Mock()
-        mock_item.access = "org"
-        mock_item.properties = {}
-        mock_gis.users.me = None
-
-        result = get_item_group_users(mock_gis, mock_item)
-
-        assert result == []
-
-    def test_handles_sharing_data_not_dict(self):
-        """Should handle sharing data that is not a dict."""
-        mock_gis = Mock()
-        mock_item = Mock()
-        mock_item.access = "org"
-        mock_item.id = "item-123"
-        # sharing is not a dict
-        mock_item.properties = {"sharing": "not-a-dict"}
-        mock_gis.users.me = None
-
-        result = get_item_group_users(mock_gis, mock_item)
-
-        assert result == []
-
-
 class TestNotifyItemGroupUsers:
     """Tests for notify_item_group_users function."""
 
@@ -622,40 +500,47 @@ class TestNotifyItemGroupUsers:
         assert "owner1" in result
         assert "owner2" in result
 
-    def test_finds_groups_via_user_groups_fallback(self):
-        """Should find groups via user's groups when item.properties lacks sharing info."""
+    def test_uses_user_groups_fallback(self):
+        """Should fall back to user groups when item.properties lacks sharing data."""
         mock_gis = Mock()
         mock_item = Mock()
         mock_item.access = "org"
         mock_item.id = "item-123"
-        mock_item.properties = {}  # No sharing info
+        mock_item.properties = {}  # No sharing data
 
+        # Set up user with groups
         mock_user = Mock()
         mock_group = Mock()
         mock_group.id = "group-from-user"
-        
         mock_group_item = Mock()
-        mock_group_item.id = "item-123"
+        mock_group_item.id = "item-123"  # Matches our item
         mock_group.content.return_value = [mock_group_item]
-        
+        mock_group.get_members.return_value = {
+            "owner": "group_owner",
+            "admins": [],
+            "users": ["group_user"],
+        }
         mock_user.groups = [mock_group]
         mock_gis.users.me = mock_user
-
-        mock_resolved_group = Mock()
-        mock_resolved_group.get_members.return_value = {
-            "owner": "owner",
-            "admins": [],
-            "users": [],
-        }
-        mock_gis.groups.get.return_value = mock_resolved_group
+        mock_gis.groups.get.return_value = mock_group
 
         result = notify_item_group_users(mock_gis, mock_item, "Subject", "Body")
 
-        assert "owner" in result
-        mock_resolved_group.notify.assert_called()
+        assert set(result) == {"group_owner", "group_user"}
+        mock_group.notify.assert_called()
 
-    def test_handles_group_content_exception_in_notify(self):
-        """Should skip groups that raise exceptions during content check."""
+    def test_raises_on_general_error(self):
+        """Should raise RuntimeError on unexpected errors."""
+        mock_gis = Mock()
+        mock_item = Mock()
+        # Make access property raise an exception
+        type(mock_item).access = property(lambda self: (_ for _ in ()).throw(Exception("Unexpected")))
+
+        with pytest.raises(RuntimeError, match="Failed to notify item group users"):
+            notify_item_group_users(mock_gis, mock_item, "Subject", "Body")
+
+    def test_skips_groups_with_content_error(self):
+        """Should skip groups where content() raises an exception."""
         mock_gis = Mock()
         mock_item = Mock()
         mock_item.access = "org"
@@ -663,27 +548,148 @@ class TestNotifyItemGroupUsers:
         mock_item.properties = {}
 
         mock_user = Mock()
+        mock_group_ok = Mock()
+        mock_group_ok.id = "group-ok"
+        mock_group_ok_item = Mock()
+        mock_group_ok_item.id = "item-123"
+        mock_group_ok.content.return_value = [mock_group_ok_item]
+        mock_group_ok.get_members.return_value = {
+            "owner": "owner_ok",
+            "admins": [],
+            "users": [],
+        }
+
         mock_group_fail = Mock()
-        mock_group_fail.id = "group-fail"
-        mock_group_fail.content.side_effect = Exception("Access denied")
-        
-        mock_user.groups = [mock_group_fail]
+        mock_group_fail.content.side_effect = Exception("Content error")
+
+        mock_user.groups = [mock_group_fail, mock_group_ok]
         mock_gis.users.me = mock_user
+        mock_gis.groups.get.return_value = mock_group_ok
 
         result = notify_item_group_users(mock_gis, mock_item, "Subject", "Body")
 
-        assert result == []
+        assert "owner_ok" in result
 
-    def test_handles_sharing_data_not_dict(self):
-        """Should handle sharing data that is not a dict."""
+
+class TestGetItemGroupUsersFallback:
+    """Tests for get_item_group_users fallback paths."""
+
+    def test_uses_user_groups_fallback(self):
+        """Should fall back to user groups when item.properties lacks sharing data."""
         mock_gis = Mock()
         mock_item = Mock()
         mock_item.access = "org"
-        mock_item.id = "item-123"
-        # sharing is not a dict
-        mock_item.properties = {"sharing": "not-a-dict"}
+        mock_item.id = "item-456"
+        mock_item.properties = {}  # No sharing data
+
+        # Set up user with groups
+        mock_user = Mock()
+        mock_group = Mock()
+        mock_group.id = "fallback-group"
+        mock_group_item = Mock()
+        mock_group_item.id = "item-456"
+        mock_group.content.return_value = [mock_group_item]
+        mock_group.get_members.return_value = {
+            "owner": "fallback_owner",
+            "admins": [],
+            "users": ["fallback_user"],
+        }
+        mock_user.groups = [mock_group]
+        mock_gis.users.me = mock_user
+        mock_gis.groups.get.return_value = mock_group
+
+        result = get_item_group_users(mock_gis, mock_item)
+
+        assert set(result) == {"fallback_owner", "fallback_user"}
+
+    def test_raises_on_general_error(self):
+        """Should raise RuntimeError on unexpected errors."""
+        mock_gis = Mock()
+        mock_item = Mock()
+        type(mock_item).access = property(lambda self: (_ for _ in ()).throw(Exception("Unexpected")))
+
+        with pytest.raises(RuntimeError, match="Failed to get item group users"):
+            get_item_group_users(mock_gis, mock_item)
+
+    def test_skips_groups_with_content_error(self):
+        """Should skip groups where content() raises an exception."""
+        mock_gis = Mock()
+        mock_item = Mock()
+        mock_item.access = "org"
+        mock_item.id = "item-789"
+        mock_item.properties = {}
+
+        mock_user = Mock()
+        mock_group_ok = Mock()
+        mock_group_ok.id = "group-ok"
+        mock_group_ok_item = Mock()
+        mock_group_ok_item.id = "item-789"
+        mock_group_ok.content.return_value = [mock_group_ok_item]
+        mock_group_ok.get_members.return_value = {
+            "owner": "ok_owner",
+            "admins": [],
+            "users": [],
+        }
+
+        mock_group_fail = Mock()
+        mock_group_fail.content.side_effect = Exception("Access denied")
+
+        mock_user.groups = [mock_group_fail, mock_group_ok]
+        mock_gis.users.me = mock_user
+        mock_gis.groups.get.return_value = mock_group_ok
+
+        result = get_item_group_users(mock_gis, mock_item)
+
+        assert "ok_owner" in result
+
+    def test_handles_non_dict_sharing_data(self):
+        """Should handle non-dict sharing data gracefully."""
+        mock_gis = Mock()
+        mock_item = Mock()
+        mock_item.access = "org"
+        mock_item.id = "item-xxx"
+        mock_item.properties = {"sharing": "not-a-dict"}  # Invalid format
         mock_gis.users.me = None
 
-        result = notify_item_group_users(mock_gis, mock_item, "Subject", "Body")
+        result = get_item_group_users(mock_gis, mock_item)
 
         assert result == []
+
+
+class TestGetGroupMemberUsernamesFallback:
+    """Tests for get_group_member_usernames edge cases."""
+
+    def test_handles_none_in_invited_lists(self):
+        """Should handle None values in invited user lists."""
+        mock_gis = Mock()
+        mock_group = Mock()
+        mock_gis.groups.get.return_value = mock_group
+        mock_group.get_members.return_value = {
+            "owner": "owner",
+            "admins": [],
+            "users": [],
+            "admins_invited": None,  # None instead of list
+            "users_invited": ["invited_user", None, ""],  # Mixed valid/invalid
+        }
+
+        result = get_group_member_usernames(mock_gis, "group-123")
+
+        assert "owner" in result
+        assert "invited_user" in result
+        # Empty strings and None should be filtered
+        assert "" not in result
+
+    def test_handles_empty_lists_returned_as_none(self):
+        """Should handle when members.get returns None for list keys."""
+        mock_gis = Mock()
+        mock_group = Mock()
+        mock_gis.groups.get.return_value = mock_group
+        mock_group.get_members.return_value = {
+            "owner": "sole_owner",
+            "admins": None,  # None instead of empty list
+            "users": None,
+        }
+
+        result = get_group_member_usernames(mock_gis, "group-123")
+
+        assert result == ["sole_owner"]
