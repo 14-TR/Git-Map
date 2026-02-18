@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gitmap-core"
+version = "0.1.0"
+description = "Version control for ArcGIS web maps — Git-like branching, commits, diff, and Portal sync"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+keywords = ["arcgis", "gis", "version-control", "webmap", "agol"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: GIS",
+]
+dependencies = [
+    "arcgis>=2.0.0",
+    "click>=8.0",
+    "rich>=12.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/14-TR/Git-Map"
+Repository = "https://github.com/14-TR/Git-Map"
+
+[tool.hatch.build.targets.wheel]
+packages = ["packages/gitmap_core"]
+
+[tool.hatch.build.targets.wheel.sources]
+"packages/gitmap_core" = "gitmap_core"
