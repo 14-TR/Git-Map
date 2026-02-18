@@ -211,6 +211,41 @@ class TestFormatEventLabel:
         label_no_time = _format_event_label(sample_events[0], show_time=False)
         assert len(label_no_time) < len(label_with_time)
 
+    def test_handles_invalid_timestamp(self) -> None:
+        """Test lines 219-220: invalid timestamp falls back to truncation."""
+        from gitmap_core.context import Event
+
+        # Invalid ISO format - should trigger ValueError
+        bad_event = Event(
+            id="bad-event",
+            timestamp="not-a-valid-timestamp",
+            event_type="commit",
+            actor="user",
+            repo="/test",
+            ref="abc123",
+            payload={},
+        )
+        label = _format_event_label(bad_event)
+        # Should use first 16 chars of timestamp
+        assert "not-a-valid-" in label
+
+    def test_handles_none_timestamp(self) -> None:
+        """Test line 220: None timestamp results in empty time string."""
+        from gitmap_core.context import Event
+
+        none_event = Event(
+            id="none-event",
+            timestamp=None,  # type: ignore
+            event_type="push",
+            actor="user",
+            repo="/test",
+            ref="def456",
+            payload={},
+        )
+        label = _format_event_label(none_event)
+        # Should not crash, just omit time
+        assert "PUSH" in label
+
 
 class TestWrapText:
     """Tests for _wrap_text function."""
