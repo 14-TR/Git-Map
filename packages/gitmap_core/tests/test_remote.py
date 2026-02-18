@@ -3012,3 +3012,294 @@ class TestMetadataItemExceptionHandling:
         result = remote_ops._find_metadata_item("folder-123")
 
         assert result is None
+
+
+# ---- Folder Pre-Creation Search Edge Cases ------------------------------------------------------------------
+
+
+class TestFolderPreCreationSearch:
+    """Tests for folder search logic before creation (lines 131-135, 148-149, 157-161)."""
+
+    def test_finds_folder_via_get_folder_when_user_folders_missed_it(
+        self, mock_repository: MagicMock, mock_connection: MagicMock
+    ) -> None:
+        """Test that get_or_create_folder finds folder via explicit get_folder call.
+
+        Covers lines 131-135: get_user_folders returns empty (get_folder returned
+        None inside compat), but the direct get_folder call in remote.py returns
+        the matching folder.
+        """
+        config = RepoConfig(
+            project_name="HiddenFolder",
+            remote=Remote(name="origin", url="https://test.com", folder_id=None),
+        )
+        mock_repository.get_config.return_value = config
+
+        # user.folders is empty - Method 1 in get_user_folders finds nothing
+        mock_connection.gis.users.me.folders = []
+
+        # An item exists in a folder
+        item_obj = MagicMock()
+        item_obj.ownerFolder = "folder-xyz"
+        mock_connection.gis.users.me.items.return_value = [item_obj]
+
+        # get_folder is called by both compat.get_user_folders (Method 3) AND
+        # remote.py get_or_create_folder (line 129). Return None on the first
+        # call (so compat misses it) and the real folder on the second call.
+        call_count = [0]
+        def get_folder_side_effect(folder_id, username):
+            call_count[0] += 1
+            if call_count[0] == 1:
+                return None  # compat misses it
+            # remote.py finds it on its own explicit call
+            fi = MagicMock()
+            fi.title = "HiddenFolder"
+            fi.id = "folder-xyz"
+            return fi
+
+        mock_connection.gis.content.get_folder.side_effect = get_folder_side_effect
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        result = ops.get_or_create_folder()
+
+        assert result == "folder-xyz"
+
+    def test_create_folder_no_id_raises_then_finds_by_name(
+        self, mock_repository: MagicMock, mock_connection: MagicMock
+    ) -> None:
+        """Test lines 157-161: 'already exists' error triggers folder search by name.
+
+        compat_create_folder raises with 'not available', then the
+        fallback loops through all folders matching by name.
+        """
+        config = RepoConfig(
+            project_name="ExistingFolder",
+            remote=Remote(name="origin", url="https://test.com", folder_id=None),
+        )
+        mock_repository.get_config.return_value = config
+
+        # get_user_folders returns nothing matching initially
+        mock_connection.gis.users.me.folders = []
+        mock_connection.gis.users.me.items.return_value = []
+
+        # Creation raises "not available" (folder already exists)
+        mock_connection.gis.content.folders.create.side_effect = Exception(
+            "Folder name is not available"
+        )
+
+        # After the exception, get_user_folders is called again and finds the folder
+        call_count = [0]
+
+        def get_user_folders_side_effect(gis):
+            call_count[0] += 1
+            if call_count[0] > 1:
+                return [{"id": "existing-folder-id", "title": "ExistingFolder"}]
+            return []
+
+        with patch("gitmap_core.remote.get_user_folders", side_effect=get_user_folders_side_effect):
+            ops = RemoteOperations(mock_repository, mock_connection)
+            result = ops.get_or_create_folder()
+
+        assert result == "existing-folder-id"
+
+
+# ---- Production Push Notification Edge Cases ----------------------------------------------------------------
+
+
+class TestProductionPushNotificationEdgeCases:
+    """Tests for uncovered notification paths in push (lines 332, 340, 352-355, 358, 375)."""
+
+    def test_push_notification_private_item(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Test line 332: notification skipped when updated item is private."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                item_id="original-item-id",
+                production_branch="main",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "main"
+        mock_repository.get_branch_commit.return_value = sample_commit.id
+        mock_repository.get_commit.return_value = sample_commit
+
+        # Item access is private
+        mock_portal_item.access = "private"
+        mock_portal_item.id = "original-item-id"
+        mock_connection.gis.content.get.return_value = mock_portal_item
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        _, notification_status = ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["sent"] is False
+        assert "private" in notification_status["reason"].lower()
+
+    def test_push_notification_sharing_dict_with_groups_notifies(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Test line 340: groups extracted from sharing dict in item properties."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                item_id="original-item-id",
+                production_branch="main",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "main"
+        mock_repository.get_branch_commit.return_value = sample_commit.id
+        mock_repository.get_commit.return_value = sample_commit
+
+        mock_portal_item.access = "org"
+        mock_portal_item.id = "original-item-id"
+        mock_portal_item.title = "Prod Map"
+        mock_portal_item.homepage = "https://test.com/map"
+        # sharing IS a dict with groups — hits line 340
+        mock_portal_item.properties = {"sharing": {"groups": ["grp-1", "grp-2"]}}
+        mock_connection.gis.content.get.return_value = mock_portal_item
+
+        with patch("gitmap_core.remote.notify_item_group_users") as mock_notify:
+            mock_notify.return_value = ["user1"]
+            ops = RemoteOperations(mock_repository, mock_connection)
+            _, notification_status = ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["sent"] is True
+
+    def test_push_notification_sharing_dict_empty_groups_falls_to_user_query(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Test line 358: empty groups after sharing dict → 'not shared' reason."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                item_id="original-item-id",
+                production_branch="main",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "main"
+        mock_repository.get_branch_commit.return_value = sample_commit.id
+        mock_repository.get_commit.return_value = sample_commit
+
+        mock_portal_item.access = "org"
+        mock_portal_item.id = "original-item-id"
+        # sharing dict has empty groups; user.groups is also empty
+        mock_portal_item.properties = {"sharing": {"groups": []}}
+        mock_connection.gis.content.get.return_value = mock_portal_item
+        mock_connection.gis.users.me.groups = []
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        _, notification_status = ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["sent"] is False
+        assert "not shared with any groups" in notification_status["reason"]
+
+    def test_push_notification_group_content_raises_continues(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Test lines 352-355: group.content() exception is swallowed (continue)."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                item_id="original-item-id",
+                production_branch="main",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "main"
+        mock_repository.get_branch_commit.return_value = sample_commit.id
+        mock_repository.get_commit.return_value = sample_commit
+
+        mock_portal_item.access = "org"
+        mock_portal_item.id = "original-item-id"
+        # No properties → falls through to user groups query
+        mock_portal_item.properties = None
+        mock_connection.gis.content.get.return_value = mock_portal_item
+
+        # One group that raises on content(), one that succeeds but item not in it
+        bad_group = MagicMock()
+        bad_group.id = "bad-group"
+        bad_group.content.side_effect = Exception("Access denied")
+
+        good_group = MagicMock()
+        good_group.id = "good-group"
+        other_item = MagicMock()
+        other_item.id = "some-other-item"
+        good_group.content.return_value = [other_item]
+
+        mock_connection.gis.users.me.groups = [bad_group, good_group]
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        _, notification_status = ops.push()
+
+        # bad_group raised but was skipped; good_group was checked but item not in it
+        assert notification_status["attempted"] is True
+        assert notification_status["sent"] is False
+
+    def test_push_notification_no_users_notified_sets_reason(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Test line 375: notify returns empty list → sets 'no users' reason."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                item_id="original-item-id",
+                production_branch="main",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "main"
+        mock_repository.get_branch_commit.return_value = sample_commit.id
+        mock_repository.get_commit.return_value = sample_commit
+
+        mock_portal_item.access = "org"
+        mock_portal_item.id = "original-item-id"
+        mock_portal_item.title = "Prod Map"
+        mock_portal_item.homepage = "https://test.com/map"
+        mock_portal_item.properties = {"sharing": {"groups": ["grp-1"]}}
+        mock_connection.gis.content.get.return_value = mock_portal_item
+
+        # notify returns empty list — no users were actually notified
+        with patch("gitmap_core.remote.notify_item_group_users") as mock_notify:
+            mock_notify.return_value = []
+            ops = RemoteOperations(mock_repository, mock_connection)
+            _, notification_status = ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["sent"] is False
+        assert "no users found" in notification_status["reason"].lower()
