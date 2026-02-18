@@ -17,6 +17,10 @@ pip install -e .
 - **diff.py** - JSON comparison and layer diffing
 - **merge.py** - Layer-level merge logic
 - **remote.py** - Push/pull operations to Portal
+- **communication.py** - Portal/AGOL user notifications and group helpers
+- **compat.py** - ArcGIS API version compatibility layer (2.2.x-2.4.x)
+- **context.py** - SQLite-backed context/event store for IDE agents
+- **visualize.py** - Mermaid, ASCII, and HTML visualization of context graphs
 
 ## Usage
 
@@ -36,7 +40,7 @@ branches = repo.list_branches()
 
 ## Dependencies
 
-- `arcgis>=2.3.0` - ArcGIS API for Python
+- `arcgis>=2.2.0,<3.0.0` - ArcGIS API for Python
 - `deepdiff>=6.0.0` - JSON comparison
 
 
