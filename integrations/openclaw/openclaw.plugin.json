@@ -1,0 +1,16 @@
+{
+  "id": "gitmap",
+  "name": "Git-Map",
+  "description": "Version control for ArcGIS web maps — branch, commit, diff, push, pull.",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "serverUrl": {
+        "type": "string",
+        "default": "http://localhost:7400"
+      }
+    }
+  }
+}
