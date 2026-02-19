@@ -565,3 +565,162 @@ class TestFormatDiffSummary:
         assert "Modified layers" in result
         assert "Removed tables" in result
         assert "Map properties changed" in result
+
+
+# ---- TestResolvRef & branch-to-branch diff ------------------------------------------------------------------
+
+
+class TestResolveRef:
+    """Tests for the _resolve_ref CLI helper (branch name / commit-ID lookup)."""
+
+    def _make_repo(self, tmp_path: "Path") -> "Repository":
+        """Create a minimal initialised repository with one commit."""
+        from gitmap_core.repository import init_repository
+
+        repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
+        repo.update_index({"operationalLayers": [{"id": "l1", "title": "Base Layer"}]})
+        repo.create_commit(message="initial commit")
+        return repo
+
+    def test_resolve_branch_name(self, tmp_path) -> None:
+        """A valid branch name resolves to that branch's HEAD commit ID."""
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "cli"))
+        from gitmap.commands.diff import _resolve_ref
+
+        repo = self._make_repo(tmp_path)
+        commit_id = repo.get_head_commit()
+
+        result = _resolve_ref(repo, "main")
+        assert result == commit_id
+
+    def test_resolve_valid_commit_id(self, tmp_path) -> None:
+        """A valid full commit ID resolves to itself."""
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "cli"))
+        from gitmap.commands.diff import _resolve_ref
+
+        repo = self._make_repo(tmp_path)
+        commit_id = repo.get_head_commit()
+
+        result = _resolve_ref(repo, commit_id)
+        assert result == commit_id
+
+    def test_resolve_unknown_ref_returns_none(self, tmp_path) -> None:
+        """An unknown branch or bad commit ID returns None."""
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "cli"))
+        from gitmap.commands.diff import _resolve_ref
+
+        repo = self._make_repo(tmp_path)
+
+        result = _resolve_ref(repo, "nonexistent-branch")
+        assert result is None
+
+
+class TestBranchToBranchDiff:
+    """Integration tests for branch-to-branch diff via diff_maps."""
+
+    def test_identical_branches_no_diff(self, tmp_path) -> None:
+        """Two branches at the same commit produce an empty diff."""
+        from gitmap_core.repository import init_repository
+        from gitmap_core.diff import diff_maps
+
+        repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
+        map_data = {"operationalLayers": [{"id": "l1", "title": "Layer 1"}]}
+        repo.update_index(map_data)
+        commit = repo.create_commit(message="shared commit")
+
+        # Both sides point at the same map data
+        result = diff_maps(commit.map_data, commit.map_data)
+        assert not result.has_changes
+
+    def test_layer_added_on_branch(self, tmp_path) -> None:
+        """Branch with an extra layer shows it as an addition."""
+        from gitmap_core.repository import init_repository
+        from gitmap_core.diff import diff_maps
+
+        repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
+        base_data = {"operationalLayers": [{"id": "l1", "title": "Base"}]}
+        repo.update_index(base_data)
+        base_commit = repo.create_commit(message="base")
+
+        # Create a feature branch with a new layer
+        repo.create_branch("feature")
+        repo.checkout_branch("feature")
+        feature_data = {
+            "operationalLayers": [
+                {"id": "l1", "title": "Base"},
+                {"id": "l2", "title": "New Layer"},
+            ]
+        }
+        repo.update_index(feature_data)
+        feature_commit = repo.create_commit(message="add layer")
+
+        # diff_maps(current, previous): "added" = in current but not previous.
+        # Feature is "current" (has l2); base is "previous" (no l2).
+        map_diff = diff_maps(feature_commit.map_data, base_commit.map_data)
+
+        assert map_diff.has_changes
+        added_ids = [c.layer_id for c in map_diff.layer_changes if c.change_type == "added"]
+        assert "l2" in added_ids
+
+    def test_layer_removed_on_branch(self, tmp_path) -> None:
+        """Branch that drops a layer shows it as a removal.
+
+        diff_maps(current, previous) — "removed" = in previous but not current.
+        So to see what was dropped on the trim branch relative to base:
+        diff_maps(trim, base) → l2 appears as "removed" (was in base/previous,
+        gone from trim/current).
+        """
+        from gitmap_core.repository import init_repository
+        from gitmap_core.diff import diff_maps
+
+        repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
+        base_data = {
+            "operationalLayers": [
+                {"id": "l1", "title": "Keep"},
+                {"id": "l2", "title": "Drop"},
+            ]
+        }
+        repo.update_index(base_data)
+        base_commit = repo.create_commit(message="base")
+
+        repo.create_branch("trim")
+        repo.checkout_branch("trim")
+        trim_data = {"operationalLayers": [{"id": "l1", "title": "Keep"}]}
+        repo.update_index(trim_data)
+        trim_commit = repo.create_commit(message="drop layer")
+
+        # trim is "current" (l2 gone); base is "previous" (l2 present).
+        map_diff = diff_maps(trim_commit.map_data, base_commit.map_data)
+
+        assert map_diff.has_changes
+        removed_ids = [c.layer_id for c in map_diff.layer_changes if c.change_type == "removed"]
+        assert "l2" in removed_ids
+
+    def test_layer_modified_on_branch(self, tmp_path) -> None:
+        """Branch that edits a layer shows it as modified."""
+        from gitmap_core.repository import init_repository
+        from gitmap_core.diff import diff_maps
+
+        repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
+        base_data = {"operationalLayers": [{"id": "l1", "title": "Original", "opacity": 1.0}]}
+        repo.update_index(base_data)
+        base_commit = repo.create_commit(message="base")
+
+        repo.create_branch("edit")
+        repo.checkout_branch("edit")
+        edit_data = {"operationalLayers": [{"id": "l1", "title": "Renamed", "opacity": 0.5}]}
+        repo.update_index(edit_data)
+        edit_commit = repo.create_commit(message="modify layer")
+
+        # Order doesn't matter for "modified" — layer exists in both, content differs.
+        map_diff = diff_maps(edit_commit.map_data, base_commit.map_data)
+
+        assert map_diff.has_changes
+        modified_ids = [c.layer_id for c in map_diff.layer_changes if c.change_type == "modified"]
+        assert "l1" in modified_ids
