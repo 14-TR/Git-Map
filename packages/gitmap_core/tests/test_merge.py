@@ -692,3 +692,210 @@ class TestFormatMergeSummary:
         )
         summary = format_merge_summary(result)
         assert "Merged tables: 2" in summary
+
+
+# ---- TestGitmapMergeMCPTool ---------------------------------------------------------------------------------
+
+
+def _can_import_mcp_tools() -> bool:
+    """Check if MCP tools can be imported via relative path."""
+    import os
+    import sys
+    scripts_dir = os.path.join(
+        os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts",
+    )
+    if not os.path.isdir(os.path.join(scripts_dir, "tools")):
+        return False
+    sys.path.insert(0, scripts_dir)
+    try:
+        from tools.commit_tools import gitmap_merge  # noqa: F401
+        return True
+    except Exception:
+        return False
+    finally:
+        if scripts_dir in sys.path:
+            sys.path.remove(scripts_dir)
+
+
+@pytest.mark.skipif(
+    not _can_import_mcp_tools(),
+    reason="MCP tools not reachable (cross-app dependency)",
+)
+class TestGitmapMergeMCPTool:
+    """Integration tests for the gitmap_merge MCP tool function."""
+
+    # ---- helpers ----------------------------------------------------------------------------
+
+    @staticmethod
+    def _make_repo_with_branch(tmp_path, branch_name: str, their_layers: list) -> "tuple":
+        """Create a repo with two diverged branches and return (repo, their_branch_name)."""
+        from gitmap_core.repository import init_repository
+        import sys, os
+        sys.path.insert(0, os.path.join(
+            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
+        ))
+
+        repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
+        base_data = {
+            "operationalLayers": [{"id": "l-base", "title": "Base Layer"}]
+        }
+        repo.update_index(base_data)
+        repo.create_commit(message="initial commit")
+
+        # Feature branch
+        repo.create_branch(branch_name)
+        repo.checkout_branch(branch_name)
+        repo.update_index({"operationalLayers": their_layers})
+        repo.create_commit(message=f"commit on {branch_name}")
+
+        # Back to main
+        repo.checkout_branch("main")
+        return repo
+
+    # ---- tests ------------------------------------------------------------------------------
+
+    def test_merge_clean_no_conflicts(self, tmp_path) -> None:
+        """Clean merge with no conflicts succeeds and creates a commit."""
+        import sys, os
+        sys.path.insert(0, os.path.join(
+            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
+        ))
+        from tools.commit_tools import gitmap_merge
+
+        their_layers = [
+            {"id": "l-base", "title": "Base Layer"},
+            {"id": "l-new", "title": "New Layer"},
+        ]
+        repo = self._make_repo_with_branch(tmp_path, "feature", their_layers)
+
+        result = gitmap_merge(branch="feature", path=str(tmp_path))
+
+        assert result["success"] is True
+        assert result["merged"] is True
+        assert result["committed"] is True
+        assert result["conflicts"] == []
+        assert result["added_layers"] == 1
+        assert result["commit"] is not None
+
+    def test_merge_no_commit_flag(self, tmp_path) -> None:
+        """no_commit=True stages the merge but does not create a commit."""
+        import sys, os
+        sys.path.insert(0, os.path.join(
+            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
+        ))
+        from tools.commit_tools import gitmap_merge
+
+        their_layers = [
+            {"id": "l-base", "title": "Base Layer"},
+            {"id": "l-extra", "title": "Extra"},
+        ]
+        repo = self._make_repo_with_branch(tmp_path, "feat-b", their_layers)
+
+        result = gitmap_merge(branch="feat-b", no_commit=True, path=str(tmp_path))
+
+        assert result["success"] is True
+        assert result["committed"] is False
+        assert result["commit"] is None
+
+    def test_merge_unknown_branch_returns_error(self, tmp_path) -> None:
+        """Merging a non-existent branch returns a structured error."""
+        import sys, os
+        sys.path.insert(0, os.path.join(
+            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
+        ))
+        from tools.commit_tools import gitmap_merge
+
+        from gitmap_core.repository import init_repository
+        repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
+        repo.update_index({"operationalLayers": []})
+        repo.create_commit(message="init")
+
+        result = gitmap_merge(branch="nonexistent", path=str(tmp_path))
+
+        assert result["success"] is False
+        assert "nonexistent" in result["error"]
+
+    def test_merge_self_returns_error(self, tmp_path) -> None:
+        """Merging a branch into itself returns a structured error."""
+        import sys, os
+        sys.path.insert(0, os.path.join(
+            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
+        ))
+        from tools.commit_tools import gitmap_merge
+
+        from gitmap_core.repository import init_repository
+        repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
+        repo.update_index({"operationalLayers": []})
+        repo.create_commit(message="init")
+
+        result = gitmap_merge(branch="main", path=str(tmp_path))
+
+        assert result["success"] is False
+        assert "itself" in result["error"]
+
+    def test_merge_conflict_surfaced_without_strategy(self, tmp_path) -> None:
+        """Conflicts are returned as structured data when no strategy given."""
+        import sys, os
+        sys.path.insert(0, os.path.join(
+            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
+        ))
+        from tools.commit_tools import gitmap_merge
+        from gitmap_core.repository import init_repository
+
+        repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
+        # Commit a shared base
+        base = {"operationalLayers": [{"id": "shared", "title": "Shared"}]}
+        repo.update_index(base)
+        repo.create_commit(message="base")
+
+        # Feature branch modifies 'shared'
+        repo.create_branch("conflict-branch")
+        repo.checkout_branch("conflict-branch")
+        their_data = {"operationalLayers": [{"id": "shared", "title": "Their Version"}]}
+        repo.update_index(their_data)
+        repo.create_commit(message="their change")
+
+        # main also modifies 'shared' independently
+        repo.checkout_branch("main")
+        our_data = {"operationalLayers": [{"id": "shared", "title": "Our Version"}]}
+        repo.update_index(our_data)
+        repo.create_commit(message="our change")
+
+        result = gitmap_merge(branch="conflict-branch", path=str(tmp_path))
+
+        assert result["success"] is False
+        assert result.get("merged") is False
+        assert len(result["conflicts"]) == 1
+        assert result["conflicts"][0]["layer_id"] == "shared"
+
+    def test_merge_conflict_auto_resolved_ours(self, tmp_path) -> None:
+        """strategy='ours' auto-resolves conflicts with our version."""
+        import sys, os
+        sys.path.insert(0, os.path.join(
+            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
+        ))
+        from tools.commit_tools import gitmap_merge
+        from gitmap_core.repository import init_repository
+
+        repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
+        base = {"operationalLayers": [{"id": "shared", "title": "Shared"}]}
+        repo.update_index(base)
+        repo.create_commit(message="base")
+
+        repo.create_branch("conflict-branch")
+        repo.checkout_branch("conflict-branch")
+        repo.update_index({"operationalLayers": [{"id": "shared", "title": "Their Version"}]})
+        repo.create_commit(message="their change")
+
+        repo.checkout_branch("main")
+        repo.update_index({"operationalLayers": [{"id": "shared", "title": "Our Version"}]})
+        repo.create_commit(message="our change")
+
+        result = gitmap_merge(branch="conflict-branch", strategy="ours", path=str(tmp_path))
+
+        assert result["success"] is True
+        assert result["conflicts"] == []
+        # Verify the merged index has our version
+        index = repo.get_index()
+        layers = {l["id"]: l for l in index.get("operationalLayers", [])}
+        assert layers["shared"]["title"] == "Our Version"
