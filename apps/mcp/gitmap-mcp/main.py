@@ -67,6 +67,7 @@ try:
     from gitmap_mcp.scripts.tools.commit_tools import gitmap_commit
     from gitmap_mcp.scripts.tools.commit_tools import gitmap_diff
     from gitmap_mcp.scripts.tools.commit_tools import gitmap_log
+    from gitmap_mcp.scripts.tools.commit_tools import gitmap_merge
     from gitmap_mcp.scripts.tools.context_tools import context_explain_changes
     from gitmap_mcp.scripts.tools.context_tools import context_get_timeline
     from gitmap_mcp.scripts.tools.context_tools import context_record_lesson
@@ -93,6 +94,7 @@ except ImportError:
     from tools.commit_tools import gitmap_commit
     from tools.commit_tools import gitmap_diff
     from tools.commit_tools import gitmap_log
+    from tools.commit_tools import gitmap_merge
     from tools.context_tools import context_explain_changes
     from tools.context_tools import context_get_timeline
     from tools.context_tools import context_record_lesson
@@ -125,6 +127,7 @@ mcp.tool()(gitmap_checkout)
 mcp.tool()(gitmap_commit)
 mcp.tool()(gitmap_log)
 mcp.tool()(gitmap_diff)
+mcp.tool()(gitmap_merge)
 
 # Register remote tools
 mcp.tool()(gitmap_push)
