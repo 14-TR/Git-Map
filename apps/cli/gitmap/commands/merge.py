@@ -131,10 +131,22 @@ def merge(
         # Perform merge
         console.print(f"[dim]Merging '{branch}' into '{current_branch}'...[/dim]")
 
+        # Resolve common ancestor for three-way merge
+        base_data: dict | None = None
+        if our_commit_id and their_commit_id:
+            ancestor_id = repo.find_common_ancestor(our_commit_id, their_commit_id)
+            if ancestor_id:
+                ancestor_commit = repo.get_commit(ancestor_id)
+                if ancestor_commit:
+                    base_data = ancestor_commit.map_data
+                    console.print(
+                        f"[dim]Common ancestor: {ancestor_id[:8]}[/dim]"
+                    )
+
         merge_result = merge_maps(
             ours=our_data,
             theirs=their_commit.map_data,
-            base=None,  # TODO: Find common ancestor
+            base=base_data,
         )
 
         # Track initial conflicts for event recording

@@ -1637,3 +1637,103 @@ class TestApplyLayerChanges:
         """Test clear with empty stash list."""
         count = initialized_repo.stash_clear()
         assert count == 0
+
+
+# ---- TestFindCommonAncestor --------------------------------------------------------------------------
+
+
+class TestFindCommonAncestor:
+    """Tests for Repository.find_common_ancestor."""
+
+    def test_direct_parent_is_ancestor(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
+        """Common ancestor of a child and its parent is the parent itself."""
+        # repo_with_commit already has one commit on 'main'
+        parent_id = repo_with_commit.get_head_commit()
+        assert parent_id is not None
+
+        # Create a second commit on main
+        repo_with_commit.update_index(sample_map_data)
+        child_commit = repo_with_commit.create_commit(message="second commit")
+        child_id = child_commit.id
+
+        ancestor = repo_with_commit.find_common_ancestor(child_id, parent_id)
+        assert ancestor == parent_id
+
+    def test_same_commit_is_its_own_ancestor(self, repo_with_commit: Repository) -> None:
+        """A commit is its own common ancestor when both inputs are identical."""
+        commit_id = repo_with_commit.get_head_commit()
+        assert commit_id is not None
+
+        ancestor = repo_with_commit.find_common_ancestor(commit_id, commit_id)
+        assert ancestor == commit_id
+
+    def test_branched_histories_share_ancestor(
+        self,
+        repo_with_commit: Repository,
+        sample_map_data: dict,
+    ) -> None:
+        """Two branches that diverged from main share the fork-point as ancestor."""
+        # HEAD of main is the fork point
+        fork_id = repo_with_commit.get_head_commit()
+        assert fork_id is not None
+
+        # Create branch-a and add a commit
+        repo_with_commit.create_branch("branch-a")
+        repo_with_commit.checkout_branch("branch-a")
+        layer_a = {"id": "layer-a", "title": "Layer A"}
+        data_a = {**sample_map_data, "operationalLayers": [layer_a]}
+        repo_with_commit.update_index(data_a)
+        commit_a = repo_with_commit.create_commit(message="commit on branch-a")
+
+        # Switch back to main and create branch-b
+        repo_with_commit.checkout_branch("main")
+        repo_with_commit.create_branch("branch-b")
+        repo_with_commit.checkout_branch("branch-b")
+        layer_b = {"id": "layer-b", "title": "Layer B"}
+        data_b = {**sample_map_data, "operationalLayers": [layer_b]}
+        repo_with_commit.update_index(data_b)
+        commit_b = repo_with_commit.create_commit(message="commit on branch-b")
+
+        ancestor = repo_with_commit.find_common_ancestor(commit_a.id, commit_b.id)
+        assert ancestor == fork_id
+
+    def test_unrelated_commits_return_none(self, tmp_path: "Path") -> None:
+        """Two commits with no shared history return None."""
+        from gitmap_core.repository import init_repository
+
+        repo = init_repository(tmp_path / "repo-x", user_name="test", user_email="t@t.com")
+        map_data_1 = {"operationalLayers": [{"id": "l1", "title": "Layer 1"}]}
+        repo.update_index(map_data_1)
+        c1 = repo.create_commit(message="first")
+
+        map_data_2 = {"operationalLayers": [{"id": "l2", "title": "Layer 2"}]}
+        repo.update_index(map_data_2)
+        c2 = repo.create_commit(message="second")
+
+        # Manually look up the root commit id (c1 has no parent, c2's parent is c1)
+        # Test with a bogus ID to simulate truly unrelated history
+        ancestor = repo.find_common_ancestor("deadbeef0001", "deadbeef0002")
+        assert ancestor is None
+
+    def test_ancestor_with_merge_commit(
+        self,
+        repo_with_commit: Repository,
+        sample_map_data: dict,
+    ) -> None:
+        """find_common_ancestor follows parent2 links from merge commits."""
+        fork_id = repo_with_commit.get_head_commit()
+        assert fork_id is not None
+
+        # Build two branches from the fork
+        repo_with_commit.create_branch("feat-x")
+        repo_with_commit.checkout_branch("feat-x")
+        repo_with_commit.update_index({**sample_map_data, "title": "feat-x"})
+        commit_x = repo_with_commit.create_commit(message="feat-x commit")
+
+        repo_with_commit.checkout_branch("main")
+        repo_with_commit.update_index({**sample_map_data, "title": "main-update"})
+        commit_main = repo_with_commit.create_commit(message="main update")
+
+        # The fork_id should still be reachable as ancestor of both
+        ancestor = repo_with_commit.find_common_ancestor(commit_x.id, commit_main.id)
+        assert ancestor == fork_id

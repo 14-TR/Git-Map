@@ -702,6 +702,66 @@ class Repository:
 
         return commits
 
+    def find_common_ancestor(
+            self,
+            commit_id_a: str,
+            commit_id_b: str,
+    ) -> str | None:
+        """Find the most recent common ancestor of two commits.
+
+        Performs a breadth-first search over both commit histories
+        simultaneously, following both ``parent`` and ``parent2``
+        links (produced by merge commits).  Returns the first commit
+        ID that appears in both ancestry chains — i.e. the lowest
+        common ancestor (LCA).
+
+        Args:
+            commit_id_a: First commit ID.
+            commit_id_b: Second commit ID.
+
+        Returns:
+            Commit ID of the most recent common ancestor, or None
+            if no shared ancestor exists (e.g. unrelated histories).
+        """
+        from collections import deque
+
+        visited_a: set[str] = set()
+        visited_b: set[str] = set()
+
+        queue_a: deque[str] = deque([commit_id_a])
+        queue_b: deque[str] = deque([commit_id_b])
+
+        while queue_a or queue_b:
+            # Advance one step in chain A
+            if queue_a:
+                current_a = queue_a.popleft()
+                if current_a in visited_b:
+                    return current_a
+                if current_a not in visited_a:
+                    visited_a.add(current_a)
+                    commit = self.get_commit(current_a)
+                    if commit:
+                        if commit.parent:
+                            queue_a.append(commit.parent)
+                        if commit.parent2:
+                            queue_a.append(commit.parent2)
+
+            # Advance one step in chain B
+            if queue_b:
+                current_b = queue_b.popleft()
+                if current_b in visited_a:
+                    return current_b
+                if current_b not in visited_b:
+                    visited_b.add(current_b)
+                    commit = self.get_commit(current_b)
+                    if commit:
+                        if commit.parent:
+                            queue_b.append(commit.parent)
+                        if commit.parent2:
+                            queue_b.append(commit.parent2)
+
+        return None
+
     # ---- Config Operations ----------------------------------------------------------------------------------
 
     def get_config(
