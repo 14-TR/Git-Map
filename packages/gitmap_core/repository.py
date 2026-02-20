@@ -44,8 +44,6 @@ OBJECTS_DIR = "objects"
 COMMITS_DIR = "commits"
 STASH_DIR = "stash"
 CONTEXT_DB = "context.db"
-STASH_DIR = "stash"
-TAGS_DIR = "tags"
 
 
 # ---- Repository Class ---------------------------------------------------------------------------------------
