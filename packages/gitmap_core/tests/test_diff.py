@@ -22,6 +22,12 @@ from gitmap_core.diff import (
     format_diff_summary,
 )
 
+try:
+    import click  # noqa: F401
+    _has_click = True
+except ModuleNotFoundError:
+    _has_click = False
+
 
 # ---- Fixtures ------------------------------------------------------------------------------------------------
 
@@ -570,6 +576,10 @@ class TestFormatDiffSummary:
 # ---- TestResolvRef & branch-to-branch diff ------------------------------------------------------------------
 
 
+@pytest.mark.skipif(
+    not _has_click,
+    reason="CLI dependencies (click/rich) not installed",
+)
 class TestResolveRef:
     """Tests for the _resolve_ref CLI helper (branch name / commit-ID lookup)."""
 
