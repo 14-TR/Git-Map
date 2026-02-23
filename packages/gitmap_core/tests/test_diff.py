@@ -24,9 +24,13 @@ from gitmap_core.diff import (
 
 try:
     import click  # noqa: F401
-    _has_click = True
+    import rich  # noqa: F401
+    _has_cli_deps = True
 except ModuleNotFoundError:
-    _has_click = False
+    _has_cli_deps = False
+
+# Legacy alias kept for any external references
+_has_click = _has_cli_deps
 
 
 # ---- Fixtures ------------------------------------------------------------------------------------------------
