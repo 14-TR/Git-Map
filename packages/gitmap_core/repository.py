@@ -1577,6 +1577,62 @@ class Repository:
 
         return count
 
+    def find_common_ancestor(
+            self,
+            commit_id_a: str,
+            commit_id_b: str,
+    ) -> str | None:
+        """Find the most recent common ancestor of two commits.
+
+        Uses a two-pass BFS: first collects all ancestors of ``commit_id_a``,
+        then walks ancestors of ``commit_id_b`` in BFS order until one is found
+        in the first set.  This returns the *nearest* common ancestor because
+        ``commit_id_b``'s ancestors are visited youngest-first.
+
+        Both parent pointers (``parent`` and ``parent2``) are followed so merge
+        commits are handled correctly.
+
+        Args:
+            commit_id_a: First commit ID.
+            commit_id_b: Second commit ID.
+
+        Returns:
+            Common ancestor commit ID, or ``None`` if the commits share no
+            history (detached histories).
+        """
+        # Phase 1 — collect the full ancestor set of commit_a (inclusive)
+        ancestors_a: set[str] = set()
+        queue_a: list[str] = [commit_id_a]
+        while queue_a:
+            current_id = queue_a.pop(0)
+            if not current_id or current_id in ancestors_a:
+                continue
+            ancestors_a.add(current_id)
+            commit = self.get_commit(current_id)
+            if commit:
+                if commit.parent:
+                    queue_a.append(commit.parent)
+                if commit.parent2:
+                    queue_a.append(commit.parent2)
+
+        # Phase 2 — BFS from commit_b; return first ancestor in ancestors_a
+        visited_b: set[str] = set()
+        queue_b: list[str] = [commit_id_b]
+        while queue_b:
+            current_id = queue_b.pop(0)
+            if not current_id or current_id in visited_b:
+                continue
+            visited_b.add(current_id)
+            if current_id in ancestors_a:
+                return current_id
+            commit = self.get_commit(current_id)
+            if commit:
+                if commit.parent:
+                    queue_b.append(commit.parent)
+                if commit.parent2:
+                    queue_b.append(commit.parent2)
+
+        return None
 
 
 # ---- Module Functions ---------------------------------------------------------------------------------------

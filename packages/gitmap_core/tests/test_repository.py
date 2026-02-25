@@ -1637,3 +1637,103 @@ class TestApplyLayerChanges:
         """Test clear with empty stash list."""
         count = initialized_repo.stash_clear()
         assert count == 0
+
+
+# ---- FindCommonAncestor Tests -------------------------------------------------------------------------------
+
+
+class TestFindCommonAncestor:
+    """Tests for Repository.find_common_ancestor."""
+
+    # ---- helpers ----------------------------------------------------------------------------
+
+    @staticmethod
+    def _make_commit(repo: Repository, message: str, layers: list | None = None) -> str:
+        """Helper: update index and commit; returns commit id."""
+        data: dict = {"operationalLayers": layers or []}
+        repo.update_index(data)
+        new_commit = repo.create_commit(message=message)
+        return new_commit.id
+
+    # ---- tests ------------------------------------------------------------------------------
+
+    def test_same_commit_is_own_ancestor(self, initialized_repo: Repository) -> None:
+        """A commit is its own ancestor."""
+        commit_id = self._make_commit(initialized_repo, "c1")
+        result = initialized_repo.find_common_ancestor(commit_id, commit_id)
+        assert result == commit_id
+
+    def test_direct_parent_is_ancestor(self, initialized_repo: Repository) -> None:
+        """Parent of a commit is the common ancestor with itself."""
+        c1 = self._make_commit(initialized_repo, "c1")
+        c2 = self._make_commit(initialized_repo, "c2")
+        # c1 is direct parent of c2; ancestor(c1, c2) should be c1
+        result = initialized_repo.find_common_ancestor(c1, c2)
+        assert result == c1
+
+    def test_linear_history(self, initialized_repo: Repository) -> None:
+        """Ancestor of the oldest commit with a newer one is the oldest."""
+        c1 = self._make_commit(initialized_repo, "c1")
+        c2 = self._make_commit(initialized_repo, "c2")
+        c3 = self._make_commit(initialized_repo, "c3")
+        # All three are in a linear chain; ancestor(c1, c3) should be c1
+        result = initialized_repo.find_common_ancestor(c1, c3)
+        assert result == c1
+        # ancestor(c2, c3) should be c2
+        result = initialized_repo.find_common_ancestor(c2, c3)
+        assert result == c2
+
+    def test_diverged_branches(self, initialized_repo: Repository) -> None:
+        """Finds the common ancestor of two diverged branches."""
+        # Shared base commit on main
+        c_base = self._make_commit(initialized_repo, "base")
+
+        # Feature branch diverges from main
+        initialized_repo.create_branch("feature")
+        initialized_repo.checkout_branch("feature")
+        c_feat = self._make_commit(initialized_repo, "feature commit", layers=[{"id": "f1"}])
+
+        # Back to main and add another commit
+        initialized_repo.checkout_branch("main")
+        c_main = self._make_commit(initialized_repo, "main commit", layers=[{"id": "m1"}])
+
+        result = initialized_repo.find_common_ancestor(c_main, c_feat)
+        assert result == c_base
+
+    def test_detached_histories_return_none(self, initialized_repo: Repository) -> None:
+        """Returns None when two commits share no history."""
+        # First independent chain
+        c1 = self._make_commit(initialized_repo, "independent A")
+
+        # Simulate a second independent history by creating a fake commit with
+        # no parent stored in the objects directory.
+        import hashlib, json, time
+        from pathlib import Path
+
+        fake_id = hashlib.sha256(b"independent_B").hexdigest()
+        fake_data = {
+            "id": fake_id,
+            "message": "independent B",
+            "author": "tester",
+            "timestamp": "2026-01-01T00:00:00",
+            "parent": None,
+            "parent2": None,
+            "map_data": {},
+        }
+        commit_file = initialized_repo.commits_dir / f"{fake_id}.json"
+        commit_file.write_text(json.dumps(fake_data))
+
+        result = initialized_repo.find_common_ancestor(c1, fake_id)
+        assert result is None
+
+    def test_symmetric(self, initialized_repo: Repository) -> None:
+        """find_common_ancestor(a, b) == find_common_ancestor(b, a)."""
+        c_base = self._make_commit(initialized_repo, "base")
+        initialized_repo.create_branch("br")
+        initialized_repo.checkout_branch("br")
+        c_br = self._make_commit(initialized_repo, "on br", layers=[{"id": "b1"}])
+        initialized_repo.checkout_branch("main")
+        c_main = self._make_commit(initialized_repo, "on main", layers=[{"id": "m1"}])
+
+        assert initialized_repo.find_common_ancestor(c_main, c_br) == \
+               initialized_repo.find_common_ancestor(c_br, c_main)
