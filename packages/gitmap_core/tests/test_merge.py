@@ -697,6 +697,30 @@ class TestFormatMergeSummary:
 # ---- TestGitmapMergeMCPTool ---------------------------------------------------------------------------------
 
 
+def _can_import_mcp_tools() -> bool:
+    """Check if MCP tools can be imported via relative path."""
+    import os
+    import sys
+    scripts_dir = os.path.join(
+        os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts",
+    )
+    if not os.path.isdir(os.path.join(scripts_dir, "tools")):
+        return False
+    sys.path.insert(0, scripts_dir)
+    try:
+        from tools.commit_tools import gitmap_merge  # noqa: F401
+        return True
+    except Exception:
+        return False
+    finally:
+        if scripts_dir in sys.path:
+            sys.path.remove(scripts_dir)
+
+
+@pytest.mark.skipif(
+    not _can_import_mcp_tools(),
+    reason="MCP tools not reachable (cross-app dependency)",
+)
 class TestGitmapMergeMCPTool:
     """Integration tests for the gitmap_merge MCP tool function."""
 

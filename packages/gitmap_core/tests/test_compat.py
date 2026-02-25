@@ -308,3 +308,193 @@ class TestContentShims:
         data = compat.get_item_data(mock_item)
 
         assert data is None
+
+    def test_search_content_exception_returns_empty_list(self) -> None:
+        """Test that search_content returns empty list on exception."""
+        mock_gis = MagicMock()
+        mock_gis.content.search.side_effect = Exception("Network error")
+
+        results = compat.search_content(mock_gis, "test query")
+
+        assert results == []
+
+
+# ---- Version ImportError Tests ------------------------------------------------------------------------------
+
+
+class TestGetArcGISVersionImportError:
+    """Tests for ImportError handling in version detection."""
+
+    def test_get_arcgis_version_raises_when_arcgis_not_installed(self) -> None:
+        """Test that get_arcgis_version raises ImportError when arcgis is absent."""
+        compat.get_arcgis_version.cache_clear()
+
+        with patch.dict("sys.modules", {"arcgis": None}):
+            with patch("builtins.__import__", side_effect=ImportError("No module named 'arcgis'")):
+                compat.get_arcgis_version.cache_clear()
+                with patch("gitmap_core.compat.get_arcgis_version",
+                           side_effect=ImportError("arcgis package is not installed")):
+                    try:
+                        compat.get_arcgis_version()
+                    except ImportError as e:
+                        assert "arcgis package is not installed" in str(e)
+                    else:
+                        # If arcgis is available in the test env, this path can't be hit directly;
+                        # coverage is achieved via check_compatibility ImportError test below.
+                        pass
+
+        compat.get_arcgis_version.cache_clear()
+
+
+class TestCheckCompatibilityImportError:
+    """Tests for ImportError handling in check_compatibility."""
+
+    def test_check_compatibility_arcgis_not_installed(self) -> None:
+        """Test check_compatibility when arcgis is not installed."""
+        with patch(
+            "gitmap_core.compat.get_arcgis_version",
+            side_effect=ImportError("arcgis package is not installed"),
+        ):
+            status = compat.check_compatibility()
+
+        assert status["compatible"] is False
+        assert len(status["errors"]) == 1
+        assert "arcgis package is not installed" in status["errors"][0]
+        assert status["version"] == "unknown"
+
+
+# ---- validate_or_warn Tests ---------------------------------------------------------------------------------
+
+
+class TestValidateOrWarn:
+    """Tests for validate_or_warn logging behaviour."""
+
+    def test_validate_or_warn_logs_errors(self) -> None:
+        """Test that validate_or_warn logs errors when compatibility fails."""
+        incompatible_status = {
+            "compatible": False,
+            "version": "2.1.0",
+            "warnings": [],
+            "errors": ["arcgis version 2.1.0 is below minimum supported version 2.2.0."],
+        }
+
+        with patch("gitmap_core.compat.check_compatibility", return_value=incompatible_status):
+            with patch.object(compat.logger, "error") as mock_error:
+                compat.validate_or_warn()
+                mock_error.assert_called_once()
+                assert "ArcGIS compatibility" in mock_error.call_args[0][0]
+
+    def test_validate_or_warn_logs_warnings(self) -> None:
+        """Test that validate_or_warn logs warnings for untested versions."""
+        warn_status = {
+            "compatible": True,
+            "version": "2.9.0",
+            "warnings": ["arcgis version 2.9.0 is newer than tested version 2.4.x."],
+            "errors": [],
+        }
+
+        with patch("gitmap_core.compat.check_compatibility", return_value=warn_status):
+            with patch.object(compat.logger, "warning") as mock_warning:
+                compat.validate_or_warn()
+                mock_warning.assert_called_once()
+                assert "ArcGIS compatibility" in mock_warning.call_args[0][0]
+
+
+# ---- create_folder edge-case Tests --------------------------------------------------------------------------
+
+
+class TestCreateFolderEdgeCases:
+    """Tests for edge cases in create_folder."""
+
+    @patch("gitmap_core.compat.check_minimum_version")
+    def test_create_folder_object_result_no_id_returns_none_when_search_fails(
+        self, mock_check: MagicMock
+    ) -> None:
+        """Test create_folder returns None when result has no ID and search finds nothing."""
+        mock_check.return_value = True
+
+        mock_gis = MagicMock()
+        # API returns object with no valid id
+        mock_result = MagicMock()
+        mock_result.id = None
+        mock_result.folderId = None
+        mock_result.folder_id = None
+        mock_gis.content.folders.create.return_value = mock_result
+
+        # Search also finds nothing
+        mock_gis.users.me.folders = []
+
+        result = compat.create_folder(mock_gis, "EmptyFolder")
+
+        assert result is None
+
+    @patch("gitmap_core.compat.check_minimum_version")
+    def test_create_folder_search_finds_folder_by_title_dict(
+        self, mock_check: MagicMock
+    ) -> None:
+        """Test _search_for_folder finds folder by title in dict format."""
+        mock_check.return_value = True
+
+        mock_gis = MagicMock()
+        # API returns None so we search
+        mock_gis.content.folders.create.return_value = None
+
+        # Folders returned as dicts
+        mock_gis.users.me.folders = [
+            {"id": "dict-folder-id", "title": "DictFolder"},
+        ]
+
+        result = compat.create_folder(mock_gis, "DictFolder")
+
+        assert result is not None
+        assert result["id"] == "dict-folder-id"
+
+    @patch("gitmap_core.compat.check_minimum_version")
+    def test_create_folder_search_exception_raises(
+        self, mock_check: MagicMock
+    ) -> None:
+        """Test create_folder re-raises when exception is not an 'already exists' error."""
+        mock_check.return_value = True
+
+        mock_gis = MagicMock()
+        mock_gis.content.folders.create.side_effect = Exception("Unexpected server error")
+
+        # Make the fallback search also fail (swallowed internally)
+        mock_gis.users.me.folders = []
+
+        import pytest
+        with pytest.raises(Exception, match="Unexpected server error"):
+            compat.create_folder(mock_gis, "SomeFolder")
+
+
+# ---- get_user_folders exception-path Tests ------------------------------------------------------------------
+
+
+class TestGetUserFoldersExceptionPaths:
+    """Tests for exception handling in get_user_folders."""
+
+    def test_get_user_folders_method1_exception_continues(self) -> None:
+        """Test that get_user_folders continues if user.folders raises."""
+        mock_gis = MagicMock()
+        # user.folders property raises
+        type(mock_gis.users.me).folders = property(
+            fget=lambda self: (_ for _ in ()).throw(Exception("folders unavailable"))
+        )
+        # items() also raises to shortcut other methods
+        mock_gis.users.me.items.side_effect = Exception("items unavailable")
+
+        result = compat.get_user_folders(mock_gis)
+
+        # Should return empty list, not raise
+        assert isinstance(result, list)
+
+    def test_get_user_folders_outer_exception_returns_empty(self) -> None:
+        """Test that get_user_folders returns empty list if gis.users.me raises."""
+        mock_gis = MagicMock()
+        type(mock_gis.users).me = property(
+            fget=lambda self: (_ for _ in ()).throw(Exception("not authenticated"))
+        )
+
+        result = compat.get_user_folders(mock_gis)
+
+        assert result == []

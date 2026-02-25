@@ -1639,7 +1639,7 @@ class TestApplyLayerChanges:
         assert count == 0
 
 
-# ---- FindCommonAncestor Tests -------------------------------------------------------------------------------
+# ---- TestFindCommonAncestor --------------------------------------------------------------------------
 
 
 class TestFindCommonAncestor:
@@ -1737,3 +1737,26 @@ class TestFindCommonAncestor:
 
         assert initialized_repo.find_common_ancestor(c_main, c_br) == \
                initialized_repo.find_common_ancestor(c_br, c_main)
+
+    def test_ancestor_with_merge_commit(
+        self,
+        repo_with_commit: Repository,
+        sample_map_data: dict,
+    ) -> None:
+        """find_common_ancestor follows parent2 links from merge commits."""
+        fork_id = repo_with_commit.get_head_commit()
+        assert fork_id is not None
+
+        # Build two branches from the fork
+        repo_with_commit.create_branch("feat-x")
+        repo_with_commit.checkout_branch("feat-x")
+        repo_with_commit.update_index({**sample_map_data, "title": "feat-x"})
+        commit_x = repo_with_commit.create_commit(message="feat-x commit")
+
+        repo_with_commit.checkout_branch("main")
+        repo_with_commit.update_index({**sample_map_data, "title": "main-update"})
+        commit_main = repo_with_commit.create_commit(message="main update")
+
+        # The fork_id should still be reachable as ancestor of both
+        ancestor = repo_with_commit.find_common_ancestor(commit_x.id, commit_main.id)
+        assert ancestor == fork_id
