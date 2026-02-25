@@ -81,6 +81,10 @@ try:
     from gitmap_mcp.scripts.tools.repository_tools import gitmap_clone
     from gitmap_mcp.scripts.tools.repository_tools import gitmap_init
     from gitmap_mcp.scripts.tools.repository_tools import gitmap_status
+    from gitmap_mcp.scripts.tools.stash_tools import gitmap_stash_drop
+    from gitmap_mcp.scripts.tools.stash_tools import gitmap_stash_list
+    from gitmap_mcp.scripts.tools.stash_tools import gitmap_stash_pop
+    from gitmap_mcp.scripts.tools.stash_tools import gitmap_stash_push
 except ImportError:
     # Fall back to direct import when running as script
     _scripts_dir = Path(__file__).parent / "scripts"
@@ -108,6 +112,10 @@ except ImportError:
     from tools.repository_tools import gitmap_clone
     from tools.repository_tools import gitmap_init
     from tools.repository_tools import gitmap_status
+    from tools.stash_tools import gitmap_stash_drop
+    from tools.stash_tools import gitmap_stash_list
+    from tools.stash_tools import gitmap_stash_pop
+    from tools.stash_tools import gitmap_stash_push
 
 # Create MCP server
 mcp = FastMCP("GitMap MCP Server", json_response=True)
@@ -140,6 +148,12 @@ mcp.tool()(gitmap_layer_settings_merge)
 mcp.tool()(gitmap_notify)
 mcp.tool()(gitmap_list_maps)
 mcp.tool()(gitmap_list_groups)
+
+# Register stash tools
+mcp.tool()(gitmap_stash_push)
+mcp.tool()(gitmap_stash_pop)
+mcp.tool()(gitmap_stash_list)
+mcp.tool()(gitmap_stash_drop)
 
 # Register context tools
 mcp.tool()(context_search_history)

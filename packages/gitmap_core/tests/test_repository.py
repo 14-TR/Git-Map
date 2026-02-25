@@ -1645,75 +1645,98 @@ class TestApplyLayerChanges:
 class TestFindCommonAncestor:
     """Tests for Repository.find_common_ancestor."""
 
-    def test_direct_parent_is_ancestor(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
-        """Common ancestor of a child and its parent is the parent itself."""
-        # repo_with_commit already has one commit on 'main'
-        parent_id = repo_with_commit.get_head_commit()
-        assert parent_id is not None
+    # ---- helpers ----------------------------------------------------------------------------
 
-        # Create a second commit on main
-        repo_with_commit.update_index(sample_map_data)
-        child_commit = repo_with_commit.create_commit(message="second commit")
-        child_id = child_commit.id
+    @staticmethod
+    def _make_commit(repo: Repository, message: str, layers: list | None = None) -> str:
+        """Helper: update index and commit; returns commit id."""
+        data: dict = {"operationalLayers": layers or []}
+        repo.update_index(data)
+        new_commit = repo.create_commit(message=message)
+        return new_commit.id
 
-        ancestor = repo_with_commit.find_common_ancestor(child_id, parent_id)
-        assert ancestor == parent_id
+    # ---- tests ------------------------------------------------------------------------------
 
-    def test_same_commit_is_its_own_ancestor(self, repo_with_commit: Repository) -> None:
-        """A commit is its own common ancestor when both inputs are identical."""
-        commit_id = repo_with_commit.get_head_commit()
-        assert commit_id is not None
+    def test_same_commit_is_own_ancestor(self, initialized_repo: Repository) -> None:
+        """A commit is its own ancestor."""
+        commit_id = self._make_commit(initialized_repo, "c1")
+        result = initialized_repo.find_common_ancestor(commit_id, commit_id)
+        assert result == commit_id
 
-        ancestor = repo_with_commit.find_common_ancestor(commit_id, commit_id)
-        assert ancestor == commit_id
+    def test_direct_parent_is_ancestor(self, initialized_repo: Repository) -> None:
+        """Parent of a commit is the common ancestor with itself."""
+        c1 = self._make_commit(initialized_repo, "c1")
+        c2 = self._make_commit(initialized_repo, "c2")
+        # c1 is direct parent of c2; ancestor(c1, c2) should be c1
+        result = initialized_repo.find_common_ancestor(c1, c2)
+        assert result == c1
 
-    def test_branched_histories_share_ancestor(
-        self,
-        repo_with_commit: Repository,
-        sample_map_data: dict,
-    ) -> None:
-        """Two branches that diverged from main share the fork-point as ancestor."""
-        # HEAD of main is the fork point
-        fork_id = repo_with_commit.get_head_commit()
-        assert fork_id is not None
+    def test_linear_history(self, initialized_repo: Repository) -> None:
+        """Ancestor of the oldest commit with a newer one is the oldest."""
+        c1 = self._make_commit(initialized_repo, "c1")
+        c2 = self._make_commit(initialized_repo, "c2")
+        c3 = self._make_commit(initialized_repo, "c3")
+        # All three are in a linear chain; ancestor(c1, c3) should be c1
+        result = initialized_repo.find_common_ancestor(c1, c3)
+        assert result == c1
+        # ancestor(c2, c3) should be c2
+        result = initialized_repo.find_common_ancestor(c2, c3)
+        assert result == c2
 
-        # Create branch-a and add a commit
-        repo_with_commit.create_branch("branch-a")
-        repo_with_commit.checkout_branch("branch-a")
-        layer_a = {"id": "layer-a", "title": "Layer A"}
-        data_a = {**sample_map_data, "operationalLayers": [layer_a]}
-        repo_with_commit.update_index(data_a)
-        commit_a = repo_with_commit.create_commit(message="commit on branch-a")
+    def test_diverged_branches(self, initialized_repo: Repository) -> None:
+        """Finds the common ancestor of two diverged branches."""
+        # Shared base commit on main
+        c_base = self._make_commit(initialized_repo, "base")
 
-        # Switch back to main and create branch-b
-        repo_with_commit.checkout_branch("main")
-        repo_with_commit.create_branch("branch-b")
-        repo_with_commit.checkout_branch("branch-b")
-        layer_b = {"id": "layer-b", "title": "Layer B"}
-        data_b = {**sample_map_data, "operationalLayers": [layer_b]}
-        repo_with_commit.update_index(data_b)
-        commit_b = repo_with_commit.create_commit(message="commit on branch-b")
+        # Feature branch diverges from main
+        initialized_repo.create_branch("feature")
+        initialized_repo.checkout_branch("feature")
+        c_feat = self._make_commit(initialized_repo, "feature commit", layers=[{"id": "f1"}])
 
-        ancestor = repo_with_commit.find_common_ancestor(commit_a.id, commit_b.id)
-        assert ancestor == fork_id
+        # Back to main and add another commit
+        initialized_repo.checkout_branch("main")
+        c_main = self._make_commit(initialized_repo, "main commit", layers=[{"id": "m1"}])
 
-    def test_unrelated_commits_return_none(self, tmp_path: "Path") -> None:
-        """Two commits with no shared history return None."""
-        from gitmap_core.repository import init_repository
+        result = initialized_repo.find_common_ancestor(c_main, c_feat)
+        assert result == c_base
 
-        repo = init_repository(tmp_path / "repo-x", user_name="test", user_email="t@t.com")
-        map_data_1 = {"operationalLayers": [{"id": "l1", "title": "Layer 1"}]}
-        repo.update_index(map_data_1)
-        c1 = repo.create_commit(message="first")
+    def test_detached_histories_return_none(self, initialized_repo: Repository) -> None:
+        """Returns None when two commits share no history."""
+        # First independent chain
+        c1 = self._make_commit(initialized_repo, "independent A")
 
-        map_data_2 = {"operationalLayers": [{"id": "l2", "title": "Layer 2"}]}
-        repo.update_index(map_data_2)
-        c2 = repo.create_commit(message="second")
+        # Simulate a second independent history by creating a fake commit with
+        # no parent stored in the objects directory.
+        import hashlib, json, time
+        from pathlib import Path
 
-        # Manually look up the root commit id (c1 has no parent, c2's parent is c1)
-        # Test with a bogus ID to simulate truly unrelated history
-        ancestor = repo.find_common_ancestor("deadbeef0001", "deadbeef0002")
-        assert ancestor is None
+        fake_id = hashlib.sha256(b"independent_B").hexdigest()
+        fake_data = {
+            "id": fake_id,
+            "message": "independent B",
+            "author": "tester",
+            "timestamp": "2026-01-01T00:00:00",
+            "parent": None,
+            "parent2": None,
+            "map_data": {},
+        }
+        commit_file = initialized_repo.commits_dir / f"{fake_id}.json"
+        commit_file.write_text(json.dumps(fake_data))
+
+        result = initialized_repo.find_common_ancestor(c1, fake_id)
+        assert result is None
+
+    def test_symmetric(self, initialized_repo: Repository) -> None:
+        """find_common_ancestor(a, b) == find_common_ancestor(b, a)."""
+        c_base = self._make_commit(initialized_repo, "base")
+        initialized_repo.create_branch("br")
+        initialized_repo.checkout_branch("br")
+        c_br = self._make_commit(initialized_repo, "on br", layers=[{"id": "b1"}])
+        initialized_repo.checkout_branch("main")
+        c_main = self._make_commit(initialized_repo, "on main", layers=[{"id": "m1"}])
+
+        assert initialized_repo.find_common_ancestor(c_main, c_br) == \
+               initialized_repo.find_common_ancestor(c_br, c_main)
 
     def test_ancestor_with_merge_commit(
         self,
