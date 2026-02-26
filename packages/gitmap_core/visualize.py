@@ -21,11 +21,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from gitmap_core.context import Annotation
-from gitmap_core.context import ContextStore
-from gitmap_core.context import Edge
-from gitmap_core.context import Event
-
+from gitmap_core.context import Annotation, ContextStore, Edge, Event
 
 # ---- Configuration Constants ---------------------------------------------------------------------------------
 

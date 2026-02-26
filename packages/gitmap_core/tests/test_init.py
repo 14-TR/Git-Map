@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 import gitmap_core
-from gitmap_core.context import ContextStore, Event, Edge
+from gitmap_core.context import ContextStore, Edge, Event
 from gitmap_core.visualize import GraphData
 
 

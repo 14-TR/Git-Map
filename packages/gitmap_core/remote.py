@@ -18,8 +18,7 @@ Metadata:
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from gitmap_core.communication import notify_item_group_users
 from gitmap_core.compat import create_folder as compat_create_folder
@@ -28,8 +27,7 @@ from gitmap_core.connection import PortalConnection
 from gitmap_core.models import Remote
 
 if TYPE_CHECKING:
-    from arcgis.gis import GIS
-    from arcgis.gis import Item
+    from arcgis.gis import GIS, Item
 
     from gitmap_core.repository import Repository
 
@@ -630,7 +628,7 @@ class RemoteOperations:
             # Get map data
             map_data = item.get_data()
             if not map_data:
-                msg = f"Failed to get data from remote item"
+                msg = "Failed to get data from remote item"
                 raise RuntimeError(msg)
 
             # Update local index

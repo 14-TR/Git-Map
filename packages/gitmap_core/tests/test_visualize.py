@@ -13,16 +13,12 @@ Dependencies:
 from __future__ import annotations
 
 import tempfile
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
 
-from gitmap_core.context import Annotation
-from gitmap_core.context import ContextStore
-from gitmap_core.context import Edge
-from gitmap_core.context import Event
+from gitmap_core.context import Annotation, ContextStore, Edge, Event
 from gitmap_core.visualize import (
     GraphData,
     _format_event_label,
@@ -36,7 +32,6 @@ from gitmap_core.visualize import (
     generate_mermaid_timeline,
     visualize_context,
 )
-
 
 # ---- Fixtures ------------------------------------------------------------------------------------------------
 
@@ -189,7 +184,7 @@ class TestSanitizeMermaidText:
         """Test that newlines are replaced with spaces."""
         result = _sanitize_mermaid_text("Line 1\nLine 2")
         assert "\n" not in result
-        assert "Line 1 Line 2" == result
+        assert result == "Line 1 Line 2"
 
 
 class TestFormatEventLabel:

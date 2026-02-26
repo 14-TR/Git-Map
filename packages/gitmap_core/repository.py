@@ -18,16 +18,12 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Any
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from gitmap_core.context import ContextStore
 
-from gitmap_core.models import Branch
-from gitmap_core.models import Commit
-from gitmap_core.models import RepoConfig
-
+from gitmap_core.models import Branch, Commit, RepoConfig
 
 # ---- Constants ----------------------------------------------------------------------------------------------
 
@@ -153,7 +149,7 @@ class Repository:
 
     def get_context_store(
             self,
-    ) -> "ContextStore":
+    ) -> ContextStore:
         """Get context store for this repository.
 
         Returns:

@@ -36,7 +36,6 @@ from gitmap_core.repository import (
     init_repository,
 )
 
-
 # ---- Fixtures ------------------------------------------------------------------------------------------------
 
 
@@ -1707,8 +1706,8 @@ class TestFindCommonAncestor:
 
         # Simulate a second independent history by creating a fake commit with
         # no parent stored in the objects directory.
-        import hashlib, json, time
-        from pathlib import Path
+        import hashlib
+        import json
 
         fake_id = hashlib.sha256(b"independent_B").hexdigest()
         fake_data = {

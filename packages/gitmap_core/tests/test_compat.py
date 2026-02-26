@@ -4,12 +4,9 @@ Tests version detection, compatibility checking, and API shims.
 """
 from __future__ import annotations
 
-from unittest.mock import MagicMock
-from unittest.mock import patch
-
+from unittest.mock import MagicMock, patch
 
 from gitmap_core import compat
-
 
 # ---- Version Detection Tests --------------------------------------------------------------------------------
 

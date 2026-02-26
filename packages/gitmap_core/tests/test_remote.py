@@ -17,21 +17,16 @@ import json
 import tempfile
 from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock
-from unittest.mock import PropertyMock
-from unittest.mock import patch
+from unittest.mock import MagicMock, PropertyMock, patch
 
 import pytest
 
-from gitmap_core.models import Commit
-from gitmap_core.models import Remote
-from gitmap_core.models import RepoConfig
+from gitmap_core.models import Commit, Remote, RepoConfig
 from gitmap_core.remote import (
     GITMAP_FOLDER_SUFFIX,
     GITMAP_META_TITLE,
     RemoteOperations,
 )
-
 
 # ---- Fixtures ------------------------------------------------------------------------------------------------
 

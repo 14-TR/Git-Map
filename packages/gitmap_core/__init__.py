@@ -17,14 +17,8 @@ Metadata:
 from __future__ import annotations
 
 # Core data models - loaded eagerly for common use cases
-from gitmap_core.context import Annotation
-from gitmap_core.context import ContextStore
-from gitmap_core.context import Edge
-from gitmap_core.context import Event
-from gitmap_core.models import Branch
-from gitmap_core.models import Commit
-from gitmap_core.models import Remote
-from gitmap_core.models import RepoConfig
+from gitmap_core.context import Annotation, ContextStore, Edge, Event
+from gitmap_core.models import Branch, Commit, Remote, RepoConfig
 from gitmap_core.visualize import GraphData
 
 __version__ = "0.5.0"
