@@ -22,7 +22,6 @@ import pytest
 
 from gitmap_core.models import Branch, Commit, Remote, RepoConfig
 
-
 # ---- Fixtures ------------------------------------------------------------------------------------------------
 
 

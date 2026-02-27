@@ -9,7 +9,6 @@ Uses mocks to avoid actual ArcGIS API calls.
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -20,10 +19,6 @@ from gitmap_core.connection import (
     get_agol_connection,
     get_connection,
 )
-
-if TYPE_CHECKING:
-    pass
-
 
 # ---- Fixtures -----------------------------------------------------------------------------------------
 
@@ -288,9 +283,8 @@ class TestGetConnection:
 
     def test_get_connection_failure_propagates(self):
         """Test connection failure raises RuntimeError."""
-        with patch("arcgis.gis.GIS", side_effect=Exception("Auth failed")):
-            with pytest.raises(RuntimeError):
-                get_connection(username="bad", password="creds")
+        with patch("arcgis.gis.GIS", side_effect=Exception("Auth failed")), pytest.raises(RuntimeError):
+            get_connection(username="bad", password="creds")
 
 
 class TestGetAgolConnection:

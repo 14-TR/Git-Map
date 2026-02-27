@@ -12,14 +12,13 @@ from __future__ import annotations
 import pytest
 
 from gitmap_core.merge import (
+    MergeConflict,
+    MergeResult,
     apply_resolution,
     format_merge_summary,
     merge_maps,
-    MergeConflict,
-    MergeResult,
     resolve_conflict,
 )
-
 
 # ---- Fixtures -----------------------------------------------------------------------------------------------
 
@@ -727,10 +726,12 @@ class TestGitmapMergeMCPTool:
     # ---- helpers ----------------------------------------------------------------------------
 
     @staticmethod
-    def _make_repo_with_branch(tmp_path, branch_name: str, their_layers: list) -> "tuple":
+    def _make_repo_with_branch(tmp_path, branch_name: str, their_layers: list) -> tuple:
         """Create a repo with two diverged branches and return (repo, their_branch_name)."""
+        import os
+        import sys
+
         from gitmap_core.repository import init_repository
-        import sys, os
         sys.path.insert(0, os.path.join(
             os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
         ))
@@ -756,7 +757,8 @@ class TestGitmapMergeMCPTool:
 
     def test_merge_clean_no_conflicts(self, tmp_path) -> None:
         """Clean merge with no conflicts succeeds and creates a commit."""
-        import sys, os
+        import os
+        import sys
         sys.path.insert(0, os.path.join(
             os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
         ))
@@ -779,7 +781,8 @@ class TestGitmapMergeMCPTool:
 
     def test_merge_no_commit_flag(self, tmp_path) -> None:
         """no_commit=True stages the merge but does not create a commit."""
-        import sys, os
+        import os
+        import sys
         sys.path.insert(0, os.path.join(
             os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
         ))
@@ -799,7 +802,8 @@ class TestGitmapMergeMCPTool:
 
     def test_merge_unknown_branch_returns_error(self, tmp_path) -> None:
         """Merging a non-existent branch returns a structured error."""
-        import sys, os
+        import os
+        import sys
         sys.path.insert(0, os.path.join(
             os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
         ))
@@ -817,7 +821,8 @@ class TestGitmapMergeMCPTool:
 
     def test_merge_self_returns_error(self, tmp_path) -> None:
         """Merging a branch into itself returns a structured error."""
-        import sys, os
+        import os
+        import sys
         sys.path.insert(0, os.path.join(
             os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
         ))
@@ -835,11 +840,13 @@ class TestGitmapMergeMCPTool:
 
     def test_merge_conflict_surfaced_without_strategy(self, tmp_path) -> None:
         """Conflicts are returned as structured data when no strategy given."""
-        import sys, os
+        import os
+        import sys
         sys.path.insert(0, os.path.join(
             os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
         ))
         from tools.commit_tools import gitmap_merge
+
         from gitmap_core.repository import init_repository
 
         repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
@@ -870,11 +877,13 @@ class TestGitmapMergeMCPTool:
 
     def test_merge_conflict_auto_resolved_ours(self, tmp_path) -> None:
         """strategy='ours' auto-resolves conflicts with our version."""
-        import sys, os
+        import os
+        import sys
         sys.path.insert(0, os.path.join(
             os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
         ))
         from tools.commit_tools import gitmap_merge
+
         from gitmap_core.repository import init_repository
 
         repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")

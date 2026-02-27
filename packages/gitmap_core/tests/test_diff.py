@@ -587,7 +587,7 @@ class TestFormatDiffSummary:
 class TestResolveRef:
     """Tests for the _resolve_ref CLI helper (branch name / commit-ID lookup)."""
 
-    def _make_repo(self, tmp_path: "Path") -> "Repository":
+    def _make_repo(self, tmp_path: Path) -> Repository:
         """Create a minimal initialised repository with one commit."""
         from gitmap_core.repository import init_repository
 
@@ -598,8 +598,8 @@ class TestResolveRef:
 
     def test_resolve_branch_name(self, tmp_path) -> None:
         """A valid branch name resolves to that branch's HEAD commit ID."""
-        import sys
         import os
+        import sys
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "cli"))
         from gitmap.commands.diff import _resolve_ref
 
@@ -611,8 +611,8 @@ class TestResolveRef:
 
     def test_resolve_valid_commit_id(self, tmp_path) -> None:
         """A valid full commit ID resolves to itself."""
-        import sys
         import os
+        import sys
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "cli"))
         from gitmap.commands.diff import _resolve_ref
 
@@ -624,8 +624,8 @@ class TestResolveRef:
 
     def test_resolve_unknown_ref_returns_none(self, tmp_path) -> None:
         """An unknown branch or bad commit ID returns None."""
-        import sys
         import os
+        import sys
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "cli"))
         from gitmap.commands.diff import _resolve_ref
 
@@ -640,8 +640,8 @@ class TestBranchToBranchDiff:
 
     def test_identical_branches_no_diff(self, tmp_path) -> None:
         """Two branches at the same commit produce an empty diff."""
-        from gitmap_core.repository import init_repository
         from gitmap_core.diff import diff_maps
+        from gitmap_core.repository import init_repository
 
         repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
         map_data = {"operationalLayers": [{"id": "l1", "title": "Layer 1"}]}
@@ -654,8 +654,8 @@ class TestBranchToBranchDiff:
 
     def test_layer_added_on_branch(self, tmp_path) -> None:
         """Branch with an extra layer shows it as an addition."""
-        from gitmap_core.repository import init_repository
         from gitmap_core.diff import diff_maps
+        from gitmap_core.repository import init_repository
 
         repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
         base_data = {"operationalLayers": [{"id": "l1", "title": "Base"}]}
@@ -690,8 +690,8 @@ class TestBranchToBranchDiff:
         diff_maps(trim, base) → l2 appears as "removed" (was in base/previous,
         gone from trim/current).
         """
-        from gitmap_core.repository import init_repository
         from gitmap_core.diff import diff_maps
+        from gitmap_core.repository import init_repository
 
         repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
         base_data = {
@@ -718,8 +718,8 @@ class TestBranchToBranchDiff:
 
     def test_layer_modified_on_branch(self, tmp_path) -> None:
         """Branch that edits a layer shows it as modified."""
-        from gitmap_core.repository import init_repository
         from gitmap_core.diff import diff_maps
+        from gitmap_core.repository import init_repository
 
         repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
         base_data = {"operationalLayers": [{"id": "l1", "title": "Original", "opacity": 1.0}]}

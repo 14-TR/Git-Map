@@ -14,8 +14,7 @@ from __future__ import annotations
 
 import sqlite3
 import tempfile
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -26,7 +25,6 @@ from gitmap_core.context import (
     Edge,
     Event,
 )
-
 
 # ---- Fixtures ------------------------------------------------------------------------------------------------
 

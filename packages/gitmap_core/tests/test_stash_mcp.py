@@ -13,14 +13,12 @@ Dependencies:
 """
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
-from typing import Any
 
 import pytest
 
-from gitmap_core.repository import init_repository, Repository
+from gitmap_core.repository import Repository, init_repository
 
 # Inject the MCP scripts directory so stash_tools can be imported directly.
 _MCP_SCRIPTS = str(
@@ -36,7 +34,6 @@ from tools.stash_tools import (
     gitmap_stash_pop,
     gitmap_stash_push,
 )
-
 
 # ---- Fixtures -------------------------------------------------------------------------------------------
 

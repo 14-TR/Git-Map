@@ -18,12 +18,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from arcgis.gis import GIS
-    from arcgis.gis import Item
+    from arcgis.gis import GIS, Item
 
 
 # ---- Map Extraction Functions -------------------------------------------------------------------------------

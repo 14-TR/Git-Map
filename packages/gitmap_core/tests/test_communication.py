@@ -4,17 +4,18 @@ Tests cover Portal/AGOL notification helpers using mocked GIS connections.
 """
 from __future__ import annotations
 
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
 
 from gitmap_core.communication import (
     _ensure_gis,
     _resolve_group,
     get_group_member_usernames,
-    list_groups,
-    send_group_notification,
     get_item_group_users,
+    list_groups,
     notify_item_group_users,
+    send_group_notification,
 )
 
 
@@ -23,9 +24,8 @@ class TestEnsureGis:
 
     def test_raises_when_gis_module_unavailable(self):
         """Should raise RuntimeError if arcgis module not installed."""
-        with patch("gitmap_core.communication.GIS", None):
-            with pytest.raises(RuntimeError, match="not installed"):
-                _ensure_gis(Mock())
+        with patch("gitmap_core.communication.GIS", None), pytest.raises(RuntimeError, match="not installed"):
+            _ensure_gis(Mock())
 
     def test_raises_when_gis_is_none(self):
         """Should raise RuntimeError if gis connection is None."""
