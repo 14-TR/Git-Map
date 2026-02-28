@@ -908,3 +908,141 @@ class TestGitmapMergeMCPTool:
         index = repo.get_index()
         layers = {l["id"]: l for l in index.get("operationalLayers", [])}
         assert layers["shared"]["title"] == "Our Version"
+
+
+# ---- Table Three-Way Merge Coverage -----------------------------------------------------------------------
+
+
+class TestTableThreeWayMerge:
+    """Tests covering three-way merge paths for tables (lines 218, 226, 249-254)."""
+
+    def test_table_same_content_both_sides(self):
+        """Both sides have identical table content — no conflict, table kept (line 218)."""
+        table = {"id": "t1", "title": "Shared Table", "url": "http://example.com/t"}
+        base = {"operationalLayers": [], "tables": [table]}
+        ours = {"operationalLayers": [], "tables": [table]}
+        theirs = {"operationalLayers": [], "tables": [table]}
+
+        result = merge_maps(ours, theirs, base)
+
+        assert not result.has_conflicts
+        tables = result.merged_data.get("tables", [])
+        assert len(tables) == 1
+        assert tables[0]["id"] == "t1"
+
+    def test_table_we_unchanged_use_theirs(self):
+        """We didn't modify the table; they did — their version wins (line 226)."""
+        base_table = {"id": "t1", "title": "Original Table", "url": "http://example.com/t"}
+        their_table = {"id": "t1", "title": "Their Updated Table", "url": "http://example.com/t"}
+        base = {"operationalLayers": [], "tables": [base_table]}
+        ours = {"operationalLayers": [], "tables": [base_table]}   # unchanged
+        theirs = {"operationalLayers": [], "tables": [their_table]}
+
+        result = merge_maps(ours, theirs, base)
+
+        assert not result.has_conflicts
+        tables = result.merged_data.get("tables", [])
+        assert len(tables) == 1
+        assert tables[0]["title"] == "Their Updated Table"
+
+    def test_table_they_unchanged_use_ours(self):
+        """They didn't modify the table; we did — our version wins (line 228-229)."""
+        base_table = {"id": "t1", "title": "Original Table", "url": "http://example.com/t"}
+        our_table = {"id": "t1", "title": "Our Updated Table", "url": "http://example.com/t"}
+        base = {"operationalLayers": [], "tables": [base_table]}
+        ours = {"operationalLayers": [], "tables": [our_table]}
+        theirs = {"operationalLayers": [], "tables": [base_table]}  # unchanged
+
+        result = merge_maps(ours, theirs, base)
+
+        assert not result.has_conflicts
+        tables = result.merged_data.get("tables", [])
+        assert len(tables) == 1
+        assert tables[0]["title"] == "Our Updated Table"
+
+    def test_table_three_way_both_changed_conflict(self):
+        """Both sides changed the same table — conflict recorded with base (lines 249-254)."""
+        base_table = {"id": "t1", "title": "Base Table", "url": "http://example.com/t"}
+        our_table = {"id": "t1", "title": "Our Table", "url": "http://example.com/t-ours"}
+        their_table = {"id": "t1", "title": "Their Table", "url": "http://example.com/t-theirs"}
+        base = {"operationalLayers": [], "tables": [base_table]}
+        ours = {"operationalLayers": [], "tables": [our_table]}
+        theirs = {"operationalLayers": [], "tables": [their_table]}
+
+        result = merge_maps(ours, theirs, base)
+
+        assert result.has_conflicts
+        assert len(result.conflicts) == 1
+        conflict = result.conflicts[0]
+        assert conflict.layer_id == "t1"
+        assert conflict.base == base_table
+        assert conflict.ours == our_table
+        assert conflict.theirs == their_table
+
+    def test_table_they_deleted_we_keep(self):
+        """Table was in base, they deleted it, we kept it — our version survives (line 249-251)."""
+        base_table = {"id": "t1", "title": "Keep Me"}
+        base = {"operationalLayers": [], "tables": [base_table]}
+        ours = {"operationalLayers": [], "tables": [base_table]}   # we kept it
+        theirs = {"operationalLayers": [], "tables": []}           # they deleted it
+
+        result = merge_maps(ours, theirs, base)
+
+        # Keeping ours (conflict resolution: we keep our version)
+        tables = result.merged_data.get("tables", [])
+        assert any(t["id"] == "t1" for t in tables)
+
+    def test_table_we_added_not_in_base_or_theirs(self):
+        """We added a new table not in base or theirs — it's included (line 253-254)."""
+        new_table = {"id": "t2", "title": "Brand New Table"}
+        base = {"operationalLayers": [], "tables": []}
+        ours = {"operationalLayers": [], "tables": [new_table]}
+        theirs = {"operationalLayers": [], "tables": []}
+
+        result = merge_maps(ours, theirs, base)
+
+        tables = result.merged_data.get("tables", [])
+        assert any(t["id"] == "t2" for t in tables)
+
+
+class TestApplyResolutionTablePaths:
+    """Tests for apply_resolution table-specific paths (lines 367, 371-372)."""
+
+    def _make_merge_result_with_table_conflict(self) -> MergeResult:
+        """Create a MergeResult with a table conflict."""
+        table = {"id": "t1", "title": "Contested Table"}
+        conflict = MergeConflict(
+            layer_id="t1",
+            layer_title="Contested Table",
+            ours={"id": "t1", "title": "Ours"},
+            theirs={"id": "t1", "title": "Theirs"},
+        )
+        result = MergeResult(
+            merged_data={"operationalLayers": [], "tables": [table]},
+            conflicts=[conflict],
+        )
+        return result
+
+    def test_apply_resolution_table_updates_it(self):
+        """Applying a resolution to a table updates it in place (lines 363-364)."""
+        result = self._make_merge_result_with_table_conflict()
+        resolved = {"id": "t1", "title": "Resolved Table"}
+
+        apply_resolution(result, "t1", resolved)
+
+        tables = result.merged_data["tables"]
+        assert len(tables) == 1
+        assert tables[0]["title"] == "Resolved Table"
+
+    def test_apply_resolution_table_empty_deletes_it(self):
+        """Applying an empty dict resolution removes the table (line 367)."""
+        result = self._make_merge_result_with_table_conflict()
+
+        apply_resolution(result, "t1", {})
+
+        tables = result.merged_data["tables"]
+        assert all(t.get("id") != "t1" for t in tables)
+
+    # Note: lines 371-372 in merge.py ("Table not found, add it") are unreachable:
+    # `is_table` is derived from table_ids computed from the same tables list,
+    # so if the id is not in the list, is_table=False and the layer branch runs instead.
