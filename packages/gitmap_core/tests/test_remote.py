@@ -3007,3 +3007,442 @@ class TestMetadataItemExceptionHandling:
         result = remote_ops._find_metadata_item("folder-123")
 
         assert result is None
+
+
+# ---- Coverage gap tests: _ensure_folder and notification paths -----------------------------------------------
+
+
+class TestEnsureFolderCoverageGaps:
+    """Tests targeting uncovered branches in _ensure_folder (lines 129-133, 146-147, 155-180)."""
+
+    def test_folder_found_via_user_content_get_folder(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+    ) -> None:
+        """Covers lines 129-133: folder found by iterating user content via gis.content.get_folder."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=None,
+        )
+        mock_repository.get_config.return_value = config
+
+        # No folders in get_user_folders result (so we fall through to user content search)
+        with patch("gitmap_core.remote.get_user_folders", return_value=[]):
+            with patch("gitmap_core.remote.compat_create_folder") as mock_create:
+                # User has one item in ownerFolder
+                mock_item = MagicMock()
+                mock_item.ownerFolder = "folder-abc"
+
+                mock_user = MagicMock()
+                mock_user.username = "test_user"
+                mock_user.items.return_value = [mock_item]
+                mock_connection.gis.users.me = mock_user
+
+                # get_folder returns an object with matching title and id
+                mock_folder_info = MagicMock()
+                mock_folder_info.title = "TestProject"
+                mock_folder_info.id = "folder-abc"
+                mock_connection.gis.content.get_folder.return_value = mock_folder_info
+
+                ops = RemoteOperations(mock_repository, mock_connection)
+                result = ops.get_or_create_folder()
+
+                assert result == "folder-abc"
+                mock_create.assert_not_called()
+
+    def test_folder_found_via_user_content_get_folder_dict_response(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+    ) -> None:
+        """Covers line 147: folder_info is dict with matching title."""
+        config = RepoConfig(project_name="TestProject", remote=None)
+        mock_repository.get_config.return_value = config
+
+        with patch("gitmap_core.remote.get_user_folders", return_value=[]):
+            with patch("gitmap_core.remote.compat_create_folder") as mock_create:
+                mock_item = MagicMock()
+                mock_item.ownerFolder = "folder-dict"
+
+                mock_user = MagicMock()
+                mock_user.username = "test_user"
+                mock_user.items.return_value = [mock_item]
+                mock_connection.gis.users.me = mock_user
+
+                # get_folder returns a dict (not object)
+                mock_connection.gis.content.get_folder.return_value = {
+                    "title": "TestProject",
+                    "id": "folder-dict",
+                }
+
+                ops = RemoteOperations(mock_repository, mock_connection)
+                result = ops.get_or_create_folder()
+
+                assert result == "folder-dict"
+                mock_create.assert_not_called()
+
+    def test_folder_creation_fallback_finds_via_user_items_get_folder(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+    ) -> None:
+        """Covers lines 166-180: 'already exists' error → fallback search via user items + get_folder."""
+        config = RepoConfig(project_name="TestProject", remote=None)
+        mock_repository.get_config.return_value = config
+
+        with patch("gitmap_core.remote.get_user_folders", return_value=[]):
+            with patch("gitmap_core.remote.compat_create_folder") as mock_create:
+                # Creation raises "already exists"
+                mock_create.side_effect = RuntimeError("already exists in portal")
+
+                mock_item = MagicMock()
+                mock_item.ownerFolder = "folder-existing"
+
+                mock_user = MagicMock()
+                mock_user.username = "test_user"
+                # First call: user content search (lines 121-135) finds nothing (no ownerFolder match)
+                # Second call (line 165 user_items): returns item with matching folder
+                call_count = {"n": 0}
+
+                def items_side_effect(*args, **kwargs):
+                    call_count["n"] += 1
+                    if call_count["n"] == 1:
+                        # First call (initial user content search) - item has ownerFolder
+                        # but get_folder returns non-matching title
+                        return []
+                    # Second call (fallback search)
+                    return [mock_item]
+
+                mock_user.items.side_effect = items_side_effect
+                mock_connection.gis.users.me = mock_user
+
+                mock_folder_obj = MagicMock()
+                mock_folder_obj.title = "TestProject"
+                mock_folder_obj.id = "folder-existing"
+                mock_connection.gis.content.get_folder.return_value = mock_folder_obj
+
+                ops = RemoteOperations(mock_repository, mock_connection)
+                result = ops.get_or_create_folder()
+
+                assert result == "folder-existing"
+
+    def test_folder_creation_fallback_get_folder_raises_continues(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+    ) -> None:
+        """Covers line 173-174 (continue): get_folder raises during fallback item search → continues."""
+        config = RepoConfig(project_name="TestProject", remote=None)
+        mock_repository.get_config.return_value = config
+
+        with patch("gitmap_core.remote.get_user_folders", return_value=[]):
+            with patch("gitmap_core.remote.compat_create_folder") as mock_create:
+                mock_create.side_effect = RuntimeError("not available")
+
+                mock_item1 = MagicMock()
+                mock_item1.ownerFolder = "bad-folder"
+                mock_item2 = MagicMock()
+                mock_item2.ownerFolder = "good-folder"
+
+                mock_user = MagicMock()
+                mock_user.username = "test_user"
+                mock_user.items.return_value = [mock_item1, mock_item2]
+                mock_connection.gis.users.me = mock_user
+
+                get_folder_calls = {"n": 0}
+
+                def get_folder_side_effect(folder_id, username):
+                    get_folder_calls["n"] += 1
+                    if folder_id == "bad-folder":
+                        raise Exception("API error")
+                    good = MagicMock()
+                    good.title = "TestProject"
+                    good.id = "good-folder"
+                    return good
+
+                mock_connection.gis.content.get_folder.side_effect = get_folder_side_effect
+
+                ops = RemoteOperations(mock_repository, mock_connection)
+                result = ops.get_or_create_folder()
+
+                assert result == "good-folder"
+
+
+class TestNotificationCoverageGaps:
+    """Tests targeting uncovered notification branches (lines 330, 338, 356, 373)."""
+
+    def _make_push_ops(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        sample_commit: Commit,
+        item: MagicMock,
+    ) -> "RemoteOperations":
+        """Helper: configure mocks for a push to 'main' production branch (root content path)."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                item_id=item.id,
+                production_branch="main",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "main"
+        mock_repository.get_branch_commit.return_value = sample_commit.id
+        mock_repository.get_commit.return_value = sample_commit
+        mock_connection.gis.content.get.return_value = item
+        return RemoteOperations(mock_repository, mock_connection)
+
+    def test_notification_private_item_sets_reason(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Covers line 330: private item → sets reason 'Item is private (not shared)'."""
+        mock_portal_item.access = "private"
+        mock_portal_item.id = "item-123"
+        mock_portal_item.title = "Test Map"
+        mock_portal_item.homepage = "https://test.com"
+        mock_portal_item.properties = None
+
+        ops = self._make_push_ops(mock_repository, mock_connection, sample_commit, mock_portal_item)
+        _, notification_status = ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["reason"] == "Item is private (not shared)"
+        assert notification_status["sent"] is False
+
+    def test_notification_sharing_data_dict_with_groups_sends(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Covers line 338: properties.sharing is dict with groups list."""
+        mock_portal_item.access = "org"
+        mock_portal_item.id = "item-123"
+        mock_portal_item.title = "Test Map"
+        mock_portal_item.homepage = "https://test.com"
+        # properties.sharing is a dict with groups
+        mock_props = MagicMock()
+        mock_props.get.return_value = {"groups": ["group-1"]}
+        mock_portal_item.properties = mock_props
+
+        ops = self._make_push_ops(mock_repository, mock_connection, sample_commit, mock_portal_item)
+
+        with patch("gitmap_core.remote.notify_item_group_users") as mock_notify:
+            mock_notify.return_value = ["user1"]
+            _, notification_status = ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["sent"] is True
+
+    def test_notification_no_groups_sets_reason(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Covers line 356: no groups found → reason 'Item is not shared with any groups'."""
+        mock_portal_item.access = "org"
+        mock_portal_item.id = "item-123"
+        mock_portal_item.title = "Test Map"
+        mock_portal_item.homepage = "https://test.com"
+        mock_portal_item.properties = None
+
+        mock_user = MagicMock()
+        mock_user.groups = []  # No groups at all
+        mock_connection.gis.users.me = mock_user
+
+        ops = self._make_push_ops(mock_repository, mock_connection, sample_commit, mock_portal_item)
+        _, notification_status = ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["reason"] == "Item is not shared with any groups"
+
+    def test_notification_notify_returns_empty_sets_reason(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        mock_portal_item: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Covers line 373: notify_item_group_users returns empty list → reason set."""
+        mock_portal_item.access = "org"
+        mock_portal_item.id = "item-123"
+        mock_portal_item.title = "Test Map"
+        mock_portal_item.homepage = "https://test.com"
+        mock_portal_item.properties = None
+
+        mock_user = MagicMock()
+        mock_group = MagicMock()
+        mock_group.id = "group-1"
+        mock_group_item = MagicMock()
+        mock_group_item.id = "item-123"
+        mock_group.content.return_value = [mock_group_item]
+        mock_user.groups = [mock_group]
+        mock_connection.gis.users.me = mock_user
+
+        ops = self._make_push_ops(mock_repository, mock_connection, sample_commit, mock_portal_item)
+
+        with patch("gitmap_core.remote.notify_item_group_users") as mock_notify:
+            mock_notify.return_value = []  # Empty → no users notified
+            _, notification_status = ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["sent"] is False
+        assert notification_status["reason"] == "No users found in groups that have access to the map"
+
+
+class TestNotificationRootContentPath:
+    """Tests for notification paths in the root-content push flow (second notification block).
+
+    These tests cover lines 330, 338, 356, 373 which are in the notification block
+    that runs after root-content pushes (non-main or no item_id path).
+    """
+
+    def _setup_root_push(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        sample_commit: Commit,
+        item: MagicMock,
+        production_branch: str = "staging",
+        push_branch: str = "staging",
+    ) -> "RemoteOperations":
+        """Configure for a root-content push to production branch."""
+        config = RepoConfig(
+            project_name="TestProject",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                # No item_id → forces root content path
+                production_branch=production_branch,
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = push_branch
+        mock_repository.get_branch_commit.return_value = sample_commit.id
+        mock_repository.get_commit.return_value = sample_commit
+
+        # No existing branch item in root content
+        mock_connection.gis.users.me.items.return_value = []
+        # Create returns our item
+        mock_connection.gis.content.add.return_value = item
+
+        return RemoteOperations(mock_repository, mock_connection)
+
+    def test_root_push_notification_private_item(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Covers line 330 (second block): private item in root-content push."""
+        item = MagicMock()
+        item.id = "staging-item"
+        item.access = "private"
+        item.title = "Staging Map"
+        item.homepage = "https://test.com"
+        item.tags = []
+
+        ops = self._setup_root_push(mock_repository, mock_connection, sample_commit, item)
+        _, notification_status = ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["reason"] == "Item is private (not shared)"
+
+    def test_root_push_notification_sharing_dict_groups(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Covers line 338 (second block): properties.sharing dict with groups."""
+        item = MagicMock()
+        item.id = "staging-item"
+        item.access = "org"
+        item.title = "Staging Map"
+        item.homepage = "https://test.com"
+        item.tags = []
+
+        mock_props = MagicMock()
+        mock_props.get.return_value = {"groups": ["group-staging"]}
+        item.properties = mock_props
+
+        ops = self._setup_root_push(mock_repository, mock_connection, sample_commit, item)
+
+        with patch("gitmap_core.remote.notify_item_group_users") as mock_notify:
+            mock_notify.return_value = ["user-staging"]
+            _, notification_status = ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["sent"] is True
+
+    def test_root_push_notification_no_groups(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Covers line 356 (second block): no groups → reason set."""
+        item = MagicMock()
+        item.id = "staging-item"
+        item.access = "org"
+        item.title = "Staging Map"
+        item.homepage = "https://test.com"
+        item.tags = []
+        item.properties = None
+
+        mock_user = MagicMock()
+        mock_user.groups = []
+
+        ops = self._setup_root_push(mock_repository, mock_connection, sample_commit, item)
+        mock_repository.get_config.return_value.remote  # already set
+        ops.connection.gis.users.me = mock_user
+
+        _, notification_status = ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["reason"] == "Item is not shared with any groups"
+
+    def test_root_push_notification_notify_returns_empty(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+        sample_commit: Commit,
+    ) -> None:
+        """Covers line 373 (second block): notify returns empty list."""
+        item = MagicMock()
+        item.id = "staging-item"
+        item.access = "org"
+        item.title = "Staging Map"
+        item.homepage = "https://test.com"
+        item.tags = []
+        item.properties = None
+
+        mock_user = MagicMock()
+        mock_group = MagicMock()
+        mock_group.id = "group-1"
+        mock_group_item = MagicMock()
+        mock_group_item.id = "staging-item"
+        mock_group.content.return_value = [mock_group_item]
+        mock_user.groups = [mock_group]
+
+        ops = self._setup_root_push(mock_repository, mock_connection, sample_commit, item)
+        ops.connection.gis.users.me = mock_user
+
+        with patch("gitmap_core.remote.notify_item_group_users") as mock_notify:
+            mock_notify.return_value = []
+            _, notification_status = ops.push()
+
+        assert notification_status["attempted"] is True
+        assert notification_status["sent"] is False
+        assert notification_status["reason"] == "No users found in groups that have access to the map"
