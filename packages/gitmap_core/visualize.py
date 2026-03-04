@@ -372,7 +372,7 @@ def generate_mermaid_flowchart(
             commits_without_branch.append(event)
 
     # Link events within the same branch chronologically
-    for branch_name, events in commits_by_branch.items():
+    for _branch_name, events in commits_by_branch.items():
         sorted_branch_events = sorted(events, key=lambda e: e.timestamp)
         for i in range(len(sorted_branch_events) - 1):
             current_event = sorted_branch_events[i]
@@ -631,8 +631,6 @@ def generate_mermaid_git_graph(
 
     # Build parent-to-children map for branch detection
     parent_to_children: dict[str, list[str]] = {}
-    commit_to_branch: dict[str, str] = {}
-
     # First pass: analyze branch structure from events
     for event in all_events:
         if event.event_type == "branch":
