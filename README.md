@@ -1,12 +1,44 @@
 # GitMap
 
-**Version control for ArcGIS web maps**
+**Version control for ArcGIS web maps.**
 
-GitMap provides Git-like version control for ArcGIS Online and Enterprise Portal web maps. Branch, commit, diff, merge, push, and pull maps using familiar workflows.
+[![CI](https://github.com/14-TR/Git-Map/actions/workflows/ci.yml/badge.svg)](https://github.com/14-TR/Git-Map/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-450%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
+
+GitMap brings Git-like version control to ArcGIS Online and Enterprise Portal web maps. Branch, commit, diff, merge, push, and pull maps using workflows your team already knows.
+
+```
+$ gitmap commit -m "Added flood risk layer"
+[main a3f9c12] Added flood risk layer
+ 1 layer changed
+
+$ gitmap diff --branch main
+~ Layer: Parcels
+  opacity: 0.8 → 1.0
+  visible: false → true
+
+$ gitmap merge feature/new-basemap
+Merged feature/new-basemap into main
+```
+
+---
+
+## Why GitMap?
+
+| Problem | GitMap Solution |
+|---|---|
+| "Who changed the basemap last Tuesday?" | `gitmap log` — full commit history with author + timestamp |
+| "Can I test this symbology without breaking prod?" | `gitmap branch feature/symbology` — isolated branches |
+| "Revert to last week's version" | `gitmap checkout <commit-id>` |
+| "What's different between staging and production?" | `gitmap diff --branch production` |
+| "Keep 50 maps in sync with Portal" | `gitmap auto-pull` |
+
+---
 
 ## Table of Contents
 
-- [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
@@ -16,44 +48,26 @@ GitMap provides Git-like version control for ArcGIS Online and Enterprise Portal
 - [Development](#development)
 - [Architecture](#architecture)
 
-## Features
-
-- **Version Control**: Track changes to ArcGIS web maps with commits and branches
-- **Branching**: Create feature branches for parallel development
-- **Diffing**: Compare map versions and see layer-level changes
-- **Merging**: Merge branches with conflict resolution
-- **Portal Integration**: Push and pull maps to/from ArcGIS Portal or ArcGIS Online
-- **Map Discovery**: List and search available web maps from Portal with the `list` command
-- **Layer Settings Transfer**: Transfer popup and form settings between maps with the `lsm` command
-- **Bulk Repository Setup**: Automate cloning multiple maps with owner filtering
-- **Auto-Pull**: Automatically sync all repositories with Portal to keep them up to date (with optional auto-commit)
-- **Context Visualization**: Visualize event history and relationships in multiple formats (Mermaid, ASCII, HTML)
-- **CLI Interface**: Familiar Git-like command-line interface
-- **Rich Output**: Beautiful terminal output with colors and formatting
+---
 
 ## Installation
 
 ### Prerequisites
 
-- Python 3.11, 3.12, or 3.13 (arcgis SDK requires Python <3.14)
+- Python 3.11, 3.12, or 3.13
 - ArcGIS Portal or ArcGIS Online account
-- pip (Python package manager)
+- pip
 
 ### Install from Source
 
-1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd gitmap
-```
+git clone https://github.com/14-TR/Git-Map.git
+cd Git-Map
 
-2. Install the core library:
-```bash
+# Install core library
 pip install -e packages/gitmap_core
-```
 
-3. Install the CLI:
-```bash
+# Install CLI
 pip install -e apps/cli/gitmap
 ```
 
@@ -61,21 +75,20 @@ pip install -e apps/cli/gitmap
 
 ```bash
 gitmap --version
+# gitmap, version 0.6.0
 ```
 
-You should see: `gitmap, version 0.5.0`
+---
 
 ## Quick Start
 
 ### 1. Configure Authentication
 
-Create a `.env` file in the project root (or copy from `configs/env.example`):
-
 ```bash
 cp configs/env.example .env
 ```
 
-Edit `.env` with your credentials:
+Edit `.env`:
 
 ```env
 PORTAL_URL=https://your-org.maps.arcgis.com
@@ -83,67 +96,58 @@ PORTAL_USER=your_username
 PORTAL_PASSWORD=your_password
 ```
 
-**Note**: The `.env` file is git-ignored and should never be committed.
+> **Note:** `.env` is git-ignored and never committed.
 
 ### 2. Initialize a Repository
 
-Start a new GitMap repository:
-
 ```bash
-gitmap init
+gitmap init --project-name "Flood Risk Map"
 ```
 
-Or initialize with project details:
+### 3. Clone an Existing Map from Portal
 
 ```bash
-gitmap init --project-name "My Web Map" --user-name "John Doe" --user-email "john@example.com"
+gitmap clone abc123def456
 ```
 
-### 3. Clone an Existing Map
-
-Clone a web map from Portal:
+### 4. Create a Branch, Edit, Commit
 
 ```bash
-gitmap clone <item_id>
-```
+gitmap branch feature/new-layer
+gitmap checkout feature/new-layer
 
-Example:
-```bash
-gitmap clone abc123def456 --directory my-project
-```
+# Edit your map JSON files...
 
-### 4. Make Changes and Commit
-
-After modifying your map JSON:
-
-```bash
-# Check status
 gitmap status
-
-# Commit changes
-gitmap commit -m "Added new operational layer"
+gitmap commit -m "Added hydrology layer"
 ```
 
-### 5. Push to Portal
-
-Push your changes to Portal:
+### 5. Push Back to Portal
 
 ```bash
 gitmap push
 ```
 
+### 6. Merge When Ready
+
+```bash
+gitmap checkout main
+gitmap merge feature/new-layer
+gitmap push
+```
+
+---
+
 ## Configuration
 
-### Repository Configuration
-
-GitMap stores configuration in `.gitmap/config.json`:
+### Repository Config (`.gitmap/config.json`)
 
 ```json
 {
     "version": "1.0",
-    "user_name": "John Doe",
-    "user_email": "john@example.com",
-    "project_name": "MyProject",
+    "user_name": "Jane Smith",
+    "user_email": "jane@example.com",
+    "project_name": "FloodRisk",
     "remote": {
         "name": "origin",
         "url": "https://www.arcgis.com",
@@ -155,789 +159,518 @@ GitMap stores configuration in `.gitmap/config.json`:
 
 ### Environment Variables
 
-GitMap supports the following environment variables (set in `.env` or your shell):
+| Variable | Description | Default |
+|---|---|---|
+| `PORTAL_URL` | Portal or AGOL URL | `https://www.arcgis.com` |
+| `PORTAL_USER` | Username | — |
+| `PORTAL_PASSWORD` | Password | — |
+| `ARCGIS_USERNAME` | Alternative username var | — |
+| `ARCGIS_PASSWORD` | Alternative password var | — |
 
-- `PORTAL_URL` - Portal URL (defaults to `https://www.arcgis.com` for ArcGIS Online)
-- `PORTAL_USER` - Portal username
-- `PORTAL_PASSWORD` - Portal password
-- `ARCGIS_USERNAME` - Alternative username variable
-- `ARCGIS_PASSWORD` - Alternative password variable
+### Authentication Priority
 
-### Authentication Methods
+1. Command-line options (`--username`, `--password`)
+2. `.env` file
+3. ArcGIS Pro session (if running inside Pro)
+4. Anonymous (limited)
 
-GitMap attempts authentication in this order:
-
-1. Username/password provided via command-line options
-2. Environment variables from `.env` file
-3. ArcGIS Pro authentication (if running in ArcGIS Pro)
-4. Anonymous access (limited functionality)
+---
 
 ## CLI Commands
 
-### `gitmap init`
+| Command | Description |
+|---|---|
+| `gitmap init` | Initialize a new repository |
+| `gitmap clone <item_id>` | Clone a web map from Portal |
+| `gitmap status` | Show working tree status |
+| `gitmap commit -m "msg"` | Record changes |
+| `gitmap branch [name]` | List or create branches |
+| `gitmap checkout <branch>` | Switch branches |
+| `gitmap diff` | Show changes |
+| `gitmap log` | Show commit history |
+| `gitmap merge <branch>` | Merge branches |
+| `gitmap push` | Push to Portal |
+| `gitmap pull` | Pull from Portal |
+| `gitmap list` | List Portal web maps |
+| `gitmap setup-repos` | Bulk clone multiple maps |
+| `gitmap auto-pull` | Sync all repos with Portal |
+| `gitmap lsm` | Transfer layer popup/form settings |
+| `gitmap notify` | Notify Portal group members |
+| `gitmap context` | Visualize event history |
+| `gitmap config` | Manage repo configuration |
 
-Initialize a new GitMap repository.
+---
+
+### `gitmap init`
 
 ```bash
 gitmap init [PATH] [OPTIONS]
-```
 
-**Options:**
-- `--project-name, -n` - Project name (defaults to directory name)
-- `--user-name, -u` - Default author name for commits
-- `--user-email, -e` - Default author email for commits
+Options:
+  --project-name, -n TEXT   Project name (defaults to directory name)
+  --user-name, -u TEXT      Default author name for commits
+  --user-email, -e TEXT     Default author email for commits
 
-**Examples:**
-```bash
-gitmap init
-gitmap init --project-name "My Project"
-gitmap init /path/to/project --user-name "John Doe"
+Examples:
+  gitmap init
+  gitmap init --project-name "Flood Risk Map"
+  gitmap init /path/to/project --user-name "Jane Smith"
 ```
 
 ### `gitmap clone`
 
-Clone a web map from Portal.
-
 ```bash
 gitmap clone <ITEM_ID> [OPTIONS]
-```
 
-**Options:**
-- `--directory, -d` - Directory to clone into (defaults to map title)
-- `--url, -u` - Portal URL (defaults to ArcGIS Online)
-- `--username` - Portal username (or use env var)
+Options:
+  --directory, -d TEXT   Clone into this directory (defaults to map title)
+  --url, -u TEXT         Portal URL (defaults to ArcGIS Online)
+  --username TEXT        Portal username (or use env var)
 
-**Examples:**
-```bash
-gitmap clone abc123def456
-gitmap clone abc123def456 --directory my-project
-gitmap clone abc123def456 --url https://portal.example.com
+Examples:
+  gitmap clone abc123def456
+  gitmap clone abc123def456 --directory my-project
+  gitmap clone abc123def456 --url https://portal.example.com
 ```
 
 ### `gitmap setup-repos`
 
-Bulk clone web maps into a repositories directory.
+Bulk clone multiple web maps into a `repositories/` directory.
 
 ```bash
 gitmap setup-repos [OPTIONS]
-```
 
-**Description:**
-Automates the setup of a repositories directory by cloning multiple web maps at once. Each map is cloned into its own subdirectory with a `.gitmap` folder. Useful for setting up local copies of multiple maps owned by a specific user or matching specific criteria.
+Options:
+  --directory, -d TEXT     Output directory (default: repositories)
+  --owner, -o TEXT         Filter by owner username
+  --query, -q TEXT         Search query (e.g. 'title:MyMap')
+  --tag, -t TEXT           Filter by tag
+  --max-results, -m INT    Max maps to clone (default: 100)
+  --skip-existing          Skip already-cloned maps
 
-**Options:**
-- `--directory, -d` - Directory to clone repositories into (defaults to 'repositories')
-- `--owner, -o` - Filter web maps by owner username
-- `--query, -q` - Search query to filter web maps (e.g., 'title:MyMap')
-- `--tag, -t` - Filter web maps by tag
-- `--max-results, -m` - Maximum number of web maps to clone (default: 100)
-- `--url, -u` - Portal URL (or use PORTAL_URL env var)
-- `--username` - Portal username (or use env var)
-- `--password` - Portal password (or use env var)
-- `--skip-existing` - Skip maps that already have directories (instead of failing)
-
-**Examples:**
-```bash
-# Clone all maps owned by a specific user
-gitmap setup-repos --owner myusername
-
-# Clone to a custom directory
-gitmap setup-repos --owner myusername --directory my-repos
-
-# Clone maps with a specific tag
-gitmap setup-repos --tag production --skip-existing
-
-# Clone maps matching a search query
-gitmap setup-repos --query "title:Project*" --owner myusername
-
-# Combine filters
-gitmap setup-repos --owner myusername --tag production --max-results 50
+Examples:
+  gitmap setup-repos --owner myusername
+  gitmap setup-repos --tag production --skip-existing
+  gitmap setup-repos --query "title:Project*" --max-results 50
 ```
 
 ### `gitmap auto-pull`
 
-Automatically pull updates for all GitMap repositories in a directory.
+Sync all GitMap repositories in a directory with Portal.
 
 ```bash
 gitmap auto-pull [OPTIONS]
-```
 
-**Description:**
-Scans a directory for GitMap repositories and pulls the latest changes from Portal for each one. Useful for keeping multiple local repositories in sync with their Portal counterparts. Can be run manually or scheduled via cron/systemd timer for automated synchronization.
+Options:
+  --directory, -d TEXT     Directory of repos (default: repositories)
+  --branch, -b TEXT        Branch to pull (default: main)
+  --auto-commit            Commit changes after pull
+  --commit-message, -m TEXT  Template: use {repo} and {date}
+  --skip-errors            Continue on failure
 
-**Options:**
-- `--directory, -d` - Directory containing GitMap repositories (defaults to 'repositories')
-- `--branch, -b` - Branch to pull for each repository (defaults to 'main')
-- `--url, -u` - Portal URL (or use PORTAL_URL env var)
-- `--username` - Portal username (or use env var)
-- `--password` - Portal password (or use env var)
-- `--skip-errors` - Continue pulling other repos if one fails (default: True)
-- `--auto-commit` - Automatically commit changes after successful pull (default: False)
-- `--commit-message, -m` - Custom commit message template (use {repo} for repository name, {date} for timestamp)
+Examples:
+  gitmap auto-pull
+  gitmap auto-pull --auto-commit
+  gitmap auto-pull --commit-message "Sync from Portal on {date}"
 
-**Examples:**
-```bash
-# Pull updates for all repositories in the default 'repositories' directory
-gitmap auto-pull
-
-# Pull from a custom directory
-gitmap auto-pull --directory my-repos
-
-# Pull a specific branch from all repositories
-gitmap auto-pull --branch production
-
-# Pull with custom Portal URL
-gitmap auto-pull --url https://portal.example.com
-
-# Automatically commit changes after pulling
-gitmap auto-pull --auto-commit
-
-# Use a custom commit message template
-gitmap auto-pull --auto-commit --commit-message "Auto-pull from Portal on {date}"
-
-# Schedule with cron (every hour)
-0 * * * * cd /path/to/project && gitmap auto-pull --auto-commit
+# Automate with cron (every hour):
+  0 * * * * cd /path/to/project && gitmap auto-pull --auto-commit
 ```
 
 ### `gitmap list`
 
-List all available web maps from Portal or ArcGIS Online.
-
 ```bash
 gitmap list [OPTIONS]
-```
 
-**Description:**
-Queries Portal/ArcGIS Online and displays all available web maps in a table format. Useful for discovering web map item IDs before cloning or browsing available maps in your organization.
+Options:
+  --query, -q TEXT      Search query
+  --owner, -o TEXT      Filter by owner
+  --tag, -t TEXT        Filter by tag
+  --max-results, -m INT Max results (default: 100)
 
-**Options:**
-- `--query, -q` - Search query to filter web maps (e.g., 'title:MyMap')
-- `--owner, -o` - Filter web maps by owner username
-- `--tag, -t` - Filter web maps by tag
-- `--max-results, -m` - Maximum number of web maps to return (default: 100)
-- `--url, -u` - Portal URL (or use PORTAL_URL env var)
-- `--username` - Portal username (or use env var)
-- `--password` - Portal password (or use env var)
-
-**Examples:**
-```bash
-# List all web maps
-gitmap list
-
-# List web maps owned by a specific user
-gitmap list --owner myusername
-
-# List web maps with a specific tag
-gitmap list --tag production
-
-# Combine filters
-gitmap list --owner myusername --tag production
-
-# Search by title
-gitmap list --query "title:MyMap"
-
-# Limit results
-gitmap list --max-results 50
+Examples:
+  gitmap list
+  gitmap list --owner myusername --tag production
+  gitmap list --query "title:MyMap"
 ```
 
 ### `gitmap status`
 
-Show the working tree status.
+Show the working tree status — current branch, staged/unstaged changes, untracked files.
 
 ```bash
 gitmap status
 ```
 
-Displays:
-- Current branch
-- Staged changes
-- Unstaged changes
-- Untracked files
-
 ### `gitmap branch`
-
-List, create, or delete branches.
 
 ```bash
 gitmap branch [BRANCH_NAME] [OPTIONS]
-```
 
-**Options:**
-- `--delete, -d` - Delete a branch
-- `--list, -l` - List all branches
+Options:
+  --delete, -d    Delete a branch
+  --list, -l      List all branches
 
-**Examples:**
-```bash
-gitmap branch                    # List branches
-gitmap branch feature/new-layer  # Create new branch
-gitmap branch -d feature/old     # Delete branch
+Examples:
+  gitmap branch                    # List branches
+  gitmap branch feature/new-layer  # Create branch
+  gitmap branch -d feature/old     # Delete branch
 ```
 
 ### `gitmap checkout`
 
-Switch branches or restore working tree files.
-
 ```bash
 gitmap checkout <BRANCH_NAME>
-```
 
-**Examples:**
-```bash
-gitmap checkout feature/new-layer
-gitmap checkout main
+Examples:
+  gitmap checkout feature/new-layer
+  gitmap checkout main
 ```
 
 ### `gitmap commit`
 
-Record changes to the repository.
-
 ```bash
 gitmap commit [OPTIONS]
-```
 
-**Options:**
-- `--message, -m` - Commit message (required)
-- `--author` - Override commit author
+Options:
+  --message, -m TEXT   Commit message (required)
+  --author TEXT        Override commit author
 
-**Examples:**
-```bash
-gitmap commit -m "Added new layer"
-gitmap commit -m "Fixed layer visibility" --author "Jane Doe"
+Examples:
+  gitmap commit -m "Added hydrology layer"
+  gitmap commit -m "Fixed visibility" --author "Jane Smith"
 ```
 
 ### `gitmap diff`
 
-Show changes between commits, branches, or working tree.
-
 ```bash
 gitmap diff [OPTIONS]
-```
 
-**Options:**
-- `--branch, -b` - Compare with branch
-- `--commit, -c` - Compare with commit
+Options:
+  --branch, -b TEXT   Compare with branch
+  --commit, -c TEXT   Compare with commit
 
-**Examples:**
-```bash
-gitmap diff                    # Show working tree changes
-gitmap diff --branch main      # Compare with main branch
-gitmap diff --commit abc123    # Compare with specific commit
+Examples:
+  gitmap diff                  # Working tree changes
+  gitmap diff --branch main    # vs main branch
+  gitmap diff --commit abc123  # vs specific commit
 ```
 
 ### `gitmap log`
 
-Show commit history.
-
 ```bash
 gitmap log [OPTIONS]
-```
 
-**Options:**
-- `--branch, -b` - Show log for specific branch
-- `--limit, -n` - Limit number of commits
+Options:
+  --branch, -b TEXT   Log for specific branch
+  --limit, -n INT     Limit number of commits
 
-**Examples:**
-```bash
-gitmap log
-gitmap log --branch feature/new-layer
-gitmap log --limit 10
+Examples:
+  gitmap log
+  gitmap log --limit 10
 ```
 
 ### `gitmap merge`
 
-Merge branches.
-
 ```bash
 gitmap merge <BRANCH_NAME>
+
+Example:
+  gitmap merge feature/new-layer
 ```
 
-**Examples:**
-```bash
-gitmap merge feature/new-layer
-```
-
-### `gitmap push`
-
-Push changes to Portal.
+### `gitmap push` / `gitmap pull`
 
 ```bash
-gitmap push [OPTIONS]
-```
-
-**Options:**
-- `--branch, -b` - Branch to push (defaults to current)
-- `--url, -u` - Portal URL
-- `--username` - Portal username
-
-**Examples:**
-```bash
-gitmap push
-gitmap push --branch feature/new-layer
-gitmap push --url https://portal.example.com
-```
-
-### `gitmap pull`
-
-Pull changes from Portal.
-
-```bash
-gitmap pull [OPTIONS]
-```
-
-**Options:**
-- `--branch, -b` - Branch to pull (defaults to current)
-- `--url, -u` - Portal URL
-- `--username` - Portal username
-
-**Examples:**
-```bash
-gitmap pull
-gitmap pull --branch main
+gitmap push [--branch BRANCH] [--url URL] [--username USER]
+gitmap pull [--branch BRANCH] [--url URL] [--username USER]
 ```
 
 ### `gitmap lsm`
 
-Transfer popup and form settings between maps.
+Transfer `popupInfo` and `formInfo` between maps.
 
 ```bash
 gitmap lsm <SOURCE> [TARGET] [OPTIONS]
-```
 
-**Description:**
-Transfers `popupInfo` and `formInfo` from layers and tables in a source map to matching layers and tables in a target map. Works with item IDs, branch names, commit IDs, or file paths. Automatically handles nested layers within GroupLayers.
+Options:
+  --dry-run   Preview changes without applying
 
-**Options:**
-- `--dry-run` - Preview changes without applying them
+Arguments:
+  SOURCE   item ID, branch name, commit ID, or file path
+  TARGET   optional; defaults to current index
 
-**Arguments:**
-- `SOURCE` - Source map (item ID, branch name, commit ID, or file path)
-- `TARGET` - Target map (optional, defaults to current index)
-
-**Examples:**
-```bash
-# Transfer settings between branches
-gitmap lsm main feature/new-layer
-
-# Transfer from Portal item ID to current index
-gitmap lsm abc123def456
-
-# Transfer from file to file with dry-run
-gitmap lsm source.json target.json --dry-run
-
-# Transfer from another repository directory
-gitmap lsm ../other-repo
+Examples:
+  gitmap lsm main feature/new-layer
+  gitmap lsm abc123def456
+  gitmap lsm source.json target.json --dry-run
+  gitmap lsm ../other-repo
 ```
 
 ### `gitmap notify`
 
-Send a notification to members of a Portal/AGOL group using the
-ArcGIS API for Python `Group.notify` method (leveraging your Portal/AGOL
-authentication; no SMTP settings required). Notifications go to users in
-the target group according to their ArcGIS notification preferences.
-
-By default, all group members are notified. Use `--user` to target specific
-users (useful for testing).
+Send notifications to Portal group members via ArcGIS API.
 
 ```bash
 gitmap notify --group <GROUP_ID_OR_TITLE> --subject "Subject" --message "Body"
-```
 
-**Options:**
-- `--group, -g` - Group ID or title to target for notifications (required)
-- `--user` - Specific username(s) to notify (can be used multiple times). If omitted, all group members are notified.
-- `--subject, -s` - Notification subject line
-- `--message, -m` - Notification body (or use `--message-file`)
-- `--message-file` - Load the notification body from a text file
-- `--url, -u` - Portal URL (defaults to ArcGIS Online)
-- `--username` / `--password` - Portal credentials (or use env vars)
+Options:
+  --group, -g TEXT       Group ID or title (required)
+  --user TEXT            Specific username (repeatable; omit for all members)
+  --subject, -s TEXT     Subject line
+  --message, -m TEXT     Message body
+  --message-file TEXT    Load message from file
 
-**Examples:**
-```bash
-# Notify all members of the editors group
-gitmap notify --group editors --subject "Release planned" \
-  --message "New basemap will be published on Friday."
-
-# Test by sending to a single user
-gitmap notify --group editors --user testuser --subject "Test notification" \
-  --message "This is a test message."
-
-# Notify multiple specific users
-gitmap notify --group editors --user user1 --user user2 --subject "Update" \
-  --message "Please review the changes."
-
-# Load a longer message from a file
-gitmap notify --group "Field Crew" --subject "Inspection prep" --message-file notes.txt
+Examples:
+  gitmap notify --group editors --subject "New release" --message "Basemap updated."
+  gitmap notify --group editors --user testuser --subject "Test" --message "Hello"
+  gitmap notify --group "Field Crew" --subject "Prep" --message-file notes.txt
 ```
 
 ### `gitmap context`
 
-Visualize and manage the context graph showing events, relationships, and annotations.
+Visualize event history and relationships.
 
 ```bash
-gitmap context <SUBCOMMAND> [OPTIONS]
-```
+gitmap context <show|export|timeline|graph> [OPTIONS]
 
-**Description:**
-The context command provides tools for visualizing the event history and relationships in your GitMap repository. It tracks all operations (commits, pushes, pulls, merges, branches, diffs) and displays them in various formats suitable for terminal viewing or export to IDEs.
+show / timeline options:
+  --format, -f TEXT   ascii | mermaid | mermaid-timeline (default: ascii)
+  --limit, -n INT     Max events (default: 20)
+  --type, -t TEXT     Filter: commit|push|pull|merge|branch|diff
 
-**Subcommands:**
-- `show` - Display context graph in terminal (ASCII, Mermaid, or Mermaid Timeline formats)
-- `export` - Export context graph to file (Mermaid, ASCII, or HTML)
-- `timeline` - Show ASCII timeline of context events
-- `graph` - Show ASCII graph of event relationships
+export options:
+  --format, -f TEXT   mermaid | mermaid-timeline | mermaid-git | ascii | ascii-graph | html
+  --output, -o TEXT   Output file
+  --theme TEXT        light | dark (HTML only)
+  --title TEXT        Visualization title
 
-**Options (for `show` and `timeline`):**
-- `--format, -f` - Output format: `ascii`, `mermaid`, or `mermaid-timeline` (default: ascii)
-- `--limit, -n` - Maximum events to display (default: 20)
-- `--type, -t` - Filter by event types (can be used multiple times): `commit`, `push`, `pull`, `merge`, `branch`, `diff`
-- `--no-unicode` - Use simple ASCII characters (no Unicode)
-
-**Options (for `export`):**
-- `--format, -f` - Output format: `mermaid`, `mermaid-timeline`, `mermaid-git`, `ascii`, `ascii-graph`, or `html` (default: mermaid)
-- `--output, -o` - Output file path (defaults to context.<ext>)
-- `--limit, -n` - Maximum events to include (default: 50)
-- `--type, -t` - Filter by event types
-- `--title` - Title for the visualization
-- `--theme` - Color theme for HTML output: `light` or `dark` (default: light)
-- `--direction` - Graph direction for Mermaid flowcharts: `TB`, `BT`, `LR`, or `RL` (default: TB)
-- `--no-annotations` - Exclude annotations from visualization
-
-**Examples:**
-```bash
-# Display context graph in terminal
-gitmap context show
-
-# Display as Mermaid diagram
-gitmap context show --format mermaid
-
-# Show only commits and pushes
-gitmap context show --type commit --type push
-
-# Export to Mermaid file for IDE viewing
-gitmap context export
-
-# Export to HTML with dark theme
-gitmap context export --format html --theme dark -o context.html
-
-# Export with custom title and direction
-gitmap context export --format mermaid --direction LR --title "My Project Timeline"
-
-# Show timeline of recent events
-gitmap context timeline
-
-# Show event relationship graph
-gitmap context graph -n 15
+Examples:
+  gitmap context show
+  gitmap context show --format mermaid --type commit --type push
+  gitmap context export --format html --theme dark -o history.html
+  gitmap context timeline
 ```
 
 ### `gitmap config`
 
-Manage repository configuration settings.
-
 ```bash
 gitmap config [OPTIONS]
+
+Options:
+  --production-branch, -p TEXT   Set production branch
+  --unset-production             Remove production branch
+  --auto-visualize               Enable auto context graph
+  --no-auto-visualize            Disable auto context graph
+
+Examples:
+  gitmap config                              # View config
+  gitmap config --production-branch main
+  gitmap config --auto-visualize
 ```
 
-**Description:**
-Configure repository settings such as the production branch (which triggers notifications on push) and auto-visualization (automatically regenerates context graph after events).
-
-**Options:**
-- `--production-branch, -p` - Set the production branch name (branch that triggers notifications on push)
-- `--unset-production` - Remove the production branch setting
-- `--auto-visualize` - Enable automatic context graph regeneration after events
-- `--no-auto-visualize` - Disable automatic context graph regeneration
-
-**Examples:**
-```bash
-# View current configuration
-gitmap config
-
-# Set production branch
-gitmap config --production-branch main
-
-# Set production branch to a release branch
-gitmap config --production-branch release/1.0.0
-
-# Remove production branch setting
-gitmap config --unset-production
-
-# Enable auto-visualization
-gitmap config --auto-visualize
-
-# Disable auto-visualization
-gitmap config --no-auto-visualize
-```
+---
 
 ## Usage Examples
 
-### Workflow: Bulk Repository Setup
+### Bulk Repository Setup
 
 ```bash
-# Set up a repositories directory with all maps owned by a user
 gitmap setup-repos --owner myusername --directory my-maps
-
-# Navigate into one of the cloned repositories
 cd my-maps/MyWebMap
-
-# Check the status
 gitmap status
-
-# Make changes and commit
-gitmap commit -m "Updated layer symbology"
-
-# Push back to Portal
+gitmap commit -m "Updated symbology"
 gitmap push
 ```
 
-### Workflow: Keeping Repositories in Sync
+### Keep Repositories in Sync
 
 ```bash
-# Pull updates for all repositories at once
+# Manual sync
 gitmap auto-pull
 
-# Pull from a specific directory
-gitmap auto-pull --directory my-maps
-
-# Set up automated synchronization with cron (runs every hour)
-# Add this to your crontab (crontab -e):
-0 * * * * cd /path/to/project && /path/to/gitmap auto-pull --directory repositories
-
-# Or use systemd timer for more control
-# Create /etc/systemd/system/gitmap-sync.service and gitmap-sync.timer
+# Automated (cron, every hour)
+0 * * * * cd /path/to/project && gitmap auto-pull --auto-commit
 ```
 
-### Workflow: Creating a New Feature
+### Feature Branch Workflow
 
 ```bash
-# 1. Start from main branch
 gitmap checkout main
-
-# 2. Create feature branch
 gitmap branch feature/add-basemap
-
-# 3. Switch to feature branch
 gitmap checkout feature/add-basemap
 
-# 4. Make changes to your map (edit JSON files)
+# Edit map JSON files...
 
-# 5. Check what changed
-gitmap status
 gitmap diff
-
-# 6. Commit changes
-gitmap commit -m "Added new basemap layer"
-
-# 7. Push to Portal
+gitmap commit -m "Added satellite basemap option"
 gitmap push --branch feature/add-basemap
 
-# 8. Merge back to main
 gitmap checkout main
 gitmap merge feature/add-basemap
 gitmap push
 ```
 
-### Workflow: Collaborating with Others
+### Compare Versions
 
 ```bash
-# 1. Pull latest changes from Portal
-gitmap pull
-
-# 2. Check for conflicts
-gitmap status
-
-# 3. If conflicts exist, resolve them manually
-# Then commit the resolution
-gitmap commit -m "Resolved merge conflicts"
-
-# 4. Push resolved changes
-gitmap push
-```
-
-### Workflow: Comparing Versions
-
-```bash
-# Compare current working tree with main branch
 gitmap diff --branch main
-
-# Compare two specific commits
-gitmap diff --commit abc123 --commit def456
-
-# View commit history
+gitmap diff --commit abc123
 gitmap log --limit 20
 ```
 
-### Workflow: Transferring Layer Settings
+### Transfer Layer Settings
 
 ```bash
-# Transfer popup and form settings from one branch to another
-gitmap checkout feature/new-layer
-gitmap lsm main
-
-# Preview what would be transferred (dry-run)
+# Preview
 gitmap lsm main feature/new-layer --dry-run
 
-# Transfer settings from a Portal item ID
-gitmap lsm abc123def456
+# Apply
+gitmap lsm main feature/new-layer
 
-# Transfer settings between different repositories
-gitmap lsm ../source-repo
+# From Portal item ID
+gitmap lsm abc123def456
 ```
+
+---
 
 ## Docker Setup
 
-GitMap includes Docker support for consistent development environments.
-
-### Development Shell
-
-Start an interactive development shell:
-
 ```bash
+# Interactive dev shell
 docker-compose up dev
-```
 
-This provides:
-- Python 3.11 environment
-- All dependencies installed
-- Volume mounts for live code editing
-- ArcGIS cache persistence
-
-### Running Apps
-
-Run a specific app:
-
-```bash
+# Run specific app
 APP_GROUP=cli APP_NAME=gitmap docker-compose up app
 ```
+
+---
 
 ## Development
 
 ### Project Structure
 
 ```
-gitmap/
-├── apps/                    # Runnable applications
-│   └── cli/
-│       └── gitmap/          # CLI application
-├── packages/                # First-party libraries
-│   └── gitmap_core/        # Core library
-├── configs/                 # Configuration templates
-├── docker/                  # Docker configuration
-└── documentation/          # Specifications and docs
+Git-Map/
+├── apps/
+│   └── cli/gitmap/          # CLI application (gitmap-cli 0.6.0)
+├── packages/
+│   └── gitmap_core/         # Core library (gitmap_core 0.6.0)
+├── configs/                 # Config templates (.env.example)
+├── docker/                  # Docker config
+└── documentation/           # Specs and design docs
 ```
 
-### Installing for Development
+### Install for Development
 
 ```bash
-# Install core library in editable mode
-pip install -e packages/gitmap_core
-
-# Install CLI in editable mode
+pip install -e "packages/gitmap_core[dev]"
 pip install -e apps/cli/gitmap
 ```
 
-### Running Tests
+### Run Tests
 
 ```bash
-# From project root
-pytest
+# All tests
+cd Git-Map && python -m pytest tests/ -x -q
+
+# With coverage
+python -m pytest packages/gitmap_core/tests --cov=packages/gitmap_core --cov-report=term-missing
 ```
 
 ### Code Standards
 
 - Python 3.11+
-- PEP 8 style guide
+- PEP 8, PEP 257
 - Type hints required
-- PEP 257 docstrings
-- Uses `pathlib.Path` for file operations
+- `pathlib.Path` for file operations
+
+### CI
+
+Tests run automatically on every push and PR via [GitHub Actions](https://github.com/14-TR/Git-Map/actions) across Python 3.11, 3.12, and 3.13.
+
+---
 
 ## Architecture
 
 ### Core Components
 
-- **`gitmap_core`**: Core library providing:
-  - Repository management (`.gitmap` directory structure)
-  - Portal authentication and connection
-  - Web map JSON operations
-  - Diff and merge algorithms
-  - Remote push/pull operations
+**`gitmap_core`** — Core library:
+- Repository management (`.gitmap/` structure)
+- Portal authentication and connection
+- Web map JSON diffing and merging
+- Remote push/pull operations
+- Context graph visualization
 
-- **`gitmap-cli`**: Command-line interface providing:
-  - 18 Git-like commands (including `list`, `lsm`, `setup-repos`, `auto-pull`, `notify`, `context`, and `config`)
-  - Rich terminal output
-  - User-friendly error messages
+**`gitmap-cli`** — CLI layer:
+- 18 Git-like commands
+- Rich terminal output with colors
+- User-friendly error messages
 
-### Repository Structure
-
-GitMap stores version control data in a `.gitmap` directory:
+### Repository Layout
 
 ```
 .gitmap/
-├── config.json          # Repository configuration
-├── HEAD                 # Current branch reference
-├── index.json           # Staging area
+├── config.json      # Repo settings
+├── HEAD             # Current branch ref
+├── index.json       # Staging area
 ├── refs/
-│   └── heads/          # Branch references
+│   └── heads/       # Branch refs
 └── objects/
-    └── commits/        # Commit objects
+    └── commits/     # Commit snapshots
 ```
 
 ### Data Model
 
-- **Commit**: Snapshot of map state with metadata
-- **Branch**: Named pointer to a commit
-- **Remote**: Portal connection configuration
-- **Config**: Repository settings and defaults
-
-## Troubleshooting
-
-### Authentication Issues
-
-If you encounter authentication errors:
-
-1. Verify your `.env` file exists and contains correct credentials
-2. Check that environment variables are set:
-   ```bash
-   echo $PORTAL_USER
-   echo $PORTAL_PASSWORD
-   ```
-3. Try providing credentials via command-line options
-4. Verify Portal URL is correct
-
-### Common Errors
-
-**"Not connected. Call connect() first"**
-- Ensure you've authenticated with Portal
-- Check your `.env` file configuration
-
-**"Repository already exists"**
-- Remove existing `.gitmap` directory if starting fresh
-- Or work within the existing repository
-
-**"Failed to connect to Portal"**
-- Verify Portal URL is accessible
-- Check network connectivity
-- Confirm credentials are correct
-
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Follow the code standards outlined in `documentation/project_specs/`
-2. Add tests for new features
-3. Update documentation as needed
-4. Submit pull requests with clear descriptions
-
-## License
-
-MIT License - see LICENSE file for details
-
-## Support
-
-For issues, questions, or contributions:
-- Open an issue on the repository
-- Review documentation in `documentation/`
-- Check specifications in `documentation/project_specs/`
+| Concept | Description |
+|---|---|
+| **Commit** | Snapshot of a map's JSON state + metadata |
+| **Branch** | Named pointer to a commit |
+| **Remote** | Portal connection config |
+| **Index** | Staging area (like `git add`) |
 
 ---
 
-**GitMap** - Version control for ArcGIS web maps
+## Troubleshooting
 
+**Authentication errors**
+- Check `.env` exists and credentials are correct
+- Verify `PORTAL_URL` points to the right instance
+- Try passing `--username` / `--password` directly
+
+**"Not connected. Call connect() first"**
+- Portal authentication failed — check `.env` config
+
+**"Repository already exists"**
+- Remove `.gitmap/` directory to start fresh, or work within the existing repo
+
+**"Failed to connect to Portal"**
+- Verify Portal URL is reachable from your network
+- Check firewall / VPN settings
+
+---
+
+## Contributing
+
+1. Fork the repo and create a `jig/*` branch
+2. Follow code standards (PEP 8, type hints, docstrings)
+3. Add tests for new features — keep coverage above 90%
+4. Open a PR with a clear description of what changed and why
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE) for details.
+
+---
+
+## Support & Community
+
+- [Open an issue](https://github.com/14-TR/Git-Map/issues)
+- [View documentation](documentation/)
+- [Changelog](CHANGELOG.md)
+
+---
+
+**GitMap** — The git for GIS.
