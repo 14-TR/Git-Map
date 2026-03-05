@@ -5,6 +5,30 @@ All notable changes to GitMap will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.6.0] - 2026-03-05
+
+### Added
+- MCP stash tools (stash_push, stash_pop, stash_list, stash_drop) exposed via MCP server
+- gitmap_merge tool added to MCP server
+- Branch-to-branch diff support (gitmap diff <source> <target>)
+- find_common_ancestor implementation for 3-way merge base detection
+- Integration tests for OpenClaw tools (test_openclaw)
+- pyproject.toml with consolidated pytest config and ruff lint rules
+- Dev dependency: rich for CLI formatting and tests
+
+### Changed
+- Test suite expanded to 660+ tests (up from 608)
+- compat.py error-path branch coverage improved from 86% to 96%
+- Ruff: resolved 67 lint issues across repository.py, diff.py, visualize.py, and test modules
+
+### Fixed
+- ContextStore.__del__ now closes SQLite connection on garbage collection (resource leak)
+- Ambiguous variable names (F811, E741, F841, B007) in repository.py and visualize.py
+- CLI dependency guard extended to include rich in test_diff.py
+- CI workflow updated to install CLI deps and apply skip markers for cross-app tests
+
 ## [0.5.0] - 2025-02-14
 
 ### Added
@@ -80,6 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[0.6.0]: https://github.com/14-TR/Git-Map/compare/v0.5.0...HEAD
 [0.5.0]: https://github.com/14-TR/Git-Map/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/14-TR/Git-Map/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/14-TR/Git-Map/compare/v0.2.0...v0.3.0
