@@ -705,3 +705,7 @@ class ContextStore:
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Context manager exit."""
         self.close()
+
+    def __del__(self) -> None:
+        """Ensure connection is closed when object is garbage collected."""
+        self.close()
