@@ -1,0 +1,85 @@
+site_name: Git-Map
+site_description: Version control for ArcGIS web maps — branch, commit, diff, merge, push, and pull your maps like code.
+site_url: https://14-tr.github.io/Git-Map
+repo_url: https://github.com/14-TR/Git-Map
+repo_name: 14-TR/Git-Map
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quickstart: getting-started/quickstart.md
+    - Core Concepts: getting-started/concepts.md
+  - CLI Reference:
+    - Overview: commands/index.md
+    - init: commands/init.md
+    - clone: commands/clone.md
+    - status: commands/status.md
+    - commit: commands/commit.md
+    - branch: commands/branch.md
+    - checkout: commands/checkout.md
+    - diff: commands/diff.md
+    - log: commands/log.md
+    - merge: commands/merge.md
+    - push: commands/push.md
+    - pull: commands/pull.md
+    - revert: commands/revert.md
+    - stash: commands/stash.md
+    - tag: commands/tag.md
+  - Guides:
+    - Day-to-Day Workflow: guides/workflow.md
+    - Branching Strategy: guides/branching.md
+    - Working with Portals: guides/portals.md
+  - Contributing: contributing.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/14-TR/Git-Map
+
+copyright: "Copyright &copy; 2024 TR Ingram — MIT License"
