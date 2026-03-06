@@ -97,7 +97,7 @@ def merge(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         current_branch = repo.get_current_branch()
         if not current_branch:

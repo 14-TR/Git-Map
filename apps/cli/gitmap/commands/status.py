@@ -45,9 +45,7 @@ def status() -> None:
         repo = find_repository()
 
         if not repo:
-            console.print("[red]Not a GitMap repository[/red]")
-            console.print("Run 'gitmap init' to create a new repository.")
-            return
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         # Get current branch
         current_branch = repo.get_current_branch()

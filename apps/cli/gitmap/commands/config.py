@@ -63,7 +63,7 @@ def config(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         config_obj = repo.get_config()
         changes_made = False

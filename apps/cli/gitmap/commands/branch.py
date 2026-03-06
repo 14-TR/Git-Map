@@ -66,10 +66,17 @@ def _record_branch_event(repo, action: str, branch_name: str, commit_id: str | N
     is_flag=True,
     help="List all branches.",
 )
+@click.option(
+    "--verbose",
+    "-v",
+    is_flag=True,
+    help="Show commit hash and message for each branch.",
+)
 def branch(
         name: str | None,
         delete: bool,
         list_branches: bool,
+        verbose: bool,
 ) -> None:
     """List or create branches.
 
@@ -78,6 +85,7 @@ def branch(
 
     Examples:
         gitmap branch              # List branches
+        gitmap branch -v           # List branches with commit details
         gitmap branch feature/x    # Create branch 'feature/x'
         gitmap branch -d feature/x # Delete branch 'feature/x'
     """
@@ -85,7 +93,7 @@ def branch(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         current_branch = repo.get_current_branch()
 
@@ -98,10 +106,21 @@ def branch(
                 return
 
             for branch_name in branches:
-                if branch_name == current_branch:
-                    console.print(f"[green]* {branch_name}[/green]")
+                is_current = branch_name == current_branch
+                marker = "[green]*[/green]" if is_current else " "
+                name_str = f"[green]{branch_name}[/green]" if is_current else branch_name
+
+                if verbose:
+                    commit_id = repo.get_branch_commit(branch_name)
+                    if commit_id:
+                        commit = repo.get_commit(commit_id)
+                        hash_str = f"[cyan]{commit_id[:8]}[/cyan]"
+                        msg_str = f"[dim]{commit.message[:60]}[/dim]" if commit else "[dim](no message)[/dim]"
+                        console.print(f"  {marker} {name_str}  {hash_str} {msg_str}")
+                    else:
+                        console.print(f"  {marker} {name_str}  [dim](no commits)[/dim]")
                 else:
-                    console.print(f"  {branch_name}")
+                    console.print(f"  {marker} {name_str}")
             return
 
         if not name:

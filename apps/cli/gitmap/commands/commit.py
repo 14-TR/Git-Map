@@ -65,7 +65,7 @@ def commit(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         # Check for changes
         if not repo.has_uncommitted_changes():

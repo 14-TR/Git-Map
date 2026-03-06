@@ -56,7 +56,7 @@ def cherry_pick(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         # Check for uncommitted changes
         if repo.has_uncommitted_changes():

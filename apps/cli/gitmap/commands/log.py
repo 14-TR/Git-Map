@@ -40,9 +40,16 @@ console = Console()
     is_flag=True,
     help="Show compact one-line format.",
 )
+@click.option(
+    "--branch",
+    "-b",
+    default=None,
+    help="Show history for a specific branch (defaults to current branch).",
+)
 def log(
         limit: int,
         oneline: bool,
+        branch: str | None,
 ) -> None:
     """Show commit history.
 
@@ -53,21 +60,32 @@ def log(
         gitmap log
         gitmap log -n 5
         gitmap log --oneline
+        gitmap log --branch feature/my-layer
+        gitmap log -b main --oneline
     """
     try:
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
-        commits = repo.get_commit_history(limit=limit)
+        current_branch = repo.get_current_branch()
+
+        # Resolve which branch to walk
+        target_branch = branch or current_branch
+        if branch and branch != current_branch:
+            branch_commit = repo.get_branch_commit(branch)
+            if not branch_commit:
+                raise click.ClickException(f"Branch not found: '{branch}'")
+            commits = repo.get_commit_history(start_commit=branch_commit, limit=limit)
+            head_commit = branch_commit
+        else:
+            commits = repo.get_commit_history(limit=limit)
+            head_commit = repo.get_head_commit()
 
         if not commits:
             console.print("[dim]No commits yet[/dim]")
             return
-
-        current_branch = repo.get_current_branch()
-        head_commit = repo.get_head_commit()
 
         if oneline:
             # Compact format
