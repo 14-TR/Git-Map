@@ -98,7 +98,7 @@ def show(
     try:
         repo = find_repository()
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         with repo.get_context_store() as store:
             viz = visualize_context(
@@ -206,7 +206,7 @@ def export(
     try:
         repo = find_repository()
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         # Determine output file extension
         ext_map = {
@@ -300,7 +300,7 @@ def timeline(
     try:
         repo = find_repository()
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         with repo.get_context_store() as store:
             viz = visualize_context(
@@ -351,7 +351,7 @@ def graph(
     try:
         repo = find_repository()
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         with repo.get_context_store() as store:
             viz = visualize_context(

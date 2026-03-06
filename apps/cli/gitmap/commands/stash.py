@@ -77,7 +77,7 @@ def stash_push(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         stash_entry = repo.stash_push(message=message)
 
@@ -115,7 +115,7 @@ def stash_pop(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         stash_entry = repo.stash_pop(index=index)
 
@@ -145,7 +145,7 @@ def stash_list() -> None:
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         stashes = repo.stash_list()
 
@@ -196,7 +196,7 @@ def stash_drop(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         stash_ref = repo.stash_drop(index=index)
 
@@ -230,7 +230,7 @@ def stash_clear(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         stashes = repo.stash_list()
         if not stashes:

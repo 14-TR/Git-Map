@@ -136,7 +136,7 @@ def diff(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository")
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         if source and target:
             # ---- Two-argument form: compare two refs directly ---------
