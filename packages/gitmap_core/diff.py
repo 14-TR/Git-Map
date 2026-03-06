@@ -279,3 +279,73 @@ def format_diff_summary(
     return "\n".join(lines)
 
 
+
+
+def format_diff_visual(
+        map_diff: "MapDiff",
+        label_a: str = "source",
+        label_b: str = "target",
+) -> list[tuple[str, str, str]]:
+    """Format MapDiff as a list of rows for table rendering.
+
+    Each row is (status_symbol, item_name, change_detail) suitable
+    for use in a Rich Table or similar renderer.
+
+    Args:
+        map_diff: MapDiff object to format.
+        label_a: Label for the source state.
+        label_b: Label for the target state.
+
+    Returns:
+        List of (symbol, name, detail) tuples.
+        Returns empty list when there are no changes.
+    """
+    rows: list[tuple[str, str, str]] = []
+
+    for change in map_diff.added_layers:
+        rows.append(("+", change.layer_title, f"Added in {label_a}"))
+
+    for change in map_diff.removed_layers:
+        rows.append(("-", change.layer_title, f"Removed in {label_a} (present in {label_b})"))
+
+    for change in map_diff.modified_layers:
+        num_changes = len(change.details) if change.details else 1
+        detail = f"{num_changes} field(s) changed"
+        rows.append(("~", change.layer_title, detail))
+
+    for change in map_diff.added_tables:
+        rows.append(("+", f"[table] {change.layer_title}", f"Added in {label_a}"))
+
+    for change in map_diff.removed_tables:
+        rows.append(("-", f"[table] {change.layer_title}", f"Removed in {label_a} (present in {label_b})"))
+
+    for change in map_diff.modified_tables:
+        num_changes = len(change.details) if change.details else 1
+        rows.append(("~", f"[table] {change.layer_title}", f"{num_changes} field(s) changed"))
+
+    if map_diff.property_changes:
+        rows.append(("*", "Map properties", f"{len(map_diff.property_changes)} top-level field(s) changed"))
+
+    return rows
+
+
+def format_diff_stats(map_diff: "MapDiff") -> dict[str, int]:
+    """Return a summary statistics dict for a MapDiff.
+
+    Args:
+        map_diff: MapDiff object.
+
+    Returns:
+        Dict with counts: added, removed, modified, total.
+    """
+    added = len(map_diff.added_layers) + len(map_diff.added_tables)
+    removed = len(map_diff.removed_layers) + len(map_diff.removed_tables)
+    modified = len(map_diff.modified_layers) + len(map_diff.modified_tables)
+    if map_diff.property_changes:
+        modified += 1
+    return {
+        "added": added,
+        "removed": removed,
+        "modified": modified,
+        "total": added + removed + modified,
+    }

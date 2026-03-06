@@ -738,3 +738,150 @@ class TestBranchToBranchDiff:
         assert map_diff.has_changes
         modified_ids = [c.layer_id for c in map_diff.layer_changes if c.change_type == "modified"]
         assert "l1" in modified_ids
+
+
+# ---- Visual Diff Tests -----------------------------------------------------------------------
+
+
+class TestFormatDiffVisual:
+    """Tests for format_diff_visual helper."""
+
+    def test_no_changes_returns_empty(self) -> None:
+        """Empty MapDiff produces empty rows."""
+        from gitmap_core.diff import format_diff_visual
+
+        map_diff = MapDiff()
+        rows = format_diff_visual(map_diff, "a", "b")
+        assert rows == []
+
+    def test_added_layer_row(self) -> None:
+        """Added layer produces a '+' row."""
+        from gitmap_core.diff import format_diff_visual
+
+        map_diff = MapDiff(
+            layer_changes=[LayerChange(layer_id="l1", layer_title="Roads", change_type="added")]
+        )
+        rows = format_diff_visual(map_diff, "source", "target")
+        assert len(rows) == 1
+        symbol, name, detail = rows[0]
+        assert symbol == "+"
+        assert name == "Roads"
+        assert "source" in detail
+
+    def test_removed_layer_row(self) -> None:
+        """Removed layer produces a '-' row."""
+        from gitmap_core.diff import format_diff_visual
+
+        map_diff = MapDiff(
+            layer_changes=[LayerChange(layer_id="l2", layer_title="Parks", change_type="removed")]
+        )
+        rows = format_diff_visual(map_diff, "main", "feature")
+        symbol, name, detail = rows[0]
+        assert symbol == "-"
+        assert name == "Parks"
+        assert "main" in detail
+
+    def test_modified_layer_row(self) -> None:
+        """Modified layer produces a '~' row with change count."""
+        from gitmap_core.diff import format_diff_visual
+
+        map_diff = MapDiff(
+            layer_changes=[
+                LayerChange(
+                    layer_id="l3",
+                    layer_title="Buildings",
+                    change_type="modified",
+                    details={"values_changed": {"root['opacity']": {"new_value": 0.5, "old_value": 1.0}}},
+                )
+            ]
+        )
+        rows = format_diff_visual(map_diff)
+        symbol, name, detail = rows[0]
+        assert symbol == "~"
+        assert name == "Buildings"
+        assert "1" in detail
+
+    def test_property_changes_row(self) -> None:
+        """Map-level property changes produce a '*' row."""
+        from gitmap_core.diff import format_diff_visual
+
+        map_diff = MapDiff(property_changes={"values_changed": {}, "type_changes": {}})
+        rows = format_diff_visual(map_diff)
+        assert any(r[0] == "*" for r in rows)
+
+    def test_table_change_prefix(self) -> None:
+        """Table changes are prefixed with [table]."""
+        from gitmap_core.diff import format_diff_visual
+
+        map_diff = MapDiff(
+            table_changes=[LayerChange(layer_id="t1", layer_title="Assets", change_type="added")]
+        )
+        rows = format_diff_visual(map_diff)
+        assert rows[0][1].startswith("[table]")
+
+    def test_mixed_changes(self) -> None:
+        """Multiple change types all produce rows."""
+        from gitmap_core.diff import format_diff_visual
+
+        map_diff = MapDiff(
+            layer_changes=[
+                LayerChange(layer_id="l1", layer_title="A", change_type="added"),
+                LayerChange(layer_id="l2", layer_title="B", change_type="removed"),
+                LayerChange(layer_id="l3", layer_title="C", change_type="modified"),
+            ]
+        )
+        rows = format_diff_visual(map_diff)
+        assert len(rows) == 3
+        symbols = [r[0] for r in rows]
+        assert "+" in symbols
+        assert "-" in symbols
+        assert "~" in symbols
+
+
+class TestFormatDiffStats:
+    """Tests for format_diff_stats helper."""
+
+    def test_empty_diff(self) -> None:
+        """Empty diff returns zeros."""
+        from gitmap_core.diff import format_diff_stats
+
+        stats = format_diff_stats(MapDiff())
+        assert stats == {"added": 0, "removed": 0, "modified": 0, "total": 0}
+
+    def test_added_counts(self) -> None:
+        """Added layers and tables both count toward added."""
+        from gitmap_core.diff import format_diff_stats
+
+        map_diff = MapDiff(
+            layer_changes=[LayerChange(layer_id="l1", layer_title="A", change_type="added")],
+            table_changes=[LayerChange(layer_id="t1", layer_title="T", change_type="added")],
+        )
+        stats = format_diff_stats(map_diff)
+        assert stats["added"] == 2
+        assert stats["removed"] == 0
+        assert stats["modified"] == 0
+        assert stats["total"] == 2
+
+    def test_property_changes_count_as_modified(self) -> None:
+        """Map property changes count as +1 modified."""
+        from gitmap_core.diff import format_diff_stats
+
+        map_diff = MapDiff(property_changes={"values_changed": {}})
+        stats = format_diff_stats(map_diff)
+        assert stats["modified"] == 1
+        assert stats["total"] == 1
+
+    def test_total_is_sum(self) -> None:
+        """Total equals sum of added + removed + modified."""
+        from gitmap_core.diff import format_diff_stats
+
+        map_diff = MapDiff(
+            layer_changes=[
+                LayerChange(layer_id="l1", layer_title="A", change_type="added"),
+                LayerChange(layer_id="l2", layer_title="B", change_type="removed"),
+                LayerChange(layer_id="l3", layer_title="C", change_type="modified"),
+            ],
+        )
+        stats = format_diff_stats(map_diff)
+        assert stats["total"] == stats["added"] + stats["removed"] + stats["modified"]
+        assert stats["total"] == 3
