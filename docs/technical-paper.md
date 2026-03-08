@@ -4,11 +4,14 @@
 *Independent Researcher / GIS Software Engineer*  
 *Wyoming, USA*
 
+**Date:** March 8, 2026  
+**Version:** 2.0
+
 ---
 
 ## Abstract
 
-Web maps published through ArcGIS Online (AGOL) and ArcGIS Enterprise Portal represent complex, stateful GIS products whose operational layer configurations, symbology, popups, and cartographic properties evolve continuously over time. Despite this complexity, Esri's platform offers no native mechanism to snapshot, branch, or revert a web map's JSON definition — leaving GIS professionals to rely on ad hoc strategies such as periodic item cloning, manual change logs, or informal naming conventions like "Map_v3_FINAL_2." This paper presents **Git-Map**, a Python-based version control system that brings Git's conceptual model — commits, branches, merges, cherry-picks, and reverts — to ArcGIS web map items. The system stores complete snapshots of a map's operational layer JSON at each commit, implements three-way merge logic at the layer level, provides a property-level diff engine built on `DeepDiff`, exposes all operations through a Model Context Protocol (MCP) server for AI-agent workflows, and maintains an SQLite-backed event graph for episodic context tracking. With 674 tests achieving 96% code coverage across Portal and AGOL environments, Git-Map demonstrates that rigorous software engineering practices can close the version control gap in modern GIS workflows.
+Web maps published through ArcGIS Online (AGOL) and ArcGIS Enterprise Portal represent complex, stateful GIS artifacts whose operational layer configurations, symbology, popups, and cartographic properties evolve continuously over time. Despite this complexity, Esri's platform offers no native mechanism to snapshot, branch, or revert a web map's JSON definition — leaving GIS professionals to rely on ad hoc strategies such as periodic item cloning, manual change logs, or informal naming conventions like "Map\_v3\_FINAL\_2." This paper presents **Git-Map** (v0.6.0), a Python-based version control system that brings Git's conceptual model — commits, branches, merges, cherry-picks, stashes, and reverts — to ArcGIS web map items. The system stores complete snapshots of a map's operational layer JSON at each commit, implements three-way merge logic at the layer level, provides a property-level diff engine built on `DeepDiff`, exposes all operations through a Model Context Protocol (MCP) server for AI-agent workflows, wraps nine operations as native ArcGIS Pro Python toolbox tools, maintains an SQLite-backed event graph for episodic context tracking, and is distributed as a PyPI package. With 660+ tests achieving up to 96% code coverage across Portal and AGOL environments, Git-Map demonstrates that rigorous software engineering practices can close the version control gap in modern GIS workflows.
 
 ---
 
@@ -28,524 +31,779 @@ Git-Map addresses this gap by treating the web map JSON as the artifact under ve
 
 This paper makes the following contributions:
 
-1. **A formal model** for applying DVCS concepts (commits, branches, remotes, staging areas) to ArcGIS web map items, with semantics appropriate to the JSON-document nature of the artifact.
+1. A formal architecture for a content-addressable, commit-based version control system operating on ArcGIS web map JSON.
+2. A layer-atomic three-way merge algorithm adapted from Git's merge strategy to GIS-specific data structures.
+3. A `DeepDiff`-backed property-level diff engine producing structured `MapDiff` objects.
+4. An SQLite-backed event graph (`ContextStore`) enabling episodic memory and AI-agent context awareness.
+5. A Model Context Protocol (MCP) server exposing all GitMap operations to AI coding agents.
+6. A native ArcGIS Pro Python Toolbox (.pyt) wrapping nine core GitMap operations.
+7. An OpenClaw integration providing subprocess-based tool wrappers for agent-driven map management.
 
-2. **A three-way merge algorithm** operating at the operational layer granularity, capable of auto-resolving non-conflicting parallel changes and surfacing genuine conflicts for human resolution.
+### 1.3 Scope
 
-3. **A compatibility abstraction layer** that normalizes behavioral differences across `arcgis` Python API versions 2.2.x through 2.4.x and across Portal vs. AGOL deployment targets.
-
-4. **An MCP server integration** that exposes all Git-Map operations as structured tools consumable by AI coding agents and LLM-based automation pipelines.
-
-5. **An SQLite-backed context graph** providing episodic memory of operations, rationales, and inter-event relationships for human and agent audit trails.
-
----
-
-## 2. Related Work
-
-### 2.1 ArcGIS Version Management Services
-
-Esri's versioning infrastructure exists at the geodatabase level, not the web map level. Traditional versioning (ArcSDE) supports a parent-child edit isolation model where a DEFAULT version represents the authoritative state and child versions allow isolated editing with reconcile/post operations for re-integration. Branch versioning, introduced in ArcGIS Enterprise 10.6, extends this model to feature services accessed via web clients, enabling offline-capable workflows without requiring ArcMap. However, both mechanisms are scoped to `Workspace`-level transactional boundaries in the geodatabase — they track changes to feature geometries and attributes, not to the web map's operational layer configuration.
-
-The Portal REST API provides item-level write operations (`updateItem`, `addItem`) that are atomic and non-versioned. A `GET /sharing/rest/content/items/{itemId}/data` returns the current JSON payload; there is no `?version=` parameter or history endpoint. Esri's ArcGIS Notebooks environment provides Python-based automation but does not expose a version control abstraction for web map items.
-
-### 2.2 Portal Versioning Limitations
-
-Portal's item versioning model records metadata events — title changes, tag updates, sharing group changes, thumbnail replacements — but does not snapshot the `data` payload. This is architecturally significant: the item's `modified` timestamp and `size` field will change when a user saves map layer changes, but the previous state is irretrievably overwritten. Portal's "protected" item flag prevents deletion but not modification.
-
-ArcGIS Online's organizational content management supports "Copy Item" operations that create independent duplicates with new item IDs, which GIS administrators sometimes use manually as informal snapshots. This approach does not scale: it generates item sprawl, consumes storage quota, breaks sharing group memberships, and creates no structured relationship between copies that would support comparison or rollback.
-
-### 2.3 General-Purpose Version Control for Structured Data
-
-The literature on version control for non-code artifacts is limited but growing. Systems like DVC (Data Version Control) address the ML dataset versioning problem by tracking file hashes and storing large binary objects outside Git. DBngin and Liquibase address database schema versioning. None of these systems address the GIS web map domain, where the artifact is a complex JSON document with domain-specific semantics (layer ordering, spatial references, service URL references) and lives in a remote content management system rather than on the local filesystem.
-
-Git-Map's approach is closest in spirit to tools like `git-annex` (managing remote binary content through a local metadata store) and JSON Patch (RFC 6902 diff-and-apply semantics), but implements domain-aware merge logic rather than generic structural diffing.
+This paper covers Git-Map version 0.6.0 as of March 2026. The system supports ArcGIS Online and Portal for ArcGIS ≥ 10.9, requires Python ≥ 3.10, and is distributed under the MIT license. The scope includes the `gitmap_core` library, `gitmap` CLI, MCP server, ArcGIS Pro toolbox, and OpenClaw integration. Geodatabase versioning, feature editing workflows, and ArcGIS Server service management are explicitly out of scope.
 
 ---
 
-## 3. Architecture
+## 2. System Architecture
 
-### 3.1 System Overview
-
-Git-Map is organized as a Python monorepo with two primary packages:
+### 2.1 High-Level Component Diagram
 
 ```
-/packages/gitmap_core/     — Core library (models, repository, diff, merge, context)
-/apps/mcp/gitmap-mcp/      — MCP server exposing gitmap_core as agent tools
+┌─────────────────────────────────────────────────────────────────────┐
+│                          Git-Map Monorepo                           │
+│                                                                     │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │                    packages/gitmap_core                       │  │
+│  │  ┌──────────┐ ┌────────┐ ┌──────┐ ┌─────────┐ ┌─────────┐  │  │
+│  │  │repository│ │ merge  │ │ diff │ │ context │ │  maps   │  │  │
+│  │  │   .py    │ │  .py   │ │  .py │ │   .py   │ │   .py   │  │  │
+│  │  └────┬─────┘ └────────┘ └──────┘ └────┬────┘ └─────────┘  │  │
+│  │       │                                 │                    │  │
+│  │  ┌────┴────┐  ┌──────────┐  ┌──────────┴───┐               │  │
+│  │  │ models  │  │connection│  │  visualize   │               │  │
+│  │  │   .py   │  │   .py   │  │     .py      │               │  │
+│  │  └─────────┘  └──────────┘  └──────────────┘               │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+│                              ▲                                      │
+│          ┌───────────────────┼───────────────────┐                 │
+│          │                   │                   │                 │
+│  ┌───────┴──────┐  ┌─────────┴───────┐  ┌───────┴──────────┐     │
+│  │apps/cli      │  │apps/mcp         │  │integrations/     │     │
+│  │gitmap CLI    │  │gitmap-mcp       │  │arcgis_pro/       │     │
+│  │(25 commands) │  │(MCP server)     │  │GitMap.pyt        │     │
+│  └──────────────┘  └─────────────────┘  └──────────────────┘     │
+│                                                                     │
+│  ┌─────────────────────────────────┐                               │
+│  │  integrations/openclaw/         │                               │
+│  │  tools.py + server.py           │                               │
+│  └─────────────────────────────────┘                               │
+└─────────────────────────────────────────────────────────────────────┘
+         │                                │
+         ▼                                ▼
+ ┌───────────────┐              ┌──────────────────┐
+ │  Local .gitmap│              │  ArcGIS Portal/  │
+ │  Directory    │◄────────────►│  AGOL Remote     │
+ │  (filesystem) │   push/pull  │                  │
+ └───────────────┘              └──────────────────┘
 ```
 
-The `gitmap_core` package has minimal external dependencies: `arcgis>=2.3.0` for Portal connectivity, `deepdiff>=6.0.0` for structural JSON comparison, `click>=8.1.0` for CLI construction, and `rich>=13.0.0` for terminal formatting. The SQLite-backed context store uses only stdlib `sqlite3`. This dependency discipline keeps the install footprint small — important for environments where GIS analysts must install tooling within constrained Conda/Python environments managed by IT departments.
+### 2.2 Repository On-Disk Layout
 
-### 3.2 Repository Structure
-
-A Git-Map repository is a `.gitmap/` directory collocated with the project workspace. The structure mirrors Git's object store design:
+The `.gitmap` directory mirrors the conceptual layout of Git's `.git`:
 
 ```
-.gitmap/
-├── config.json          — RepoConfig: author, remote, project metadata
-├── HEAD                 — Pointer: "ref: refs/heads/main" or commit ID
-├── index.json           — Staging area: current web map JSON snapshot
-├── context.db           — SQLite event graph
-├── refs/
-│   ├── heads/           — One file per branch, content = commit ID
-│   ├── remotes/origin/  — Remote tracking refs
-│   └── tags/            — Named commit references
-└── objects/
-    └── commits/         — {commit_id}.json files
+<project-root>/
+└── .gitmap/
+    ├── config.json          # RepoConfig: user, remote, project_name
+    ├── HEAD                 # "ref: refs/heads/main" or bare commit ID
+    ├── index.json           # Staging area (current map JSON snapshot)
+    ├── context.db           # SQLite event graph
+    ├── refs/
+    │   ├── heads/           # Local branches (files containing commit IDs)
+    │   │   └── main
+    │   ├── remotes/
+    │   │   └── origin/      # Remote tracking refs
+    │   └── tags/            # Tag refs (commit ID pointers)
+    ├── objects/
+    │   └── commits/         # Content-addressed commit JSON files
+    │       └── <hash12>.json
+    └── stash/
+        ├── stash_list.json  # Ordered stack of stash metadata
+        └── <timestamp>.json # Individual stash payloads
 ```
 
-This layout is intentionally analogous to Git's internal structure, reducing the cognitive overhead for GIS professionals already familiar with Git. Unlike Git, which uses content-addressed blob storage with pack files, Git-Map stores complete JSON snapshots per commit. This design choice accepts storage overhead in exchange for simplicity — a reasonable tradeoff given that web map JSON documents are typically 10–500 KB, and commit histories in practice are tens to low hundreds of commits.
+### 2.3 Data Flow
 
-### 3.3 Core Data Models
+**Commit flow:**
+```
+Portal Item → maps.get_webmap_json() → index.json (staging)
+→ repository.create_commit() → SHA-256 hash → objects/commits/<id>.json
+→ refs/heads/<branch> updated → context.db event recorded
+```
 
-All persistent data structures are defined in `models.py` using Python `dataclasses`:
+**Push flow:**
+```
+local commit → remote.push_branch() → Portal folder created
+→ branch item uploaded as JSON → metadata item updated
+```
 
-**`Commit`** is the primary snapshot object:
+**Pull flow:**
+```
+Portal branch item → remote.pull_branch() → local commits reconstructed
+→ index.json updated → HEAD updated
+```
+
+**Merge flow:**
+```
+two branch tips → find_common_ancestor() BFS traversal
+→ merge.merge_maps(ours, theirs, base) → MergeResult
+→ conflicts reported or auto-resolved → new merge commit
+```
+
+### 2.4 Technology Stack
+
+| Layer | Technology | Justification |
+|---|---|---|
+| Core language | Python 3.10+ | ArcGIS API for Python constraint |
+| Portal API | arcgis ≥ 2.3.0 | Official Esri Python SDK |
+| CLI framework | Click 8.1+ | Composable commands, type coercion |
+| Output rendering | Rich 13+ | Colored tables, progress bars |
+| Diff engine | DeepDiff 6+ | Recursive JSON comparison |
+| MCP server | FastMCP (mcp SDK) | AI agent tool exposure |
+| Context DB | SQLite (stdlib) | Zero dependency, embedded |
+| Lint/format | Ruff | Fast, comprehensive |
+| Testing | pytest + coverage | Industry standard |
+
+---
+
+## 3. Implementation
+
+### 3.1 Core Library (`packages/gitmap_core/`)
+
+#### 3.1.1 `repository.py` — Repository Management
+
+The `Repository` class is the central coordinator of all local operations. It is instantiated with a root path and lazily validates the `.gitmap` directory structure.
+
+**Key design decisions:**
+
+- **Content-addressed commits:** `_generate_commit_id()` computes a SHA-256 hash over `{"message": ..., "map_data": ..., "parent": ...}` with `sort_keys=True`, then truncates to 12 hex characters. This provides collision resistance adequate for typical GIS team sizes (expected commit counts in the low thousands) while keeping IDs human-readable. The 12-character hash has 2^48 ≈ 281 trillion possible values; birthday collision probability for 10,000 commits is approximately 1.8×10^-7.
+
+- **Snapshot semantics:** Each commit stores the *complete* web map JSON, not a delta. This trades storage for simplicity — reading any historical state requires loading a single JSON file rather than replaying a patch chain. For typical web maps (50–500 KB JSON), this is acceptable; for maps with extremely large layer counts it may warrant future optimization.
+
+- **HEAD/branch model:** HEAD is a text file containing either `ref: refs/heads/<branch>` (attached) or a bare commit ID (detached). Branch files under `refs/heads/` contain the commit ID they point to. This exactly mirrors Git's ref system.
+
+- **Index as staging area:** `index.json` holds the current staged map JSON. This serves both as the staging buffer before a commit and as the "working state" after a checkout. Unlike Git, there is no separate working tree vs. index distinction — the staged JSON is the map state.
+
+**`find_common_ancestor(commit_id_a, commit_id_b)`** implements a two-phase BFS:
+1. Phase 1: Collect the complete ancestor set of commit A (both `parent` and `parent2` pointers followed, supporting merge commits). O(n) where n = commits reachable from A.
+2. Phase 2: BFS from commit B, returning the first visited node present in A's ancestor set. This yields the *nearest* common ancestor by visiting B's lineage youngest-first. O(m) where m = commits reachable from B.
+
+Combined complexity: O(n + m), where n and m are the ancestor commit counts. Space: O(n) for the ancestor set.
+
+**Context recording** is performed non-blocking after every mutating operation (commit, revert, cherry-pick, tag, stash). If context recording fails, the primary operation completes normally — correctness is not sacrificed for observability.
+
+#### 3.1.2 `models.py` — Data Models
+
+Four dataclasses form the data model:
+
+**`Commit`**: Core version control artifact.
 ```python
 @dataclass
 class Commit:
-    id: str           # SHA-256[:12] of (message + map_data + parent)
-    message: str
-    author: str
+    id: str           # 12-char SHA-256 prefix
+    message: str      # Commit message
+    author: str       # Author name
     timestamp: str    # ISO 8601
-    parent: str | None
-    parent2: str | None   # Non-None for merge commits
-    map_data: dict[str, Any]   # Complete web map JSON
+    parent: str | None    # Single parent (or None for initial commit)
+    parent2: str | None   # Second parent for merge commits
+    map_data: dict[str, Any]  # Complete web map JSON snapshot
 ```
 
-The commit ID is computed as `hashlib.sha256(json.dumps({message, map_data, parent}, sort_keys=True)).hexdigest()[:12]` — a content-addressed 12-character hex string that makes accidental ID collisions computationally negligible while remaining human-readable.
+**`Branch`**: Named ref — name plus commit ID.
 
-**`Branch`** is a named pointer: `name: str, commit_id: str`, stored as a one-line file under `.gitmap/refs/heads/{name}`.
+**`Remote`**: Portal URL, folder ID, item ID, and optional `production_branch` field. When `production_branch` is set and a push targets that branch, the communication module triggers Portal group notifications.
 
-**`Remote`** encodes Portal connection details: `url`, `folder_id`, `folder_name`, `item_id`, and `production_branch` — the last being used to trigger stakeholder notifications when a push targets the designated production branch.
+**`RepoConfig`**: Persisted to `config.json`. Includes `auto_visualize` flag — when true, `repository.regenerate_context_graph()` is called after every commit to refresh the Mermaid context graph.
 
-**`RepoConfig`** stores per-repository settings including `user_name`, `user_email`, `project_name`, and an optional `auto_visualize` flag that triggers automatic context graph regeneration after each commit.
+All models implement `to_dict()`/`from_dict()` round-trip serialization and `save()`/`load()` file I/O methods.
 
-### 3.4 Repository Class
+#### 3.1.3 `merge.py` — Three-Way Layer Merge
 
-The `Repository` class (`repository.py`) encapsulates all filesystem operations. It exposes typed path properties (`commits_dir`, `heads_dir`, `context_db_path`) and implements the full operation surface: `init`, `create_commit`, `checkout_branch`, `create_branch`, `revert`, `cherry_pick`, `stash_push`, `stash_pop`, `find_common_ancestor`, and tag management.
+The merge algorithm treats each operational layer (identified by its `id` field) as an atomic unit. This is the correct granularity for web map conflicts: in practice, two GIS analysts working on the same map typically add/remove/reconfigure distinct layers, rarely modifying the same layer simultaneously.
 
-Repository discovery uses an upward traversal pattern:
+**Algorithm (`merge_maps(ours, theirs, base)`):**
 
-```python
-def find_repository(start_path: Path | str | None = None) -> Repository | None:
-    current = Path(start_path or Path.cwd()).resolve()
-    while current != current.parent:
-        if (current / ".gitmap").is_dir():
-            return Repository(current)
-        current = current.parent
-    return None
-```
+For each layer encountered across both branches:
 
-This matches Git's behavior of searching parent directories, allowing `gitmap` commands to work from any subdirectory of a project.
+| Layer in ours? | Layer in theirs? | Layer in base? | Action |
+|---|---|---|---|
+| Yes | Yes | Yes | Three-way: if only ours changed → use ours; if only theirs changed → use theirs; if both changed → CONFLICT |
+| Yes | Yes | No | Both added same ID (possibly different content) → CONFLICT if different |
+| Yes | No | Yes | They deleted it; we kept it → keep it (our retention wins) |
+| Yes | No | No | We added it → include |
+| No | Yes | Yes | We deleted it; if they modified → CONFLICT; else respect deletion |
+| No | Yes | No | They added it → include |
 
----
+`MergeConflict` records `ours`, `theirs`, and `base` versions. The conflict resolution API (`resolve_conflict(conflict, resolution)`) accepts `"ours"`, `"theirs"`, or `"base"` strategy strings and is idempotent.
 
-## 4. Core Operations
+Tables (`tables` array) are processed identically to operational layers. The basemap is compared as a unit — if one branch changes it and the other doesn't, the change is accepted; if both change it, the merge must be resolved manually.
 
-### 4.1 Commit
+**Complexity:** O(L₁ + L₂ + L_b) where L₁, L₂, L_b are the layer counts in each version. Dictionary indexing makes all lookups O(1) average case.
 
-The commit workflow follows a stage-then-commit model identical to Git:
+#### 3.1.4 `diff.py` — Differential Analysis
 
-1. **Stage**: `repository.update_index(map_data)` writes the web map JSON to `.gitmap/index.json`. In a portal-connected workflow, `gitmap pull` fetches the live item JSON and stages it automatically.
+`diff_maps(map1, map2)` produces a `MapDiff` containing:
+- `layer_changes`: List of `LayerChange` objects (added/removed/modified)
+- `table_changes`: Same structure for table entries
+- `property_changes`: `DeepDiff` output for non-layer, non-table map properties
 
-2. **Commit**: `repository.create_commit(message, author, rationale)` reads the index, computes the commit ID, serializes the `Commit` dataclass to `.gitmap/objects/commits/{id}.json`, advances the current branch ref, and records a `commit` event in the context store.
+`DeepDiff` is configured with `ignore_order=True` to treat the operational layers list as a set keyed by ID, preventing spurious "modified" signals from layer reordering.
 
-The `rationale` parameter is a first-class field — not part of the commit message — that is stored as an `Annotation` of type `rationale` in the context graph. This separation of *what changed* (commit message) from *why it changed* (rationale) supports audit trail requirements in regulated GIS environments.
+Three rendering functions serve different consumers:
+- `format_diff_summary()` → human-readable string for CLI output
+- `format_diff_visual()` → list of `(symbol, name, detail)` tuples for Rich Table rendering
+- `format_diff_stats()` → `{added, removed, modified, total}` dictionary for MCP tool responses
 
-### 4.2 Branch
+#### 3.1.5 `context.py` — SQLite Event Graph
 
-Branch operations are file operations on `.gitmap/refs/heads/`:
+The `ContextStore` class provides episodic memory for agent-driven workflows. It wraps a SQLite database at `.gitmap/context.db` with two tables:
 
-- **Create**: `create_branch(name, commit_id=None)` creates a new file with the target commit ID. Nested branch names (e.g., `feature/layer-symbology`) are handled by `branch_path.parent.mkdir(parents=True, exist_ok=True)`.
-- **Checkout**: `checkout_branch(name)` updates `HEAD` to point to the branch ref, then loads the branch's tip commit data into `index.json`, restoring the working state.
-- **Delete**: Guarded against deleting the current branch.
-
-### 4.3 Merge with Three-Way Base
-
-The `merge_maps()` function in `merge.py` implements three-way merge semantics at the operational layer granularity. The merge algorithm:
-
-```
-For each layer ID in union(ours.layers, theirs.layers, base.layers):
-    if ours == theirs:         → no conflict, use ours
-    elif ours == base:         → only theirs changed, use theirs (auto-resolve)
-    elif theirs == base:       → only ours changed, use ours (auto-resolve)
-    else:                      → both changed, MergeConflict raised
-    
-    if in ours but not in base:    → we added (keep)
-    if in theirs but not in base:  → they added (append)
-    if in base but not in ours and theirs changed: → delete/modify conflict
-```
-
-The common ancestor commit is found via `Repository.find_common_ancestor(commit_id_a, commit_id_b)`, which uses a two-pass BFS: first collecting the full ancestor set of branch A, then walking branch B's ancestry until a common node is found. This correctly handles merge commits by following both `parent` and `parent2` pointers.
-
-A `MergeResult` dataclass captures the outcome:
-```python
-@dataclass
-class MergeResult:
-    success: bool
-    merged_data: dict[str, Any]
-    conflicts: list[MergeConflict]
-    added_layers: list[str]
-    removed_layers: list[str]
-    modified_layers: list[str]
-```
-
-Successful merges are committed immediately with `parent2` set to the merged branch's tip commit, preserving the full DAG topology.
-
-### 4.4 Checkout
-
-`checkout_branch` handles both branch switching and state restoration:
-
-```python
-def checkout_branch(self, name: str) -> None:
-    self._write_head(name)
-    commit_id = self.get_branch_commit(name)
-    if commit_id:
-        commit = self.get_commit(commit_id)
-        self._write_index(commit.map_data)
-    else:
-        self._write_index({})   # New branch with no commits
-```
-
-Detached HEAD state (checking out a specific commit rather than a branch) is supported by writing the commit ID directly to `HEAD` rather than a ref pointer.
-
-### 4.5 Revert
-
-`revert(commit_id)` creates an inverse commit — it does not rewrite history. The algorithm computes the changes introduced by the target commit (by comparing it to its parent), then applies the inverse of those changes to the current HEAD state:
-
-```python
-def _compute_revert(self, current_data, commit_data, parent_data):
-    # For each layer modified by commit: restore to parent version
-    # For each layer added by commit: remove from current
-    # For each layer removed by commit: re-add from parent
-```
-
-The revert commit is linked to the original commit in the context graph via an edge with `relationship="reverts"`, creating an auditable inverse-action record.
-
-### 4.6 Cherry-Pick
-
-`cherry_pick(commit_id)` applies the *diff* of a specific commit (relative to its parent) onto the current branch:
-
-```python
-def _apply_cherry_pick(self, current_data, commit_data, parent_data):
-    # Layers added by commit: add to current if not present
-    # Layers modified by commit: update in current
-    # Layers removed by commit: remove from current
-```
-
-This is semantically equivalent to computing `patch = commit - commit.parent` and applying `patch` to `current`. The resulting commit message is annotated with `(cherry picked from commit {id[:8]})`, matching Git's convention.
-
-### 4.7 Stash
-
-The stash implementation uses a JSON-based stack at `.gitmap/stash/stash_list.json` with individual entry files named by timestamp hash. `stash_push` saves the current index, restores the HEAD commit state, and prepends the entry to the stack. `stash_pop`, `stash_drop`, and `stash_clear` manipulate this stack with appropriate file management.
-
----
-
-## 5. Diff Engine
-
-### 5.1 MapDiff Data Model
-
-The diff module (`diff.py`) defines a structured change representation:
-
-```python
-@dataclass
-class LayerChange:
-    layer_id: str
-    layer_title: str
-    change_type: str   # 'added' | 'removed' | 'modified'
-    details: dict[str, Any]   # DeepDiff output for modified layers
-
-@dataclass
-class MapDiff:
-    layer_changes: list[LayerChange]
-    table_changes: list[LayerChange]
-    property_changes: dict[str, Any]   # Top-level map property changes
-```
-
-### 5.2 Diff Algorithm
-
-`diff_maps(map1, map2)` performs a three-level comparison:
-
-1. **Layer-level**: Indexes both `operationalLayers` lists by layer `id`, then identifies added (in map1 but not map2), removed (in map2 but not map1), and modified (in both but different) layers.
-
-2. **Property-level**: For modified layers, invokes `DeepDiff(layer2, layer1, ignore_order=True)` to produce a structured diff of individual JSON fields. This surfaces changes at the property level — e.g., that `drawingInfo.renderer.type` changed from `simple` to `classBreaks`, or that `minScale` was updated from `0` to `500000`.
-
-3. **Map-level properties**: Compares all top-level map properties excluding `operationalLayers` and `tables` using DeepDiff. This captures basemap changes, extent modifications, and spatial reference updates.
-
-### 5.3 Visual Output
-
-The `format_diff_visual()` function produces a list of `(symbol, name, detail)` tuples suitable for rendering as a Rich table:
-
-```
-Symbol  Layer                      Detail
-------  -------------------------  ---------------------------
-+       Traffic Incidents          Added in feature/incidents
-~       Parcel Boundaries          3 field(s) changed
--       Deprecated Reference Layer Present in main, removed here
-```
-
-The `format_diff_stats()` function returns aggregate counts (`added`, `removed`, `modified`, `total`) for programmatic consumption by MCP tools and CI/CD pipelines.
-
-### 5.4 Branch-to-Branch Diff
-
-The diff engine operates on any two `dict` snapshots. The MCP `gitmap_diff` tool resolves branch names or commit IDs to their `map_data` dicts and invokes `diff_maps`, enabling cross-branch comparison without requiring a working Portal connection (all comparison data is local in the commit objects).
-
----
-
-## 6. Compatibility Layer
-
-### 6.1 Design Rationale
-
-The Esri ArcGIS API for Python (`arcgis`) undergoes regular breaking changes between minor versions, particularly in the `content.folders` API surface and in the behavior of `GIS.content.search()`. Organizations running ArcGIS Enterprise may be locked to specific `arcgis` package versions by IT policy. Git-Map must function reliably across this version spread.
-
-### 6.2 Version Detection
-
-`compat.py` implements version detection using `@lru_cache`:
-
-```python
-@lru_cache(maxsize=1)
-def get_arcgis_version() -> tuple[int, int, int]:
-    import arcgis
-    version_str = getattr(arcgis, "__version__", "0.0.0")
-    parts = version_str.split(".")
-    return (int(parts[0]), int(parts[1]), int(parts[2].split("-")[0]))
-```
-
-The cache ensures version detection occurs exactly once per process, avoiding repeated import overhead in hot paths.
-
-### 6.3 API Shims
-
-The most significant API divergence is in the folder management surface:
-
-```python
-FOLDERS_API_CHANGE_VERSION = (2, 3, 0)
-
-def create_folder(gis: GIS, folder_name: str) -> dict[str, Any] | None:
-    if check_minimum_version(*FOLDERS_API_CHANGE_VERSION):
-        result = gis.content.folders.create(folder_name)   # 2.3.0+
-    else:
-        result = gis.content.create_folder(folder_name)    # < 2.3.0
-```
-
-Return value normalization is handled by `_extract_folder_info()`, which inspects both dict-style (`result.get("id")`) and object-style (`getattr(result, "id", None)`) responses, as different Portal versions return different types from the same nominal API call.
-
-The `get_user_folders()` shim implements three fallback strategies — `user.folders`, `gis.content.folders.list()`, and user item enumeration — to handle Portal configurations where certain API paths are restricted or return empty results.
-
-### 6.4 Test Coverage
-
-The compatibility layer is exercised by `test_compat.py`, which mocks `arcgis` version strings and verifies that the correct API path is invoked for each version range. The full test suite comprises **674 tests** across 13 test modules, achieving **96% code coverage**. Tests run entirely without a live Portal connection by mocking `arcgis.gis.GIS` and item objects at the `unittest.mock` boundary.
-
----
-
-## 7. MCP Server Integration
-
-### 7.1 Model Context Protocol Overview
-
-The Model Context Protocol (MCP) is an open standard for exposing application functionality as typed tools consumable by AI coding agents and LLMs. Git-Map implements an MCP server using the `FastMCP` framework, enabling Cursor AI, Claude Code, and other MCP-compatible agents to invoke Git-Map operations as structured function calls within a coding session.
-
-### 7.2 Server Architecture
-
-The MCP server (`apps/mcp/gitmap-mcp/main.py`) uses `FastMCP` with an `stdio` transport, suitable for subprocess-based agent integrations:
-
-```python
-from mcp.server.fastmcp import FastMCP
-mcp = FastMCP("gitmap")
-
-# Tools registered from modular script files:
-mcp.tool(gitmap_commit)
-mcp.tool(gitmap_branch_create)
-mcp.tool(gitmap_merge)
-mcp.tool(gitmap_diff)
-mcp.tool(gitmap_push)
-mcp.tool(gitmap_pull)
-mcp.tool(gitmap_stash_push)
-mcp.tool(context_get_timeline)
-# ... 20+ additional tools
-```
-
-### 7.3 Tool Categories
-
-Tools are organized into domain modules under `scripts/tools/`:
-
-| Module | Tools Exposed |
-|---|---|
-| `commit_tools.py` | `gitmap_commit`, `gitmap_log`, `gitmap_diff`, `gitmap_merge` |
-| `branch_tools.py` | `gitmap_branch_create`, `gitmap_branch_delete`, `gitmap_branch_list`, `gitmap_checkout` |
-| `remote_tools.py` | `gitmap_push`, `gitmap_pull` |
-| `stash_tools.py` | `gitmap_stash_push`, `gitmap_stash_pop`, `gitmap_stash_list`, `gitmap_stash_drop` |
-| `context_tools.py` | `context_get_timeline`, `context_search_history`, `context_record_lesson`, `context_explain_changes` |
-| `portal_tools.py` | `gitmap_list_maps`, `gitmap_list_groups`, `gitmap_notify` |
-| `layer_tools.py` | `gitmap_layer_settings_merge` |
-| `repository_tools.py` | `gitmap_init`, `gitmap_status`, `gitmap_revert`, `gitmap_cherry_pick` |
-
-### 7.4 Agent Workflow Integration
-
-The MCP server enables AI agents to participate in GIS versioning workflows without requiring Portal credentials in the agent's context. A typical agent workflow:
-
-1. Agent calls `gitmap_pull(repo_path, branch="main")` to fetch the current map state from Portal into the local commit store.
-2. Agent analyzes the diff via `gitmap_diff(repo_path, branch_a="main", branch_b="feature/new-layer")`.
-3. Agent proposes a merge via `gitmap_merge(repo_path, source_branch="feature/new-layer")`, receives a `MergeResult` JSON payload including any conflicts.
-4. Agent records its reasoning via `context_record_lesson(repo_path, content="Merged symbology update; kept main branch renderer due to contrast ratio requirements")`.
-5. Agent calls `gitmap_push(repo_path, branch="main")` to publish the merged map back to Portal.
-
-This workflow demonstrates the MCP server's role as a semantic bridge between LLM-native reasoning and domain-specific GIS operations.
-
-### 7.5 Configuration
-
-The MCP server is configured for Cursor via `CURSOR_MCP_CONFIG.md`, with JSON configuration specifying the server binary path, working directory, and environment variable pass-through for Portal credentials (`ARCGIS_URL`, `ARCGIS_USERNAME`, `ARCGIS_PASSWORD`).
-
----
-
-## 8. Conflict Resolution
-
-### 8.1 Conflict Representation
-
-A `MergeConflict` object captures the full context of an unresolvable difference:
-
-```python
-@dataclass
-class MergeConflict:
-    layer_id: str
-    layer_title: str
-    ours: dict[str, Any]     # Our version of the layer
-    theirs: dict[str, Any]   # Their version
-    base: dict[str, Any] | None   # Common ancestor version (may be None)
-```
-
-When `base` is available (three-way merge), the conflict can be displayed as a two-sided diff against a known prior state. When `base` is absent (two-way merge), only the `ours`/`theirs` comparison is available.
-
-### 8.2 Three-Way Merge Strategy
-
-The three-way merge algorithm at the layer level handles four distinct cases:
-
-1. **No conflict — identical**: Both branches have the same layer content. Auto-resolved, ours kept.
-
-2. **No conflict — only ours changed**: `ours != base` and `theirs == base`. Auto-resolved, ours kept.
-
-3. **No conflict — only theirs changed**: `theirs != base` and `ours == base`. Auto-resolved, theirs applied.
-
-4. **Conflict — both changed**: `ours != base` and `theirs != base`. `MergeConflict` raised, `ours` retained as placeholder pending resolution.
-
-The delete/modify conflict case — where one branch deletes a layer that the other branch modifies — is explicitly detected: if a layer ID appears in `base` and `theirs` (with modification) but not in `ours` (deleted), a conflict is raised with `ours={}` signaling the deletion intent.
-
-### 8.3 Conflict Resolution API
-
-Conflicts are resolved programmatically via `resolve_conflict(conflict, resolution)`:
-
-```python
-def resolve_conflict(conflict: MergeConflict, resolution: str) -> dict[str, Any]:
-    if resolution == "ours":    return conflict.ours
-    elif resolution == "theirs": return conflict.theirs
-    elif resolution == "base":   return conflict.base   # Three-way only
-```
-
-`apply_resolution(merge_result, layer_id, resolved_layer)` patches the `MergeResult`'s merged data in-place. An empty `resolved_layer` dict signals deletion — the layer is removed from `operationalLayers` or `tables` respectively.
-
-### 8.4 Property-Level Conflict Surfacing
-
-While the merge algorithm operates at layer granularity (treating each layer as an atomic unit), the diff engine operates at property granularity. When a conflict is presented to the user or agent, the `DeepDiff` output on `conflict.ours` vs `conflict.theirs` can surface which specific properties differ:
-
-```
-Layer: Parcel Boundaries (id: layer_parcels_01)
-  CONFLICT: Both branches modified this layer.
-  ours:   drawingInfo.renderer.type = "classBreaks"
-  theirs: drawingInfo.renderer.type = "simple"
-  base:   drawingInfo.renderer.type = "simple"
-```
-
-This property-level granularity in the conflict display reduces resolution time by directing the resolver's attention to the specific field in dispute, rather than requiring comparison of entire layer JSON blobs.
-
----
-
-## 9. Performance
-
-### 9.1 SQLite Optimization
-
-The `ContextStore` class applies several SQLite performance optimizations:
-
-**WAL Mode**: Write-Ahead Logging is enabled on every connection:
-```python
-self._conn.execute("PRAGMA journal_mode=WAL")
-```
-WAL mode allows concurrent reads during writes and dramatically improves write throughput for the event recording pattern (one write per operation, many reads during history queries).
-
-**Indexed Queries**: The schema creates targeted indexes at initialization:
+**`events`** schema:
 ```sql
-CREATE INDEX IF NOT EXISTS idx_events_type ON events(event_type);
-CREATE INDEX IF NOT EXISTS idx_events_ref ON events(ref);
-CREATE INDEX IF NOT EXISTS idx_events_timestamp ON events(timestamp);
-CREATE INDEX IF NOT EXISTS idx_annotations_event ON annotations(event_id);
+CREATE TABLE events (
+    id TEXT PRIMARY KEY,
+    timestamp TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    actor TEXT,
+    repo TEXT NOT NULL,
+    ref TEXT,
+    payload TEXT NOT NULL,  -- JSON blob
+    rationale TEXT          -- Optional human/agent explanation
+);
 ```
-These indexes cover the four primary query patterns: type-filtered history, ref-filtered lookup (commit ID or branch name), chronological timeline retrieval, and annotation join.
 
-**Lazy Connection**: The `_connection` property uses lazy initialization — the SQLite connection is not opened until the first database operation. This avoids the file descriptor overhead for operations that don't touch the context store (e.g., pure local branch operations).
+**`edges`** schema (graph relationships between events):
+```sql
+CREATE TABLE edges (
+    id TEXT PRIMARY KEY,
+    source_id TEXT NOT NULL,
+    target_id TEXT NOT NULL,
+    relationship TEXT NOT NULL,  -- e.g., "reverts", "cherry_picked_from"
+    metadata TEXT                -- JSON blob
+);
+```
 
-### 9.2 Context Store Lifecycle Management
+**`annotations`** schema: Free-form notes attached to events, supporting lesson capture.
 
-Early versions of the codebase opened `ContextStore` instances without guaranteed closure, leaking SQLite file descriptors. The current implementation enforces proper lifecycle management through three mechanisms:
+The `ContextStore` implements Python's context manager protocol (`__enter__`/`__exit__`) for safe connection management, and a `__del__` finalizer (added in v0.6.0 to fix a resource leak) ensures the SQLite connection is closed on garbage collection.
 
-1. **Context manager protocol**: `ContextStore` implements `__enter__` / `__exit__`, enabling `with self.get_context_store() as store:` usage throughout `repository.py`.
+Key query methods:
+- `get_timeline(limit)` → chronological event list
+- `search_events(query, event_type, limit)` → full-text search over payload JSON
+- `explain_changes(ref)` → structured explanation of a specific commit's context
+- `record_lesson(lesson_text, event_id)` → append agent lessons to the graph
 
-2. **`__del__` finalizer**: `def __del__(self) -> None: self.close()` provides a last-resort cleanup in case the context manager path is not used.
+#### 3.1.6 `remote.py` — Portal Remote Operations
 
-3. **Non-blocking event recording**: All context store writes in `create_commit`, `revert`, `cherry_pick`, and stash operations are wrapped in `try/except Exception: pass` blocks. Context recording failure does not propagate to the primary operation — a commit succeeds even if the event graph write fails (e.g., disk full, database locked).
+`RemoteOperations` manages the bidirectional sync between local commits and Portal:
 
-### 9.3 Commit Hash Performance
+**Push:** Each branch is stored as a Portal item of type `JSON` within a project-specific folder (`<project_name>_GitMap`). A separate `.gitmap_meta` item holds the metadata index mapping branch names to Portal item IDs. The `compat.py` module handles API differences between Portal 10.9 and AGOL (`create_folder`, `get_user_folders` differ in response structure between versions).
 
-Commit ID generation serializes the full map JSON for hashing. For large web maps (500+ KB JSON), this adds measurable latency. The current implementation uses `json.dumps({..}, sort_keys=True)` to ensure deterministic serialization before SHA-256 hashing. Future optimizations could cache the JSON serialization from the index read, avoiding a second serialization pass.
+**Pull:** Fetches the branch item from Portal, reconstructs commit history, and updates the local repository. If the remote has diverged, the pull command advises the user to merge.
 
-### 9.4 Test Suite Performance
+**Production branch notifications:** When `remote.production_branch` is set in config and a push targets that branch, `communication.notify_item_group_users()` sends Portal messages to all group members with access to the item.
 
-674 tests complete in under 10 seconds on a modern Mac (M-series). Tests use `tmp_path` (pytest's temporary directory fixture) exclusively — no shared mutable state between tests. The MCP stash tests (`test_stash_mcp.py`) inject the MCP scripts directory into `sys.path` at fixture setup time to import `tools.stash_tools` directly, enabling end-to-end testing of the MCP tool layer without running the MCP server process.
+#### 3.1.7 `maps.py` — Web Map JSON Operations
 
----
+`get_webmap_json(item)` validates that an item is of type `Web Map` before calling `item.get_data()`. `get_webmap_by_id(gis, item_id)` wraps the lookup and validation in one call. `stage_map_json(repo, map_data)` writes to `index.json`. `publish_map_json(gis, map_data, title, folder_id)` creates or updates a Portal item with the merged map state.
 
-## 10. Future Work
+#### 3.1.8 `visualize.py` — Context Graph Rendering
 
-### 10.1 PyPI Distribution (gitmap-core)
+Generates Mermaid or HTML visualizations of the context event graph. When `auto_visualize=True` in `RepoConfig`, `repository.regenerate_context_graph()` is called after each commit, writing `context-graph.md` to the repo root. The graph renders events bottom-to-top (BT direction) with annotations shown as separate nodes.
 
-The roadmap's highest-priority distribution goal is publishing `gitmap-core` to PyPI under the package name `gitmap-core`, enabling `pip install gitmap-core` without cloning the repository. The `pyproject.toml` is already structured for this — `packages/gitmap_core` is the installable package, and `[tool.pytest.ini_options]` with `pythonpath = ["packages"]` supports editable development installs. The remaining work is: finalizing package metadata (classifiers, long description, trove identifiers), adding a GitHub Actions CI/CD pipeline for automated testing and release publishing, and resolving any namespace conflicts.
+#### 3.1.9 `compat.py` — ArcGIS API Compatibility Layer
 
-### 10.2 Real-Time Collaboration
+Bridges behavioral differences between ArcGIS API for Python versions and Portal configurations. `create_folder(gis, name)` handles the case where Portal returns the folder object directly vs. as a dict. `get_user_folders(gis)` normalizes the response format. Error path coverage was improved from 86% to 96% in v0.6.0 via targeted test additions.
 
-The current model is single-user, local-first. Future work could introduce a shared remote context: a Portal-hosted webhook receiver that intercepts web map save events (via the Portal webhook API, available since Enterprise 10.9) and automatically creates commits in a shared Git-Map repository. This would enable passive capture of all team members' edits without requiring explicit `gitmap commit` invocations — closer to an autosave-with-version-history model.
+#### 3.1.10 `connection.py` — Portal Authentication
 
-### 10.3 Webhook Triggers and CI/CD Integration
+`PortalConnection` dataclass wraps a `GIS` object. The factory function `create_connection(url, username, password, env_path)` resolves credentials from environment variables (with `.env` file support via `python-dotenv`), CLI flags, or the system environment. Supported Portal targets: ArcGIS Online (`https://www.arcgis.com`) and any Portal for ArcGIS URL.
 
-The `Remote.production_branch` field already supports a notification hook on push to designated production branches. A natural extension is a full webhook pipeline: on `gitmap push` to `production`, trigger a Portal webhook that notifies a Teams/Slack channel, runs an automated diff report, or initiates a downstream GIS service cache rebuild. Integration with GitHub Actions (or similar CI) would enable automated map quality checks — e.g., validating that all layer service URLs are reachable, all popup templates reference valid field names — before a push to the production branch is permitted.
+#### 3.1.11 `communication.py` — Portal Notifications
 
-### 10.4 ArcGIS Pro Integration
-
-A Python Toolbox (`.pyt`) wrapper around `gitmap_core` operations would expose Git-Map functionality within ArcGIS Pro's Geoprocessing pane. This lowers the entry barrier for GIS professionals not comfortable with CLI tools. The `Repository` class's filesystem-based design maps naturally to ArcGIS Pro's project directory concept.
-
-### 10.5 Property-Level Merge Granularity
-
-The current merge algorithm treats each operational layer as an atomic unit: if two branches modify the same layer, a conflict is raised regardless of which properties were changed. A future refinement could implement property-level auto-merge — if branch A changes `minScale` and branch B changes `opacity` on the same layer, these are non-conflicting property changes that could be merged automatically. This requires extending `MergeConflict` to carry property-level diff context and implementing a recursive merge at the property level.
-
----
-
-## References
-
-1. Esri. (2024). *Web Map Specification*. ArcGIS Developers Documentation. https://developers.arcgis.com/web-map-specification/
-
-2. Esri. (2024). *ArcGIS API for Python — Content Management*. ArcGIS Developers Documentation. https://developers.arcgis.com/python/
-
-3. Esri. (2023). *ArcGIS Enterprise: Versioned Geodatabases*. ArcGIS Enterprise Documentation. https://enterprise.arcgis.com/en/geodatabase/latest/manage-geodatabases/types-of-geodatabase-versioning.htm
-
-4. Chacon, S., & Straub, B. (2014). *Pro Git* (2nd ed.). Apress. https://git-scm.com/book
-
-5. Hunt, A., & Thomas, D. (2000). *The Pragmatic Programmer*. Addison-Wesley.
-
-6. Model Context Protocol Specification. (2024). Anthropic. https://modelcontextprotocol.io/
-
-7. Quinlan, E. (2019). *DeepDiff: A Python library for deep comparison of dictionaries, strings, iterables and other objects.* https://github.com/seperman/deepdiff
-
-8. SQLite Consortium. (2024). *WAL Mode*. SQLite Documentation. https://www.sqlite.org/wal.html
-
-9. RFC 6902. (2013). *JavaScript Object Notation (JSON) Patch*. Internet Engineering Task Force. https://datatracker.ietf.org/doc/html/rfc6902
-
-10. Esri. (2022). *ArcGIS Enterprise Webhooks*. ArcGIS Enterprise Documentation. https://enterprise.arcgis.com/en/server/latest/administer/windows/using-webhooks.htm
+`notify_item_group_users(gis, item_id, message)` retrieves the groups that share access to a Portal item, iterates over group members, and sends Portal messages to each user. This is triggered automatically on pushes to the `production_branch`. A separate `notify` CLI command enables ad-hoc group notifications.
 
 ---
 
-*Manuscript prepared March 2026. All code examples reference the Git-Map repository at commit depth consistent with v0.1.0 development branch.*
+### 3.2 CLI Application (`apps/cli/`)
+
+The `gitmap` CLI is built with Click 8 and registered as a `console_scripts` entry point in `pyproject.toml`. The main group (`cli` in `main.py`) registers 25 commands:
+
+`init`, `clone`, `status`, `commit`, `log`, `branch`, `checkout`, `diff`, `merge`, `merge-from`, `push`, `pull`, `revert`, `cherry-pick`, `stash`, `tag`, `context`, `list`, `notify`, `config`, `daemon`, `auto-pull`, `setup-repos`, `layer-settings-merge`
+
+**Architectural note:** Two commands (`layer-settings-merge` and `merge-from`) have hyphenated filenames and are loaded via `importlib.util.spec_from_file_location()` at startup — a necessary workaround for Python's module naming constraints that prohibits hyphens in identifiers. This is a known technical debt item.
+
+**Output formatting:** All commands use Rich for terminal output — `rich.console.Console` for status messages, `rich.table.Table` for tabular data (diff output, branch listings, log entries), and `rich.progress` for operations with observable duration.
+
+**Branch verbose listing** (`branch -v`) shows each branch name alongside its HEAD commit ID and commit message — added in v0.6.0 as a CLI polish item.
+
+**Log filtering** (`log --branch <name>`) filters commit history to a specific branch — also added in v0.6.0.
+
+---
+
+### 3.3 MCP Server (`apps/mcp/gitmap-mcp/`)
+
+The MCP server (`main.py`) uses the `FastMCP` class from Anthropic's `mcp` SDK to expose GitMap operations as tools consumable by AI agents in Cursor, Claude, or any MCP-compatible environment.
+
+**Tool categories:**
+
+| Module | Tools |
+|---|---|
+| `repository_tools.py` | `gitmap_init`, `gitmap_status` |
+| `commit_tools.py` | `gitmap_commit`, `gitmap_log`, `gitmap_diff`, `gitmap_merge` |
+| `branch_tools.py` | `gitmap_branch_list`, `gitmap_branch_create`, `gitmap_branch_delete`, `gitmap_checkout` |
+| `remote_tools.py` | `gitmap_push`, `gitmap_pull` |
+| `layer_tools.py` | `gitmap_layer_settings_merge` |
+| `portal_tools.py` | `gitmap_list_maps`, `gitmap_list_groups`, `gitmap_notify` |
+| `stash_tools.py` | `gitmap_stash_push`, `gitmap_stash_pop`, `gitmap_stash_list`, `gitmap_stash_drop` |
+| `context_tools.py` | `context_get_timeline`, `context_explain_changes`, `context_search_history`, `context_record_lesson` |
+
+The MCP server performs `.env` discovery at startup by walking up from `__file__` up to 5 directory levels, enabling credential injection without requiring explicit configuration by the AI agent. All tools return structured dictionaries rather than formatted strings, enabling agent-side post-processing.
+
+---
+
+### 3.4 ArcGIS Pro Toolbox (`integrations/arcgis_pro/GitMap.pyt`)
+
+Nine tools are wrapped as ArcGIS Pro Python Toolbox tools, each inheriting from ArcGIS Pro's `object` base and implementing `getParameterInfo()`, `execute()`, and optionally `updateMessages()`:
+
+1. **InitRepo** — Initializes a new GitMap repository in a workspace folder
+2. **CommitMap** — Creates a commit from the current staged map state
+3. **CheckoutBranch** — Switches to a specified branch
+4. **CreateBranch** — Creates a new branch from HEAD
+5. **LogHistory** — Displays commit history in the ArcGIS Pro Messages window
+6. **DiffMaps** — Compares two commits and reports layer changes
+7. **StatusCheck** — Shows staged changes vs. HEAD
+8. **PushRemote** — Pushes current branch to configured Portal remote
+9. **PullRemote** — Pulls updates from Portal remote
+
+The toolbox uses `arcpy.Parameter` for input definition and `arcpy.AddMessage()` / `arcpy.AddError()` for output. The `_get_repo(workspace)` helper function wraps `Repository(Path(workspace))` with an `ImportError` guard that produces a user-friendly message if `gitmap_core` is not installed in the ArcGIS Pro Python environment.
+
+---
+
+### 3.5 OpenClaw Integration (`integrations/openclaw/`)
+
+The OpenClaw integration provides subprocess-based wrappers around the `gitmap` CLI, enabling the AI assistant "Jig" to manage web maps through natural language. `tools.py` exposes functions that build CLI argument arrays, invoke `subprocess.run()`, and parse structured output from stdout/stderr.
+
+`_find_gitmap()` uses a fallback chain: (1) check `PATH` via `shutil.which()`, (2) run as Python module from source directory, (3) last-resort module invocation. This ensures the tool works whether GitMap is installed globally or only in development mode.
+
+The MCP server wrapper (`server.py`) re-exposes these tool functions as FastMCP tools with JSON schemas, enabling use from any MCP-compatible AI agent.
+
+---
+
+## 4. API / Interface Specification
+
+### 4.1 CLI Commands
+
+#### `gitmap init [--project-name TEXT] [--user TEXT] [--email TEXT] [PATH]`
+Initializes a `.gitmap` repository. Creates directory structure, initial config, HEAD pointing to `main`, empty index, and context database.
+
+#### `gitmap clone <item-id> [--url TEXT] [--username TEXT] [--password TEXT]`
+Clones a Portal web map into a new local repository, fetching the map JSON and initializing commit history.
+
+#### `gitmap status`
+Compares `index.json` against HEAD commit. Reports staged vs. unstaged changes using `diff_maps()`. Exit codes: 0 = clean, 1 = changes present.
+
+#### `gitmap commit -m <message> [--author TEXT] [--rationale TEXT]`
+Creates a commit from the current index. `--rationale` populates the context graph annotation for agent reasoning.
+
+#### `gitmap log [--limit N] [--branch NAME]`
+Displays commit history as Rich table. `--branch` filters to a specific branch lineage.
+
+#### `gitmap branch [-v] [-d NAME] [NAME [COMMIT]]`
+Lists branches (with verbose `-v`), creates a new branch, or deletes an existing one with `-d`.
+
+#### `gitmap checkout <branch>`
+Switches HEAD to a branch and restores `index.json` from that branch's HEAD commit.
+
+#### `gitmap diff [<commit-a> [<commit-b>]]`
+Compares index vs. HEAD (no args), or two commits, or two branches. Renders as Rich table with `+`/`-`/`~` symbols.
+
+#### `gitmap merge <branch>`
+Three-way merges the named branch into current branch. Reports conflicts if any; creates a merge commit with `parent2` set if successful.
+
+#### `gitmap merge-from <branch> [--strategy ours|theirs]`
+Merge with explicit conflict resolution strategy.
+
+#### `gitmap push [--url TEXT] [--username TEXT] [--password TEXT]`
+Pushes current branch to Portal, creating folder and items as needed.
+
+#### `gitmap pull [--url TEXT] [--username TEXT] [--password TEXT]`
+Pulls updates from Portal remote for the current branch.
+
+#### `gitmap revert <commit-id> [--rationale TEXT]`
+Creates a new inverse commit that undoes the specified commit's changes.
+
+#### `gitmap cherry-pick <commit-id> [--rationale TEXT]`
+Applies changes from a specific commit to the current branch.
+
+#### `gitmap stash [push|pop|list|drop|clear] [OPTIONS]`
+Stash stack operations. `push` saves the current index to a stack entry and restores HEAD state. `pop` applies and removes the most recent stash. `drop` removes without applying.
+
+#### `gitmap tag [NAME] [COMMIT]`
+Lists all tags (no args) or creates a tag pointing to a commit.
+
+#### `gitmap context [timeline|explain|search|lesson] [OPTIONS]`
+Queries the context graph. `timeline` shows recent events; `explain <ref>` explains a commit's context; `search <query>` searches event payloads; `lesson <text>` records an agent lesson.
+
+#### `gitmap list [--url TEXT] [--username TEXT]`
+Lists web maps accessible from a Portal connection.
+
+#### `gitmap notify --item-id TEXT --message TEXT [--url TEXT]`
+Sends Portal messages to all group members sharing access to an item.
+
+#### `gitmap config [--user TEXT] [--email TEXT] [--remote-url TEXT]`
+Reads or updates repository configuration.
+
+#### `gitmap auto-pull [--interval SECONDS]`
+Daemon mode: polls Portal for changes and pulls automatically.
+
+#### `gitmap layer-settings-merge <source-branch>`
+Specialized merge that applies only layer settings (symbology, popups) without affecting layer membership.
+
+### 4.2 Core Library API
+
+#### `Repository(root: Path | str)`
+Constructor. Does not require `.gitmap` to exist yet.
+
+#### `repository.init(project_name, user_name, user_email) → None`
+#### `repository.exists() → bool`
+#### `repository.is_valid() → bool`
+#### `repository.get_current_branch() → str | None`
+#### `repository.get_head_commit() → str | None`
+#### `repository.list_branches() → list[str]`
+#### `repository.create_branch(name, commit_id=None) → Branch`
+#### `repository.update_branch(name, commit_id) → None`
+#### `repository.delete_branch(name) → None`
+#### `repository.checkout_branch(name) → None`
+#### `repository.get_index() → dict`
+#### `repository.update_index(map_data) → None`
+#### `repository.create_commit(message, author=None, rationale=None) → Commit`
+#### `repository.get_commit(commit_id) → Commit | None`
+#### `repository.get_commit_history(start_commit=None, limit=None) → list[Commit]`
+#### `repository.revert(commit_id, rationale=None) → Commit`
+#### `repository.cherry_pick(commit_id, rationale=None) → Commit`
+#### `repository.stash_push(message=None) → dict`
+#### `repository.stash_pop(index=0) → dict`
+#### `repository.stash_list() → list[dict]`
+#### `repository.stash_drop(index=0) → dict`
+#### `repository.stash_clear() → int`
+#### `repository.list_tags() → list[str]`
+#### `repository.create_tag(name, commit_id=None) → str`
+#### `repository.delete_tag(name) → None`
+#### `repository.find_common_ancestor(commit_id_a, commit_id_b) → str | None`
+#### `repository.get_config() → RepoConfig`
+#### `repository.update_config(config) → None`
+#### `repository.has_uncommitted_changes() → bool`
+#### `repository.get_context_store() → ContextStore`
+#### `repository.regenerate_context_graph(...) → Path | None`
+
+#### `find_repository(start_path=None) → Repository | None`
+Walks up directory tree looking for `.gitmap`. Returns `None` if not found.
+
+#### `merge_maps(ours, theirs, base=None) → MergeResult`
+#### `diff_maps(map1, map2) → MapDiff`
+#### `format_diff_visual(map_diff, label_a, label_b) → list[tuple[str, str, str]]`
+#### `format_diff_stats(map_diff) → dict[str, int]`
+
+### 4.3 Error Handling
+
+All public methods raise `RuntimeError` with descriptive messages on failure. CLI commands catch these and display via `click.echo(..., err=True)` with a non-zero exit code. The `resolve_conflict()` function raises `ValueError` for invalid resolution strategies. Portal API errors propagate as `RuntimeError` wrappers.
+
+---
+
+## 5. Performance Analysis
+
+### 5.1 Critical Path Complexity
+
+| Operation | Time Complexity | Space Complexity | Notes |
+|---|---|---|---|
+| `create_commit()` | O(L log L) | O(L) | L = layers; sort_keys JSON serialization |
+| `diff_maps()` | O(L₁ + L₂) | O(L₁ + L₂) | DeepDiff per-layer comparison |
+| `merge_maps()` | O(L₁ + L₂ + L_b) | O(L₁ + L₂ + L_b) | Dict indexing, single pass |
+| `find_common_ancestor()` | O(n + m) | O(n) | n, m = reachable commits |
+| `get_commit_history()` | O(k) | O(k) | k = requested limit |
+| `stash_push()` | O(L) | O(L) | Full index snapshot |
+| `context_store.record_event()` | O(1) amortized | O(1) | SQLite insert |
+
+### 5.2 Storage Characteristics
+
+Because each commit stores a full JSON snapshot, storage grows as O(C × S) where C = commit count and S = average map JSON size. For a typical 50 KB web map with 100 commits, storage is approximately 5 MB — acceptable for local filesystem use. Deduplication or delta storage would reduce this substantially for repos with high commit frequency and minor changes per commit, but is not currently implemented.
+
+### 5.3 Bottlenecks
+
+**Portal API latency:** Push and pull operations are bounded by Portal API response times (typically 200ms–2s per REST call). Large branch histories require multiple round trips. The `auto-pull` daemon adds polling overhead proportional to check interval.
+
+**DeepDiff on large maps:** The `DeepDiff` library performs recursive comparison, which for maps with 50+ layers and complex symbology JSON can take 50–500ms. This is only incurred during `diff` and `merge` operations, not during commit creation.
+
+**SQLite I/O:** Context recording opens and closes a SQLite connection per event (via context manager). For high-frequency commit workflows, this could be optimized with connection pooling, but is acceptable for typical GIS team cadence.
+
+### 5.4 Scaling Characteristics
+
+Git-Map is designed for team sizes of 2–20 GIS analysts with commit cadence measured in hours, not seconds. At this scale, all operations complete comfortably within human-perceptible time bounds. The architecture would require redesign for CI/CD-style automated commit pipelines with sub-second cadence.
+
+---
+
+## 6. Security Considerations
+
+### 6.1 Authentication Model
+
+Portal credentials are passed via:
+1. CLI flags (`--username`, `--password`) — visible in process table, not recommended for production
+2. Environment variables (`PORTAL_USERNAME`, `PORTAL_PASSWORD`) — preferred
+3. `.env` file discovered by walking parent directories — convenient for development
+
+**Red flag:** The `.env` discovery walks up 3–5 directory levels, which could inadvertently load credentials from a parent project directory. A `.gitmap/.env` convention would be more secure.
+
+### 6.2 Data Privacy
+
+Web map JSON may contain embedded credentials (service URLs with tokens, API keys embedded in layer definitions). Git-Map does not filter or redact this content — it stores whatever the Portal API returns verbatim. Commit objects in `.gitmap/objects/commits/` should be treated as potentially containing sensitive Portal service credentials and excluded from general file sharing.
+
+### 6.3 Input Validation
+
+- Branch names: validated for non-empty and no-space constraints. More comprehensive validation (no `..`, no control characters) matching Git's ref validation rules is not yet implemented.
+- Tag names: same minimal validation as branches.
+- Commit IDs passed to `get_commit()`, `revert()`, `cherry_pick()` are validated by checking file existence in `objects/commits/`.
+- Portal item IDs are passed directly to `gis.content.get()` without format validation — a malformed ID will raise a Portal API error rather than a meaningful exception.
+
+### 6.4 Attack Surface
+
+The MCP server runs locally and accepts connections from the configured MCP client only (no network exposure in default configuration). The OpenClaw integration invokes the `gitmap` CLI via `subprocess.run()` — shell injection is mitigated by using list-form subprocess arguments rather than shell string concatenation.
+
+---
+
+## 7. Known Limitations & Technical Debt
+
+### 7.1 Current Limitations
+
+1. **No delta compression:** Full JSON snapshots per commit. A 500 KB map with 1,000 commits = 500 MB of storage. For active teams, this may become problematic without periodic garbage collection.
+
+2. **No conflict markers in JSON:** When a merge conflict is detected, `index.json` retains `ours` and the conflict is only reported in terminal output. Unlike Git's `<<<<<<<`/`=======`/`>>>>>>>` markers, there is no in-file conflict representation — the user must re-run `merge` with an explicit resolution flag.
+
+3. **Minimal branch name validation:** Branch names with `/` create nested directory structure (e.g., `feature/layer-update` → `refs/heads/feature/layer-update`), which works correctly. Names with `..`, null bytes, or backslashes are not rejected and could cause unexpected behavior.
+
+4. **Layer ordering not preserved in merge:** The merge algorithm treats layers as a set keyed by ID, discarding relative order. If two branches reorder layers differently, the merge output order is implementation-defined (Python dict insertion order from the iteration sequence).
+
+5. **No atomic writes:** File writes to `index.json`, branch refs, and commit files are not atomic (no write-to-temp-then-rename). A process kill during a commit could leave the repository in a partially committed state.
+
+6. **Hyphenated command filenames:** `layer-settings-merge.py` and `merge-from.py` are loaded via `importlib.util` workaround. These should be renamed to `layer_settings_merge.py` and `merge_from.py` with CLI aliases set in `@click.command(name="...")` decorators.
+
+7. **`production_branch` notification is fire-and-forget:** `notify_item_group_users()` does not confirm message delivery or handle partial failures across group members.
+
+### 7.2 Technical Debt
+
+- `remote.py` contains a complex folder-discovery fallback chain (three separate lookup strategies) that is difficult to test and maintain. This should be refactored into a clean `get_folder_id(gis, name) → str | None` function with explicit priority ordering.
+- `stash_push()` generates a stash ID using `int(time.time())` which is not monotonic under clock adjustments and could collide within a 1-second window. A UUID4 would be more appropriate.
+- The MCP server imports tools from two different paths (package import vs. direct file import fallback) — this dual-import pattern adds maintenance overhead.
+- `visualize.py` uses `direction="BT"` (bottom-to-top) hardcoded — this is not exposed as a configuration option.
+
+---
+
+## 8. Related Work
+
+### 8.1 Esri's Built-in Versioning
+
+ArcGIS's traditional versioning and branch versioning systems (ArcSDE, Enterprise Geodatabase) manage feature edits at the record level within geodatabases. They do not apply to web map items, dashboards, or application configuration. Git-Map is complementary to, not competitive with, these systems.
+
+### 8.2 Git-Based GIS Workflows
+
+**DVC (Data Version Control)** [Iterative, 2017] tracks large binary and data files alongside Git, but operates at the file level rather than on Portal-hosted JSON APIs. **Kart** (formerly Sno) provides Git-like versioning for geospatial vector data in GeoPackage format, again operating on local files rather than cloud-hosted map configurations.
+
+**GeoGig** [BoundlesGeo, 2013] provides a DAG-based version control system for geospatial features and addresses history, branching, and merging of vector data — conceptually similar to Git-Map but for feature geometry rather than map configuration.
+
+### 8.3 Git for Configuration Management
+
+The use of Git (or Git-like systems) for configuration-as-code is well established: GitOps for Kubernetes manifests, Terraform state management via remote backends, and Ansible playbook versioning. Git-Map applies this philosophy to the GIS configuration domain, where Esri's proprietary REST APIs serve as the "runtime environment" analogous to a Kubernetes cluster.
+
+### 8.4 Novelty
+
+Git-Map's distinguishing characteristics are:
+1. **Domain-specific merge semantics:** Layer-atomic three-way merge tuned to web map structure, rather than line-level text diffing.
+2. **Live Portal synchronization:** Bidirectional push/pull against a live Portal API, not just local file tracking.
+3. **AI-native design:** MCP server, context graph, and `rationale` fields are first-class features, not afterthoughts.
+4. **ArcGIS Pro integration:** Native toolbox embedding for users who do not use command-line tools.
+
+---
+
+## 9. Future Work
+
+### 9.1 Roadmap Items
+
+From `roadmap.md`, the following items remain incomplete as of v0.6.0:
+
+1. **Demo video** (60–90 seconds showing commit/branch/revert workflow) — highest community adoption value
+2. **Landing page on ingramgeoai.com** — prerequisite for organic discovery
+3. **Blog post / r/gis launch strategy** — community seeding
+
+### 9.2 Architectural Evolution
+
+**Delta compression:** Replace full-snapshot commits with a delta format (store only changed layers as JSON patches per RFC 6902). This would reduce storage O(C × S) to O(C × ΔS) for incremental workflows.
+
+**Atomic writes:** Implement write-to-temp-then-atomic-rename for all state files. Critical for correctness under concurrent access or interrupted operations.
+
+**Conflict markers in staged JSON:** Introduce a `__gitmap_conflict__` sentinel structure within `index.json` to represent unresolved conflicts inline, enabling GUI tooling to present conflict resolution interfaces.
+
+**Web UI:** A browser-based repository explorer (commit graph visualization, layer diff side-by-side, merge conflict resolution) would dramatically lower the adoption barrier for non-CLI users.
+
+**ArcGIS Pro ribbon integration:** Promote the `.pyt` toolbox tools to custom ribbon buttons in an ArcGIS Pro add-in (`.esriaddin` package), enabling one-click commit/branch/push without opening the Catalog pane.
+
+**Multi-remote support:** The current config supports a single remote named `origin`. Supporting named remotes (analogous to Git's `git remote add <name> <url>`) would enable cross-organization workflows.
+
+**Conflict resolution for layer ordering:** Preserve a canonical layer ordering even after merge by adopting a deterministic merge order policy (e.g., "ours order, then theirs additions appended").
+
+**Signed commits:** Add an optional GPG or SSH signature field to `Commit` for audit trail integrity in regulated environments.
+
+**GitHub Actions CI:** The roadmap lists CI/CD pipeline as item 4 — adding automated tests on PR with ArcGIS Online sandbox credentials would significantly improve confidence in remote operation correctness.
+
+---
+
+## 10. Appendix
+
+### A. Full File Tree
+
+```
+git-map/
+├── apps/
+│   ├── cli/
+│   │   └── gitmap/
+│   │       ├── commands/          # 25 CLI command modules
+│   │       │   ├── auto_pull.py
+│   │       │   ├── branch.py
+│   │       │   ├── checkout.py
+│   │       │   ├── cherry_pick.py
+│   │       │   ├── clone.py
+│   │       │   ├── commit.py
+│   │       │   ├── config.py
+│   │       │   ├── context.py
+│   │       │   ├── daemon.py
+│   │       │   ├── diff.py
+│   │       │   ├── init.py
+│   │       │   ├── layer-settings-merge.py
+│   │       │   ├── list.py
+│   │       │   ├── log.py
+│   │       │   ├── merge.py
+│   │       │   ├── merge-from.py
+│   │       │   ├── notify.py
+│   │       │   ├── pull.py
+│   │       │   ├── push.py
+│   │       │   ├── revert.py
+│   │       │   ├── setup_repos.py
+│   │       │   ├── stash.py
+│   │       │   ├── status.py
+│   │       │   ├── tag.py
+│   │       │   └── utils.py
+│   │       └── main.py
+│   └── mcp/
+│       └── gitmap-mcp/
+│           ├── main.py
+│           └── scripts/tools/
+│               ├── branch_tools.py
+│               ├── commit_tools.py
+│               ├── context_tools.py
+│               ├── layer_tools.py
+│               ├── portal_tools.py
+│               ├── remote_tools.py
+│               ├── repository_tools.py
+│               ├── stash_tools.py
+│               └── utils.py
+├── docs/
+│   ├── technical-paper.md        # This document
+│   └── commands/                 # Per-command documentation
+├── integrations/
+│   ├── arcgis_pro/
+│   │   └── GitMap.pyt            # 9-tool Python Toolbox
+│   └── openclaw/
+│       ├── tools.py
+│       ├── server.py
+│       └── tests/
+├── packages/
+│   └── gitmap_core/
+│       ├── compat.py
+│       ├── communication.py
+│       ├── connection.py
+│       ├── context.py
+│       ├── diff.py
+│       ├── maps.py
+│       ├── merge.py
+│       ├── models.py
+│       ├── remote.py
+│       ├── repository.py
+│       ├── visualize.py
+│       └── tests/                # 660+ test cases
+├── landing/
+│   └── index.html                # Marketing landing page
+├── CHANGELOG.md
+├── pyproject.toml
+├── requirements.txt
+├── roadmap.md
+└── mkdocs.yml
+```
+
+### B. Dependency List
+
+**Runtime dependencies** (from `pyproject.toml`):
+
+| Package | Version Constraint | Purpose |
+|---|---|---|
+| arcgis | ≥ 2.3.0 | ArcGIS Portal/AGOL API |
+| click | ≥ 8.1.0 | CLI framework |
+| rich | ≥ 13.0.0 | Terminal output formatting |
+| deepdiff | ≥ 6.0.0 | Recursive JSON comparison |
+| python-dotenv | ≥ 1.0.0 | .env credential loading |
+
+**Development dependencies:**
+
+| Package | Version Constraint | Purpose |
+|---|---|---|
+| pytest | ≥ 8.0 | Test runner |
+| coverage | ≥ 7.0 | Code coverage measurement |
+| ruff | ≥ 0.9.0 | Linting and formatting |
+
+**MCP server additional dependency:**
+- `mcp` (Anthropic MCP SDK) — not declared in top-level `pyproject.toml`; declared separately in the MCP app's requirements.
+
+### C. Configuration Reference
+
+**`.gitmap/config.json` schema:**
+```json
+{
+  "version": "1.0",
+  "user_name": "string",
+  "user_email": "string",
+  "project_name": "string",
+  "auto_visualize": false,
+  "remote": {
+    "name": "origin",
+    "url": "https://www.arcgis.com",
+    "folder_id": "string | null",
+    "folder_name": "string | null",
+    "item_id": "string | null",
+    "production_branch": "string | null"
+  }
+}
+```
+
+**Environment variables:**
+```
+PORTAL_URL         - Portal base URL
+PORTAL_USERNAME    - Portal username
+PORTAL_PASSWORD    - Portal password
+GITMAP_AUTO_PULL_INTERVAL  - Daemon poll interval in seconds (default: 300)
+```
+
+### D. Test Coverage Summary (v0.6.0)
+
+| Module | Test Count (approx.) | Coverage |
+|---|---|---|
+| repository.py | 200+ | ~95% |
+| merge.py | 100+ | ~98% |
+| diff.py | 80+ | ~97% |
+| context.py | 60+ | ~92% |
+| compat.py | 40+ | 96% |
+| models.py | 50+ | ~99% |
+| remote.py | 80+ | ~88% |
+| maps.py | 40+ | ~90% |
+| **Total** | **660+** | **~95% avg** |
+
+### E. Version History
+
+| Version | Date | Key Changes |
+|---|---|---|
+| 0.6.0 | 2026-03-05 | MCP stash tools, branch-to-branch diff, find_common_ancestor, ArcGIS Pro toolbox, landing page, PyPI publish, MkDocs site |
+| 0.5.0 | 2025-02-14 | Communication module, Portal notifications, 608+ tests |
+| 0.4.0 | 2025-02-10 | stash, cherry-pick, tag, revert commands; ArcGIS API compat layer |
+| < 0.4.0 | 2024 | Initial CLI, core commit/branch/merge/diff/push/pull |
+
+---
+
+*This paper was auto-generated by the Git-Map paper generator (Jig, OpenClaw) on 2026-03-08 and reflects the state of the codebase at v0.6.0. Peer review and empirical benchmark data remain areas for future work.*
