@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitMap — Version Control for ArcGIS Web Maps</title>
+  <meta name="description" content="GitMap brings Git-like version control to ArcGIS Online and Enterprise Portal. Branch, commit, diff, merge, and revert your web maps." />
+  <meta property="og:title" content="GitMap — Version Control for ArcGIS Web Maps" />
+  <meta property="og:description" content="Branch, commit, diff, merge, and revert ArcGIS web maps. Open source. Free." />
+  <meta property="og:url" content="https://ingramgeoai.com/gitmap" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111827;
+      --border: #1e2d40;
+      --accent: #3b82f6;
+      --accent2: #10b981;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --code-bg: #0d1117;
+      --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10, 14, 26, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo { font-weight: 700; font-size: 1.1rem; color: var(--accent); letter-spacing: -0.02em; }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent); color: #fff; padding: 0.4rem 1rem;
+      border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600;
+      transition: background .2s;
+    }
+    .nav-cta:hover { background: #2563eb; }
+
+    /* HERO */
+    .hero {
+      max-width: 960px; margin: 0 auto;
+      padding: 6rem 2rem 4rem;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      padding: 0.75rem 1.75rem; border-radius: 8px;
+      text-decoration: none; font-weight: 700; font-size: 1rem;
+      transition: background .2s, transform .15s;
+    }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      padding: 0.75rem 1.75rem; border-radius: 8px;
+      text-decoration: none; font-weight: 600; font-size: 1rem;
+      border: 1px solid var(--border);
+      transition: border-color .2s, transform .15s;
+    }
+    .btn-secondary:hover { border-color: var(--accent); transform: translateY(-1px); }
+
+    /* TERMINAL DEMO */
+    .terminal-wrap {
+      max-width: 760px; margin: 3rem auto 0;
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+    .terminal-bar {
+      background: #1a1f2e; padding: 0.6rem 1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red { background: #ff5f57; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #28c940; }
+    .terminal-title { flex: 1; text-align: center; font-size: 0.75rem; color: var(--muted); }
+    .terminal-body {
+      background: var(--code-bg);
+      padding: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.8;
+    }
+    .cmd { color: #7dd3fc; }
+    .out { color: #94a3b8; }
+    .hi { color: #4ade80; }
+    .hi2 { color: #fbbf24; }
+    .hi3 { color: #f87171; }
+
+    /* SECTION */
+    section { max-width: 960px; margin: 0 auto; padding: 5rem 2rem; }
+    .section-label {
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+    h2 {
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 800; letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+    .section-desc { color: var(--muted); font-size: 1.05rem; max-width: 520px; margin-bottom: 3rem; }
+
+    /* WHY TABLE */
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .why-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      transition: border-color .2s;
+    }
+    .why-card:hover { border-color: var(--accent); }
+    .why-problem { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.5rem; font-style: italic; }
+    .why-solution { font-weight: 600; font-size: 0.95rem; }
+    .why-cmd { font-family: var(--font-mono); color: var(--accent); font-size: 0.8rem; margin-top: 0.4rem; }
+
+    /* FEATURES */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+    .feature-icon { font-size: 1.6rem; margin-bottom: 0.75rem; }
+    .feature-title { font-weight: 700; margin-bottom: 0.4rem; }
+    .feature-desc { color: var(--muted); font-size: 0.9rem; }
+
+    /* INSTALL */
+    .install-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      line-height: 2;
+      max-width: 640px;
+    }
+    .install-comment { color: var(--muted); }
+    .install-cmd { color: #7dd3fc; }
+
+    /* BADGES */
+    .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem; }
+    .badges img { height: 20px; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* DIVIDER */
+    .divider { border: none; border-top: 1px solid var(--border); }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 1rem; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">🗺 GitMap</span>
+  <div class="nav-links">
+    <a href="#why">Why</a>
+    <a href="#features">Features</a>
+    <a href="#install">Install</a>
+    <a href="https://14-tr.github.io/Git-Map/" target="_blank">Docs</a>
+    <a href="https://github.com/14-TR/Git-Map" target="_blank">GitHub</a>
+  </div>
+  <a class="nav-cta" href="#install">Get Started</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Open Source · MIT License</div>
+  <h1>Git for your<br/>ArcGIS web maps.</h1>
+  <p class="hero-sub">
+    Branch, commit, diff, merge, and revert ArcGIS Online &amp; Portal web maps
+    with the workflows your team already knows.
+  </p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="#install">pip install gitmap</a>
+    <a class="btn-secondary" href="https://github.com/14-TR/Git-Map" target="_blank">View on GitHub →</a>
+  </div>
+
+  <!-- Terminal demo -->
+  <div class="terminal-wrap">
+    <div class="terminal-bar">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <span class="terminal-title">gitmap demo</span>
+    </div>
+    <div class="terminal-body">
+      <div><span class="cmd">$ gitmap init --portal https://gis.myorg.com/portal --item-id abc123</span></div>
+      <div><span class="hi">✔ Initialized GitMap repo for "Flood Risk Assessment"</span></div>
+      <br/>
+      <div><span class="cmd">$ gitmap commit -m "Added FEMA flood zones layer"</span></div>
+      <div><span class="hi">[main 3d7f1a2] Added FEMA flood zones layer</span></div>
+      <div><span class="out">  1 layer added, 2 properties changed</span></div>
+      <br/>
+      <div><span class="cmd">$ gitmap branch feature/new-basemap && gitmap checkout feature/new-basemap</span></div>
+      <div><span class="hi">✔ Switched to branch 'feature/new-basemap'</span></div>
+      <br/>
+      <div><span class="cmd">$ gitmap diff --branch main</span></div>
+      <div><span class="hi2">~ Layer: Topographic Basemap</span></div>
+      <div><span class="hi3">  - style: "streets-v12"</span></div>
+      <div><span class="hi">  + style: "satellite-streets-v12"</span></div>
+      <br/>
+      <div><span class="cmd">$ gitmap merge feature/new-basemap</span></div>
+      <div><span class="hi">✔ Merged feature/new-basemap → main</span></div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- WHY SECTION -->
+<section id="why">
+  <div class="section-label">Why GitMap</div>
+  <h2>Every GIS team has these problems.</h2>
+  <p class="section-desc">GitMap solves the version control gap that's been missing from ArcGIS workflows since the beginning.</p>
+
+  <div class="why-grid">
+    <div class="why-card">
+      <div class="why-problem">"Who changed the basemap last Tuesday?"</div>
+      <div class="why-solution">Full commit history with author, timestamp, and message.</div>
+      <div class="why-cmd">gitmap log</div>
+    </div>
+    <div class="why-card">
+      <div class="why-problem">"I need to test this symbology without breaking production."</div>
+      <div class="why-solution">Isolated branches — experiment freely, merge when ready.</div>
+      <div class="why-cmd">gitmap branch feature/symbology</div>
+    </div>
+    <div class="why-card">
+      <div class="why-problem">"Revert the map to last week's state."</div>
+      <div class="why-solution">Checkout any previous commit instantly.</div>
+      <div class="why-cmd">gitmap checkout &lt;commit-id&gt;</div>
+    </div>
+    <div class="why-card">
+      <div class="why-problem">"What's different between staging and production?"</div>
+      <div class="why-solution">Layer-by-layer visual diff between any two branches.</div>
+      <div class="why-cmd">gitmap diff --branch production</div>
+    </div>
+    <div class="why-card">
+      <div class="why-problem">"Keep 50 maps in sync with Portal changes."</div>
+      <div class="why-solution">Auto-pull tracks remote map state and syncs on schedule.</div>
+      <div class="why-cmd">gitmap auto-pull</div>
+    </div>
+    <div class="why-card">
+      <div class="why-problem">"Share map state between team members."</div>
+      <div class="why-solution">Push/pull to shared Portal items like a Git remote.</div>
+      <div class="why-cmd">gitmap push origin main</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- FEATURES SECTION -->
+<section id="features">
+  <div class="section-label">Features</div>
+  <h2>Everything you'd expect from Git,<br/>built for GIS.</h2>
+  <p class="section-desc">Works with ArcGIS Online and Enterprise Portal. Python 3.11–3.13. 450+ tests. MIT licensed.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🌿</div>
+      <div class="feature-title">Branching</div>
+      <div class="feature-desc">Create isolated branches to safely develop and test map changes without touching production.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📝</div>
+      <div class="feature-title">Commits &amp; History</div>
+      <div class="feature-desc">Save named snapshots with messages. Full log with author, date, and what changed.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <div class="feature-title">Visual Diff</div>
+      <div class="feature-desc">See exactly what changed between any two commits or branches — layers, opacity, visibility, symbology.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔀</div>
+      <div class="feature-title">Merge</div>
+      <div class="feature-desc">Bring branches back together. Conflict detection keeps your maps safe.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⏪</div>
+      <div class="feature-title">Revert &amp; Reset</div>
+      <div class="feature-desc">One command to undo any commit or restore a historical map state.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔁</div>
+      <div class="feature-title">Push &amp; Pull</div>
+      <div class="feature-desc">Sync map state to/from ArcGIS Portal — share across teams and environments.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚙️</div>
+      <div class="feature-title">ArcGIS Pro Toolbox</div>
+      <div class="feature-desc">9 native geoprocessing tools so you can run GitMap workflows directly inside ArcGIS Pro.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <div class="feature-title">Auto-Pull</div>
+      <div class="feature-desc">Schedule automatic syncs to keep local repos in step with live Portal maps.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- INSTALL SECTION -->
+<section id="install">
+  <div class="section-label">Get Started</div>
+  <h2>Up and running in 2 minutes.</h2>
+  <p class="section-desc">Requires Python 3.11+ and an ArcGIS Online or Portal account.</p>
+
+  <div class="badges">
+    <img src="https://github.com/14-TR/Git-Map/actions/workflows/ci.yml/badge.svg" alt="CI" />
+    <img src="https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue" alt="Python" />
+    <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT" />
+    <img src="https://img.shields.io/badge/tests-450%2B-brightgreen" alt="Tests" />
+  </div>
+
+  <div class="install-block">
+    <div><span class="install-comment"># Install from PyPI</span></div>
+    <div><span class="install-cmd">pip install gitmap</span></div>
+    <br/>
+    <div><span class="install-comment"># Initialize a repo for an existing web map</span></div>
+    <div><span class="install-cmd">gitmap init --portal https://org.maps.arcgis.com --item-id &lt;map-id&gt;</span></div>
+    <br/>
+    <div><span class="install-comment"># Commit the current state</span></div>
+    <div><span class="install-cmd">gitmap commit -m "Initial commit"</span></div>
+    <br/>
+    <div><span class="install-comment"># Create a branch and start experimenting</span></div>
+    <div><span class="install-cmd">gitmap branch feature/my-changes && gitmap checkout feature/my-changes</span></div>
+  </div>
+
+  <br/>
+  <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:1.5rem;">
+    <a class="btn-primary" href="https://14-tr.github.io/Git-Map/getting-started/" target="_blank">Full Getting Started Guide →</a>
+    <a class="btn-secondary" href="https://github.com/14-TR/Git-Map" target="_blank">GitHub Repository</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>
+    GitMap is open source (MIT) · Built by <a href="https://ingramgeoai.com" target="_blank">TR Ingram</a> ·
+    <a href="https://github.com/14-TR/Git-Map" target="_blank">GitHub</a> ·
+    <a href="https://14-tr.github.io/Git-Map/" target="_blank">Documentation</a>
+  </p>
+</footer>
+
+</body>
+</html>
