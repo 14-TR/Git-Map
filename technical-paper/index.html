@@ -1254,28 +1254,39 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#13-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Scope
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-related-work" class="md-nav__link">
+  <a href="#2-system-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Related Work
+        2. System Architecture
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. Related Work">
+    <nav class="md-nav" aria-label="2. System Architecture">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#21-arcgis-version-management-services" class="md-nav__link">
+  <a href="#21-high-level-component-diagram" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.1 ArcGIS Version Management Services
+        2.1 High-Level Component Diagram
       
     </span>
   </a>
@@ -1283,10 +1294,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#22-portal-versioning-limitations" class="md-nav__link">
+  <a href="#22-repository-on-disk-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.2 Portal Versioning Limitations
+        2.2 Repository On-Disk Layout
       
     </span>
   </a>
@@ -1294,10 +1305,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#23-general-purpose-version-control-for-structured-data" class="md-nav__link">
+  <a href="#23-data-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2.3 General-Purpose Version Control for Structured Data
+        2.3 Data Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-technology-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Technology Stack
       
     </span>
   </a>
@@ -1310,83 +1332,34 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-architecture" class="md-nav__link">
+  <a href="#3-implementation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Architecture
+        3. Implementation
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. Architecture">
+    <nav class="md-nav" aria-label="3. Implementation">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#31-system-overview" class="md-nav__link">
+  <a href="#31-core-library-packagesgitmap_core" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3.1 System Overview
+        3.1 Core Library (packages/gitmap_core/)
       
     </span>
   </a>
   
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#32-repository-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.2 Repository Structure
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#33-core-data-models" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.3 Core Data Models
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#34-repository-class" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3.4 Repository Class
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-core-operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Core Operations
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="4. Core Operations">
+    <nav class="md-nav" aria-label="3.1 Core Library (packages/gitmap_core/)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#41-commit" class="md-nav__link">
+  <a href="#311-repositorypy-repository-management" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.1 Commit
+        3.1.1 repository.py — Repository Management
       
     </span>
   </a>
@@ -1394,10 +1367,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#42-branch" class="md-nav__link">
+  <a href="#312-modelspy-data-models" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.2 Branch
+        3.1.2 models.py — Data Models
       
     </span>
   </a>
@@ -1405,10 +1378,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#43-merge-with-three-way-base" class="md-nav__link">
+  <a href="#313-mergepy-three-way-layer-merge" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.3 Merge with Three-Way Base
+        3.1.3 merge.py — Three-Way Layer Merge
       
     </span>
   </a>
@@ -1416,10 +1389,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#44-checkout" class="md-nav__link">
+  <a href="#314-diffpy-differential-analysis" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.4 Checkout
+        3.1.4 diff.py — Differential Analysis
       
     </span>
   </a>
@@ -1427,10 +1400,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#45-revert" class="md-nav__link">
+  <a href="#315-contextpy-sqlite-event-graph" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.5 Revert
+        3.1.5 context.py — SQLite Event Graph
       
     </span>
   </a>
@@ -1438,10 +1411,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#46-cherry-pick" class="md-nav__link">
+  <a href="#316-remotepy-portal-remote-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.6 Cherry-Pick
+        3.1.6 remote.py — Portal Remote Operations
       
     </span>
   </a>
@@ -1449,10 +1422,103 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#47-stash" class="md-nav__link">
+  <a href="#317-mapspy-web-map-json-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4.7 Stash
+        3.1.7 maps.py — Web Map JSON Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#318-visualizepy-context-graph-rendering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.8 visualize.py — Context Graph Rendering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#319-compatpy-arcgis-api-compatibility-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.9 compat.py — ArcGIS API Compatibility Layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3110-connectionpy-portal-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.10 connection.py — Portal Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3111-communicationpy-portal-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.11 communication.py — Portal Notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-cli-application-appscli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 CLI Application (apps/cli/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-mcp-server-appsmcpgitmap-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 MCP Server (apps/mcp/gitmap-mcp/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-arcgis-pro-toolbox-integrationsarcgis_progitmappyt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 ArcGIS Pro Toolbox (integrations/arcgis_pro/GitMap.pyt)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-openclaw-integration-integrationsopenclaw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 OpenClaw Integration (integrations/openclaw/)
       
     </span>
   </a>
@@ -1465,83 +1531,34 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-diff-engine" class="md-nav__link">
+  <a href="#4-api-interface-specification" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Diff Engine
+        4. API / Interface Specification
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. Diff Engine">
+    <nav class="md-nav" aria-label="4. API / Interface Specification">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#51-mapdiff-data-model" class="md-nav__link">
+  <a href="#41-cli-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5.1 MapDiff Data Model
+        4.1 CLI Commands
       
     </span>
   </a>
   
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#52-diff-algorithm" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.2 Diff Algorithm
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#53-visual-output" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.3 Visual Output
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#54-branch-to-branch-diff" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.4 Branch-to-Branch Diff
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-compatibility-layer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Compatibility Layer
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="6. Compatibility Layer">
+    <nav class="md-nav" aria-label="4.1 CLI Commands">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#61-design-rationale" class="md-nav__link">
+  <a href="#gitmap-init-project-name-text-user-text-email-text-path" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6.1 Design Rationale
+        gitmap init [--project-name TEXT] [--user TEXT] [--email TEXT] [PATH]
       
     </span>
   </a>
@@ -1549,10 +1566,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#62-version-detection" class="md-nav__link">
+  <a href="#gitmap-clone-item-id-url-text-username-text-password-text" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6.2 Version Detection
+        gitmap clone &lt;item-id&gt; [--url TEXT] [--username TEXT] [--password TEXT]
       
     </span>
   </a>
@@ -1560,10 +1577,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#63-api-shims" class="md-nav__link">
+  <a href="#gitmap-status" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6.3 API Shims
+        gitmap status
       
     </span>
   </a>
@@ -1571,10 +1588,208 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#64-test-coverage" class="md-nav__link">
+  <a href="#gitmap-commit-m-message-author-text-rationale-text" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6.4 Test Coverage
+        gitmap commit -m &lt;message&gt; [--author TEXT] [--rationale TEXT]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-log-limit-n-branch-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap log [--limit N] [--branch NAME]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-branch-v-d-name-name-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap branch [-v] [-d NAME] [NAME [COMMIT]]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-checkout-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap checkout &lt;branch&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-diff-commit-a-commit-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap diff [&lt;commit-a&gt; [&lt;commit-b&gt;]]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-merge-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap merge &lt;branch&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-merge-from-branch-strategy-ourstheirs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap merge-from &lt;branch&gt; [--strategy ours|theirs]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-push-url-text-username-text-password-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap push [--url TEXT] [--username TEXT] [--password TEXT]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-pull-url-text-username-text-password-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap pull [--url TEXT] [--username TEXT] [--password TEXT]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-revert-commit-id-rationale-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap revert &lt;commit-id&gt; [--rationale TEXT]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-cherry-pick-commit-id-rationale-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap cherry-pick &lt;commit-id&gt; [--rationale TEXT]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-stash-pushpoplistdropclear-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap stash [push|pop|list|drop|clear] [OPTIONS]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-tag-name-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap tag [NAME] [COMMIT]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-context-timelineexplainsearchlesson-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap context [timeline|explain|search|lesson] [OPTIONS]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-list-url-text-username-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap list [--url TEXT] [--username TEXT]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-notify-item-id-text-message-text-url-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap notify --item-id TEXT --message TEXT [--url TEXT]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-config-user-text-email-text-remote-url-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap config [--user TEXT] [--email TEXT] [--remote-url TEXT]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-auto-pull-interval-seconds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap auto-pull [--interval SECONDS]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gitmap-layer-settings-merge-source-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gitmap layer-settings-merge &lt;source-branch&gt;
       
     </span>
   </a>
@@ -1585,24 +1800,24 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#7-mcp-server-integration" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#42-core-library-api" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7. MCP Server Integration
+        4.2 Core Library API
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="7. MCP Server Integration">
+    <nav class="md-nav" aria-label="4.2 Core Library API">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#71-model-context-protocol-overview" class="md-nav__link">
+  <a href="#repositoryroot-path-str" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.1 Model Context Protocol Overview
+        Repository(root: Path | str)
       
     </span>
   </a>
@@ -1610,10 +1825,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#72-server-architecture" class="md-nav__link">
+  <a href="#repositoryinitproject_name-user_name-user_email-none" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.2 Server Architecture
+        repository.init(project_name, user_name, user_email) → None
       
     </span>
   </a>
@@ -1621,10 +1836,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#73-tool-categories" class="md-nav__link">
+  <a href="#repositoryexists-bool" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.3 Tool Categories
+        repository.exists() → bool
       
     </span>
   </a>
@@ -1632,10 +1847,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#74-agent-workflow-integration" class="md-nav__link">
+  <a href="#repositoryis_valid-bool" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.4 Agent Workflow Integration
+        repository.is_valid() → bool
       
     </span>
   </a>
@@ -1643,10 +1858,378 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#75-configuration" class="md-nav__link">
+  <a href="#repositoryget_current_branch-str-none" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.5 Configuration
+        repository.get_current_branch() → str | None
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositoryget_head_commit-str-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.get_head_commit() → str | None
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorylist_branches-liststr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.list_branches() → list[str]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorycreate_branchname-commit_idnone-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.create_branch(name, commit_id=None) → Branch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositoryupdate_branchname-commit_id-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.update_branch(name, commit_id) → None
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorydelete_branchname-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.delete_branch(name) → None
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorycheckout_branchname-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.checkout_branch(name) → None
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositoryget_index-dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.get_index() → dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositoryupdate_indexmap_data-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.update_index(map_data) → None
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorycreate_commitmessage-authornone-rationalenone-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.create_commit(message, author=None, rationale=None) → Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositoryget_commitcommit_id-commit-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.get_commit(commit_id) → Commit | None
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositoryget_commit_historystart_commitnone-limitnone-listcommit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.get_commit_history(start_commit=None, limit=None) → list[Commit]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositoryrevertcommit_id-rationalenone-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.revert(commit_id, rationale=None) → Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorycherry_pickcommit_id-rationalenone-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.cherry_pick(commit_id, rationale=None) → Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorystash_pushmessagenone-dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.stash_push(message=None) → dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorystash_popindex0-dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.stash_pop(index=0) → dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorystash_list-listdict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.stash_list() → list[dict]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorystash_dropindex0-dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.stash_drop(index=0) → dict
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorystash_clear-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.stash_clear() → int
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorylist_tags-liststr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.list_tags() → list[str]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorycreate_tagname-commit_idnone-str" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.create_tag(name, commit_id=None) → str
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositorydelete_tagname-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.delete_tag(name) → None
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositoryfind_common_ancestorcommit_id_a-commit_id_b-str-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.find_common_ancestor(commit_id_a, commit_id_b) → str | None
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositoryget_config-repoconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.get_config() → RepoConfig
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositoryupdate_configconfig-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.update_config(config) → None
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositoryhas_uncommitted_changes-bool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.has_uncommitted_changes() → bool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositoryget_context_store-contextstore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.get_context_store() → ContextStore
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repositoryregenerate_context_graph-path-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        repository.regenerate_context_graph(...) → Path | None
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#find_repositorystart_pathnone-repository-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        find_repository(start_path=None) → Repository | None
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#merge_mapsours-theirs-basenone-mergeresult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        merge_maps(ours, theirs, base=None) → MergeResult
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#diff_mapsmap1-map2-mapdiff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        diff_maps(map1, map2) → MapDiff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#format_diff_visualmap_diff-label_a-label_b-listtuplestr-str-str" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        format_diff_visual(map_diff, label_a, label_b) → list[tuple[str, str, str]]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#format_diff_statsmap_diff-dictstr-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        format_diff_stats(map_diff) → dict[str, int]
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Error Handling
       
     </span>
   </a>
@@ -1659,22 +2242,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#8-conflict-resolution" class="md-nav__link">
+  <a href="#5-performance-analysis" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8. Conflict Resolution
+        5. Performance Analysis
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="8. Conflict Resolution">
+    <nav class="md-nav" aria-label="5. Performance Analysis">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#81-conflict-representation" class="md-nav__link">
+  <a href="#51-critical-path-complexity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8.1 Conflict Representation
+        5.1 Critical Path Complexity
       
     </span>
   </a>
@@ -1682,10 +2265,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#82-three-way-merge-strategy" class="md-nav__link">
+  <a href="#52-storage-characteristics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8.2 Three-Way Merge Strategy
+        5.2 Storage Characteristics
       
     </span>
   </a>
@@ -1693,10 +2276,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#83-conflict-resolution-api" class="md-nav__link">
+  <a href="#53-bottlenecks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8.3 Conflict Resolution API
+        5.3 Bottlenecks
       
     </span>
   </a>
@@ -1704,10 +2287,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#84-property-level-conflict-surfacing" class="md-nav__link">
+  <a href="#54-scaling-characteristics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8.4 Property-Level Conflict Surfacing
+        5.4 Scaling Characteristics
       
     </span>
   </a>
@@ -1720,22 +2303,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-performance" class="md-nav__link">
+  <a href="#6-security-considerations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. Performance
+        6. Security Considerations
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="9. Performance">
+    <nav class="md-nav" aria-label="6. Security Considerations">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#91-sqlite-optimization" class="md-nav__link">
+  <a href="#61-authentication-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9.1 SQLite Optimization
+        6.1 Authentication Model
       
     </span>
   </a>
@@ -1743,10 +2326,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#92-context-store-lifecycle-management" class="md-nav__link">
+  <a href="#62-data-privacy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9.2 Context Store Lifecycle Management
+        6.2 Data Privacy
       
     </span>
   </a>
@@ -1754,10 +2337,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#93-commit-hash-performance" class="md-nav__link">
+  <a href="#63-input-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9.3 Commit Hash Performance
+        6.3 Input Validation
       
     </span>
   </a>
@@ -1765,10 +2348,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#94-test-suite-performance" class="md-nav__link">
+  <a href="#64-attack-surface" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9.4 Test Suite Performance
+        6.4 Attack Surface
       
     </span>
   </a>
@@ -1781,22 +2364,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#10-future-work" class="md-nav__link">
+  <a href="#7-known-limitations-technical-debt" class="md-nav__link">
     <span class="md-ellipsis">
       
-        10. Future Work
+        7. Known Limitations &amp; Technical Debt
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="10. Future Work">
+    <nav class="md-nav" aria-label="7. Known Limitations &amp; Technical Debt">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#101-pypi-distribution-gitmap-core" class="md-nav__link">
+  <a href="#71-current-limitations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        10.1 PyPI Distribution (gitmap-core)
+        7.1 Current Limitations
       
     </span>
   </a>
@@ -1804,43 +2387,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#102-real-time-collaboration" class="md-nav__link">
+  <a href="#72-technical-debt" class="md-nav__link">
     <span class="md-ellipsis">
       
-        10.2 Real-Time Collaboration
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#103-webhook-triggers-and-cicd-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        10.3 Webhook Triggers and CI/CD Integration
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#104-arcgis-pro-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        10.4 ArcGIS Pro Integration
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#105-property-level-merge-granularity" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        10.5 Property-Level Merge Granularity
+        7.2 Technical Debt
       
     </span>
   </a>
@@ -1853,13 +2403,174 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#references" class="md-nav__link">
+  <a href="#8-related-work" class="md-nav__link">
     <span class="md-ellipsis">
       
-        References
+        8. Related Work
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="8. Related Work">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-esris-built-in-versioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Esri's Built-in Versioning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-git-based-gis-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Git-Based GIS Workflows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-git-for-configuration-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Git for Configuration Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-novelty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Novelty
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-future-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Future Work
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Future Work">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-roadmap-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Roadmap Items
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-architectural-evolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Architectural Evolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-appendix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Appendix
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Appendix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-full-file-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Full File Tree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-dependency-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Dependency List
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-configuration-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Configuration Reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-test-coverage-summary-v060" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D. Test Coverage Summary (v0.6.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e-version-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E. Version History
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1887,9 +2598,11 @@
 <p><strong>TR Ingram</strong><br />
 <em>Independent Researcher / GIS Software Engineer</em><br />
 <em>Wyoming, USA</em></p>
+<p><strong>Date:</strong> March 8, 2026<br />
+<strong>Version:</strong> 2.0</p>
 <hr />
 <h2 id="abstract">Abstract<a class="headerlink" href="#abstract" title="Permanent link">&para;</a></h2>
-<p>Web maps published through ArcGIS Online (AGOL) and ArcGIS Enterprise Portal represent complex, stateful GIS products whose operational layer configurations, symbology, popups, and cartographic properties evolve continuously over time. Despite this complexity, Esri's platform offers no native mechanism to snapshot, branch, or revert a web map's JSON definition — leaving GIS professionals to rely on ad hoc strategies such as periodic item cloning, manual change logs, or informal naming conventions like "Map_v3_FINAL_2." This paper presents <strong>Git-Map</strong>, a Python-based version control system that brings Git's conceptual model — commits, branches, merges, cherry-picks, and reverts — to ArcGIS web map items. The system stores complete snapshots of a map's operational layer JSON at each commit, implements three-way merge logic at the layer level, provides a property-level diff engine built on <code>DeepDiff</code>, exposes all operations through a Model Context Protocol (MCP) server for AI-agent workflows, and maintains an SQLite-backed event graph for episodic context tracking. With 674 tests achieving 96% code coverage across Portal and AGOL environments, Git-Map demonstrates that rigorous software engineering practices can close the version control gap in modern GIS workflows.</p>
+<p>Web maps published through ArcGIS Online (AGOL) and ArcGIS Enterprise Portal represent complex, stateful GIS artifacts whose operational layer configurations, symbology, popups, and cartographic properties evolve continuously over time. Despite this complexity, Esri's platform offers no native mechanism to snapshot, branch, or revert a web map's JSON definition — leaving GIS professionals to rely on ad hoc strategies such as periodic item cloning, manual change logs, or informal naming conventions like "Map_v3_FINAL_2." This paper presents <strong>Git-Map</strong> (v0.6.0), a Python-based version control system that brings Git's conceptual model — commits, branches, merges, cherry-picks, stashes, and reverts — to ArcGIS web map items. The system stores complete snapshots of a map's operational layer JSON at each commit, implements three-way merge logic at the layer level, provides a property-level diff engine built on <code>DeepDiff</code>, exposes all operations through a Model Context Protocol (MCP) server for AI-agent workflows, wraps nine operations as native ArcGIS Pro Python toolbox tools, maintains an SQLite-backed event graph for episodic context tracking, and is distributed as a PyPI package. With 660+ tests achieving up to 96% code coverage across Portal and AGOL environments, Git-Map demonstrates that rigorous software engineering practices can close the version control gap in modern GIS workflows.</p>
 <hr />
 <h2 id="1-introduction">1. Introduction<a class="headerlink" href="#1-introduction" title="Permanent link">&para;</a></h2>
 <h3 id="11-problem-statement">1.1 Problem Statement<a class="headerlink" href="#11-problem-statement" title="Permanent link">&para;</a></h3>
@@ -1900,269 +2613,348 @@
 <h3 id="12-contributions">1.2 Contributions<a class="headerlink" href="#12-contributions" title="Permanent link">&para;</a></h3>
 <p>This paper makes the following contributions:</p>
 <ol>
-<li>
-<p><strong>A formal model</strong> for applying DVCS concepts (commits, branches, remotes, staging areas) to ArcGIS web map items, with semantics appropriate to the JSON-document nature of the artifact.</p>
-</li>
-<li>
-<p><strong>A three-way merge algorithm</strong> operating at the operational layer granularity, capable of auto-resolving non-conflicting parallel changes and surfacing genuine conflicts for human resolution.</p>
-</li>
-<li>
-<p><strong>A compatibility abstraction layer</strong> that normalizes behavioral differences across <code>arcgis</code> Python API versions 2.2.x through 2.4.x and across Portal vs. AGOL deployment targets.</p>
-</li>
-<li>
-<p><strong>An MCP server integration</strong> that exposes all Git-Map operations as structured tools consumable by AI coding agents and LLM-based automation pipelines.</p>
-</li>
-<li>
-<p><strong>An SQLite-backed context graph</strong> providing episodic memory of operations, rationales, and inter-event relationships for human and agent audit trails.</p>
-</li>
+<li>A formal architecture for a content-addressable, commit-based version control system operating on ArcGIS web map JSON.</li>
+<li>A layer-atomic three-way merge algorithm adapted from Git's merge strategy to GIS-specific data structures.</li>
+<li>A <code>DeepDiff</code>-backed property-level diff engine producing structured <code>MapDiff</code> objects.</li>
+<li>An SQLite-backed event graph (<code>ContextStore</code>) enabling episodic memory and AI-agent context awareness.</li>
+<li>A Model Context Protocol (MCP) server exposing all GitMap operations to AI coding agents.</li>
+<li>A native ArcGIS Pro Python Toolbox (.pyt) wrapping nine core GitMap operations.</li>
+<li>An OpenClaw integration providing subprocess-based tool wrappers for agent-driven map management.</li>
 </ol>
+<h3 id="13-scope">1.3 Scope<a class="headerlink" href="#13-scope" title="Permanent link">&para;</a></h3>
+<p>This paper covers Git-Map version 0.6.0 as of March 2026. The system supports ArcGIS Online and Portal for ArcGIS ≥ 10.9, requires Python ≥ 3.10, and is distributed under the MIT license. The scope includes the <code>gitmap_core</code> library, <code>gitmap</code> CLI, MCP server, ArcGIS Pro toolbox, and OpenClaw integration. Geodatabase versioning, feature editing workflows, and ArcGIS Server service management are explicitly out of scope.</p>
 <hr />
-<h2 id="2-related-work">2. Related Work<a class="headerlink" href="#2-related-work" title="Permanent link">&para;</a></h2>
-<h3 id="21-arcgis-version-management-services">2.1 ArcGIS Version Management Services<a class="headerlink" href="#21-arcgis-version-management-services" title="Permanent link">&para;</a></h3>
-<p>Esri's versioning infrastructure exists at the geodatabase level, not the web map level. Traditional versioning (ArcSDE) supports a parent-child edit isolation model where a DEFAULT version represents the authoritative state and child versions allow isolated editing with reconcile/post operations for re-integration. Branch versioning, introduced in ArcGIS Enterprise 10.6, extends this model to feature services accessed via web clients, enabling offline-capable workflows without requiring ArcMap. However, both mechanisms are scoped to <code>Workspace</code>-level transactional boundaries in the geodatabase — they track changes to feature geometries and attributes, not to the web map's operational layer configuration.</p>
-<p>The Portal REST API provides item-level write operations (<code>updateItem</code>, <code>addItem</code>) that are atomic and non-versioned. A <code>GET /sharing/rest/content/items/{itemId}/data</code> returns the current JSON payload; there is no <code>?version=</code> parameter or history endpoint. Esri's ArcGIS Notebooks environment provides Python-based automation but does not expose a version control abstraction for web map items.</p>
-<h3 id="22-portal-versioning-limitations">2.2 Portal Versioning Limitations<a class="headerlink" href="#22-portal-versioning-limitations" title="Permanent link">&para;</a></h3>
-<p>Portal's item versioning model records metadata events — title changes, tag updates, sharing group changes, thumbnail replacements — but does not snapshot the <code>data</code> payload. This is architecturally significant: the item's <code>modified</code> timestamp and <code>size</code> field will change when a user saves map layer changes, but the previous state is irretrievably overwritten. Portal's "protected" item flag prevents deletion but not modification.</p>
-<p>ArcGIS Online's organizational content management supports "Copy Item" operations that create independent duplicates with new item IDs, which GIS administrators sometimes use manually as informal snapshots. This approach does not scale: it generates item sprawl, consumes storage quota, breaks sharing group memberships, and creates no structured relationship between copies that would support comparison or rollback.</p>
-<h3 id="23-general-purpose-version-control-for-structured-data">2.3 General-Purpose Version Control for Structured Data<a class="headerlink" href="#23-general-purpose-version-control-for-structured-data" title="Permanent link">&para;</a></h3>
-<p>The literature on version control for non-code artifacts is limited but growing. Systems like DVC (Data Version Control) address the ML dataset versioning problem by tracking file hashes and storing large binary objects outside Git. DBngin and Liquibase address database schema versioning. None of these systems address the GIS web map domain, where the artifact is a complex JSON document with domain-specific semantics (layer ordering, spatial references, service URL references) and lives in a remote content management system rather than on the local filesystem.</p>
-<p>Git-Map's approach is closest in spirit to tools like <code>git-annex</code> (managing remote binary content through a local metadata store) and JSON Patch (RFC 6902 diff-and-apply semantics), but implements domain-aware merge logic rather than generic structural diffing.</p>
-<hr />
-<h2 id="3-architecture">3. Architecture<a class="headerlink" href="#3-architecture" title="Permanent link">&para;</a></h2>
-<h3 id="31-system-overview">3.1 System Overview<a class="headerlink" href="#31-system-overview" title="Permanent link">&para;</a></h3>
-<p>Git-Map is organized as a Python monorepo with two primary packages:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>/packages/gitmap_core/     — Core library (models, repository, diff, merge, context)
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>/apps/mcp/gitmap-mcp/      — MCP server exposing gitmap_core as agent tools
+<h2 id="2-system-architecture">2. System Architecture<a class="headerlink" href="#2-system-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="21-high-level-component-diagram">2.1 High-Level Component Diagram<a class="headerlink" href="#21-high-level-component-diagram" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                          Git-Map Monorepo                           │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│                                                                     │
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│  ┌──────────────────────────────────────────────────────────────┐  │
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  │                    packages/gitmap_core                       │  │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│  │  ┌──────────┐ ┌────────┐ ┌──────┐ ┌─────────┐ ┌─────────┐  │  │
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│  │  │repository│ │ merge  │ │ diff │ │ context │ │  maps   │  │  │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  │  │   .py    │ │  .py   │ │  .py │ │   .py   │ │   .py   │  │  │
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│  │  └────┬─────┘ └────────┘ └──────┘ └────┬────┘ └─────────┘  │  │
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│  │       │                                 │                    │  │
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│  │  ┌────┴────┐  ┌──────────┐  ┌──────────┴───┐               │  │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│  │  │ models  │  │connection│  │  visualize   │               │  │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│  │  │   .py   │  │   .py   │  │     .py      │               │  │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│  │  └─────────┘  └──────────┘  └──────────────┘               │  │
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│  └──────────────────────────────────────────────────────────────┘  │
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│                              ▲                                      │
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│          ┌───────────────────┼───────────────────┐                 │
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│          │                   │                   │                 │
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│  ┌───────┴──────┐  ┌─────────┴───────┐  ┌───────┴──────────┐     │
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│  │apps/cli      │  │apps/mcp         │  │integrations/     │     │
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│  │gitmap CLI    │  │gitmap-mcp       │  │arcgis_pro/       │     │
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│  │(25 commands) │  │(MCP server)     │  │GitMap.pyt        │     │
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│  └──────────────┘  └─────────────────┘  └──────────────────┘     │
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│                                                                     │
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│  ┌─────────────────────────────────┐                               │
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│  │  integrations/openclaw/         │                               │
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│  │  tools.py + server.py           │                               │
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>│  └─────────────────────────────────┘                               │
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>└─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>         │                                │
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>         ▼                                ▼
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a> ┌───────────────┐              ┌──────────────────┐
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a> │  Local .gitmap│              │  ArcGIS Portal/  │
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a> │  Directory    │◄────────────►│  AGOL Remote     │
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a> │  (filesystem) │   push/pull  │                  │
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a> └───────────────┘              └──────────────────┘
 </code></pre></div>
-<p>The <code>gitmap_core</code> package has minimal external dependencies: <code>arcgis&gt;=2.3.0</code> for Portal connectivity, <code>deepdiff&gt;=6.0.0</code> for structural JSON comparison, <code>click&gt;=8.1.0</code> for CLI construction, and <code>rich&gt;=13.0.0</code> for terminal formatting. The SQLite-backed context store uses only stdlib <code>sqlite3</code>. This dependency discipline keeps the install footprint small — important for environments where GIS analysts must install tooling within constrained Conda/Python environments managed by IT departments.</p>
-<h3 id="32-repository-structure">3.2 Repository Structure<a class="headerlink" href="#32-repository-structure" title="Permanent link">&para;</a></h3>
-<p>A Git-Map repository is a <code>.gitmap/</code> directory collocated with the project workspace. The structure mirrors Git's object store design:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>.gitmap/
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── config.json          — RepoConfig: author, remote, project metadata
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>├── HEAD                 — Pointer: &quot;ref: refs/heads/main&quot; or commit ID
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>├── index.json           — Staging area: current web map JSON snapshot
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>├── context.db           — SQLite event graph
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>├── refs/
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>│   ├── heads/           — One file per branch, content = commit ID
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│   ├── remotes/origin/  — Remote tracking refs
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│   └── tags/            — Named commit references
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>└── objects/
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    └── commits/         — {commit_id}.json files
+<h3 id="22-repository-on-disk-layout">2.2 Repository On-Disk Layout<a class="headerlink" href="#22-repository-on-disk-layout" title="Permanent link">&para;</a></h3>
+<p>The <code>.gitmap</code> directory mirrors the conceptual layout of Git's <code>.git</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>&lt;project-root&gt;/
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>└── .gitmap/
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    ├── config.json          # RepoConfig: user, remote, project_name
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    ├── HEAD                 # &quot;ref: refs/heads/main&quot; or bare commit ID
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    ├── index.json           # Staging area (current map JSON snapshot)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    ├── context.db           # SQLite event graph
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    ├── refs/
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    │   ├── heads/           # Local branches (files containing commit IDs)
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    │   │   └── main
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    │   ├── remotes/
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    │   │   └── origin/      # Remote tracking refs
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    │   └── tags/            # Tag refs (commit ID pointers)
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    ├── objects/
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    │   └── commits/         # Content-addressed commit JSON files
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    │       └── &lt;hash12&gt;.json
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    └── stash/
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        ├── stash_list.json  # Ordered stack of stash metadata
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        └── &lt;timestamp&gt;.json # Individual stash payloads
 </code></pre></div>
-<p>This layout is intentionally analogous to Git's internal structure, reducing the cognitive overhead for GIS professionals already familiar with Git. Unlike Git, which uses content-addressed blob storage with pack files, Git-Map stores complete JSON snapshots per commit. This design choice accepts storage overhead in exchange for simplicity — a reasonable tradeoff given that web map JSON documents are typically 10–500 KB, and commit histories in practice are tens to low hundreds of commits.</p>
-<h3 id="33-core-data-models">3.3 Core Data Models<a class="headerlink" href="#33-core-data-models" title="Permanent link">&para;</a></h3>
-<p>All persistent data structures are defined in <code>models.py</code> using Python <code>dataclasses</code>:</p>
-<p><strong><code>Commit</code></strong> is the primary snapshot object:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@dataclass</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Commit</span><span class="p">:</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>           <span class="c1"># SHA-256[:12] of (message + map_data + parent)</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">author</span><span class="p">:</span> <span class="nb">str</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">timestamp</span><span class="p">:</span> <span class="nb">str</span>    <span class="c1"># ISO 8601</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">parent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">parent2</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>   <span class="c1"># Non-None for merge commits</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">map_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>   <span class="c1"># Complete web map JSON</span>
+<h3 id="23-data-flow">2.3 Data Flow<a class="headerlink" href="#23-data-flow" title="Permanent link">&para;</a></h3>
+<p><strong>Commit flow:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Portal Item → maps.get_webmap_json() → index.json (staging)
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>→ repository.create_commit() → SHA-256 hash → objects/commits/&lt;id&gt;.json
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>→ refs/heads/&lt;branch&gt; updated → context.db event recorded
 </code></pre></div></p>
-<p>The commit ID is computed as <code>hashlib.sha256(json.dumps({message, map_data, parent}, sort_keys=True)).hexdigest()[:12]</code> — a content-addressed 12-character hex string that makes accidental ID collisions computationally negligible while remaining human-readable.</p>
-<p><strong><code>Branch</code></strong> is a named pointer: <code>name: str, commit_id: str</code>, stored as a one-line file under <code>.gitmap/refs/heads/{name}</code>.</p>
-<p><strong><code>Remote</code></strong> encodes Portal connection details: <code>url</code>, <code>folder_id</code>, <code>folder_name</code>, <code>item_id</code>, and <code>production_branch</code> — the last being used to trigger stakeholder notifications when a push targets the designated production branch.</p>
-<p><strong><code>RepoConfig</code></strong> stores per-repository settings including <code>user_name</code>, <code>user_email</code>, <code>project_name</code>, and an optional <code>auto_visualize</code> flag that triggers automatic context graph regeneration after each commit.</p>
-<h3 id="34-repository-class">3.4 Repository Class<a class="headerlink" href="#34-repository-class" title="Permanent link">&para;</a></h3>
-<p>The <code>Repository</code> class (<code>repository.py</code>) encapsulates all filesystem operations. It exposes typed path properties (<code>commits_dir</code>, <code>heads_dir</code>, <code>context_db_path</code>) and implements the full operation surface: <code>init</code>, <code>create_commit</code>, <code>checkout_branch</code>, <code>create_branch</code>, <code>revert</code>, <code>cherry_pick</code>, <code>stash_push</code>, <code>stash_pop</code>, <code>find_common_ancestor</code>, and tag management.</p>
-<p>Repository discovery uses an upward traversal pattern:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">find_repository</span><span class="p">(</span><span class="n">start_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Repository</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">current</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">start_path</span> <span class="ow">or</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">())</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="k">while</span> <span class="n">current</span> <span class="o">!=</span> <span class="n">current</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">current</span> <span class="o">/</span> <span class="s2">&quot;.gitmap&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>            <span class="k">return</span> <span class="n">Repository</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="n">current</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">parent</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="k">return</span> <span class="kc">None</span>
-</code></pre></div>
-<p>This matches Git's behavior of searching parent directories, allowing <code>gitmap</code> commands to work from any subdirectory of a project.</p>
+<p><strong>Push flow:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>local commit → remote.push_branch() → Portal folder created
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>→ branch item uploaded as JSON → metadata item updated
+</code></pre></div></p>
+<p><strong>Pull flow:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Portal branch item → remote.pull_branch() → local commits reconstructed
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>→ index.json updated → HEAD updated
+</code></pre></div></p>
+<p><strong>Merge flow:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>two branch tips → find_common_ancestor() BFS traversal
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>→ merge.merge_maps(ours, theirs, base) → MergeResult
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>→ conflicts reported or auto-resolved → new merge commit
+</code></pre></div></p>
+<h3 id="24-technology-stack">2.4 Technology Stack<a class="headerlink" href="#24-technology-stack" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Technology</th>
+<th>Justification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Core language</td>
+<td>Python 3.10+</td>
+<td>ArcGIS API for Python constraint</td>
+</tr>
+<tr>
+<td>Portal API</td>
+<td>arcgis ≥ 2.3.0</td>
+<td>Official Esri Python SDK</td>
+</tr>
+<tr>
+<td>CLI framework</td>
+<td>Click 8.1+</td>
+<td>Composable commands, type coercion</td>
+</tr>
+<tr>
+<td>Output rendering</td>
+<td>Rich 13+</td>
+<td>Colored tables, progress bars</td>
+</tr>
+<tr>
+<td>Diff engine</td>
+<td>DeepDiff 6+</td>
+<td>Recursive JSON comparison</td>
+</tr>
+<tr>
+<td>MCP server</td>
+<td>FastMCP (mcp SDK)</td>
+<td>AI agent tool exposure</td>
+</tr>
+<tr>
+<td>Context DB</td>
+<td>SQLite (stdlib)</td>
+<td>Zero dependency, embedded</td>
+</tr>
+<tr>
+<td>Lint/format</td>
+<td>Ruff</td>
+<td>Fast, comprehensive</td>
+</tr>
+<tr>
+<td>Testing</td>
+<td>pytest + coverage</td>
+<td>Industry standard</td>
+</tr>
+</tbody>
+</table>
 <hr />
-<h2 id="4-core-operations">4. Core Operations<a class="headerlink" href="#4-core-operations" title="Permanent link">&para;</a></h2>
-<h3 id="41-commit">4.1 Commit<a class="headerlink" href="#41-commit" title="Permanent link">&para;</a></h3>
-<p>The commit workflow follows a stage-then-commit model identical to Git:</p>
-<ol>
-<li>
-<p><strong>Stage</strong>: <code>repository.update_index(map_data)</code> writes the web map JSON to <code>.gitmap/index.json</code>. In a portal-connected workflow, <code>gitmap pull</code> fetches the live item JSON and stages it automatically.</p>
-</li>
-<li>
-<p><strong>Commit</strong>: <code>repository.create_commit(message, author, rationale)</code> reads the index, computes the commit ID, serializes the <code>Commit</code> dataclass to <code>.gitmap/objects/commits/{id}.json</code>, advances the current branch ref, and records a <code>commit</code> event in the context store.</p>
-</li>
-</ol>
-<p>The <code>rationale</code> parameter is a first-class field — not part of the commit message — that is stored as an <code>Annotation</code> of type <code>rationale</code> in the context graph. This separation of <em>what changed</em> (commit message) from <em>why it changed</em> (rationale) supports audit trail requirements in regulated GIS environments.</p>
-<h3 id="42-branch">4.2 Branch<a class="headerlink" href="#42-branch" title="Permanent link">&para;</a></h3>
-<p>Branch operations are file operations on <code>.gitmap/refs/heads/</code>:</p>
+<h2 id="3-implementation">3. Implementation<a class="headerlink" href="#3-implementation" title="Permanent link">&para;</a></h2>
+<h3 id="31-core-library-packagesgitmap_core">3.1 Core Library (<code>packages/gitmap_core/</code>)<a class="headerlink" href="#31-core-library-packagesgitmap_core" title="Permanent link">&para;</a></h3>
+<h4 id="311-repositorypy-repository-management">3.1.1 <code>repository.py</code> — Repository Management<a class="headerlink" href="#311-repositorypy-repository-management" title="Permanent link">&para;</a></h4>
+<p>The <code>Repository</code> class is the central coordinator of all local operations. It is instantiated with a root path and lazily validates the <code>.gitmap</code> directory structure.</p>
+<p><strong>Key design decisions:</strong></p>
 <ul>
-<li><strong>Create</strong>: <code>create_branch(name, commit_id=None)</code> creates a new file with the target commit ID. Nested branch names (e.g., <code>feature/layer-symbology</code>) are handled by <code>branch_path.parent.mkdir(parents=True, exist_ok=True)</code>.</li>
-<li><strong>Checkout</strong>: <code>checkout_branch(name)</code> updates <code>HEAD</code> to point to the branch ref, then loads the branch's tip commit data into <code>index.json</code>, restoring the working state.</li>
-<li><strong>Delete</strong>: Guarded against deleting the current branch.</li>
+<li>
+<p><strong>Content-addressed commits:</strong> <code>_generate_commit_id()</code> computes a SHA-256 hash over <code>{"message": ..., "map_data": ..., "parent": ...}</code> with <code>sort_keys=True</code>, then truncates to 12 hex characters. This provides collision resistance adequate for typical GIS team sizes (expected commit counts in the low thousands) while keeping IDs human-readable. The 12-character hash has 2^48 ≈ 281 trillion possible values; birthday collision probability for 10,000 commits is approximately 1.8×10^-7.</p>
+</li>
+<li>
+<p><strong>Snapshot semantics:</strong> Each commit stores the <em>complete</em> web map JSON, not a delta. This trades storage for simplicity — reading any historical state requires loading a single JSON file rather than replaying a patch chain. For typical web maps (50–500 KB JSON), this is acceptable; for maps with extremely large layer counts it may warrant future optimization.</p>
+</li>
+<li>
+<p><strong>HEAD/branch model:</strong> HEAD is a text file containing either <code>ref: refs/heads/&lt;branch&gt;</code> (attached) or a bare commit ID (detached). Branch files under <code>refs/heads/</code> contain the commit ID they point to. This exactly mirrors Git's ref system.</p>
+</li>
+<li>
+<p><strong>Index as staging area:</strong> <code>index.json</code> holds the current staged map JSON. This serves both as the staging buffer before a commit and as the "working state" after a checkout. Unlike Git, there is no separate working tree vs. index distinction — the staged JSON is the map state.</p>
+</li>
 </ul>
-<h3 id="43-merge-with-three-way-base">4.3 Merge with Three-Way Base<a class="headerlink" href="#43-merge-with-three-way-base" title="Permanent link">&para;</a></h3>
-<p>The <code>merge_maps()</code> function in <code>merge.py</code> implements three-way merge semantics at the operational layer granularity. The merge algorithm:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>For each layer ID in union(ours.layers, theirs.layers, base.layers):
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    if ours == theirs:         → no conflict, use ours
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    elif ours == base:         → only theirs changed, use theirs (auto-resolve)
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    elif theirs == base:       → only ours changed, use ours (auto-resolve)
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    else:                      → both changed, MergeConflict raised
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    if in ours but not in base:    → we added (keep)
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    if in theirs but not in base:  → they added (append)
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    if in base but not in ours and theirs changed: → delete/modify conflict
-</code></pre></div>
-<p>The common ancestor commit is found via <code>Repository.find_common_ancestor(commit_id_a, commit_id_b)</code>, which uses a two-pass BFS: first collecting the full ancestor set of branch A, then walking branch B's ancestry until a common node is found. This correctly handles merge commits by following both <code>parent</code> and <code>parent2</code> pointers.</p>
-<p>A <code>MergeResult</code> dataclass captures the outcome:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nd">@dataclass</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">MergeResult</span><span class="p">:</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">success</span><span class="p">:</span> <span class="nb">bool</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">merged_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">conflicts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MergeConflict</span><span class="p">]</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">added_layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">removed_layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">modified_layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<p><strong><code>find_common_ancestor(commit_id_a, commit_id_b)</code></strong> implements a two-phase BFS:
+1. Phase 1: Collect the complete ancestor set of commit A (both <code>parent</code> and <code>parent2</code> pointers followed, supporting merge commits). O(n) where n = commits reachable from A.
+2. Phase 2: BFS from commit B, returning the first visited node present in A's ancestor set. This yields the <em>nearest</em> common ancestor by visiting B's lineage youngest-first. O(m) where m = commits reachable from B.</p>
+<p>Combined complexity: O(n + m), where n and m are the ancestor commit counts. Space: O(n) for the ancestor set.</p>
+<p><strong>Context recording</strong> is performed non-blocking after every mutating operation (commit, revert, cherry-pick, tag, stash). If context recording fails, the primary operation completes normally — correctness is not sacrificed for observability.</p>
+<h4 id="312-modelspy-data-models">3.1.2 <code>models.py</code> — Data Models<a class="headerlink" href="#312-modelspy-data-models" title="Permanent link">&para;</a></h4>
+<p>Four dataclasses form the data model:</p>
+<p><strong><code>Commit</code></strong>: Core version control artifact.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nd">@dataclass</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Commit</span><span class="p">:</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>           <span class="c1"># 12-char SHA-256 prefix</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>      <span class="c1"># Commit message</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">author</span><span class="p">:</span> <span class="nb">str</span>       <span class="c1"># Author name</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">timestamp</span><span class="p">:</span> <span class="nb">str</span>    <span class="c1"># ISO 8601</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">parent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>    <span class="c1"># Single parent (or None for initial commit)</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">parent2</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>   <span class="c1"># Second parent for merge commits</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">map_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>  <span class="c1"># Complete web map JSON snapshot</span>
 </code></pre></div></p>
-<p>Successful merges are committed immediately with <code>parent2</code> set to the merged branch's tip commit, preserving the full DAG topology.</p>
-<h3 id="44-checkout">4.4 Checkout<a class="headerlink" href="#44-checkout" title="Permanent link">&para;</a></h3>
-<p><code>checkout_branch</code> handles both branch switching and state restoration:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">checkout_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_write_head</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">commit_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_branch_commit</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="k">if</span> <span class="n">commit_id</span><span class="p">:</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="n">commit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_commit</span><span class="p">(</span><span class="n">commit_id</span><span class="p">)</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_write_index</span><span class="p">(</span><span class="n">commit</span><span class="o">.</span><span class="n">map_data</span><span class="p">)</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_write_index</span><span class="p">({})</span>   <span class="c1"># New branch with no commits</span>
-</code></pre></div>
-<p>Detached HEAD state (checking out a specific commit rather than a branch) is supported by writing the commit ID directly to <code>HEAD</code> rather than a ref pointer.</p>
-<h3 id="45-revert">4.5 Revert<a class="headerlink" href="#45-revert" title="Permanent link">&para;</a></h3>
-<p><code>revert(commit_id)</code> creates an inverse commit — it does not rewrite history. The algorithm computes the changes introduced by the target commit (by comparing it to its parent), then applies the inverse of those changes to the current HEAD state:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_compute_revert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_data</span><span class="p">,</span> <span class="n">commit_data</span><span class="p">,</span> <span class="n">parent_data</span><span class="p">):</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="c1"># For each layer modified by commit: restore to parent version</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="c1"># For each layer added by commit: remove from current</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="c1"># For each layer removed by commit: re-add from parent</span>
-</code></pre></div>
-<p>The revert commit is linked to the original commit in the context graph via an edge with <code>relationship="reverts"</code>, creating an auditable inverse-action record.</p>
-<h3 id="46-cherry-pick">4.6 Cherry-Pick<a class="headerlink" href="#46-cherry-pick" title="Permanent link">&para;</a></h3>
-<p><code>cherry_pick(commit_id)</code> applies the <em>diff</em> of a specific commit (relative to its parent) onto the current branch:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_apply_cherry_pick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_data</span><span class="p">,</span> <span class="n">commit_data</span><span class="p">,</span> <span class="n">parent_data</span><span class="p">):</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="c1"># Layers added by commit: add to current if not present</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="c1"># Layers modified by commit: update in current</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="c1"># Layers removed by commit: remove from current</span>
-</code></pre></div>
-<p>This is semantically equivalent to computing <code>patch = commit - commit.parent</code> and applying <code>patch</code> to <code>current</code>. The resulting commit message is annotated with <code>(cherry picked from commit {id[:8]})</code>, matching Git's convention.</p>
-<h3 id="47-stash">4.7 Stash<a class="headerlink" href="#47-stash" title="Permanent link">&para;</a></h3>
-<p>The stash implementation uses a JSON-based stack at <code>.gitmap/stash/stash_list.json</code> with individual entry files named by timestamp hash. <code>stash_push</code> saves the current index, restores the HEAD commit state, and prepends the entry to the stack. <code>stash_pop</code>, <code>stash_drop</code>, and <code>stash_clear</code> manipulate this stack with appropriate file management.</p>
+<p><strong><code>Branch</code></strong>: Named ref — name plus commit ID.</p>
+<p><strong><code>Remote</code></strong>: Portal URL, folder ID, item ID, and optional <code>production_branch</code> field. When <code>production_branch</code> is set and a push targets that branch, the communication module triggers Portal group notifications.</p>
+<p><strong><code>RepoConfig</code></strong>: Persisted to <code>config.json</code>. Includes <code>auto_visualize</code> flag — when true, <code>repository.regenerate_context_graph()</code> is called after every commit to refresh the Mermaid context graph.</p>
+<p>All models implement <code>to_dict()</code>/<code>from_dict()</code> round-trip serialization and <code>save()</code>/<code>load()</code> file I/O methods.</p>
+<h4 id="313-mergepy-three-way-layer-merge">3.1.3 <code>merge.py</code> — Three-Way Layer Merge<a class="headerlink" href="#313-mergepy-three-way-layer-merge" title="Permanent link">&para;</a></h4>
+<p>The merge algorithm treats each operational layer (identified by its <code>id</code> field) as an atomic unit. This is the correct granularity for web map conflicts: in practice, two GIS analysts working on the same map typically add/remove/reconfigure distinct layers, rarely modifying the same layer simultaneously.</p>
+<p><strong>Algorithm (<code>merge_maps(ours, theirs, base)</code>):</strong></p>
+<p>For each layer encountered across both branches:</p>
+<table>
+<thead>
+<tr>
+<th>Layer in ours?</th>
+<th>Layer in theirs?</th>
+<th>Layer in base?</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Three-way: if only ours changed → use ours; if only theirs changed → use theirs; if both changed → CONFLICT</td>
+</tr>
+<tr>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+<td>Both added same ID (possibly different content) → CONFLICT if different</td>
+</tr>
+<tr>
+<td>Yes</td>
+<td>No</td>
+<td>Yes</td>
+<td>They deleted it; we kept it → keep it (our retention wins)</td>
+</tr>
+<tr>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+<td>We added it → include</td>
+</tr>
+<tr>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>We deleted it; if they modified → CONFLICT; else respect deletion</td>
+</tr>
+<tr>
+<td>No</td>
+<td>Yes</td>
+<td>No</td>
+<td>They added it → include</td>
+</tr>
+</tbody>
+</table>
+<p><code>MergeConflict</code> records <code>ours</code>, <code>theirs</code>, and <code>base</code> versions. The conflict resolution API (<code>resolve_conflict(conflict, resolution)</code>) accepts <code>"ours"</code>, <code>"theirs"</code>, or <code>"base"</code> strategy strings and is idempotent.</p>
+<p>Tables (<code>tables</code> array) are processed identically to operational layers. The basemap is compared as a unit — if one branch changes it and the other doesn't, the change is accepted; if both change it, the merge must be resolved manually.</p>
+<p><strong>Complexity:</strong> O(L₁ + L₂ + L_b) where L₁, L₂, L_b are the layer counts in each version. Dictionary indexing makes all lookups O(1) average case.</p>
+<h4 id="314-diffpy-differential-analysis">3.1.4 <code>diff.py</code> — Differential Analysis<a class="headerlink" href="#314-diffpy-differential-analysis" title="Permanent link">&para;</a></h4>
+<p><code>diff_maps(map1, map2)</code> produces a <code>MapDiff</code> containing:
+- <code>layer_changes</code>: List of <code>LayerChange</code> objects (added/removed/modified)
+- <code>table_changes</code>: Same structure for table entries
+- <code>property_changes</code>: <code>DeepDiff</code> output for non-layer, non-table map properties</p>
+<p><code>DeepDiff</code> is configured with <code>ignore_order=True</code> to treat the operational layers list as a set keyed by ID, preventing spurious "modified" signals from layer reordering.</p>
+<p>Three rendering functions serve different consumers:
+- <code>format_diff_summary()</code> → human-readable string for CLI output
+- <code>format_diff_visual()</code> → list of <code>(symbol, name, detail)</code> tuples for Rich Table rendering
+- <code>format_diff_stats()</code> → <code>{added, removed, modified, total}</code> dictionary for MCP tool responses</p>
+<h4 id="315-contextpy-sqlite-event-graph">3.1.5 <code>context.py</code> — SQLite Event Graph<a class="headerlink" href="#315-contextpy-sqlite-event-graph" title="Permanent link">&para;</a></h4>
+<p>The <code>ContextStore</code> class provides episodic memory for agent-driven workflows. It wraps a SQLite database at <code>.gitmap/context.db</code> with two tables:</p>
+<p><strong><code>events</code></strong> schema:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">events</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="k">timestamp</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="n">event_type</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="n">actor</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="n">repo</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="k">ref</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="n">payload</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">  </span><span class="c1">-- JSON blob</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="n">rationale</span><span class="w"> </span><span class="nb">TEXT</span><span class="w">          </span><span class="c1">-- Optional human/agent explanation</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="p">);</span>
+</code></pre></div></p>
+<p><strong><code>edges</code></strong> schema (graph relationships between events):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">edges</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="n">source_id</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="n">target_id</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="n">relationship</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">  </span><span class="c1">-- e.g., &quot;reverts&quot;, &quot;cherry_picked_from&quot;</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="n">metadata</span><span class="w"> </span><span class="nb">TEXT</span><span class="w">                </span><span class="c1">-- JSON blob</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="p">);</span>
+</code></pre></div></p>
+<p><strong><code>annotations</code></strong> schema: Free-form notes attached to events, supporting lesson capture.</p>
+<p>The <code>ContextStore</code> implements Python's context manager protocol (<code>__enter__</code>/<code>__exit__</code>) for safe connection management, and a <code>__del__</code> finalizer (added in v0.6.0 to fix a resource leak) ensures the SQLite connection is closed on garbage collection.</p>
+<p>Key query methods:
+- <code>get_timeline(limit)</code> → chronological event list
+- <code>search_events(query, event_type, limit)</code> → full-text search over payload JSON
+- <code>explain_changes(ref)</code> → structured explanation of a specific commit's context
+- <code>record_lesson(lesson_text, event_id)</code> → append agent lessons to the graph</p>
+<h4 id="316-remotepy-portal-remote-operations">3.1.6 <code>remote.py</code> — Portal Remote Operations<a class="headerlink" href="#316-remotepy-portal-remote-operations" title="Permanent link">&para;</a></h4>
+<p><code>RemoteOperations</code> manages the bidirectional sync between local commits and Portal:</p>
+<p><strong>Push:</strong> Each branch is stored as a Portal item of type <code>JSON</code> within a project-specific folder (<code>&lt;project_name&gt;_GitMap</code>). A separate <code>.gitmap_meta</code> item holds the metadata index mapping branch names to Portal item IDs. The <code>compat.py</code> module handles API differences between Portal 10.9 and AGOL (<code>create_folder</code>, <code>get_user_folders</code> differ in response structure between versions).</p>
+<p><strong>Pull:</strong> Fetches the branch item from Portal, reconstructs commit history, and updates the local repository. If the remote has diverged, the pull command advises the user to merge.</p>
+<p><strong>Production branch notifications:</strong> When <code>remote.production_branch</code> is set in config and a push targets that branch, <code>communication.notify_item_group_users()</code> sends Portal messages to all group members with access to the item.</p>
+<h4 id="317-mapspy-web-map-json-operations">3.1.7 <code>maps.py</code> — Web Map JSON Operations<a class="headerlink" href="#317-mapspy-web-map-json-operations" title="Permanent link">&para;</a></h4>
+<p><code>get_webmap_json(item)</code> validates that an item is of type <code>Web Map</code> before calling <code>item.get_data()</code>. <code>get_webmap_by_id(gis, item_id)</code> wraps the lookup and validation in one call. <code>stage_map_json(repo, map_data)</code> writes to <code>index.json</code>. <code>publish_map_json(gis, map_data, title, folder_id)</code> creates or updates a Portal item with the merged map state.</p>
+<h4 id="318-visualizepy-context-graph-rendering">3.1.8 <code>visualize.py</code> — Context Graph Rendering<a class="headerlink" href="#318-visualizepy-context-graph-rendering" title="Permanent link">&para;</a></h4>
+<p>Generates Mermaid or HTML visualizations of the context event graph. When <code>auto_visualize=True</code> in <code>RepoConfig</code>, <code>repository.regenerate_context_graph()</code> is called after each commit, writing <code>context-graph.md</code> to the repo root. The graph renders events bottom-to-top (BT direction) with annotations shown as separate nodes.</p>
+<h4 id="319-compatpy-arcgis-api-compatibility-layer">3.1.9 <code>compat.py</code> — ArcGIS API Compatibility Layer<a class="headerlink" href="#319-compatpy-arcgis-api-compatibility-layer" title="Permanent link">&para;</a></h4>
+<p>Bridges behavioral differences between ArcGIS API for Python versions and Portal configurations. <code>create_folder(gis, name)</code> handles the case where Portal returns the folder object directly vs. as a dict. <code>get_user_folders(gis)</code> normalizes the response format. Error path coverage was improved from 86% to 96% in v0.6.0 via targeted test additions.</p>
+<h4 id="3110-connectionpy-portal-authentication">3.1.10 <code>connection.py</code> — Portal Authentication<a class="headerlink" href="#3110-connectionpy-portal-authentication" title="Permanent link">&para;</a></h4>
+<p><code>PortalConnection</code> dataclass wraps a <code>GIS</code> object. The factory function <code>create_connection(url, username, password, env_path)</code> resolves credentials from environment variables (with <code>.env</code> file support via <code>python-dotenv</code>), CLI flags, or the system environment. Supported Portal targets: ArcGIS Online (<code>https://www.arcgis.com</code>) and any Portal for ArcGIS URL.</p>
+<h4 id="3111-communicationpy-portal-notifications">3.1.11 <code>communication.py</code> — Portal Notifications<a class="headerlink" href="#3111-communicationpy-portal-notifications" title="Permanent link">&para;</a></h4>
+<p><code>notify_item_group_users(gis, item_id, message)</code> retrieves the groups that share access to a Portal item, iterates over group members, and sends Portal messages to each user. This is triggered automatically on pushes to the <code>production_branch</code>. A separate <code>notify</code> CLI command enables ad-hoc group notifications.</p>
 <hr />
-<h2 id="5-diff-engine">5. Diff Engine<a class="headerlink" href="#5-diff-engine" title="Permanent link">&para;</a></h2>
-<h3 id="51-mapdiff-data-model">5.1 MapDiff Data Model<a class="headerlink" href="#51-mapdiff-data-model" title="Permanent link">&para;</a></h3>
-<p>The diff module (<code>diff.py</code>) defines a structured change representation:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nd">@dataclass</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">LayerChange</span><span class="p">:</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">layer_id</span><span class="p">:</span> <span class="nb">str</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">layer_title</span><span class="p">:</span> <span class="nb">str</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">change_type</span><span class="p">:</span> <span class="nb">str</span>   <span class="c1"># &#39;added&#39; | &#39;removed&#39; | &#39;modified&#39;</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">details</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>   <span class="c1"># DeepDiff output for modified layers</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="nd">@dataclass</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">MapDiff</span><span class="p">:</span>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    <span class="n">layer_changes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LayerChange</span><span class="p">]</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="n">table_changes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LayerChange</span><span class="p">]</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>    <span class="n">property_changes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>   <span class="c1"># Top-level map property changes</span>
-</code></pre></div>
-<h3 id="52-diff-algorithm">5.2 Diff Algorithm<a class="headerlink" href="#52-diff-algorithm" title="Permanent link">&para;</a></h3>
-<p><code>diff_maps(map1, map2)</code> performs a three-level comparison:</p>
-<ol>
-<li>
-<p><strong>Layer-level</strong>: Indexes both <code>operationalLayers</code> lists by layer <code>id</code>, then identifies added (in map1 but not map2), removed (in map2 but not map1), and modified (in both but different) layers.</p>
-</li>
-<li>
-<p><strong>Property-level</strong>: For modified layers, invokes <code>DeepDiff(layer2, layer1, ignore_order=True)</code> to produce a structured diff of individual JSON fields. This surfaces changes at the property level — e.g., that <code>drawingInfo.renderer.type</code> changed from <code>simple</code> to <code>classBreaks</code>, or that <code>minScale</code> was updated from <code>0</code> to <code>500000</code>.</p>
-</li>
-<li>
-<p><strong>Map-level properties</strong>: Compares all top-level map properties excluding <code>operationalLayers</code> and <code>tables</code> using DeepDiff. This captures basemap changes, extent modifications, and spatial reference updates.</p>
-</li>
-</ol>
-<h3 id="53-visual-output">5.3 Visual Output<a class="headerlink" href="#53-visual-output" title="Permanent link">&para;</a></h3>
-<p>The <code>format_diff_visual()</code> function produces a list of <code>(symbol, name, detail)</code> tuples suitable for rendering as a Rich table:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Symbol  Layer                      Detail
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>------  -------------------------  ---------------------------
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>+       Traffic Incidents          Added in feature/incidents
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>~       Parcel Boundaries          3 field(s) changed
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>-       Deprecated Reference Layer Present in main, removed here
-</code></pre></div>
-<p>The <code>format_diff_stats()</code> function returns aggregate counts (<code>added</code>, <code>removed</code>, <code>modified</code>, <code>total</code>) for programmatic consumption by MCP tools and CI/CD pipelines.</p>
-<h3 id="54-branch-to-branch-diff">5.4 Branch-to-Branch Diff<a class="headerlink" href="#54-branch-to-branch-diff" title="Permanent link">&para;</a></h3>
-<p>The diff engine operates on any two <code>dict</code> snapshots. The MCP <code>gitmap_diff</code> tool resolves branch names or commit IDs to their <code>map_data</code> dicts and invokes <code>diff_maps</code>, enabling cross-branch comparison without requiring a working Portal connection (all comparison data is local in the commit objects).</p>
+<h3 id="32-cli-application-appscli">3.2 CLI Application (<code>apps/cli/</code>)<a class="headerlink" href="#32-cli-application-appscli" title="Permanent link">&para;</a></h3>
+<p>The <code>gitmap</code> CLI is built with Click 8 and registered as a <code>console_scripts</code> entry point in <code>pyproject.toml</code>. The main group (<code>cli</code> in <code>main.py</code>) registers 25 commands:</p>
+<p><code>init</code>, <code>clone</code>, <code>status</code>, <code>commit</code>, <code>log</code>, <code>branch</code>, <code>checkout</code>, <code>diff</code>, <code>merge</code>, <code>merge-from</code>, <code>push</code>, <code>pull</code>, <code>revert</code>, <code>cherry-pick</code>, <code>stash</code>, <code>tag</code>, <code>context</code>, <code>list</code>, <code>notify</code>, <code>config</code>, <code>daemon</code>, <code>auto-pull</code>, <code>setup-repos</code>, <code>layer-settings-merge</code></p>
+<p><strong>Architectural note:</strong> Two commands (<code>layer-settings-merge</code> and <code>merge-from</code>) have hyphenated filenames and are loaded via <code>importlib.util.spec_from_file_location()</code> at startup — a necessary workaround for Python's module naming constraints that prohibits hyphens in identifiers. This is a known technical debt item.</p>
+<p><strong>Output formatting:</strong> All commands use Rich for terminal output — <code>rich.console.Console</code> for status messages, <code>rich.table.Table</code> for tabular data (diff output, branch listings, log entries), and <code>rich.progress</code> for operations with observable duration.</p>
+<p><strong>Branch verbose listing</strong> (<code>branch -v</code>) shows each branch name alongside its HEAD commit ID and commit message — added in v0.6.0 as a CLI polish item.</p>
+<p><strong>Log filtering</strong> (<code>log --branch &lt;name&gt;</code>) filters commit history to a specific branch — also added in v0.6.0.</p>
 <hr />
-<h2 id="6-compatibility-layer">6. Compatibility Layer<a class="headerlink" href="#6-compatibility-layer" title="Permanent link">&para;</a></h2>
-<h3 id="61-design-rationale">6.1 Design Rationale<a class="headerlink" href="#61-design-rationale" title="Permanent link">&para;</a></h3>
-<p>The Esri ArcGIS API for Python (<code>arcgis</code>) undergoes regular breaking changes between minor versions, particularly in the <code>content.folders</code> API surface and in the behavior of <code>GIS.content.search()</code>. Organizations running ArcGIS Enterprise may be locked to specific <code>arcgis</code> package versions by IT policy. Git-Map must function reliably across this version spread.</p>
-<h3 id="62-version-detection">6.2 Version Detection<a class="headerlink" href="#62-version-detection" title="Permanent link">&para;</a></h3>
-<p><code>compat.py</code> implements version detection using <code>@lru_cache</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_arcgis_version</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="kn">import</span><span class="w"> </span><span class="nn">arcgis</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="n">version_str</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">arcgis</span><span class="p">,</span> <span class="s2">&quot;__version__&quot;</span><span class="p">,</span> <span class="s2">&quot;0.0.0&quot;</span><span class="p">)</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">parts</span> <span class="o">=</span> <span class="n">version_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
-</code></pre></div>
-<p>The cache ensures version detection occurs exactly once per process, avoiding repeated import overhead in hot paths.</p>
-<h3 id="63-api-shims">6.3 API Shims<a class="headerlink" href="#63-api-shims" title="Permanent link">&para;</a></h3>
-<p>The most significant API divergence is in the folder management surface:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">FOLDERS_API_CHANGE_VERSION</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">create_folder</span><span class="p">(</span><span class="n">gis</span><span class="p">:</span> <span class="n">GIS</span><span class="p">,</span> <span class="n">folder_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="k">if</span> <span class="n">check_minimum_version</span><span class="p">(</span><span class="o">*</span><span class="n">FOLDERS_API_CHANGE_VERSION</span><span class="p">):</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">gis</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">folders</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">folder_name</span><span class="p">)</span>   <span class="c1"># 2.3.0+</span>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">gis</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">create_folder</span><span class="p">(</span><span class="n">folder_name</span><span class="p">)</span>    <span class="c1"># &lt; 2.3.0</span>
-</code></pre></div>
-<p>Return value normalization is handled by <code>_extract_folder_info()</code>, which inspects both dict-style (<code>result.get("id")</code>) and object-style (<code>getattr(result, "id", None)</code>) responses, as different Portal versions return different types from the same nominal API call.</p>
-<p>The <code>get_user_folders()</code> shim implements three fallback strategies — <code>user.folders</code>, <code>gis.content.folders.list()</code>, and user item enumeration — to handle Portal configurations where certain API paths are restricted or return empty results.</p>
-<h3 id="64-test-coverage">6.4 Test Coverage<a class="headerlink" href="#64-test-coverage" title="Permanent link">&para;</a></h3>
-<p>The compatibility layer is exercised by <code>test_compat.py</code>, which mocks <code>arcgis</code> version strings and verifies that the correct API path is invoked for each version range. The full test suite comprises <strong>674 tests</strong> across 13 test modules, achieving <strong>96% code coverage</strong>. Tests run entirely without a live Portal connection by mocking <code>arcgis.gis.GIS</code> and item objects at the <code>unittest.mock</code> boundary.</p>
-<hr />
-<h2 id="7-mcp-server-integration">7. MCP Server Integration<a class="headerlink" href="#7-mcp-server-integration" title="Permanent link">&para;</a></h2>
-<h3 id="71-model-context-protocol-overview">7.1 Model Context Protocol Overview<a class="headerlink" href="#71-model-context-protocol-overview" title="Permanent link">&para;</a></h3>
-<p>The Model Context Protocol (MCP) is an open standard for exposing application functionality as typed tools consumable by AI coding agents and LLMs. Git-Map implements an MCP server using the <code>FastMCP</code> framework, enabling Cursor AI, Claude Code, and other MCP-compatible agents to invoke Git-Map operations as structured function calls within a coding session.</p>
-<h3 id="72-server-architecture">7.2 Server Architecture<a class="headerlink" href="#72-server-architecture" title="Permanent link">&para;</a></h3>
-<p>The MCP server (<code>apps/mcp/gitmap-mcp/main.py</code>) uses <code>FastMCP</code> with an <code>stdio</code> transport, suitable for subprocess-based agent integrations:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">mcp.server.fastmcp</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastMCP</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="n">mcp</span> <span class="o">=</span> <span class="n">FastMCP</span><span class="p">(</span><span class="s2">&quot;gitmap&quot;</span><span class="p">)</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># Tools registered from modular script files:</span>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="n">mcp</span><span class="o">.</span><span class="n">tool</span><span class="p">(</span><span class="n">gitmap_commit</span><span class="p">)</span>
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="n">mcp</span><span class="o">.</span><span class="n">tool</span><span class="p">(</span><span class="n">gitmap_branch_create</span><span class="p">)</span>
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="n">mcp</span><span class="o">.</span><span class="n">tool</span><span class="p">(</span><span class="n">gitmap_merge</span><span class="p">)</span>
-<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="n">mcp</span><span class="o">.</span><span class="n">tool</span><span class="p">(</span><span class="n">gitmap_diff</span><span class="p">)</span>
-<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="n">mcp</span><span class="o">.</span><span class="n">tool</span><span class="p">(</span><span class="n">gitmap_push</span><span class="p">)</span>
-<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="n">mcp</span><span class="o">.</span><span class="n">tool</span><span class="p">(</span><span class="n">gitmap_pull</span><span class="p">)</span>
-<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="n">mcp</span><span class="o">.</span><span class="n">tool</span><span class="p">(</span><span class="n">gitmap_stash_push</span><span class="p">)</span>
-<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="n">mcp</span><span class="o">.</span><span class="n">tool</span><span class="p">(</span><span class="n">context_get_timeline</span><span class="p">)</span>
-<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="c1"># ... 20+ additional tools</span>
-</code></pre></div>
-<h3 id="73-tool-categories">7.3 Tool Categories<a class="headerlink" href="#73-tool-categories" title="Permanent link">&para;</a></h3>
-<p>Tools are organized into domain modules under <code>scripts/tools/</code>:</p>
+<h3 id="33-mcp-server-appsmcpgitmap-mcp">3.3 MCP Server (<code>apps/mcp/gitmap-mcp/</code>)<a class="headerlink" href="#33-mcp-server-appsmcpgitmap-mcp" title="Permanent link">&para;</a></h3>
+<p>The MCP server (<code>main.py</code>) uses the <code>FastMCP</code> class from Anthropic's <code>mcp</code> SDK to expose GitMap operations as tools consumable by AI agents in Cursor, Claude, or any MCP-compatible environment.</p>
+<p><strong>Tool categories:</strong></p>
 <table>
 <thead>
 <tr>
 <th>Module</th>
-<th>Tools Exposed</th>
+<th>Tools</th>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>repository_tools.py</code></td>
+<td><code>gitmap_init</code>, <code>gitmap_status</code></td>
+</tr>
 <tr>
 <td><code>commit_tools.py</code></td>
 <td><code>gitmap_commit</code>, <code>gitmap_log</code>, <code>gitmap_diff</code>, <code>gitmap_merge</code></td>
 </tr>
 <tr>
 <td><code>branch_tools.py</code></td>
-<td><code>gitmap_branch_create</code>, <code>gitmap_branch_delete</code>, <code>gitmap_branch_list</code>, <code>gitmap_checkout</code></td>
+<td><code>gitmap_branch_list</code>, <code>gitmap_branch_create</code>, <code>gitmap_branch_delete</code>, <code>gitmap_checkout</code></td>
 </tr>
 <tr>
 <td><code>remote_tools.py</code></td>
 <td><code>gitmap_push</code>, <code>gitmap_pull</code></td>
+</tr>
+<tr>
+<td><code>layer_tools.py</code></td>
+<td><code>gitmap_layer_settings_merge</code></td>
+</tr>
+<tr>
+<td><code>portal_tools.py</code></td>
+<td><code>gitmap_list_maps</code>, <code>gitmap_list_groups</code>, <code>gitmap_notify</code></td>
 </tr>
 <tr>
 <td><code>stash_tools.py</code></td>
@@ -2170,162 +2962,532 @@
 </tr>
 <tr>
 <td><code>context_tools.py</code></td>
-<td><code>context_get_timeline</code>, <code>context_search_history</code>, <code>context_record_lesson</code>, <code>context_explain_changes</code></td>
-</tr>
-<tr>
-<td><code>portal_tools.py</code></td>
-<td><code>gitmap_list_maps</code>, <code>gitmap_list_groups</code>, <code>gitmap_notify</code></td>
-</tr>
-<tr>
-<td><code>layer_tools.py</code></td>
-<td><code>gitmap_layer_settings_merge</code></td>
-</tr>
-<tr>
-<td><code>repository_tools.py</code></td>
-<td><code>gitmap_init</code>, <code>gitmap_status</code>, <code>gitmap_revert</code>, <code>gitmap_cherry_pick</code></td>
+<td><code>context_get_timeline</code>, <code>context_explain_changes</code>, <code>context_search_history</code>, <code>context_record_lesson</code></td>
 </tr>
 </tbody>
 </table>
-<h3 id="74-agent-workflow-integration">7.4 Agent Workflow Integration<a class="headerlink" href="#74-agent-workflow-integration" title="Permanent link">&para;</a></h3>
-<p>The MCP server enables AI agents to participate in GIS versioning workflows without requiring Portal credentials in the agent's context. A typical agent workflow:</p>
+<p>The MCP server performs <code>.env</code> discovery at startup by walking up from <code>__file__</code> up to 5 directory levels, enabling credential injection without requiring explicit configuration by the AI agent. All tools return structured dictionaries rather than formatted strings, enabling agent-side post-processing.</p>
+<hr />
+<h3 id="34-arcgis-pro-toolbox-integrationsarcgis_progitmappyt">3.4 ArcGIS Pro Toolbox (<code>integrations/arcgis_pro/GitMap.pyt</code>)<a class="headerlink" href="#34-arcgis-pro-toolbox-integrationsarcgis_progitmappyt" title="Permanent link">&para;</a></h3>
+<p>Nine tools are wrapped as ArcGIS Pro Python Toolbox tools, each inheriting from ArcGIS Pro's <code>object</code> base and implementing <code>getParameterInfo()</code>, <code>execute()</code>, and optionally <code>updateMessages()</code>:</p>
 <ol>
-<li>Agent calls <code>gitmap_pull(repo_path, branch="main")</code> to fetch the current map state from Portal into the local commit store.</li>
-<li>Agent analyzes the diff via <code>gitmap_diff(repo_path, branch_a="main", branch_b="feature/new-layer")</code>.</li>
-<li>Agent proposes a merge via <code>gitmap_merge(repo_path, source_branch="feature/new-layer")</code>, receives a <code>MergeResult</code> JSON payload including any conflicts.</li>
-<li>Agent records its reasoning via <code>context_record_lesson(repo_path, content="Merged symbology update; kept main branch renderer due to contrast ratio requirements")</code>.</li>
-<li>Agent calls <code>gitmap_push(repo_path, branch="main")</code> to publish the merged map back to Portal.</li>
+<li><strong>InitRepo</strong> — Initializes a new GitMap repository in a workspace folder</li>
+<li><strong>CommitMap</strong> — Creates a commit from the current staged map state</li>
+<li><strong>CheckoutBranch</strong> — Switches to a specified branch</li>
+<li><strong>CreateBranch</strong> — Creates a new branch from HEAD</li>
+<li><strong>LogHistory</strong> — Displays commit history in the ArcGIS Pro Messages window</li>
+<li><strong>DiffMaps</strong> — Compares two commits and reports layer changes</li>
+<li><strong>StatusCheck</strong> — Shows staged changes vs. HEAD</li>
+<li><strong>PushRemote</strong> — Pushes current branch to configured Portal remote</li>
+<li><strong>PullRemote</strong> — Pulls updates from Portal remote</li>
 </ol>
-<p>This workflow demonstrates the MCP server's role as a semantic bridge between LLM-native reasoning and domain-specific GIS operations.</p>
-<h3 id="75-configuration">7.5 Configuration<a class="headerlink" href="#75-configuration" title="Permanent link">&para;</a></h3>
-<p>The MCP server is configured for Cursor via <code>CURSOR_MCP_CONFIG.md</code>, with JSON configuration specifying the server binary path, working directory, and environment variable pass-through for Portal credentials (<code>ARCGIS_URL</code>, <code>ARCGIS_USERNAME</code>, <code>ARCGIS_PASSWORD</code>).</p>
+<p>The toolbox uses <code>arcpy.Parameter</code> for input definition and <code>arcpy.AddMessage()</code> / <code>arcpy.AddError()</code> for output. The <code>_get_repo(workspace)</code> helper function wraps <code>Repository(Path(workspace))</code> with an <code>ImportError</code> guard that produces a user-friendly message if <code>gitmap_core</code> is not installed in the ArcGIS Pro Python environment.</p>
 <hr />
-<h2 id="8-conflict-resolution">8. Conflict Resolution<a class="headerlink" href="#8-conflict-resolution" title="Permanent link">&para;</a></h2>
-<h3 id="81-conflict-representation">8.1 Conflict Representation<a class="headerlink" href="#81-conflict-representation" title="Permanent link">&para;</a></h3>
-<p>A <code>MergeConflict</code> object captures the full context of an unresolvable difference:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nd">@dataclass</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">MergeConflict</span><span class="p">:</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="n">layer_id</span><span class="p">:</span> <span class="nb">str</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="n">layer_title</span><span class="p">:</span> <span class="nb">str</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">ours</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>     <span class="c1"># Our version of the layer</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="n">theirs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>   <span class="c1"># Their version</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="n">base</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>   <span class="c1"># Common ancestor version (may be None)</span>
-</code></pre></div>
-<p>When <code>base</code> is available (three-way merge), the conflict can be displayed as a two-sided diff against a known prior state. When <code>base</code> is absent (two-way merge), only the <code>ours</code>/<code>theirs</code> comparison is available.</p>
-<h3 id="82-three-way-merge-strategy">8.2 Three-Way Merge Strategy<a class="headerlink" href="#82-three-way-merge-strategy" title="Permanent link">&para;</a></h3>
-<p>The three-way merge algorithm at the layer level handles four distinct cases:</p>
+<h3 id="35-openclaw-integration-integrationsopenclaw">3.5 OpenClaw Integration (<code>integrations/openclaw/</code>)<a class="headerlink" href="#35-openclaw-integration-integrationsopenclaw" title="Permanent link">&para;</a></h3>
+<p>The OpenClaw integration provides subprocess-based wrappers around the <code>gitmap</code> CLI, enabling the AI assistant "Jig" to manage web maps through natural language. <code>tools.py</code> exposes functions that build CLI argument arrays, invoke <code>subprocess.run()</code>, and parse structured output from stdout/stderr.</p>
+<p><code>_find_gitmap()</code> uses a fallback chain: (1) check <code>PATH</code> via <code>shutil.which()</code>, (2) run as Python module from source directory, (3) last-resort module invocation. This ensures the tool works whether GitMap is installed globally or only in development mode.</p>
+<p>The MCP server wrapper (<code>server.py</code>) re-exposes these tool functions as FastMCP tools with JSON schemas, enabling use from any MCP-compatible AI agent.</p>
+<hr />
+<h2 id="4-api-interface-specification">4. API / Interface Specification<a class="headerlink" href="#4-api-interface-specification" title="Permanent link">&para;</a></h2>
+<h3 id="41-cli-commands">4.1 CLI Commands<a class="headerlink" href="#41-cli-commands" title="Permanent link">&para;</a></h3>
+<h4 id="gitmap-init-project-name-text-user-text-email-text-path"><code>gitmap init [--project-name TEXT] [--user TEXT] [--email TEXT] [PATH]</code><a class="headerlink" href="#gitmap-init-project-name-text-user-text-email-text-path" title="Permanent link">&para;</a></h4>
+<p>Initializes a <code>.gitmap</code> repository. Creates directory structure, initial config, HEAD pointing to <code>main</code>, empty index, and context database.</p>
+<h4 id="gitmap-clone-item-id-url-text-username-text-password-text"><code>gitmap clone &lt;item-id&gt; [--url TEXT] [--username TEXT] [--password TEXT]</code><a class="headerlink" href="#gitmap-clone-item-id-url-text-username-text-password-text" title="Permanent link">&para;</a></h4>
+<p>Clones a Portal web map into a new local repository, fetching the map JSON and initializing commit history.</p>
+<h4 id="gitmap-status"><code>gitmap status</code><a class="headerlink" href="#gitmap-status" title="Permanent link">&para;</a></h4>
+<p>Compares <code>index.json</code> against HEAD commit. Reports staged vs. unstaged changes using <code>diff_maps()</code>. Exit codes: 0 = clean, 1 = changes present.</p>
+<h4 id="gitmap-commit-m-message-author-text-rationale-text"><code>gitmap commit -m &lt;message&gt; [--author TEXT] [--rationale TEXT]</code><a class="headerlink" href="#gitmap-commit-m-message-author-text-rationale-text" title="Permanent link">&para;</a></h4>
+<p>Creates a commit from the current index. <code>--rationale</code> populates the context graph annotation for agent reasoning.</p>
+<h4 id="gitmap-log-limit-n-branch-name"><code>gitmap log [--limit N] [--branch NAME]</code><a class="headerlink" href="#gitmap-log-limit-n-branch-name" title="Permanent link">&para;</a></h4>
+<p>Displays commit history as Rich table. <code>--branch</code> filters to a specific branch lineage.</p>
+<h4 id="gitmap-branch-v-d-name-name-commit"><code>gitmap branch [-v] [-d NAME] [NAME [COMMIT]]</code><a class="headerlink" href="#gitmap-branch-v-d-name-name-commit" title="Permanent link">&para;</a></h4>
+<p>Lists branches (with verbose <code>-v</code>), creates a new branch, or deletes an existing one with <code>-d</code>.</p>
+<h4 id="gitmap-checkout-branch"><code>gitmap checkout &lt;branch&gt;</code><a class="headerlink" href="#gitmap-checkout-branch" title="Permanent link">&para;</a></h4>
+<p>Switches HEAD to a branch and restores <code>index.json</code> from that branch's HEAD commit.</p>
+<h4 id="gitmap-diff-commit-a-commit-b"><code>gitmap diff [&lt;commit-a&gt; [&lt;commit-b&gt;]]</code><a class="headerlink" href="#gitmap-diff-commit-a-commit-b" title="Permanent link">&para;</a></h4>
+<p>Compares index vs. HEAD (no args), or two commits, or two branches. Renders as Rich table with <code>+</code>/<code>-</code>/<code>~</code> symbols.</p>
+<h4 id="gitmap-merge-branch"><code>gitmap merge &lt;branch&gt;</code><a class="headerlink" href="#gitmap-merge-branch" title="Permanent link">&para;</a></h4>
+<p>Three-way merges the named branch into current branch. Reports conflicts if any; creates a merge commit with <code>parent2</code> set if successful.</p>
+<h4 id="gitmap-merge-from-branch-strategy-ourstheirs"><code>gitmap merge-from &lt;branch&gt; [--strategy ours|theirs]</code><a class="headerlink" href="#gitmap-merge-from-branch-strategy-ourstheirs" title="Permanent link">&para;</a></h4>
+<p>Merge with explicit conflict resolution strategy.</p>
+<h4 id="gitmap-push-url-text-username-text-password-text"><code>gitmap push [--url TEXT] [--username TEXT] [--password TEXT]</code><a class="headerlink" href="#gitmap-push-url-text-username-text-password-text" title="Permanent link">&para;</a></h4>
+<p>Pushes current branch to Portal, creating folder and items as needed.</p>
+<h4 id="gitmap-pull-url-text-username-text-password-text"><code>gitmap pull [--url TEXT] [--username TEXT] [--password TEXT]</code><a class="headerlink" href="#gitmap-pull-url-text-username-text-password-text" title="Permanent link">&para;</a></h4>
+<p>Pulls updates from Portal remote for the current branch.</p>
+<h4 id="gitmap-revert-commit-id-rationale-text"><code>gitmap revert &lt;commit-id&gt; [--rationale TEXT]</code><a class="headerlink" href="#gitmap-revert-commit-id-rationale-text" title="Permanent link">&para;</a></h4>
+<p>Creates a new inverse commit that undoes the specified commit's changes.</p>
+<h4 id="gitmap-cherry-pick-commit-id-rationale-text"><code>gitmap cherry-pick &lt;commit-id&gt; [--rationale TEXT]</code><a class="headerlink" href="#gitmap-cherry-pick-commit-id-rationale-text" title="Permanent link">&para;</a></h4>
+<p>Applies changes from a specific commit to the current branch.</p>
+<h4 id="gitmap-stash-pushpoplistdropclear-options"><code>gitmap stash [push|pop|list|drop|clear] [OPTIONS]</code><a class="headerlink" href="#gitmap-stash-pushpoplistdropclear-options" title="Permanent link">&para;</a></h4>
+<p>Stash stack operations. <code>push</code> saves the current index to a stack entry and restores HEAD state. <code>pop</code> applies and removes the most recent stash. <code>drop</code> removes without applying.</p>
+<h4 id="gitmap-tag-name-commit"><code>gitmap tag [NAME] [COMMIT]</code><a class="headerlink" href="#gitmap-tag-name-commit" title="Permanent link">&para;</a></h4>
+<p>Lists all tags (no args) or creates a tag pointing to a commit.</p>
+<h4 id="gitmap-context-timelineexplainsearchlesson-options"><code>gitmap context [timeline|explain|search|lesson] [OPTIONS]</code><a class="headerlink" href="#gitmap-context-timelineexplainsearchlesson-options" title="Permanent link">&para;</a></h4>
+<p>Queries the context graph. <code>timeline</code> shows recent events; <code>explain &lt;ref&gt;</code> explains a commit's context; <code>search &lt;query&gt;</code> searches event payloads; <code>lesson &lt;text&gt;</code> records an agent lesson.</p>
+<h4 id="gitmap-list-url-text-username-text"><code>gitmap list [--url TEXT] [--username TEXT]</code><a class="headerlink" href="#gitmap-list-url-text-username-text" title="Permanent link">&para;</a></h4>
+<p>Lists web maps accessible from a Portal connection.</p>
+<h4 id="gitmap-notify-item-id-text-message-text-url-text"><code>gitmap notify --item-id TEXT --message TEXT [--url TEXT]</code><a class="headerlink" href="#gitmap-notify-item-id-text-message-text-url-text" title="Permanent link">&para;</a></h4>
+<p>Sends Portal messages to all group members sharing access to an item.</p>
+<h4 id="gitmap-config-user-text-email-text-remote-url-text"><code>gitmap config [--user TEXT] [--email TEXT] [--remote-url TEXT]</code><a class="headerlink" href="#gitmap-config-user-text-email-text-remote-url-text" title="Permanent link">&para;</a></h4>
+<p>Reads or updates repository configuration.</p>
+<h4 id="gitmap-auto-pull-interval-seconds"><code>gitmap auto-pull [--interval SECONDS]</code><a class="headerlink" href="#gitmap-auto-pull-interval-seconds" title="Permanent link">&para;</a></h4>
+<p>Daemon mode: polls Portal for changes and pulls automatically.</p>
+<h4 id="gitmap-layer-settings-merge-source-branch"><code>gitmap layer-settings-merge &lt;source-branch&gt;</code><a class="headerlink" href="#gitmap-layer-settings-merge-source-branch" title="Permanent link">&para;</a></h4>
+<p>Specialized merge that applies only layer settings (symbology, popups) without affecting layer membership.</p>
+<h3 id="42-core-library-api">4.2 Core Library API<a class="headerlink" href="#42-core-library-api" title="Permanent link">&para;</a></h3>
+<h4 id="repositoryroot-path-str"><code>Repository(root: Path | str)</code><a class="headerlink" href="#repositoryroot-path-str" title="Permanent link">&para;</a></h4>
+<p>Constructor. Does not require <code>.gitmap</code> to exist yet.</p>
+<h4 id="repositoryinitproject_name-user_name-user_email-none"><code>repository.init(project_name, user_name, user_email) → None</code><a class="headerlink" href="#repositoryinitproject_name-user_name-user_email-none" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryexists-bool"><code>repository.exists() → bool</code><a class="headerlink" href="#repositoryexists-bool" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryis_valid-bool"><code>repository.is_valid() → bool</code><a class="headerlink" href="#repositoryis_valid-bool" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryget_current_branch-str-none"><code>repository.get_current_branch() → str | None</code><a class="headerlink" href="#repositoryget_current_branch-str-none" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryget_head_commit-str-none"><code>repository.get_head_commit() → str | None</code><a class="headerlink" href="#repositoryget_head_commit-str-none" title="Permanent link">&para;</a></h4>
+<h4 id="repositorylist_branches-liststr"><code>repository.list_branches() → list[str]</code><a class="headerlink" href="#repositorylist_branches-liststr" title="Permanent link">&para;</a></h4>
+<h4 id="repositorycreate_branchname-commit_idnone-branch"><code>repository.create_branch(name, commit_id=None) → Branch</code><a class="headerlink" href="#repositorycreate_branchname-commit_idnone-branch" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryupdate_branchname-commit_id-none"><code>repository.update_branch(name, commit_id) → None</code><a class="headerlink" href="#repositoryupdate_branchname-commit_id-none" title="Permanent link">&para;</a></h4>
+<h4 id="repositorydelete_branchname-none"><code>repository.delete_branch(name) → None</code><a class="headerlink" href="#repositorydelete_branchname-none" title="Permanent link">&para;</a></h4>
+<h4 id="repositorycheckout_branchname-none"><code>repository.checkout_branch(name) → None</code><a class="headerlink" href="#repositorycheckout_branchname-none" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryget_index-dict"><code>repository.get_index() → dict</code><a class="headerlink" href="#repositoryget_index-dict" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryupdate_indexmap_data-none"><code>repository.update_index(map_data) → None</code><a class="headerlink" href="#repositoryupdate_indexmap_data-none" title="Permanent link">&para;</a></h4>
+<h4 id="repositorycreate_commitmessage-authornone-rationalenone-commit"><code>repository.create_commit(message, author=None, rationale=None) → Commit</code><a class="headerlink" href="#repositorycreate_commitmessage-authornone-rationalenone-commit" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryget_commitcommit_id-commit-none"><code>repository.get_commit(commit_id) → Commit | None</code><a class="headerlink" href="#repositoryget_commitcommit_id-commit-none" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryget_commit_historystart_commitnone-limitnone-listcommit"><code>repository.get_commit_history(start_commit=None, limit=None) → list[Commit]</code><a class="headerlink" href="#repositoryget_commit_historystart_commitnone-limitnone-listcommit" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryrevertcommit_id-rationalenone-commit"><code>repository.revert(commit_id, rationale=None) → Commit</code><a class="headerlink" href="#repositoryrevertcommit_id-rationalenone-commit" title="Permanent link">&para;</a></h4>
+<h4 id="repositorycherry_pickcommit_id-rationalenone-commit"><code>repository.cherry_pick(commit_id, rationale=None) → Commit</code><a class="headerlink" href="#repositorycherry_pickcommit_id-rationalenone-commit" title="Permanent link">&para;</a></h4>
+<h4 id="repositorystash_pushmessagenone-dict"><code>repository.stash_push(message=None) → dict</code><a class="headerlink" href="#repositorystash_pushmessagenone-dict" title="Permanent link">&para;</a></h4>
+<h4 id="repositorystash_popindex0-dict"><code>repository.stash_pop(index=0) → dict</code><a class="headerlink" href="#repositorystash_popindex0-dict" title="Permanent link">&para;</a></h4>
+<h4 id="repositorystash_list-listdict"><code>repository.stash_list() → list[dict]</code><a class="headerlink" href="#repositorystash_list-listdict" title="Permanent link">&para;</a></h4>
+<h4 id="repositorystash_dropindex0-dict"><code>repository.stash_drop(index=0) → dict</code><a class="headerlink" href="#repositorystash_dropindex0-dict" title="Permanent link">&para;</a></h4>
+<h4 id="repositorystash_clear-int"><code>repository.stash_clear() → int</code><a class="headerlink" href="#repositorystash_clear-int" title="Permanent link">&para;</a></h4>
+<h4 id="repositorylist_tags-liststr"><code>repository.list_tags() → list[str]</code><a class="headerlink" href="#repositorylist_tags-liststr" title="Permanent link">&para;</a></h4>
+<h4 id="repositorycreate_tagname-commit_idnone-str"><code>repository.create_tag(name, commit_id=None) → str</code><a class="headerlink" href="#repositorycreate_tagname-commit_idnone-str" title="Permanent link">&para;</a></h4>
+<h4 id="repositorydelete_tagname-none"><code>repository.delete_tag(name) → None</code><a class="headerlink" href="#repositorydelete_tagname-none" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryfind_common_ancestorcommit_id_a-commit_id_b-str-none"><code>repository.find_common_ancestor(commit_id_a, commit_id_b) → str | None</code><a class="headerlink" href="#repositoryfind_common_ancestorcommit_id_a-commit_id_b-str-none" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryget_config-repoconfig"><code>repository.get_config() → RepoConfig</code><a class="headerlink" href="#repositoryget_config-repoconfig" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryupdate_configconfig-none"><code>repository.update_config(config) → None</code><a class="headerlink" href="#repositoryupdate_configconfig-none" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryhas_uncommitted_changes-bool"><code>repository.has_uncommitted_changes() → bool</code><a class="headerlink" href="#repositoryhas_uncommitted_changes-bool" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryget_context_store-contextstore"><code>repository.get_context_store() → ContextStore</code><a class="headerlink" href="#repositoryget_context_store-contextstore" title="Permanent link">&para;</a></h4>
+<h4 id="repositoryregenerate_context_graph-path-none"><code>repository.regenerate_context_graph(...) → Path | None</code><a class="headerlink" href="#repositoryregenerate_context_graph-path-none" title="Permanent link">&para;</a></h4>
+<h4 id="find_repositorystart_pathnone-repository-none"><code>find_repository(start_path=None) → Repository | None</code><a class="headerlink" href="#find_repositorystart_pathnone-repository-none" title="Permanent link">&para;</a></h4>
+<p>Walks up directory tree looking for <code>.gitmap</code>. Returns <code>None</code> if not found.</p>
+<h4 id="merge_mapsours-theirs-basenone-mergeresult"><code>merge_maps(ours, theirs, base=None) → MergeResult</code><a class="headerlink" href="#merge_mapsours-theirs-basenone-mergeresult" title="Permanent link">&para;</a></h4>
+<h4 id="diff_mapsmap1-map2-mapdiff"><code>diff_maps(map1, map2) → MapDiff</code><a class="headerlink" href="#diff_mapsmap1-map2-mapdiff" title="Permanent link">&para;</a></h4>
+<h4 id="format_diff_visualmap_diff-label_a-label_b-listtuplestr-str-str"><code>format_diff_visual(map_diff, label_a, label_b) → list[tuple[str, str, str]]</code><a class="headerlink" href="#format_diff_visualmap_diff-label_a-label_b-listtuplestr-str-str" title="Permanent link">&para;</a></h4>
+<h4 id="format_diff_statsmap_diff-dictstr-int"><code>format_diff_stats(map_diff) → dict[str, int]</code><a class="headerlink" href="#format_diff_statsmap_diff-dictstr-int" title="Permanent link">&para;</a></h4>
+<h3 id="43-error-handling">4.3 Error Handling<a class="headerlink" href="#43-error-handling" title="Permanent link">&para;</a></h3>
+<p>All public methods raise <code>RuntimeError</code> with descriptive messages on failure. CLI commands catch these and display via <code>click.echo(..., err=True)</code> with a non-zero exit code. The <code>resolve_conflict()</code> function raises <code>ValueError</code> for invalid resolution strategies. Portal API errors propagate as <code>RuntimeError</code> wrappers.</p>
+<hr />
+<h2 id="5-performance-analysis">5. Performance Analysis<a class="headerlink" href="#5-performance-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="51-critical-path-complexity">5.1 Critical Path Complexity<a class="headerlink" href="#51-critical-path-complexity" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time Complexity</th>
+<th>Space Complexity</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create_commit()</code></td>
+<td>O(L log L)</td>
+<td>O(L)</td>
+<td>L = layers; sort_keys JSON serialization</td>
+</tr>
+<tr>
+<td><code>diff_maps()</code></td>
+<td>O(L₁ + L₂)</td>
+<td>O(L₁ + L₂)</td>
+<td>DeepDiff per-layer comparison</td>
+</tr>
+<tr>
+<td><code>merge_maps()</code></td>
+<td>O(L₁ + L₂ + L_b)</td>
+<td>O(L₁ + L₂ + L_b)</td>
+<td>Dict indexing, single pass</td>
+</tr>
+<tr>
+<td><code>find_common_ancestor()</code></td>
+<td>O(n + m)</td>
+<td>O(n)</td>
+<td>n, m = reachable commits</td>
+</tr>
+<tr>
+<td><code>get_commit_history()</code></td>
+<td>O(k)</td>
+<td>O(k)</td>
+<td>k = requested limit</td>
+</tr>
+<tr>
+<td><code>stash_push()</code></td>
+<td>O(L)</td>
+<td>O(L)</td>
+<td>Full index snapshot</td>
+</tr>
+<tr>
+<td><code>context_store.record_event()</code></td>
+<td>O(1) amortized</td>
+<td>O(1)</td>
+<td>SQLite insert</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-storage-characteristics">5.2 Storage Characteristics<a class="headerlink" href="#52-storage-characteristics" title="Permanent link">&para;</a></h3>
+<p>Because each commit stores a full JSON snapshot, storage grows as O(C × S) where C = commit count and S = average map JSON size. For a typical 50 KB web map with 100 commits, storage is approximately 5 MB — acceptable for local filesystem use. Deduplication or delta storage would reduce this substantially for repos with high commit frequency and minor changes per commit, but is not currently implemented.</p>
+<h3 id="53-bottlenecks">5.3 Bottlenecks<a class="headerlink" href="#53-bottlenecks" title="Permanent link">&para;</a></h3>
+<p><strong>Portal API latency:</strong> Push and pull operations are bounded by Portal API response times (typically 200ms–2s per REST call). Large branch histories require multiple round trips. The <code>auto-pull</code> daemon adds polling overhead proportional to check interval.</p>
+<p><strong>DeepDiff on large maps:</strong> The <code>DeepDiff</code> library performs recursive comparison, which for maps with 50+ layers and complex symbology JSON can take 50–500ms. This is only incurred during <code>diff</code> and <code>merge</code> operations, not during commit creation.</p>
+<p><strong>SQLite I/O:</strong> Context recording opens and closes a SQLite connection per event (via context manager). For high-frequency commit workflows, this could be optimized with connection pooling, but is acceptable for typical GIS team cadence.</p>
+<h3 id="54-scaling-characteristics">5.4 Scaling Characteristics<a class="headerlink" href="#54-scaling-characteristics" title="Permanent link">&para;</a></h3>
+<p>Git-Map is designed for team sizes of 2–20 GIS analysts with commit cadence measured in hours, not seconds. At this scale, all operations complete comfortably within human-perceptible time bounds. The architecture would require redesign for CI/CD-style automated commit pipelines with sub-second cadence.</p>
+<hr />
+<h2 id="6-security-considerations">6. Security Considerations<a class="headerlink" href="#6-security-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="61-authentication-model">6.1 Authentication Model<a class="headerlink" href="#61-authentication-model" title="Permanent link">&para;</a></h3>
+<p>Portal credentials are passed via:
+1. CLI flags (<code>--username</code>, <code>--password</code>) — visible in process table, not recommended for production
+2. Environment variables (<code>PORTAL_USERNAME</code>, <code>PORTAL_PASSWORD</code>) — preferred
+3. <code>.env</code> file discovered by walking parent directories — convenient for development</p>
+<p><strong>Red flag:</strong> The <code>.env</code> discovery walks up 3–5 directory levels, which could inadvertently load credentials from a parent project directory. A <code>.gitmap/.env</code> convention would be more secure.</p>
+<h3 id="62-data-privacy">6.2 Data Privacy<a class="headerlink" href="#62-data-privacy" title="Permanent link">&para;</a></h3>
+<p>Web map JSON may contain embedded credentials (service URLs with tokens, API keys embedded in layer definitions). Git-Map does not filter or redact this content — it stores whatever the Portal API returns verbatim. Commit objects in <code>.gitmap/objects/commits/</code> should be treated as potentially containing sensitive Portal service credentials and excluded from general file sharing.</p>
+<h3 id="63-input-validation">6.3 Input Validation<a class="headerlink" href="#63-input-validation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Branch names: validated for non-empty and no-space constraints. More comprehensive validation (no <code>..</code>, no control characters) matching Git's ref validation rules is not yet implemented.</li>
+<li>Tag names: same minimal validation as branches.</li>
+<li>Commit IDs passed to <code>get_commit()</code>, <code>revert()</code>, <code>cherry_pick()</code> are validated by checking file existence in <code>objects/commits/</code>.</li>
+<li>Portal item IDs are passed directly to <code>gis.content.get()</code> without format validation — a malformed ID will raise a Portal API error rather than a meaningful exception.</li>
+</ul>
+<h3 id="64-attack-surface">6.4 Attack Surface<a class="headerlink" href="#64-attack-surface" title="Permanent link">&para;</a></h3>
+<p>The MCP server runs locally and accepts connections from the configured MCP client only (no network exposure in default configuration). The OpenClaw integration invokes the <code>gitmap</code> CLI via <code>subprocess.run()</code> — shell injection is mitigated by using list-form subprocess arguments rather than shell string concatenation.</p>
+<hr />
+<h2 id="7-known-limitations-technical-debt">7. Known Limitations &amp; Technical Debt<a class="headerlink" href="#7-known-limitations-technical-debt" title="Permanent link">&para;</a></h2>
+<h3 id="71-current-limitations">7.1 Current Limitations<a class="headerlink" href="#71-current-limitations" title="Permanent link">&para;</a></h3>
 <ol>
 <li>
-<p><strong>No conflict — identical</strong>: Both branches have the same layer content. Auto-resolved, ours kept.</p>
+<p><strong>No delta compression:</strong> Full JSON snapshots per commit. A 500 KB map with 1,000 commits = 500 MB of storage. For active teams, this may become problematic without periodic garbage collection.</p>
 </li>
 <li>
-<p><strong>No conflict — only ours changed</strong>: <code>ours != base</code> and <code>theirs == base</code>. Auto-resolved, ours kept.</p>
+<p><strong>No conflict markers in JSON:</strong> When a merge conflict is detected, <code>index.json</code> retains <code>ours</code> and the conflict is only reported in terminal output. Unlike Git's <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>/<code>=======</code>/<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> markers, there is no in-file conflict representation — the user must re-run <code>merge</code> with an explicit resolution flag.</p>
 </li>
 <li>
-<p><strong>No conflict — only theirs changed</strong>: <code>theirs != base</code> and <code>ours == base</code>. Auto-resolved, theirs applied.</p>
+<p><strong>Minimal branch name validation:</strong> Branch names with <code>/</code> create nested directory structure (e.g., <code>feature/layer-update</code> → <code>refs/heads/feature/layer-update</code>), which works correctly. Names with <code>..</code>, null bytes, or backslashes are not rejected and could cause unexpected behavior.</p>
 </li>
 <li>
-<p><strong>Conflict — both changed</strong>: <code>ours != base</code> and <code>theirs != base</code>. <code>MergeConflict</code> raised, <code>ours</code> retained as placeholder pending resolution.</p>
+<p><strong>Layer ordering not preserved in merge:</strong> The merge algorithm treats layers as a set keyed by ID, discarding relative order. If two branches reorder layers differently, the merge output order is implementation-defined (Python dict insertion order from the iteration sequence).</p>
+</li>
+<li>
+<p><strong>No atomic writes:</strong> File writes to <code>index.json</code>, branch refs, and commit files are not atomic (no write-to-temp-then-rename). A process kill during a commit could leave the repository in a partially committed state.</p>
+</li>
+<li>
+<p><strong>Hyphenated command filenames:</strong> <code>layer-settings-merge.py</code> and <code>merge-from.py</code> are loaded via <code>importlib.util</code> workaround. These should be renamed to <code>layer_settings_merge.py</code> and <code>merge_from.py</code> with CLI aliases set in <code>@click.command(name="...")</code> decorators.</p>
+</li>
+<li>
+<p><strong><code>production_branch</code> notification is fire-and-forget:</strong> <code>notify_item_group_users()</code> does not confirm message delivery or handle partial failures across group members.</p>
 </li>
 </ol>
-<p>The delete/modify conflict case — where one branch deletes a layer that the other branch modifies — is explicitly detected: if a layer ID appears in <code>base</code> and <code>theirs</code> (with modification) but not in <code>ours</code> (deleted), a conflict is raised with <code>ours={}</code> signaling the deletion intent.</p>
-<h3 id="83-conflict-resolution-api">8.3 Conflict Resolution API<a class="headerlink" href="#83-conflict-resolution-api" title="Permanent link">&para;</a></h3>
-<p>Conflicts are resolved programmatically via <code>resolve_conflict(conflict, resolution)</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">resolve_conflict</span><span class="p">(</span><span class="n">conflict</span><span class="p">:</span> <span class="n">MergeConflict</span><span class="p">,</span> <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="k">if</span> <span class="n">resolution</span> <span class="o">==</span> <span class="s2">&quot;ours&quot;</span><span class="p">:</span>    <span class="k">return</span> <span class="n">conflict</span><span class="o">.</span><span class="n">ours</span>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="k">elif</span> <span class="n">resolution</span> <span class="o">==</span> <span class="s2">&quot;theirs&quot;</span><span class="p">:</span> <span class="k">return</span> <span class="n">conflict</span><span class="o">.</span><span class="n">theirs</span>
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="k">elif</span> <span class="n">resolution</span> <span class="o">==</span> <span class="s2">&quot;base&quot;</span><span class="p">:</span>   <span class="k">return</span> <span class="n">conflict</span><span class="o">.</span><span class="n">base</span>   <span class="c1"># Three-way only</span>
-</code></pre></div>
-<p><code>apply_resolution(merge_result, layer_id, resolved_layer)</code> patches the <code>MergeResult</code>'s merged data in-place. An empty <code>resolved_layer</code> dict signals deletion — the layer is removed from <code>operationalLayers</code> or <code>tables</code> respectively.</p>
-<h3 id="84-property-level-conflict-surfacing">8.4 Property-Level Conflict Surfacing<a class="headerlink" href="#84-property-level-conflict-surfacing" title="Permanent link">&para;</a></h3>
-<p>While the merge algorithm operates at layer granularity (treating each layer as an atomic unit), the diff engine operates at property granularity. When a conflict is presented to the user or agent, the <code>DeepDiff</code> output on <code>conflict.ours</code> vs <code>conflict.theirs</code> can surface which specific properties differ:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Layer: Parcel Boundaries (id: layer_parcels_01)
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>  CONFLICT: Both branches modified this layer.
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>  ours:   drawingInfo.renderer.type = &quot;classBreaks&quot;
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>  theirs: drawingInfo.renderer.type = &quot;simple&quot;
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>  base:   drawingInfo.renderer.type = &quot;simple&quot;
-</code></pre></div>
-<p>This property-level granularity in the conflict display reduces resolution time by directing the resolver's attention to the specific field in dispute, rather than requiring comparison of entire layer JSON blobs.</p>
+<h3 id="72-technical-debt">7.2 Technical Debt<a class="headerlink" href="#72-technical-debt" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>remote.py</code> contains a complex folder-discovery fallback chain (three separate lookup strategies) that is difficult to test and maintain. This should be refactored into a clean <code>get_folder_id(gis, name) → str | None</code> function with explicit priority ordering.</li>
+<li><code>stash_push()</code> generates a stash ID using <code>int(time.time())</code> which is not monotonic under clock adjustments and could collide within a 1-second window. A UUID4 would be more appropriate.</li>
+<li>The MCP server imports tools from two different paths (package import vs. direct file import fallback) — this dual-import pattern adds maintenance overhead.</li>
+<li><code>visualize.py</code> uses <code>direction="BT"</code> (bottom-to-top) hardcoded — this is not exposed as a configuration option.</li>
+</ul>
 <hr />
-<h2 id="9-performance">9. Performance<a class="headerlink" href="#9-performance" title="Permanent link">&para;</a></h2>
-<h3 id="91-sqlite-optimization">9.1 SQLite Optimization<a class="headerlink" href="#91-sqlite-optimization" title="Permanent link">&para;</a></h3>
-<p>The <code>ContextStore</code> class applies several SQLite performance optimizations:</p>
-<p><strong>WAL Mode</strong>: Write-Ahead Logging is enabled on every connection:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;PRAGMA journal_mode=WAL&quot;</span><span class="p">)</span>
-</code></pre></div>
-WAL mode allows concurrent reads during writes and dramatically improves write throughput for the event recording pattern (one write per operation, many reads during history queries).</p>
-<p><strong>Indexed Queries</strong>: The schema creates targeted indexes at initialization:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">idx_events_type</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">events</span><span class="p">(</span><span class="n">event_type</span><span class="p">);</span>
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">idx_events_ref</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">events</span><span class="p">(</span><span class="k">ref</span><span class="p">);</span>
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">idx_events_timestamp</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">events</span><span class="p">(</span><span class="k">timestamp</span><span class="p">);</span>
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">idx_annotations_event</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">annotations</span><span class="p">(</span><span class="n">event_id</span><span class="p">);</span>
-</code></pre></div>
-These indexes cover the four primary query patterns: type-filtered history, ref-filtered lookup (commit ID or branch name), chronological timeline retrieval, and annotation join.</p>
-<p><strong>Lazy Connection</strong>: The <code>_connection</code> property uses lazy initialization — the SQLite connection is not opened until the first database operation. This avoids the file descriptor overhead for operations that don't touch the context store (e.g., pure local branch operations).</p>
-<h3 id="92-context-store-lifecycle-management">9.2 Context Store Lifecycle Management<a class="headerlink" href="#92-context-store-lifecycle-management" title="Permanent link">&para;</a></h3>
-<p>Early versions of the codebase opened <code>ContextStore</code> instances without guaranteed closure, leaking SQLite file descriptors. The current implementation enforces proper lifecycle management through three mechanisms:</p>
+<h2 id="8-related-work">8. Related Work<a class="headerlink" href="#8-related-work" title="Permanent link">&para;</a></h2>
+<h3 id="81-esris-built-in-versioning">8.1 Esri's Built-in Versioning<a class="headerlink" href="#81-esris-built-in-versioning" title="Permanent link">&para;</a></h3>
+<p>ArcGIS's traditional versioning and branch versioning systems (ArcSDE, Enterprise Geodatabase) manage feature edits at the record level within geodatabases. They do not apply to web map items, dashboards, or application configuration. Git-Map is complementary to, not competitive with, these systems.</p>
+<h3 id="82-git-based-gis-workflows">8.2 Git-Based GIS Workflows<a class="headerlink" href="#82-git-based-gis-workflows" title="Permanent link">&para;</a></h3>
+<p><strong>DVC (Data Version Control)</strong> [Iterative, 2017] tracks large binary and data files alongside Git, but operates at the file level rather than on Portal-hosted JSON APIs. <strong>Kart</strong> (formerly Sno) provides Git-like versioning for geospatial vector data in GeoPackage format, again operating on local files rather than cloud-hosted map configurations.</p>
+<p><strong>GeoGig</strong> [BoundlesGeo, 2013] provides a DAG-based version control system for geospatial features and addresses history, branching, and merging of vector data — conceptually similar to Git-Map but for feature geometry rather than map configuration.</p>
+<h3 id="83-git-for-configuration-management">8.3 Git for Configuration Management<a class="headerlink" href="#83-git-for-configuration-management" title="Permanent link">&para;</a></h3>
+<p>The use of Git (or Git-like systems) for configuration-as-code is well established: GitOps for Kubernetes manifests, Terraform state management via remote backends, and Ansible playbook versioning. Git-Map applies this philosophy to the GIS configuration domain, where Esri's proprietary REST APIs serve as the "runtime environment" analogous to a Kubernetes cluster.</p>
+<h3 id="84-novelty">8.4 Novelty<a class="headerlink" href="#84-novelty" title="Permanent link">&para;</a></h3>
+<p>Git-Map's distinguishing characteristics are:
+1. <strong>Domain-specific merge semantics:</strong> Layer-atomic three-way merge tuned to web map structure, rather than line-level text diffing.
+2. <strong>Live Portal synchronization:</strong> Bidirectional push/pull against a live Portal API, not just local file tracking.
+3. <strong>AI-native design:</strong> MCP server, context graph, and <code>rationale</code> fields are first-class features, not afterthoughts.
+4. <strong>ArcGIS Pro integration:</strong> Native toolbox embedding for users who do not use command-line tools.</p>
+<hr />
+<h2 id="9-future-work">9. Future Work<a class="headerlink" href="#9-future-work" title="Permanent link">&para;</a></h2>
+<h3 id="91-roadmap-items">9.1 Roadmap Items<a class="headerlink" href="#91-roadmap-items" title="Permanent link">&para;</a></h3>
+<p>From <code>roadmap.md</code>, the following items remain incomplete as of v0.6.0:</p>
 <ol>
-<li>
-<p><strong>Context manager protocol</strong>: <code>ContextStore</code> implements <code>__enter__</code> / <code>__exit__</code>, enabling <code>with self.get_context_store() as store:</code> usage throughout <code>repository.py</code>.</p>
-</li>
-<li>
-<p><strong><code>__del__</code> finalizer</strong>: <code>def __del__(self) -&gt; None: self.close()</code> provides a last-resort cleanup in case the context manager path is not used.</p>
-</li>
-<li>
-<p><strong>Non-blocking event recording</strong>: All context store writes in <code>create_commit</code>, <code>revert</code>, <code>cherry_pick</code>, and stash operations are wrapped in <code>try/except Exception: pass</code> blocks. Context recording failure does not propagate to the primary operation — a commit succeeds even if the event graph write fails (e.g., disk full, database locked).</p>
-</li>
+<li><strong>Demo video</strong> (60–90 seconds showing commit/branch/revert workflow) — highest community adoption value</li>
+<li><strong>Landing page on ingramgeoai.com</strong> — prerequisite for organic discovery</li>
+<li><strong>Blog post / r/gis launch strategy</strong> — community seeding</li>
 </ol>
-<h3 id="93-commit-hash-performance">9.3 Commit Hash Performance<a class="headerlink" href="#93-commit-hash-performance" title="Permanent link">&para;</a></h3>
-<p>Commit ID generation serializes the full map JSON for hashing. For large web maps (500+ KB JSON), this adds measurable latency. The current implementation uses <code>json.dumps({..}, sort_keys=True)</code> to ensure deterministic serialization before SHA-256 hashing. Future optimizations could cache the JSON serialization from the index read, avoiding a second serialization pass.</p>
-<h3 id="94-test-suite-performance">9.4 Test Suite Performance<a class="headerlink" href="#94-test-suite-performance" title="Permanent link">&para;</a></h3>
-<p>674 tests complete in under 10 seconds on a modern Mac (M-series). Tests use <code>tmp_path</code> (pytest's temporary directory fixture) exclusively — no shared mutable state between tests. The MCP stash tests (<code>test_stash_mcp.py</code>) inject the MCP scripts directory into <code>sys.path</code> at fixture setup time to import <code>tools.stash_tools</code> directly, enabling end-to-end testing of the MCP tool layer without running the MCP server process.</p>
+<h3 id="92-architectural-evolution">9.2 Architectural Evolution<a class="headerlink" href="#92-architectural-evolution" title="Permanent link">&para;</a></h3>
+<p><strong>Delta compression:</strong> Replace full-snapshot commits with a delta format (store only changed layers as JSON patches per RFC 6902). This would reduce storage O(C × S) to O(C × ΔS) for incremental workflows.</p>
+<p><strong>Atomic writes:</strong> Implement write-to-temp-then-atomic-rename for all state files. Critical for correctness under concurrent access or interrupted operations.</p>
+<p><strong>Conflict markers in staged JSON:</strong> Introduce a <code>__gitmap_conflict__</code> sentinel structure within <code>index.json</code> to represent unresolved conflicts inline, enabling GUI tooling to present conflict resolution interfaces.</p>
+<p><strong>Web UI:</strong> A browser-based repository explorer (commit graph visualization, layer diff side-by-side, merge conflict resolution) would dramatically lower the adoption barrier for non-CLI users.</p>
+<p><strong>ArcGIS Pro ribbon integration:</strong> Promote the <code>.pyt</code> toolbox tools to custom ribbon buttons in an ArcGIS Pro add-in (<code>.esriaddin</code> package), enabling one-click commit/branch/push without opening the Catalog pane.</p>
+<p><strong>Multi-remote support:</strong> The current config supports a single remote named <code>origin</code>. Supporting named remotes (analogous to Git's <code>git remote add &lt;name&gt; &lt;url&gt;</code>) would enable cross-organization workflows.</p>
+<p><strong>Conflict resolution for layer ordering:</strong> Preserve a canonical layer ordering even after merge by adopting a deterministic merge order policy (e.g., "ours order, then theirs additions appended").</p>
+<p><strong>Signed commits:</strong> Add an optional GPG or SSH signature field to <code>Commit</code> for audit trail integrity in regulated environments.</p>
+<p><strong>GitHub Actions CI:</strong> The roadmap lists CI/CD pipeline as item 4 — adding automated tests on PR with ArcGIS Online sandbox credentials would significantly improve confidence in remote operation correctness.</p>
 <hr />
-<h2 id="10-future-work">10. Future Work<a class="headerlink" href="#10-future-work" title="Permanent link">&para;</a></h2>
-<h3 id="101-pypi-distribution-gitmap-core">10.1 PyPI Distribution (gitmap-core)<a class="headerlink" href="#101-pypi-distribution-gitmap-core" title="Permanent link">&para;</a></h3>
-<p>The roadmap's highest-priority distribution goal is publishing <code>gitmap-core</code> to PyPI under the package name <code>gitmap-core</code>, enabling <code>pip install gitmap-core</code> without cloning the repository. The <code>pyproject.toml</code> is already structured for this — <code>packages/gitmap_core</code> is the installable package, and <code>[tool.pytest.ini_options]</code> with <code>pythonpath = ["packages"]</code> supports editable development installs. The remaining work is: finalizing package metadata (classifiers, long description, trove identifiers), adding a GitHub Actions CI/CD pipeline for automated testing and release publishing, and resolving any namespace conflicts.</p>
-<h3 id="102-real-time-collaboration">10.2 Real-Time Collaboration<a class="headerlink" href="#102-real-time-collaboration" title="Permanent link">&para;</a></h3>
-<p>The current model is single-user, local-first. Future work could introduce a shared remote context: a Portal-hosted webhook receiver that intercepts web map save events (via the Portal webhook API, available since Enterprise 10.9) and automatically creates commits in a shared Git-Map repository. This would enable passive capture of all team members' edits without requiring explicit <code>gitmap commit</code> invocations — closer to an autosave-with-version-history model.</p>
-<h3 id="103-webhook-triggers-and-cicd-integration">10.3 Webhook Triggers and CI/CD Integration<a class="headerlink" href="#103-webhook-triggers-and-cicd-integration" title="Permanent link">&para;</a></h3>
-<p>The <code>Remote.production_branch</code> field already supports a notification hook on push to designated production branches. A natural extension is a full webhook pipeline: on <code>gitmap push</code> to <code>production</code>, trigger a Portal webhook that notifies a Teams/Slack channel, runs an automated diff report, or initiates a downstream GIS service cache rebuild. Integration with GitHub Actions (or similar CI) would enable automated map quality checks — e.g., validating that all layer service URLs are reachable, all popup templates reference valid field names — before a push to the production branch is permitted.</p>
-<h3 id="104-arcgis-pro-integration">10.4 ArcGIS Pro Integration<a class="headerlink" href="#104-arcgis-pro-integration" title="Permanent link">&para;</a></h3>
-<p>A Python Toolbox (<code>.pyt</code>) wrapper around <code>gitmap_core</code> operations would expose Git-Map functionality within ArcGIS Pro's Geoprocessing pane. This lowers the entry barrier for GIS professionals not comfortable with CLI tools. The <code>Repository</code> class's filesystem-based design maps naturally to ArcGIS Pro's project directory concept.</p>
-<h3 id="105-property-level-merge-granularity">10.5 Property-Level Merge Granularity<a class="headerlink" href="#105-property-level-merge-granularity" title="Permanent link">&para;</a></h3>
-<p>The current merge algorithm treats each operational layer as an atomic unit: if two branches modify the same layer, a conflict is raised regardless of which properties were changed. A future refinement could implement property-level auto-merge — if branch A changes <code>minScale</code> and branch B changes <code>opacity</code> on the same layer, these are non-conflicting property changes that could be merged automatically. This requires extending <code>MergeConflict</code> to carry property-level diff context and implementing a recursive merge at the property level.</p>
+<h2 id="10-appendix">10. Appendix<a class="headerlink" href="#10-appendix" title="Permanent link">&para;</a></h2>
+<h3 id="a-full-file-tree">A. Full File Tree<a class="headerlink" href="#a-full-file-tree" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>git-map/
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>├── apps/
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>│   ├── cli/
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>│   │   └── gitmap/
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>│   │       ├── commands/          # 25 CLI command modules
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>│   │       │   ├── auto_pull.py
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>│   │       │   ├── branch.py
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>│   │       │   ├── checkout.py
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>│   │       │   ├── cherry_pick.py
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>│   │       │   ├── clone.py
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>│   │       │   ├── commit.py
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>│   │       │   ├── config.py
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>│   │       │   ├── context.py
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>│   │       │   ├── daemon.py
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>│   │       │   ├── diff.py
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>│   │       │   ├── init.py
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>│   │       │   ├── layer-settings-merge.py
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>│   │       │   ├── list.py
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>│   │       │   ├── log.py
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>│   │       │   ├── merge.py
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>│   │       │   ├── merge-from.py
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>│   │       │   ├── notify.py
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>│   │       │   ├── pull.py
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>│   │       │   ├── push.py
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>│   │       │   ├── revert.py
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>│   │       │   ├── setup_repos.py
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>│   │       │   ├── stash.py
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>│   │       │   ├── status.py
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>│   │       │   ├── tag.py
+<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>│   │       │   └── utils.py
+<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a>│   │       └── main.py
+<a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a>│   └── mcp/
+<a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a>│       └── gitmap-mcp/
+<a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a>│           ├── main.py
+<a id="__codelineno-9-35" name="__codelineno-9-35" href="#__codelineno-9-35"></a>│           └── scripts/tools/
+<a id="__codelineno-9-36" name="__codelineno-9-36" href="#__codelineno-9-36"></a>│               ├── branch_tools.py
+<a id="__codelineno-9-37" name="__codelineno-9-37" href="#__codelineno-9-37"></a>│               ├── commit_tools.py
+<a id="__codelineno-9-38" name="__codelineno-9-38" href="#__codelineno-9-38"></a>│               ├── context_tools.py
+<a id="__codelineno-9-39" name="__codelineno-9-39" href="#__codelineno-9-39"></a>│               ├── layer_tools.py
+<a id="__codelineno-9-40" name="__codelineno-9-40" href="#__codelineno-9-40"></a>│               ├── portal_tools.py
+<a id="__codelineno-9-41" name="__codelineno-9-41" href="#__codelineno-9-41"></a>│               ├── remote_tools.py
+<a id="__codelineno-9-42" name="__codelineno-9-42" href="#__codelineno-9-42"></a>│               ├── repository_tools.py
+<a id="__codelineno-9-43" name="__codelineno-9-43" href="#__codelineno-9-43"></a>│               ├── stash_tools.py
+<a id="__codelineno-9-44" name="__codelineno-9-44" href="#__codelineno-9-44"></a>│               └── utils.py
+<a id="__codelineno-9-45" name="__codelineno-9-45" href="#__codelineno-9-45"></a>├── docs/
+<a id="__codelineno-9-46" name="__codelineno-9-46" href="#__codelineno-9-46"></a>│   ├── technical-paper.md        # This document
+<a id="__codelineno-9-47" name="__codelineno-9-47" href="#__codelineno-9-47"></a>│   └── commands/                 # Per-command documentation
+<a id="__codelineno-9-48" name="__codelineno-9-48" href="#__codelineno-9-48"></a>├── integrations/
+<a id="__codelineno-9-49" name="__codelineno-9-49" href="#__codelineno-9-49"></a>│   ├── arcgis_pro/
+<a id="__codelineno-9-50" name="__codelineno-9-50" href="#__codelineno-9-50"></a>│   │   └── GitMap.pyt            # 9-tool Python Toolbox
+<a id="__codelineno-9-51" name="__codelineno-9-51" href="#__codelineno-9-51"></a>│   └── openclaw/
+<a id="__codelineno-9-52" name="__codelineno-9-52" href="#__codelineno-9-52"></a>│       ├── tools.py
+<a id="__codelineno-9-53" name="__codelineno-9-53" href="#__codelineno-9-53"></a>│       ├── server.py
+<a id="__codelineno-9-54" name="__codelineno-9-54" href="#__codelineno-9-54"></a>│       └── tests/
+<a id="__codelineno-9-55" name="__codelineno-9-55" href="#__codelineno-9-55"></a>├── packages/
+<a id="__codelineno-9-56" name="__codelineno-9-56" href="#__codelineno-9-56"></a>│   └── gitmap_core/
+<a id="__codelineno-9-57" name="__codelineno-9-57" href="#__codelineno-9-57"></a>│       ├── compat.py
+<a id="__codelineno-9-58" name="__codelineno-9-58" href="#__codelineno-9-58"></a>│       ├── communication.py
+<a id="__codelineno-9-59" name="__codelineno-9-59" href="#__codelineno-9-59"></a>│       ├── connection.py
+<a id="__codelineno-9-60" name="__codelineno-9-60" href="#__codelineno-9-60"></a>│       ├── context.py
+<a id="__codelineno-9-61" name="__codelineno-9-61" href="#__codelineno-9-61"></a>│       ├── diff.py
+<a id="__codelineno-9-62" name="__codelineno-9-62" href="#__codelineno-9-62"></a>│       ├── maps.py
+<a id="__codelineno-9-63" name="__codelineno-9-63" href="#__codelineno-9-63"></a>│       ├── merge.py
+<a id="__codelineno-9-64" name="__codelineno-9-64" href="#__codelineno-9-64"></a>│       ├── models.py
+<a id="__codelineno-9-65" name="__codelineno-9-65" href="#__codelineno-9-65"></a>│       ├── remote.py
+<a id="__codelineno-9-66" name="__codelineno-9-66" href="#__codelineno-9-66"></a>│       ├── repository.py
+<a id="__codelineno-9-67" name="__codelineno-9-67" href="#__codelineno-9-67"></a>│       ├── visualize.py
+<a id="__codelineno-9-68" name="__codelineno-9-68" href="#__codelineno-9-68"></a>│       └── tests/                # 660+ test cases
+<a id="__codelineno-9-69" name="__codelineno-9-69" href="#__codelineno-9-69"></a>├── landing/
+<a id="__codelineno-9-70" name="__codelineno-9-70" href="#__codelineno-9-70"></a>│   └── index.html                # Marketing landing page
+<a id="__codelineno-9-71" name="__codelineno-9-71" href="#__codelineno-9-71"></a>├── CHANGELOG.md
+<a id="__codelineno-9-72" name="__codelineno-9-72" href="#__codelineno-9-72"></a>├── pyproject.toml
+<a id="__codelineno-9-73" name="__codelineno-9-73" href="#__codelineno-9-73"></a>├── requirements.txt
+<a id="__codelineno-9-74" name="__codelineno-9-74" href="#__codelineno-9-74"></a>├── roadmap.md
+<a id="__codelineno-9-75" name="__codelineno-9-75" href="#__codelineno-9-75"></a>└── mkdocs.yml
+</code></pre></div>
+<h3 id="b-dependency-list">B. Dependency List<a class="headerlink" href="#b-dependency-list" title="Permanent link">&para;</a></h3>
+<p><strong>Runtime dependencies</strong> (from <code>pyproject.toml</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version Constraint</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>arcgis</td>
+<td>≥ 2.3.0</td>
+<td>ArcGIS Portal/AGOL API</td>
+</tr>
+<tr>
+<td>click</td>
+<td>≥ 8.1.0</td>
+<td>CLI framework</td>
+</tr>
+<tr>
+<td>rich</td>
+<td>≥ 13.0.0</td>
+<td>Terminal output formatting</td>
+</tr>
+<tr>
+<td>deepdiff</td>
+<td>≥ 6.0.0</td>
+<td>Recursive JSON comparison</td>
+</tr>
+<tr>
+<td>python-dotenv</td>
+<td>≥ 1.0.0</td>
+<td>.env credential loading</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Development dependencies:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version Constraint</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pytest</td>
+<td>≥ 8.0</td>
+<td>Test runner</td>
+</tr>
+<tr>
+<td>coverage</td>
+<td>≥ 7.0</td>
+<td>Code coverage measurement</td>
+</tr>
+<tr>
+<td>ruff</td>
+<td>≥ 0.9.0</td>
+<td>Linting and formatting</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MCP server additional dependency:</strong>
+- <code>mcp</code> (Anthropic MCP SDK) — not declared in top-level <code>pyproject.toml</code>; declared separately in the MCP app's requirements.</p>
+<h3 id="c-configuration-reference">C. Configuration Reference<a class="headerlink" href="#c-configuration-reference" title="Permanent link">&para;</a></h3>
+<p><strong><code>.gitmap/config.json</code> schema:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nt">&quot;user_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="nt">&quot;user_email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="nt">&quot;project_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="nt">&quot;auto_visualize&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="nt">&quot;remote&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;origin&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.arcgis.com&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="nt">&quot;folder_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string | null&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="nt">&quot;folder_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string | null&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span><span class="nt">&quot;item_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string | null&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="nt">&quot;production_branch&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string | null&quot;</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Environment variables:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>PORTAL_URL         - Portal base URL
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>PORTAL_USERNAME    - Portal username
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>PORTAL_PASSWORD    - Portal password
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>GITMAP_AUTO_PULL_INTERVAL  - Daemon poll interval in seconds (default: 300)
+</code></pre></div></p>
+<h3 id="d-test-coverage-summary-v060">D. Test Coverage Summary (v0.6.0)<a class="headerlink" href="#d-test-coverage-summary-v060" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Test Count (approx.)</th>
+<th>Coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>repository.py</td>
+<td>200+</td>
+<td>~95%</td>
+</tr>
+<tr>
+<td>merge.py</td>
+<td>100+</td>
+<td>~98%</td>
+</tr>
+<tr>
+<td>diff.py</td>
+<td>80+</td>
+<td>~97%</td>
+</tr>
+<tr>
+<td>context.py</td>
+<td>60+</td>
+<td>~92%</td>
+</tr>
+<tr>
+<td>compat.py</td>
+<td>40+</td>
+<td>96%</td>
+</tr>
+<tr>
+<td>models.py</td>
+<td>50+</td>
+<td>~99%</td>
+</tr>
+<tr>
+<td>remote.py</td>
+<td>80+</td>
+<td>~88%</td>
+</tr>
+<tr>
+<td>maps.py</td>
+<td>40+</td>
+<td>~90%</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>660+</strong></td>
+<td><strong>~95% avg</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="e-version-history">E. Version History<a class="headerlink" href="#e-version-history" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Date</th>
+<th>Key Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.6.0</td>
+<td>2026-03-05</td>
+<td>MCP stash tools, branch-to-branch diff, find_common_ancestor, ArcGIS Pro toolbox, landing page, PyPI publish, MkDocs site</td>
+</tr>
+<tr>
+<td>0.5.0</td>
+<td>2025-02-14</td>
+<td>Communication module, Portal notifications, 608+ tests</td>
+</tr>
+<tr>
+<td>0.4.0</td>
+<td>2025-02-10</td>
+<td>stash, cherry-pick, tag, revert commands; ArcGIS API compat layer</td>
+</tr>
+<tr>
+<td>&lt; 0.4.0</td>
+<td>2024</td>
+<td>Initial CLI, core commit/branch/merge/diff/push/pull</td>
+</tr>
+</tbody>
+</table>
 <hr />
-<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
-<ol>
-<li>
-<p>Esri. (2024). <em>Web Map Specification</em>. ArcGIS Developers Documentation. https://developers.arcgis.com/web-map-specification/</p>
-</li>
-<li>
-<p>Esri. (2024). <em>ArcGIS API for Python — Content Management</em>. ArcGIS Developers Documentation. https://developers.arcgis.com/python/</p>
-</li>
-<li>
-<p>Esri. (2023). <em>ArcGIS Enterprise: Versioned Geodatabases</em>. ArcGIS Enterprise Documentation. https://enterprise.arcgis.com/en/geodatabase/latest/manage-geodatabases/types-of-geodatabase-versioning.htm</p>
-</li>
-<li>
-<p>Chacon, S., &amp; Straub, B. (2014). <em>Pro Git</em> (2nd ed.). Apress. https://git-scm.com/book</p>
-</li>
-<li>
-<p>Hunt, A., &amp; Thomas, D. (2000). <em>The Pragmatic Programmer</em>. Addison-Wesley.</p>
-</li>
-<li>
-<p>Model Context Protocol Specification. (2024). Anthropic. https://modelcontextprotocol.io/</p>
-</li>
-<li>
-<p>Quinlan, E. (2019). <em>DeepDiff: A Python library for deep comparison of dictionaries, strings, iterables and other objects.</em> https://github.com/seperman/deepdiff</p>
-</li>
-<li>
-<p>SQLite Consortium. (2024). <em>WAL Mode</em>. SQLite Documentation. https://www.sqlite.org/wal.html</p>
-</li>
-<li>
-<p>RFC 6902. (2013). <em>JavaScript Object Notation (JSON) Patch</em>. Internet Engineering Task Force. https://datatracker.ietf.org/doc/html/rfc6902</p>
-</li>
-<li>
-<p>Esri. (2022). <em>ArcGIS Enterprise Webhooks</em>. ArcGIS Enterprise Documentation. https://enterprise.arcgis.com/en/server/latest/administer/windows/using-webhooks.htm</p>
-</li>
-</ol>
-<hr />
-<p><em>Manuscript prepared March 2026. All code examples reference the Git-Map repository at commit depth consistent with v0.1.0 development branch.</em></p>
+<p><em>This paper was auto-generated by the Git-Map paper generator (Jig, OpenClaw) on 2026-03-08 and reflects the state of the codebase at v0.6.0. Peer review and empirical benchmark data remain areas for future work.</em></p>
 
 
 
