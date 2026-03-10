@@ -3,9 +3,10 @@
 **Version control for ArcGIS web maps.**
 
 [![CI](https://github.com/14-TR/Git-Map/actions/workflows/ci.yml/badge.svg)](https://github.com/14-TR/Git-Map/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/gitmap.svg)](https://pypi.org/project/gitmap/)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-450%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
+[![Tests](https://img.shields.io/badge/tests-674%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
 
 GitMap brings Git-like version control to ArcGIS Online and Enterprise Portal web maps. Branch, commit, diff, merge, push, and pull maps using workflows your team already knows.
 
@@ -56,7 +57,14 @@ Merged feature/new-basemap into main
 
 - Python 3.11, 3.12, or 3.13
 - ArcGIS Portal or ArcGIS Online account
-- pip
+
+### Install from PyPI (Recommended)
+
+```bash
+pip install gitmap
+```
+
+That's it. The `gitmap` command is now available in your terminal.
 
 ### Install from Source
 
@@ -64,10 +72,8 @@ Merged feature/new-basemap into main
 git clone https://github.com/14-TR/Git-Map.git
 cd Git-Map
 
-# Install core library
+# Install core library + CLI
 pip install -e packages/gitmap_core
-
-# Install CLI
 pip install -e apps/cli/gitmap
 ```
 

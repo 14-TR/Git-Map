@@ -3,20 +3,43 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gitmap-cli"
+name = "gitmap"
 version = "0.6.0"
-description = "CLI for GitMap - Version control for ArcGIS web maps"
-requires-python = ">=3.11"
+description = "Version control for ArcGIS web maps — the git for GIS"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
 license = {text = "MIT"}
 authors = [
-    {name = "GitMap Team"}
+    {name = "TR Ingram", email = "tr@ingramgeoai.com"}
+]
+keywords = ["arcgis", "gis", "version-control", "web-maps", "esri", "git", "cli"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Software Development :: Version Control",
+    "Environment :: Console",
 ]
 dependencies = [
-    "gitmap_core>=0.1.0",
+    "gitmap-core>=0.6.0",
     "click>=8.1.0",
     "rich>=13.0.0",
     "apscheduler>=3.10.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/14-TR/Git-Map"
+Repository = "https://github.com/14-TR/Git-Map"
+"Bug Tracker" = "https://github.com/14-TR/Git-Map/issues"
+Changelog = "https://github.com/14-TR/Git-Map/blob/main/CHANGELOG.md"
+Documentation = "https://14-tr.github.io/Git-Map/"
 
 [project.scripts]
 gitmap = "gitmap_cli.main:main"
