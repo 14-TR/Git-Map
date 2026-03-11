@@ -42,6 +42,7 @@ from gitmap_cli.commands.push import push
 from gitmap_cli.commands.revert import revert
 from gitmap_cli.commands.setup_repos import setup_repos
 from gitmap_cli.commands.stash import stash
+from gitmap_cli.commands.show import show
 from gitmap_cli.commands.status import status
 from gitmap_cli.commands.tag import tag
 
@@ -86,6 +87,7 @@ def cli() -> None:
 cli.add_command(init)
 cli.add_command(clone)
 cli.add_command(cherry_pick, name="cherry-pick")
+cli.add_command(show)
 cli.add_command(status)
 cli.add_command(branch)
 cli.add_command(checkout)
