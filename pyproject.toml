@@ -1,22 +1,52 @@
 [project]
 name = "gitmap"
-version = "0.1.0"
-description = "Git-like version control for ArcGIS web maps"
+version = "0.6.0"
+description = "Git-like version control for ArcGIS web maps — installs everything you need"
 readme = "README.md"
-license = "MIT"
-requires-python = ">=3.10"
-dependencies = [
-    "arcgis>=2.3.0",
-    "python-dotenv>=1.0.0",
-    "click>=8.1.0",
-    "rich>=13.0.0",
-    "deepdiff>=6.0.0",
+requires-python = ">=3.11,<3.14"
+license = {text = "MIT"}
+authors = [
+    {name = "TR Ingram", email = "tr@ingramgeoai.com"}
 ]
+keywords = ["arcgis", "gis", "version-control", "web-maps", "esri", "git", "cli"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Software Development :: Version Control",
+    "Typing :: Typed",
+]
+# Meta-package: depends on both core library and CLI
+dependencies = [
+    "gitmap-core>=0.6.0",
+    "gitmap-cli>=0.6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/14-TR/Git-Map"
+Repository = "https://github.com/14-TR/Git-Map"
+Documentation = "https://github.com/14-TR/Git-Map/blob/main/README.md"
+"Bug Tracker" = "https://github.com/14-TR/Git-Map/issues"
+Changelog = "https://github.com/14-TR/Git-Map/blob/main/CHANGELOG.md"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# ---- Dev tools (not published) -------------------------------------------------------------------------
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
-    "coverage>=7.0",
+    "pytest-cov>=4.0",
     "ruff>=0.9.0",
 ]
 
@@ -25,7 +55,7 @@ pythonpath = ["packages"]
 testpaths = ["packages/gitmap_core/tests"]
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py311"
 line-length = 120
 
 [tool.ruff.lint]

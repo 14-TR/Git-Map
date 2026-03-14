@@ -1,23 +1,44 @@
 # Publishing to PyPI
 
-GitMap uses **PyPI Trusted Publishing** (OIDC) — no API tokens needed.
+GitMap uses **PyPI Trusted Publishing** (OIDC) — no API tokens needed once configured.
 
-## One-Time Setup (do this once)
+GitMap ships three packages:
 
-### 1. Create the package on PyPI
-Go to https://pypi.org/manage/account/ → "Your projects" → the package must exist before trusted publishing can be configured.
+| PyPI Package | Tag Pattern | Install |
+|---|---|---|
+| `gitmap-core` | `core-v*` | `pip install gitmap-core` |
+| `gitmap-cli` | `cli-v*` | `pip install gitmap-cli` |
+| `gitmap` (meta) | `v*` | `pip install gitmap` |
 
-First release: publish manually once:
+> **Most users want `pip install gitmap`** — it installs both core and CLI automatically.
+
+---
+
+## One-Time Setup
+
+### 1. Build and upload each package manually (first time only)
+
 ```bash
 pip install build twine
+
+# Core library
 python -m build packages/gitmap_core --outdir dist/
-twine upload dist/*
-# Enter your PyPI username/password or use an API token
+twine upload dist/gitmap_core-*
+
+# CLI
+python -m build apps/cli/gitmap --outdir dist/
+twine upload dist/gitmap_cli-*
+
+# Meta-package
+python -m build . --outdir dist/
+twine upload dist/gitmap-*
 ```
 
-### 2. Configure Trusted Publisher on PyPI
-After the package exists:
-1. Go to https://pypi.org/manage/project/gitmap-core/settings/
+### 2. Configure Trusted Publishers on PyPI
+
+Do this for **each** of the three packages after they exist on PyPI:
+
+1. Go to `https://pypi.org/manage/project/<package-name>/settings/`
 2. Click **"Add a new publisher"** under "Trusted Publishers"
 3. Fill in:
    - **Owner:** `14-TR`
@@ -25,34 +46,80 @@ After the package exists:
    - **Workflow:** `publish.yml`
    - **Environment:** `pypi`
 
-### 3. Create the GitHub Environment
+Packages to configure:
+- `https://pypi.org/manage/project/gitmap-core/settings/`
+- `https://pypi.org/manage/project/gitmap-cli/settings/`
+- `https://pypi.org/manage/project/gitmap/settings/`
+
+### 3. Create the GitHub `pypi` Environment
+
 1. Go to `https://github.com/14-TR/Git-Map/settings/environments`
 2. Create environment named **`pypi`**
-3. (Optional) Add protection rules like "require approval"
+3. (Optional) Add "Required reviewers" for extra safety
+
+---
 
 ## Publishing a New Release
 
-Once setup is done, publishing is just a tag:
+### Patch release (core fix)
 
 ```bash
-# Bump version in packages/gitmap_core/pyproject.toml first
+# Bump version in packages/gitmap_core/pyproject.toml
 git add packages/gitmap_core/pyproject.toml
 git commit -m "chore: bump core to v0.6.1"
 git tag core-v0.6.1
 git push origin main --tags
 ```
 
-The `publish.yml` workflow fires automatically, runs tests, builds, and pushes to PyPI.
+### Patch release (CLI fix)
+
+```bash
+# Bump version in apps/cli/gitmap/pyproject.toml and main.py
+git add apps/cli/gitmap/pyproject.toml apps/cli/gitmap/main.py
+git commit -m "chore: bump cli to v0.6.1"
+git tag cli-v0.6.1
+git push origin main --tags
+```
+
+### Full release (all packages)
+
+```bash
+# 1. Bump versions in all three pyproject.toml files + main.py
+# 2. Commit
+git add packages/gitmap_core/pyproject.toml \
+        apps/cli/gitmap/pyproject.toml \
+        apps/cli/gitmap/main.py \
+        pyproject.toml
+git commit -m "chore: release v0.7.0"
+
+# 3. Tag all three — publish.yml fires for each
+git tag core-v0.7.0
+git tag cli-v0.7.0
+git tag v0.7.0
+git push origin main --tags
+```
+
+---
 
 ## Versioning Convention
 
-| Tag pattern | Package |
-|------------|---------|
-| `core-v*`  | `gitmap-core` (this package) |
+All three packages should stay in sync (same version number).
 
-## Package Name
+| Component | File to update |
+|---|---|
+| `gitmap-core` | `packages/gitmap_core/pyproject.toml` |
+| `gitmap-cli` | `apps/cli/gitmap/pyproject.toml` + `apps/cli/gitmap/main.py` |
+| `gitmap` meta | `pyproject.toml` (root) |
 
-The package is published as **`gitmap-core`** on PyPI:
-```
-pip install gitmap-core
+---
+
+## Verify on PyPI
+
+After tags are pushed and workflow runs succeed:
+
+```bash
+pip install gitmap           # meta-package (installs core + cli)
+pip install gitmap-core      # core library only
+pip install gitmap-cli       # CLI only (also installs core)
+gitmap --version             # should show new version
 ```

@@ -1,19 +1,29 @@
 name: Publish to PyPI
 
+# Tag conventions:
+#   core-v*   → publishes gitmap-core   (e.g. core-v0.6.1)
+#   cli-v*    → publishes gitmap-cli    (e.g. cli-v0.6.1)
+#   v*        → publishes gitmap meta   (e.g. v0.6.1)
+
 on:
   push:
     tags:
-      - "core-v*"   # e.g. core-v0.6.0 → publishes gitmap-core
+      - "core-v*"
+      - "cli-v*"
+      - "v*"
 
 permissions:
   contents: read
   id-token: write   # Required for PyPI trusted publishing (OIDC)
 
+# ---------------------------------------------------------------------------
+# gitmap-core
+# ---------------------------------------------------------------------------
 jobs:
-  build:
-    name: Build distribution
+  build-core:
+    name: Build gitmap-core
+    if: startsWith(github.ref_name, 'core-v')
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -36,22 +46,119 @@ jobs:
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: dist-core
           path: dist/
 
-  publish:
-    name: Publish to PyPI
-    needs: build
+  publish-core:
+    name: Publish gitmap-core to PyPI
+    needs: build-core
     runs-on: ubuntu-latest
     environment:
       name: pypi
       url: https://pypi.org/p/gitmap-core
-
     steps:
       - name: Download dist artifacts
         uses: actions/download-artifact@v4
         with:
-          name: dist
+          name: dist-core
+          path: dist/
+
+      - name: Publish to PyPI (trusted publisher)
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+# ---------------------------------------------------------------------------
+# gitmap-cli
+# ---------------------------------------------------------------------------
+  build-cli:
+    name: Build gitmap-cli
+    if: startsWith(github.ref_name, 'cli-v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tools
+        run: python -m pip install --upgrade pip build
+
+      - name: Run core tests (CLI depends on core)
+        run: |
+          pip install -e "packages/gitmap_core[dev]"
+          python -m pytest packages/gitmap_core/tests -x -q
+
+      - name: Build gitmap-cli wheel and sdist
+        run: python -m build apps/cli/gitmap --outdir dist/
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-cli
+          path: dist/
+
+  publish-cli:
+    name: Publish gitmap-cli to PyPI
+    needs: build-cli
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/gitmap-cli
+    steps:
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-cli
+          path: dist/
+
+      - name: Publish to PyPI (trusted publisher)
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+# ---------------------------------------------------------------------------
+# gitmap (meta-package)
+# ---------------------------------------------------------------------------
+  build-meta:
+    name: Build gitmap meta-package
+    if: "startsWith(github.ref_name, 'v') && !startsWith(github.ref_name, 'core-v') && !startsWith(github.ref_name, 'cli-v')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tools
+        run: python -m pip install --upgrade pip build
+
+      - name: Run core tests before publishing
+        run: |
+          pip install -e "packages/gitmap_core[dev]"
+          python -m pytest packages/gitmap_core/tests -x -q
+
+      - name: Build gitmap wheel and sdist
+        run: python -m build . --outdir dist/
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-meta
+          path: dist/
+
+  publish-meta:
+    name: Publish gitmap meta-package to PyPI
+    needs: build-meta
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/gitmap
+    steps:
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-meta
           path: dist/
 
       - name: Publish to PyPI (trusted publisher)
