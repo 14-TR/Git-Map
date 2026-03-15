@@ -14,6 +14,7 @@ Git-Map provides a Git-inspired CLI for managing web map versions.
 | [`checkout`](checkout.md) | Switch branches or restore commits |
 | [`diff`](diff.md) | Show changes between commits or index |
 | [`log`](log.md) | Show commit history |
+| [`show`](show.md) | Show details of a specific commit |
 | [`merge`](merge.md) | Merge a branch into the current branch |
 | [`push`](push.md) | Push the current branch to Portal |
 | [`pull`](pull.md) | Pull the latest map from Portal |

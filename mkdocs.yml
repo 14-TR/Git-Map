@@ -48,6 +48,7 @@ nav:
     - checkout: commands/checkout.md
     - diff: commands/diff.md
     - log: commands/log.md
+    - show: commands/show.md
     - merge: commands/merge.md
     - push: commands/push.md
     - pull: commands/pull.md
