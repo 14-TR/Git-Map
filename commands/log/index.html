@@ -16,14 +16,14 @@
         <link rel="prev" href="../diff/">
       
       
-        <link rel="next" href="../merge/">
+        <link rel="next" href="../show/">
       
       
         
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -917,10 +917,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#output-default" class="md-nav__link">
+  <a href="#default-output" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Output (default)
+        Default output
       
     </span>
   </a>
@@ -928,10 +928,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#output-oneline" class="md-nav__link">
+  <a href="#one-line-output-oneline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Output (--oneline)
+        One-line output (--oneline)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graph-output-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph output (--graph)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
       
     </span>
   </a>
@@ -942,6 +964,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../show/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    show
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1354,10 +1404,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#output-default" class="md-nav__link">
+  <a href="#default-output" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Output (default)
+        Default output
       
     </span>
   </a>
@@ -1365,10 +1415,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#output-oneline" class="md-nav__link">
+  <a href="#one-line-output-oneline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Output (--oneline)
+        One-line output (--oneline)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graph-output-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph output (--graph)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
       
     </span>
   </a>
@@ -1396,7 +1468,7 @@
 
 
 <h1 id="gitmap-log">gitmap log<a class="headerlink" href="#gitmap-log" title="Permanent link">&para;</a></h1>
-<p>Show commit history for the current branch.</p>
+<p>Show commit history for the current branch (or all branches with <code>--graph</code>).</p>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gitmap<span class="w"> </span>log<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </code></pre></div>
@@ -1423,28 +1495,77 @@
 <td>false</td>
 <td>Compact one-line format</td>
 </tr>
+<tr>
+<td><code>--graph</code></td>
+<td></td>
+<td>false</td>
+<td>Visual ASCII commit graph with branch labels</td>
+</tr>
+<tr>
+<td><code>--branch</code></td>
+<td><code>-b</code></td>
+<td><em>(current)</em></td>
+<td>Show history for a specific branch</td>
+</tr>
 </tbody>
 </table>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>gitmap<span class="w"> </span>log
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>gitmap<span class="w"> </span>log<span class="w"> </span>-n<span class="w"> </span><span class="m">5</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>gitmap<span class="w"> </span>log<span class="w"> </span>--oneline
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Show last 10 commits on current branch</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>gitmap<span class="w"> </span>log
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Show last 5 commits</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>gitmap<span class="w"> </span>log<span class="w"> </span>-n<span class="w"> </span><span class="m">5</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># One-line compact format</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>gitmap<span class="w"> </span>log<span class="w"> </span>--oneline
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># Visual ASCII commit graph (all branches)</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>gitmap<span class="w"> </span>log<span class="w"> </span>--graph
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># Graph in compact one-line format</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>gitmap<span class="w"> </span>log<span class="w"> </span>--graph<span class="w"> </span>--oneline
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="c1"># Show history for a specific branch</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>gitmap<span class="w"> </span>log<span class="w"> </span>--branch<span class="w"> </span>feature/new-layer
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>gitmap<span class="w"> </span>log<span class="w"> </span>-b<span class="w"> </span>main<span class="w"> </span>--oneline
 </code></pre></div>
-<h2 id="output-default">Output (default)<a class="headerlink" href="#output-default" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>commit a3f2c1b0
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Author:    Jane Smith
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Date:      2024-06-15 10:23:04
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>Message:   Added flood layer
+<h2 id="default-output">Default output<a class="headerlink" href="#default-output" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>commit a3f2c1b0e5f1d2c3b4a5960718293a4b5c6d7e8f (HEAD -&gt; main)
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Author: Jane Smith
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Date:   2024-06-15 10:23:04
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>Parent: 9e1b4a22
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>commit 9e1b4a22
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>Author:    Jane Smith
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>Date:      2024-06-14 14:05:11
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>Message:   Initial snapshot
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    Added flood layer
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    (3 layer(s))
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>commit 9e1b4a22d3f4e5b6c7a8091011121314151617181
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>Author: Jane Smith
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>Date:   2024-06-14 14:05:11
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    Initial snapshot
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    (2 layer(s))
 </code></pre></div>
-<h2 id="output-oneline">Output (--oneline)<a class="headerlink" href="#output-oneline" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>a3f2c1b0  Added flood layer
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>9e1b4a22  Initial snapshot
+<h2 id="one-line-output-oneline">One-line output (<code>--oneline</code>)<a class="headerlink" href="#one-line-output-oneline" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>* a3f2c1b0  Added flood layer
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  9e1b4a22  Initial snapshot
 </code></pre></div>
+<p>The <code>*</code> marker indicates HEAD.</p>
+<h2 id="graph-output-graph">Graph output (<code>--graph</code>)<a class="headerlink" href="#graph-output-graph" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>* a3f2c1b0 (HEAD -&gt; main) Merged feature/new-basemap
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>|\
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>| * d2e3f4a5 (feature/new-basemap) Add satellite basemap
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>| * c1b2a3d4 Update label style
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>* | b0a1c2d3 Fix symbology on Parcels
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>|/
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>* 9e1b4a22 Initial snapshot
+</code></pre></div>
+<p>The graph shows branches diverging (<code>|</code>) and merging (<code>/</code>, <code>\</code>). Branch labels appear in parentheses. <code>HEAD -&gt;</code> highlights the current position.</p>
+<h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../show/"><code>gitmap show</code></a> — inspect a single commit in detail</li>
+<li><a href="../diff/"><code>gitmap diff</code></a> — compare commits</li>
+<li><a href="../branch/"><code>gitmap branch</code></a> — list or create branches</li>
+</ul>
 
 
 
