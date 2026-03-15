@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gitmap"
+name = "gitmap-cli"
 version = "0.6.0"
-description = "Version control for ArcGIS web maps — the git for GIS"
+description = "CLI for GitMap — Git-like version control for ArcGIS web maps"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
 license = {text = "MIT"}
@@ -15,6 +15,7 @@ authors = [
 keywords = ["arcgis", "gis", "version-control", "web-maps", "esri", "git", "cli"]
 classifiers = [
     "Development Status :: 3 - Alpha",
+    "Environment :: Console",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
@@ -25,7 +26,8 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: GIS",
     "Topic :: Software Development :: Version Control",
-    "Environment :: Console",
+    "Topic :: Utilities",
+    "Typing :: Typed",
 ]
 dependencies = [
     "gitmap-core>=0.6.0",
@@ -34,19 +36,20 @@ dependencies = [
     "apscheduler>=3.10.0",
 ]
 
+[project.scripts]
+gitmap = "gitmap_cli.main:main"
+
 [project.urls]
 Homepage = "https://github.com/14-TR/Git-Map"
 Repository = "https://github.com/14-TR/Git-Map"
+Documentation = "https://github.com/14-TR/Git-Map/blob/main/README.md"
 "Bug Tracker" = "https://github.com/14-TR/Git-Map/issues"
 Changelog = "https://github.com/14-TR/Git-Map/blob/main/CHANGELOG.md"
-Documentation = "https://14-tr.github.io/Git-Map/"
-
-[project.scripts]
-gitmap = "gitmap_cli.main:main"
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
 ]
 
 [tool.setuptools]
@@ -55,3 +58,6 @@ packages = ["gitmap_cli", "gitmap_cli.commands"]
 [tool.setuptools.package-dir]
 gitmap_cli = "."
 "gitmap_cli.commands" = "commands"
+
+[tool.setuptools.package-data]
+gitmap_cli = ["py.typed"]
