@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://14-tr.github.io/Git-Map/commands/diff/">
+        <link rel="canonical" href="https://14-tr.github.io/Git-Map/commands/setup-repos/">
       
       
-        <link rel="prev" href="../cherry-pick/">
+        <link rel="prev" href="../auto-pull/">
       
       
-        <link rel="next" href="../log/">
+        <link rel="next" href="../daemon/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>diff - Git-Map</title>
+        <title>setup-repos - Git-Map</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#gitmap-diff" class="md-skip">
+        <a href="#setup-repos" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              diff
+              setup-repos
             
           </span>
         </div>
@@ -821,37 +821,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    diff
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../diff/" class="md-nav__link">
         
   
   
@@ -867,70 +840,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Usage
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#options" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Options
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Examples
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#output" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Output
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1276,10 +1185,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../setup-repos/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    setup-repos
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1295,6 +1231,103 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#synopsis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synopsis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#directory-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directory Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subsequent-syncs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subsequent Syncs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1534,10 +1567,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
+  <a href="#synopsis" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Usage
+        Synopsis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
       
     </span>
   </a>
@@ -1567,10 +1611,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#output" class="md-nav__link">
+  <a href="#directory-structure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Output
+        Directory Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subsequent-syncs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subsequent Syncs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
       
     </span>
   </a>
@@ -1597,11 +1663,14 @@
   
 
 
-<h1 id="gitmap-diff">gitmap diff<a class="headerlink" href="#gitmap-diff" title="Permanent link">&para;</a></h1>
-<p>Show changes between the current index and the last commit, or between two commits.</p>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gitmap<span class="w"> </span>diff<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+<h1 id="setup-repos">setup-repos<a class="headerlink" href="#setup-repos" title="Permanent link">&para;</a></h1>
+<p>Bulk clone web maps from Portal into a local repositories directory.</p>
+<h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gitmap<span class="w"> </span>setup-repos<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </code></pre></div>
+<h2 id="description">Description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
+<p><code>setup-repos</code> queries Portal for web maps, then clones each one into its own subdirectory under a base <code>repositories/</code> folder. Each cloned map gets a <code>.gitmap/</code> repository initialized with the current map state as the first commit.</p>
+<p>Use this command to quickly bootstrap a local working copy of your organization's web maps.</p>
 <h2 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1612,25 +1681,98 @@
 </thead>
 <tbody>
 <tr>
-<td><code>--commit</code></td>
-<td>Compare a specific commit against its parent</td>
+<td><code>--directory, -d TEXT</code></td>
+<td>Output directory (default: <code>repositories</code>)</td>
+</tr>
+<tr>
+<td><code>--owner, -o TEXT</code></td>
+<td>Filter by owner username</td>
+</tr>
+<tr>
+<td><code>--query, -q TEXT</code></td>
+<td>ArcGIS search query (e.g., <code>title:FloodRisk</code>)</td>
+</tr>
+<tr>
+<td><code>--tag, -t TEXT</code></td>
+<td>Filter by tag</td>
+</tr>
+<tr>
+<td><code>--max-results, -m INT</code></td>
+<td>Maximum maps to clone (default: 100)</td>
+</tr>
+<tr>
+<td><code>--url, -u TEXT</code></td>
+<td>Portal URL (or set <code>PORTAL_URL</code> env var)</td>
+</tr>
+<tr>
+<td><code>--username TEXT</code></td>
+<td>Portal username (or use <code>ARCGIS_USERNAME</code> env var)</td>
+</tr>
+<tr>
+<td><code>--password TEXT</code></td>
+<td>Portal password (or use <code>ARCGIS_PASSWORD</code> env var)</td>
+</tr>
+<tr>
+<td><code>--skip-existing</code></td>
+<td>Skip maps whose directory already exists</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show help and exit</td>
 </tr>
 </tbody>
 </table>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Diff index vs HEAD</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>gitmap<span class="w"> </span>diff
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Clone all maps owned by a specific user</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>gitmap<span class="w"> </span>setup-repos<span class="w"> </span>--owner<span class="w"> </span>jsmith
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Diff a specific commit</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>gitmap<span class="w"> </span>diff<span class="w"> </span>--commit<span class="w"> </span>a3f2c1b0
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Clone into a custom directory</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>gitmap<span class="w"> </span>setup-repos<span class="w"> </span>--owner<span class="w"> </span>jsmith<span class="w"> </span>--directory<span class="w"> </span>~/gis-projects
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Filter by tag</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>gitmap<span class="w"> </span>setup-repos<span class="w"> </span>--tag<span class="w"> </span>production<span class="w"> </span>--skip-existing
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># Search by title pattern</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>gitmap<span class="w"> </span>setup-repos<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;title:FloodRisk*&quot;</span><span class="w"> </span>--max-results<span class="w"> </span><span class="m">20</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="c1"># Clone only specific maps matching title and owner</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>gitmap<span class="w"> </span>setup-repos<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;title:Project*&quot;</span><span class="w"> </span>--owner<span class="w"> </span>myusername
 </code></pre></div>
-<h2 id="output">Output<a class="headerlink" href="#output" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Diff: index → a3f2c1b0
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  + layer &quot;Flood Zones&quot;      (added)
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  ~ layer &quot;Parcels&quot;          symbology changed
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  - layer &quot;Old Boundaries&quot;   (removed)
+<h2 id="directory-structure">Directory Structure<a class="headerlink" href="#directory-structure" title="Permanent link">&para;</a></h2>
+<p>After running, your output directory will look like:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>repositories/
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── FloodRiskMap/
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│   ├── .gitmap/
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>│   │   ├── config.json
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>│   │   ├── HEAD
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│   │   ├── index.json
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>│   │   └── objects/commits/
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│   └── (working directory)
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>├── ParcelMap/
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>│   └── .gitmap/
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>└── UtilityNetwork/
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    └── .gitmap/
 </code></pre></div>
+<p>Each directory is a fully initialized GitMap repository with:
+- Remote configured to point back to the Portal item
+- First commit containing the current map state</p>
+<h2 id="subsequent-syncs">Subsequent Syncs<a class="headerlink" href="#subsequent-syncs" title="Permanent link">&para;</a></h2>
+<p>After initial setup, use <code>auto-pull</code> to keep all repositories in sync:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Pull latest changes from Portal</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>gitmap<span class="w"> </span>auto-pull
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Pull and commit changes</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>gitmap<span class="w"> </span>auto-pull<span class="w"> </span>--auto-commit
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># Run on a schedule</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="m">0</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/path/to/project<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>gitmap<span class="w"> </span>auto-pull<span class="w"> </span>--auto-commit
+</code></pre></div>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../auto-pull/"><code>gitmap auto-pull</code></a> — sync all repos with Portal</li>
+<li><a href="../daemon/"><code>gitmap daemon</code></a> — background scheduler</li>
+<li><a href="../clone/"><code>gitmap clone</code></a> — clone a single map by item ID</li>
+</ul>
 
 
 

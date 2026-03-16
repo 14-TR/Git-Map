@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://14-tr.github.io/Git-Map/commands/diff/">
+        <link rel="canonical" href="https://14-tr.github.io/Git-Map/commands/daemon/">
       
       
-        <link rel="prev" href="../cherry-pick/">
+        <link rel="prev" href="../setup-repos/">
       
       
-        <link rel="next" href="../log/">
+        <link rel="next" href="../../guides/workflow/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>diff - Git-Map</title>
+        <title>daemon - Git-Map</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#gitmap-diff" class="md-skip">
+        <a href="#daemon" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              diff
+              daemon
             
           </span>
         </div>
@@ -821,37 +821,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    diff
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../diff/" class="md-nav__link">
         
   
   
@@ -867,70 +840,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Usage
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#options" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Options
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Examples
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#output" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Output
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1304,10 +1213,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../daemon/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    daemon
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1323,6 +1259,192 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#synopsis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synopsis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subcommands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subcommands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#daemon-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        daemon start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="daemon start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#daemon-stop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        daemon stop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#daemon-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        daemon status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#daemon-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        daemon logs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="daemon logs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#options_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#daemon-state-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Daemon State Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternatives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternatives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1534,10 +1656,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
+  <a href="#synopsis" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Usage
+        Synopsis
       
     </span>
   </a>
@@ -1545,6 +1667,40 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subcommands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subcommands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#daemon-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        daemon start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="daemon start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#options" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1554,8 +1710,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#examples" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1565,12 +1721,100 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#output" class="md-nav__link">
+  <a href="#daemon-stop" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Output
+        daemon stop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#daemon-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        daemon status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#daemon-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        daemon logs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="daemon logs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#options_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#daemon-state-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Daemon State Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternatives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternatives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
       
     </span>
   </a>
@@ -1597,12 +1841,46 @@
   
 
 
-<h1 id="gitmap-diff">gitmap diff<a class="headerlink" href="#gitmap-diff" title="Permanent link">&para;</a></h1>
-<p>Show changes between the current index and the last commit, or between two commits.</p>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gitmap<span class="w"> </span>diff<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+<h1 id="daemon">daemon<a class="headerlink" href="#daemon" title="Permanent link">&para;</a></h1>
+<p>Manage the background auto-pull daemon.</p>
+<h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gitmap<span class="w"> </span>daemon<span class="w"> </span>&lt;SUBCOMMAND&gt;<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </code></pre></div>
-<h2 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
+<h2 id="description">Description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
+<p><code>daemon</code> runs <code>auto-pull</code> on a scheduled interval as a background process. Use the subcommands to start, stop, check status, and view logs.</p>
+<p>The daemon persists across terminal sessions. State files live in <code>~/.gitmap-daemon/</code>.</p>
+<h2 id="subcommands">Subcommands<a class="headerlink" href="#subcommands" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Subcommand</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start</code></td>
+<td>Start the daemon</td>
+</tr>
+<tr>
+<td><code>stop</code></td>
+<td>Stop a running daemon</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>Show daemon status and configuration</td>
+</tr>
+<tr>
+<td><code>logs</code></td>
+<td>View daemon log output</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="daemon-start">daemon start<a class="headerlink" href="#daemon-start" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>gitmap<span class="w"> </span>daemon<span class="w"> </span>start<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<h3 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -1612,25 +1890,142 @@
 </thead>
 <tbody>
 <tr>
-<td><code>--commit</code></td>
-<td>Compare a specific commit against its parent</td>
+<td><code>--interval, -i INT</code></td>
+<td>Auto-pull interval in minutes (default: 60)</td>
+</tr>
+<tr>
+<td><code>--directory, -d TEXT</code></td>
+<td>Directory of GitMap repos (default: <code>repositories</code>)</td>
+</tr>
+<tr>
+<td><code>--branch, -b TEXT</code></td>
+<td>Branch to pull (default: <code>main</code>)</td>
+</tr>
+<tr>
+<td><code>--url, -u TEXT</code></td>
+<td>Portal URL (or set <code>PORTAL_URL</code> env var)</td>
+</tr>
+<tr>
+<td><code>--username TEXT</code></td>
+<td>Portal username</td>
+</tr>
+<tr>
+<td><code>--auto-commit</code></td>
+<td>Automatically commit changes after pull</td>
+</tr>
+<tr>
+<td><code>--commit-message, -m TEXT</code></td>
+<td>Commit message template (<code>{repo}</code>, <code>{date}</code>)</td>
+</tr>
+<tr>
+<td><code>--skip-errors</code></td>
+<td>Continue on individual repo failures</td>
 </tr>
 </tbody>
 </table>
-<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Diff index vs HEAD</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>gitmap<span class="w"> </span>diff
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Diff a specific commit</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>gitmap<span class="w"> </span>diff<span class="w"> </span>--commit<span class="w"> </span>a3f2c1b0
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Start with default settings (60-minute interval)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>gitmap<span class="w"> </span>daemon<span class="w"> </span>start
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Pull every 30 minutes</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>gitmap<span class="w"> </span>daemon<span class="w"> </span>start<span class="w"> </span>--interval<span class="w"> </span><span class="m">30</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Pull and commit every hour</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>gitmap<span class="w"> </span>daemon<span class="w"> </span>start<span class="w"> </span>--interval<span class="w"> </span><span class="m">60</span><span class="w"> </span>--auto-commit
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1"># Custom directory and branch</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>gitmap<span class="w"> </span>daemon<span class="w"> </span>start<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span>--interval<span class="w"> </span><span class="m">120</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">  </span>--directory<span class="w"> </span>~/gis-projects<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span>--branch<span class="w"> </span>production
 </code></pre></div>
-<h2 id="output">Output<a class="headerlink" href="#output" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Diff: index → a3f2c1b0
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  + layer &quot;Flood Zones&quot;      (added)
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  ~ layer &quot;Parcels&quot;          symbology changed
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  - layer &quot;Old Boundaries&quot;   (removed)
+<hr />
+<h2 id="daemon-stop">daemon stop<a class="headerlink" href="#daemon-stop" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>gitmap<span class="w"> </span>daemon<span class="w"> </span>stop
 </code></pre></div>
+<p>Sends <code>SIGTERM</code> to the daemon for a graceful shutdown. Waits up to 10 seconds; force-kills if it doesn't respond.</p>
+<hr />
+<h2 id="daemon-status">daemon status<a class="headerlink" href="#daemon-status" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>gitmap<span class="w"> </span>daemon<span class="w"> </span>status
+</code></pre></div>
+<p>Shows whether the daemon is running, its PID, and the current configuration:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>GitMap Auto-Pull Daemon Status
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  Status     ✓ Running
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  PID        12345
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>  Interval   60 minutes
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>  Directory  repositories
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>  Branch     main
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>  Auto-commit  True
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>  Log File   ~/.gitmap-daemon/daemon.log (4.2 KB)
+</code></pre></div>
+<hr />
+<h2 id="daemon-logs">daemon logs<a class="headerlink" href="#daemon-logs" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>gitmap<span class="w"> </span>daemon<span class="w"> </span>logs<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</code></pre></div>
+<h3 id="options_1">Options<a class="headerlink" href="#options_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--lines, -n INT</code></td>
+<td>Number of log lines to show (default: 50)</td>
+</tr>
+<tr>
+<td><code>--follow, -f</code></td>
+<td>Follow log output continuously (like <code>tail -f</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="examples_1">Examples<a class="headerlink" href="#examples_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># View last 50 lines</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>gitmap<span class="w"> </span>daemon<span class="w"> </span>logs
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># View last 100 lines</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>gitmap<span class="w"> </span>daemon<span class="w"> </span>logs<span class="w"> </span>--lines<span class="w"> </span><span class="m">100</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># Follow live log output</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>gitmap<span class="w"> </span>daemon<span class="w"> </span>logs<span class="w"> </span>--follow
+</code></pre></div>
+<hr />
+<h2 id="daemon-state-files">Daemon State Files<a class="headerlink" href="#daemon-state-files" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>~/.gitmap-daemon/daemon.pid</code></td>
+<td>Running process PID</td>
+</tr>
+<tr>
+<td><code>~/.gitmap-daemon/config.json</code></td>
+<td>Active daemon configuration</td>
+</tr>
+<tr>
+<td><code>~/.gitmap-daemon/daemon.log</code></td>
+<td>Log output from all runs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="alternatives">Alternatives<a class="headerlink" href="#alternatives" title="Permanent link">&para;</a></h2>
+<p>For simple scheduled sync without a persistent daemon, use cron directly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Every hour</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="m">0</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/path/to/project<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>gitmap<span class="w"> </span>auto-pull<span class="w"> </span>--auto-commit
+</code></pre></div>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../auto-pull/"><code>gitmap auto-pull</code></a> — run a one-shot sync</li>
+<li><a href="../setup-repos/"><code>gitmap setup-repos</code></a> — bulk clone Portal maps</li>
+</ul>
 
 
 

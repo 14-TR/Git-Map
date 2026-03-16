@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://14-tr.github.io/Git-Map/commands/diff/">
+        <link rel="canonical" href="https://14-tr.github.io/Git-Map/commands/cherry-pick/">
       
       
-        <link rel="prev" href="../cherry-pick/">
+        <link rel="prev" href="../checkout/">
       
       
-        <link rel="next" href="../log/">
+        <link rel="next" href="../diff/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>diff - Git-Map</title>
+        <title>cherry-pick - Git-Map</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#gitmap-diff" class="md-skip">
+        <a href="#cherry-pick" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              diff
+              cherry-pick
             
           </span>
         </div>
@@ -793,34 +793,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../cherry-pick/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    cherry-pick
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -840,7 +812,7 @@
   <span class="md-ellipsis">
     
   
-    diff
+    cherry-pick
   
 
     
@@ -858,7 +830,7 @@
   <span class="md-ellipsis">
     
   
-    diff
+    cherry-pick
   
 
     
@@ -884,10 +856,32 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
+  <a href="#synopsis" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Usage
+        Synopsis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
       
     </span>
   </a>
@@ -917,10 +911,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#output" class="md-nav__link">
+  <a href="#workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Output
+        Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
       
     </span>
   </a>
@@ -931,6 +947,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diff/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    diff
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1534,10 +1578,32 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
+  <a href="#synopsis" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Usage
+        Synopsis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
       
     </span>
   </a>
@@ -1567,10 +1633,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#output" class="md-nav__link">
+  <a href="#workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Output
+        Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
       
     </span>
   </a>
@@ -1597,11 +1685,29 @@
   
 
 
-<h1 id="gitmap-diff">gitmap diff<a class="headerlink" href="#gitmap-diff" title="Permanent link">&para;</a></h1>
-<p>Show changes between the current index and the last commit, or between two commits.</p>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gitmap<span class="w"> </span>diff<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+<h1 id="cherry-pick">cherry-pick<a class="headerlink" href="#cherry-pick" title="Permanent link">&para;</a></h1>
+<p>Apply changes from a specific commit to the current branch.</p>
+<h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gitmap<span class="w"> </span>cherry-pick<span class="w"> </span>&lt;COMMIT_HASH&gt;<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </code></pre></div>
+<h2 id="description">Description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
+<p><code>cherry-pick</code> creates a new commit on the current branch that contains the same map state as the specified source commit. The new commit gets a fresh ID and timestamp, but carries over the message, author, and map data from the source.</p>
+<p>This is useful for selectively applying a change from one branch to another without merging the entire branch history.</p>
+<h2 id="arguments">Arguments<a class="headerlink" href="#arguments" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>COMMIT_HASH</code></td>
+<td>SHA of the commit to cherry-pick (required)</td>
+</tr>
+</tbody>
+</table>
 <h2 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1612,25 +1718,45 @@
 </thead>
 <tbody>
 <tr>
-<td><code>--commit</code></td>
-<td>Compare a specific commit against its parent</td>
+<td><code>--rationale, -r TEXT</code></td>
+<td>Optional explanation for the cherry-pick</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show help and exit</td>
 </tr>
 </tbody>
 </table>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Diff index vs HEAD</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>gitmap<span class="w"> </span>diff
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Apply a specific commit to the current branch</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>gitmap<span class="w"> </span>cherry-pick<span class="w"> </span>abc12345
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Diff a specific commit</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>gitmap<span class="w"> </span>diff<span class="w"> </span>--commit<span class="w"> </span>a3f2c1b0
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Cherry-pick with a rationale</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>gitmap<span class="w"> </span>cherry-pick<span class="w"> </span>abc12345<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;Backporting critical layer visibility fix to hotfix branch&quot;</span>
 </code></pre></div>
-<h2 id="output">Output<a class="headerlink" href="#output" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Diff: index → a3f2c1b0
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  + layer &quot;Flood Zones&quot;      (added)
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  ~ layer &quot;Parcels&quot;          symbology changed
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  - layer &quot;Old Boundaries&quot;   (removed)
+<h2 id="workflow">Workflow<a class="headerlink" href="#workflow" title="Permanent link">&para;</a></h2>
+<p>Cherry-pick is most useful when you need to apply a single targeted change across branches:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># You&#39;re on main; a fix was made on feature/symbology</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>gitmap<span class="w"> </span>log<span class="w"> </span>--branch<span class="w"> </span>feature/symbology<span class="w"> </span>--oneline
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># a1b2c3d4 Fix layer opacity for print view</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1"># Apply just that fix to main</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>gitmap<span class="w"> </span>cherry-pick<span class="w"> </span>a1b2c3d4
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1"># Verify it was applied</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>gitmap<span class="w"> </span>log<span class="w"> </span>--oneline
 </code></pre></div>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>If you have uncommitted changes when running <code>cherry-pick</code>, you will be prompted to confirm before continuing.</li>
+<li>Use <code>gitmap log --oneline</code> or <code>gitmap log --graph</code> to find commit hashes.</li>
+</ul>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../merge/"><code>gitmap merge</code></a> — merge an entire branch</li>
+<li><a href="../log/"><code>gitmap log</code></a> — find commit hashes</li>
+<li><a href="../revert/"><code>gitmap revert</code></a> — undo a commit</li>
+</ul>
 
 
 
