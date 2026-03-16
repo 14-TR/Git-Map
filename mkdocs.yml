@@ -46,6 +46,7 @@ nav:
     - commit: commands/commit.md
     - branch: commands/branch.md
     - checkout: commands/checkout.md
+    - cherry-pick: commands/cherry-pick.md
     - diff: commands/diff.md
     - log: commands/log.md
     - show: commands/show.md
@@ -55,6 +56,12 @@ nav:
     - revert: commands/revert.md
     - stash: commands/stash.md
     - tag: commands/tag.md
+    - config: commands/config.md
+    - context: commands/context.md
+    - notify: commands/notify.md
+    - auto-pull: commands/auto-pull.md
+    - setup-repos: commands/setup-repos.md
+    - daemon: commands/daemon.md
   - Guides:
     - Day-to-Day Workflow: guides/workflow.md
     - Branching Strategy: guides/branching.md

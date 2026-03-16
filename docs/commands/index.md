@@ -21,6 +21,13 @@ Git-Map provides a Git-inspired CLI for managing web map versions.
 | [`revert`](revert.md) | Revert to a previous commit |
 | [`stash`](stash.md) | Stash uncommitted changes temporarily |
 | [`tag`](tag.md) | Create or list version tags |
+| [`cherry-pick`](cherry-pick.md) | Apply a specific commit to the current branch |
+| [`config`](config.md) | View or update repository configuration |
+| [`context`](context.md) | Visualize the event history graph |
+| [`notify`](notify.md) | Send notifications to Portal group members |
+| [`auto-pull`](auto-pull.md) | Sync all repositories with Portal |
+| [`setup-repos`](setup-repos.md) | Bulk clone Portal maps into a directory |
+| [`daemon`](daemon.md) | Manage the background auto-pull daemon |
 
 ## Global Options
 
