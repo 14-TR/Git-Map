@@ -42,6 +42,7 @@ nav:
     - Overview: commands/index.md
     - init: commands/init.md
     - clone: commands/clone.md
+    - list: commands/list.md
     - status: commands/status.md
     - commit: commands/commit.md
     - branch: commands/branch.md
@@ -51,11 +52,13 @@ nav:
     - log: commands/log.md
     - show: commands/show.md
     - merge: commands/merge.md
+    - merge-from: commands/merge-from.md
     - push: commands/push.md
     - pull: commands/pull.md
     - revert: commands/revert.md
     - stash: commands/stash.md
     - tag: commands/tag.md
+    - lsm: commands/lsm.md
     - config: commands/config.md
     - context: commands/context.md
     - notify: commands/notify.md
