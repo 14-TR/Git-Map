@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://14-tr.github.io/Git-Map/guides/branching/">
+        <link rel="canonical" href="https://14-tr.github.io/Git-Map/commands/merge-from/">
       
       
-        <link rel="prev" href="../workflow/">
+        <link rel="prev" href="../merge/">
       
       
-        <link rel="next" href="../portals/">
+        <link rel="next" href="../push/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Branching Strategy - Git-Map</title>
+        <title>merge-from - Git-Map</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#branching-strategy" class="md-skip">
+        <a href="#gitmap-merge-from" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Branching Strategy
+              merge-from
             
           </span>
         </div>
@@ -262,11 +262,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../commands/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -282,13 +284,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../workflow/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../guides/workflow/" class="md-tabs__link">
           
   
   
@@ -540,28 +540,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -579,7 +582,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -597,7 +600,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../commands/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -625,7 +628,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../commands/init/" class="md-nav__link">
+      <a href="../init/" class="md-nav__link">
         
   
   
@@ -653,7 +656,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../commands/clone/" class="md-nav__link">
+      <a href="../clone/" class="md-nav__link">
         
   
   
@@ -681,7 +684,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../commands/list/" class="md-nav__link">
+      <a href="../list/" class="md-nav__link">
         
   
   
@@ -709,7 +712,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../commands/status/" class="md-nav__link">
+      <a href="../status/" class="md-nav__link">
         
   
   
@@ -737,7 +740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../commands/commit/" class="md-nav__link">
+      <a href="../commit/" class="md-nav__link">
         
   
   
@@ -765,7 +768,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../commands/branch/" class="md-nav__link">
+      <a href="../branch/" class="md-nav__link">
         
   
   
@@ -793,7 +796,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../commands/checkout/" class="md-nav__link">
+      <a href="../checkout/" class="md-nav__link">
         
   
   
@@ -821,7 +824,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../commands/cherry-pick/" class="md-nav__link">
+      <a href="../cherry-pick/" class="md-nav__link">
         
   
   
@@ -849,7 +852,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../commands/diff/" class="md-nav__link">
+      <a href="../diff/" class="md-nav__link">
         
   
   
@@ -877,7 +880,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../commands/log/" class="md-nav__link">
+      <a href="../log/" class="md-nav__link">
         
   
   
@@ -905,7 +908,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../commands/show/" class="md-nav__link">
+      <a href="../show/" class="md-nav__link">
         
   
   
@@ -933,7 +936,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../commands/merge/" class="md-nav__link">
+      <a href="../merge/" class="md-nav__link">
         
   
   
@@ -941,462 +944,6 @@
     
   
     merge
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../commands/merge-from/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    merge-from
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../commands/push/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    push
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../commands/pull/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    pull
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../commands/revert/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    revert
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../commands/stash/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    stash
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../commands/tag/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    tag
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../commands/lsm/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    lsm
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../commands/config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    config
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../commands/context/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    context
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../commands/notify/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    notify
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../commands/auto-pull/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    auto-pull
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../commands/setup-repos/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    setup-repos
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../commands/daemon/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    daemon
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-      
-        
-        
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Guides
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Guides
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workflow/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Day-to-Day Workflow
   
 
     
@@ -1433,7 +980,7 @@
   <span class="md-ellipsis">
     
   
-    Branching Strategy
+    merge-from
   
 
     
@@ -1451,7 +998,7 @@
   <span class="md-ellipsis">
     
   
-    Branching Strategy
+    merge-from
   
 
     
@@ -1477,10 +1024,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#recommended-branch-layout" class="md-nav__link">
+  <a href="#usage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Recommended Branch Layout
+        Usage
       
     </span>
   </a>
@@ -1488,10 +1035,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#flow" class="md-nav__link">
+  <a href="#arguments" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Flow
+        Arguments
       
     </span>
   </a>
@@ -1499,10 +1046,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#naming-conventions" class="md-nav__link">
+  <a href="#options" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Naming Conventions
+        Options
       
     </span>
   </a>
@@ -1510,10 +1057,54 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tips" class="md-nav__link">
+  <a href="#examples" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Tips
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conflict-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conflict Resolution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auto-commit-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auto-Commit Behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-repository-merges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-Repository Merges
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Commands
       
     </span>
   </a>
@@ -1536,7 +1127,460 @@
   
   
     <li class="md-nav__item">
-      <a href="../portals/" class="md-nav__link">
+      <a href="../push/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    push
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pull/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pull
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../revert/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    revert
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stash/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    stash
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tag
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lsm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    lsm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    config
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../context/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    context
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notify/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    notify
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../auto-pull/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    auto-pull
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setup-repos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    setup-repos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../daemon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    daemon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Day-to-Day Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/branching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Branching Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/portals/" class="md-nav__link">
         
   
   
@@ -1618,10 +1662,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#recommended-branch-layout" class="md-nav__link">
+  <a href="#usage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Recommended Branch Layout
+        Usage
       
     </span>
   </a>
@@ -1629,10 +1673,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#flow" class="md-nav__link">
+  <a href="#arguments" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Flow
+        Arguments
       
     </span>
   </a>
@@ -1640,10 +1684,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#naming-conventions" class="md-nav__link">
+  <a href="#options" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Naming Conventions
+        Options
       
     </span>
   </a>
@@ -1651,10 +1695,54 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tips" class="md-nav__link">
+  <a href="#examples" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Tips
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conflict-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conflict Resolution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#auto-commit-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auto-Commit Behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-repository-merges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-Repository Merges
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Commands
       
     </span>
   </a>
@@ -1681,56 +1769,98 @@
   
 
 
-<h1 id="branching-strategy">Branching Strategy<a class="headerlink" href="#branching-strategy" title="Permanent link">&para;</a></h1>
-<p>Git-Map branches are lightweight — create as many as you need. This guide suggests a strategy that works well for most teams.</p>
-<h2 id="recommended-branch-layout">Recommended Branch Layout<a class="headerlink" href="#recommended-branch-layout" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>main          ← production (always deployable)
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>staging       ← QA / client review
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>feature/*     ← individual changes
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>hotfix/*      ← urgent production fixes
+<h1 id="gitmap-merge-from">gitmap merge-from<a class="headerlink" href="#gitmap-merge-from" title="Permanent link">&para;</a></h1>
+<p>Merge a branch from another GitMap repository into the current branch.</p>
+<p>The <code>merge-from</code> command enables <strong>cross-repository merges</strong> — it reads map data from a branch in a different local GitMap repository and merges it into the current repository's active branch. This is useful when you maintain a "master" or "template" repository and want to pull its changes into project-specific repositories.</p>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gitmap<span class="w"> </span>merge-from<span class="w"> </span>SOURCE_REPO<span class="w"> </span>SOURCE_BRANCH<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </code></pre></div>
-<h2 id="flow">Flow<a class="headerlink" href="#flow" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>feature/x  →  staging  →  main
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>hotfix/y                →  main
-</code></pre></div>
-<ol>
-<li>Create a <code>feature/</code> branch for each change.</li>
-<li>Merge to <code>staging</code> for review/QA.</li>
-<li>Merge <code>staging</code> to <code>main</code> and push to production.</li>
-<li>For urgent fixes, branch from <code>main</code> as <code>hotfix/</code>, fix, merge directly to <code>main</code>.</li>
-</ol>
-<h2 id="naming-conventions">Naming Conventions<a class="headerlink" href="#naming-conventions" title="Permanent link">&para;</a></h2>
+<h2 id="arguments">Arguments<a class="headerlink" href="#arguments" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Prefix</th>
-<th>Use Case</th>
+<th>Argument</th>
+<th>Required</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>feature/</code></td>
-<td>New layers, symbology changes, data updates</td>
+<td><code>SOURCE_REPO</code></td>
+<td>Yes</td>
+<td>Path to the source GitMap repository directory</td>
 </tr>
 <tr>
-<td><code>hotfix/</code></td>
-<td>Urgent production fixes</td>
-</tr>
-<tr>
-<td><code>experiment/</code></td>
-<td>Risky changes you might not keep</td>
-</tr>
-<tr>
-<td><code>archive/</code></td>
-<td>Preserved state of a historical map version</td>
+<td><code>SOURCE_BRANCH</code></td>
+<td>Yes</td>
+<td>Branch name to merge from the source repository</td>
 </tr>
 </tbody>
 </table>
-<h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">&para;</a></h2>
+<h2 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--no-commit</code></td>
+<td>Perform the merge but don't automatically create a commit</td>
+</tr>
+</tbody>
+</table>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Merge &#39;main&#39; from a master repo into the current branch</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>gitmap<span class="w"> </span>merge-from<span class="w"> </span>/path/to/master-repo<span class="w"> </span>main
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Merge a specific branch, then commit manually</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>gitmap<span class="w"> </span>merge-from<span class="w"> </span>../template-repo<span class="w"> </span><span class="m">2</span>.1<span class="w"> </span>--no-commit
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Merge from a sibling directory</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>gitmap<span class="w"> </span>merge-from<span class="w"> </span>../feature-map<span class="w"> </span>feature/new-layer
+</code></pre></div>
+<h2 id="conflict-resolution">Conflict Resolution<a class="headerlink" href="#conflict-resolution" title="Permanent link">&para;</a></h2>
+<p>If the merge produces conflicts (layers that differ in both repositories), <code>merge-from</code> will prompt you to resolve each one interactively:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Merge Conflicts
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  Layers: 2
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  Tables: 1
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>Table Conflicts (1):
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  Tables will be resolved together.
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>  Resolve all tables with [ours/theirs/skip] (theirs):
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>Layer Conflicts (2):
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>Conflict in layer: Parcels
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>  Layer ID: abc123
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>  Resolve with [ours/theirs/skip] (skip): theirs
+</code></pre></div>
+<p>For each conflict you choose:
+- <strong>ours</strong> — keep the version from the current repository
+- <strong>theirs</strong> — take the version from the source repository
+- <strong>skip</strong> — leave the conflict unresolved (merge will not be applied)</p>
+<p>If any conflicts remain unresolved, the merge is aborted and the index is not modified.</p>
+<h2 id="auto-commit-behavior">Auto-Commit Behavior<a class="headerlink" href="#auto-commit-behavior" title="Permanent link">&para;</a></h2>
+<p>By default, <code>merge-from</code> creates a merge commit automatically:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Merge commit: a3f2c1b0
+</code></pre></div>
+<p>The commit message format is:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Merge &#39;&lt;source_branch&gt;&#39; from &lt;source_repo_name&gt; into &#39;&lt;current_branch&gt;&#39;
+</code></pre></div></p>
+<p>Use <code>--no-commit</code> to stage the merge result without committing:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>gitmap<span class="w"> </span>merge-from<span class="w"> </span>../master-repo<span class="w"> </span>main<span class="w"> </span>--no-commit
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>gitmap<span class="w"> </span>diff<span class="w">          </span><span class="c1"># Review what changed</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>gitmap<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Merged latest template from master repo&quot;</span>
+</code></pre></div>
+<h2 id="cross-repository-merges">Cross-Repository Merges<a class="headerlink" href="#cross-repository-merges" title="Permanent link">&para;</a></h2>
+<p>Unlike <code>gitmap merge</code> (which merges branches within the same repository), <code>merge-from</code> works across separate <code>.gitmap/</code> repositories on disk. There is no shared commit history between the two repos, so all conflicts are resolved by choosing one side or the other — there is no three-way merge ancestor.</p>
+<h2 id="related-commands">Related Commands<a class="headerlink" href="#related-commands" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Keep branches short-lived — merge and delete when done.</li>
-<li>Use <code>gitmap stash</code> to quickly save work-in-progress before switching branches.</li>
-<li>Tag stable states before major changes: <code>gitmap tag pre-overhaul</code>.</li>
+<li><a href="../merge/"><code>gitmap merge</code></a> — Merge branches within the same repository</li>
+<li><a href="../diff/"><code>gitmap diff</code></a> — Compare map states before merging</li>
+<li><a href="../lsm/"><code>gitmap lsm</code></a> — Transfer only popup/form settings between maps</li>
 </ul>
 
 
