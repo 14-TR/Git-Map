@@ -1535,10 +1535,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
+  <a href="#ways-to-contribute" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Setup
+        Ways to Contribute
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dev-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dev Setup
       
     </span>
   </a>
@@ -1557,10 +1568,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#structure" class="md-nav__link">
+  <a href="#project-structure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structure
+        Project Structure
       
     </span>
   </a>
@@ -1579,10 +1590,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#code-style" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Style
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#docs" class="md-nav__link">
     <span class="md-ellipsis">
       
         Docs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-of-conduct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code of Conduct
       
     </span>
   </a>
@@ -1635,10 +1668,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
+  <a href="#ways-to-contribute" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Setup
+        Ways to Contribute
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dev-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dev Setup
       
     </span>
   </a>
@@ -1657,10 +1701,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#structure" class="md-nav__link">
+  <a href="#project-structure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structure
+        Project Structure
       
     </span>
   </a>
@@ -1679,10 +1723,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#code-style" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Style
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#docs" class="md-nav__link">
     <span class="md-ellipsis">
       
         Docs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-of-conduct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code of Conduct
       
     </span>
   </a>
@@ -1721,42 +1787,66 @@
 
 
 <h1 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h1>
-<p>Git-Map is open-source (MIT). Contributions are welcome!</p>
-<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<p>Git-Map is open-source (MIT). Contributions are welcome from everyone — whether you're a GIS professional, Python developer, or just someone with a good idea.</p>
+<h2 id="ways-to-contribute">Ways to Contribute<a class="headerlink" href="#ways-to-contribute" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Report bugs</strong> — use the <a href="https://github.com/14-TR/Git-Map/issues/new?template=bug_report.yml">Bug Report issue template</a></li>
+<li><strong>Request features</strong> — use the <a href="https://github.com/14-TR/Git-Map/issues/new?template=feature_request.yml">Feature Request template</a></li>
+<li><strong>Fix bugs</strong> — check <a href="https://github.com/14-TR/Git-Map/issues?q=is%3Aopen+label%3Abug">open issues labeled <code>bug</code></a></li>
+<li><strong>Improve docs</strong> — every page has an edit link at the top</li>
+<li><strong>Add tests</strong> — the test suite is at <code>packages/gitmap_core/tests/</code></li>
+</ul>
+<h2 id="dev-setup">Dev Setup<a class="headerlink" href="#dev-setup" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/14-TR/Git-Map.git
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>Git-Map
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate<span class="w">  </span><span class="c1"># Windows: .venv\Scripts\activate</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;packages/gitmap_core[dev]&quot;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>pip<span class="w"> </span>install<span class="w"> </span>click<span class="w"> </span>rich
 </code></pre></div>
 <h2 id="running-tests">Running Tests<a class="headerlink" href="#running-tests" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pytest<span class="w"> </span>packages/gitmap_core/tests<span class="w"> </span>-v
 </code></pre></div>
-<p>All 663+ tests must pass before opening a PR.</p>
-<h2 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h2>
+<p>All 716+ tests must pass before opening a PR. The CI pipeline runs the same suite on Python 3.11, 3.12, and 3.13.</p>
+<h2 id="project-structure">Project Structure<a class="headerlink" href="#project-structure" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Git-Map/
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── packages/
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│   └── gitmap_core/    # Core library (version-controlled here)
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>├── apps/
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>│   ├── cli/            # gitmap CLI
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│   ├── mcp/            # MCP server
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>│   └── client/         # GUI client
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>├── integrations/       # OpenClaw and other integrations
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>└── docs/               # This documentation site
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│   └── gitmap_core/        # Core library — version control engine
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>│       └── tests/          # 716+ tests live here
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>├── apps/
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│   ├── cli/gitmap/         # `gitmap` CLI (Click + Rich)
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>│   ├── mcp/                # MCP server for AI agent integration
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│   └── client/             # GUI client (WIP)
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>├── integrations/           # OpenClaw and other integrations
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>├── docs/                   # This documentation site (MkDocs Material)
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>└── .github/
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    ├── workflows/          # CI, docs deploy, PyPI publish
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    └── ISSUE_TEMPLATE/     # Bug + feature templates
 </code></pre></div>
 <h2 id="making-changes">Making Changes<a class="headerlink" href="#making-changes" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Fork the repo and create a <code>feature/</code> branch.</li>
-<li>Write tests for new functionality.</li>
-<li>Ensure all tests pass.</li>
-<li>Open a PR with a clear description of what changed and why.</li>
+<li>Fork the repo and create a <code>feature/</code> branch from <code>main</code>.</li>
+<li>Write tests for any new functionality.</li>
+<li>Ensure all tests pass locally.</li>
+<li>Open a PR — the <a href=".github/PULL_REQUEST_TEMPLATE.md">PR template</a> will guide you.</li>
 </ol>
+<h2 id="code-style">Code Style<a class="headerlink" href="#code-style" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Formatter:</strong> <a href="https://docs.astral.sh/ruff/">ruff</a> (included in dev deps)</li>
+<li><strong>Type hints:</strong> use them; the codebase is progressively typed</li>
+<li><strong>Docstrings:</strong> Google style for public functions/classes</li>
+</ul>
+<p>Run the linter:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ruff<span class="w"> </span>check<span class="w"> </span>packages/gitmap_core
+</code></pre></div>
 <h2 id="docs">Docs<a class="headerlink" href="#docs" title="Permanent link">&para;</a></h2>
-<p>This site is built with <a href="https://squidfunk.github.io/mkdocs-material/">MkDocs Material</a>. To preview locally:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span>mkdocs-material
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>mkdocs<span class="w"> </span>serve
+<p>The site is built with <a href="https://squidfunk.github.io/mkdocs-material/">MkDocs Material</a>. Preview locally:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>mkdocs-material
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>mkdocs<span class="w"> </span>serve
 </code></pre></div>
 <p>Then open <code>http://127.0.0.1:8000</code>.</p>
+<h2 id="code-of-conduct">Code of Conduct<a class="headerlink" href="#code-of-conduct" title="Permanent link">&para;</a></h2>
+<p>Please read <a href="https://github.com/14-TR/Git-Map/blob/main/CODE_OF_CONDUCT.md">CODE_OF_CONDUCT.md</a> before participating. We follow the Contributor Covenant.</p>
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
 <p>MIT — see <a href="https://github.com/14-TR/Git-Map/blob/main/LICENSE">LICENSE</a>.</p>
 
