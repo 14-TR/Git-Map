@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://14-tr.github.io/Git-Map
+    about: Read the docs first — your question may already be answered.
+  - name: Discussions
+    url: https://github.com/14-TR/Git-Map/discussions
+    about: Questions, ideas, or general help go here.
