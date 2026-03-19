@@ -35,6 +35,7 @@ from gitmap_cli.commands.diff import diff
 from gitmap_cli.commands.init import init
 from gitmap_cli.commands.list import list_maps
 from gitmap_cli.commands.log import log
+from gitmap_cli.commands.show import show
 from gitmap_cli.commands.merge import merge
 from gitmap_cli.commands.notify import notify
 from gitmap_cli.commands.pull import pull
@@ -67,8 +68,53 @@ merge_from = _merge_from_module.merge_from
 
 # ---- CLI Group ----------------------------------------------------------------------------------------------
 
+# ---- Grouped Help ------------------------------------------------------------------------------------------
 
-@click.group()
+
+class GitMapGroup(click.Group):
+    """click.Group subclass that renders commands in logical sections."""
+
+    SECTIONS = [
+        ("Repository", ["init", "clone", "status"]),
+        ("Branches", ["branch", "checkout"]),
+        ("History", ["commit", "log", "show", "diff", "revert", "cherry-pick"]),
+        ("Sync with Portal", ["push", "pull", "list"]),
+        ("Merge & Stash", ["merge", "merge-from", "stash", "tag"]),
+        ("Config & Automation", ["config", "context", "notify", "auto-pull", "setup-repos", "daemon"]),
+        ("Advanced", ["lsm"]),
+    ]
+
+    def format_commands(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
+        """Render commands grouped by section."""
+        # Build lookup of name -> command
+        commands = {}
+        for name in self.list_commands(ctx):
+            cmd = self.get_command(ctx, name)
+            if cmd and not cmd.hidden:
+                commands[name] = cmd
+
+        # Collect known names
+        known = {n for section in self.SECTIONS for n in section[1]}
+        ungrouped = [n for n in sorted(commands.keys()) if n not in known]
+
+        sections_to_render = list(self.SECTIONS)
+        if ungrouped:
+            sections_to_render.append(("Other", ungrouped))
+
+        for section_name, names in sections_to_render:
+            rows = []
+            for name in names:
+                if name in commands:
+                    cmd = commands[name]
+                    help_text = cmd.get_short_help_str(limit=formatter.width)
+                    rows.append((name, help_text))
+            if rows:
+                with formatter.section(section_name):
+                    formatter.write_dl(rows)
+
+
+
+@click.group(cls=GitMapGroup)
 @click.version_option(version="0.6.0", prog_name="gitmap")
 def cli() -> None:
     """GitMap - Version control for ArcGIS web maps.
@@ -103,6 +149,7 @@ cli.add_command(notify)
 cli.add_command(push)
 cli.add_command(pull)
 cli.add_command(revert)
+cli.add_command(show)
 cli.add_command(stash)
 cli.add_command(tag)
 cli.add_command(auto_pull, name="auto-pull")

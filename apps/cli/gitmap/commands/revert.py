@@ -67,7 +67,10 @@ def revert(
         # Get commit info for display
         commit_to_revert = repo.get_commit(commit_hash)
         if not commit_to_revert:
-            raise click.ClickException(f"Commit '{commit_hash}' not found")
+            raise click.ClickException(
+                f"Commit '{commit_hash}' not found.\n"
+                "  Hint: use 'gitmap log --oneline' to list commits."
+            )
 
         # Display what we're reverting
         console.print(f"[dim]Reverting commit {commit_hash[:8]}...[/dim]")

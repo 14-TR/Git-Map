@@ -176,7 +176,7 @@ def _print_diff(
 # ---- Diff Command -------------------------------------------------------------------------------------------
 
 
-@click.command()
+@click.command(epilog="Tip: use --format visual for a Rich table view of changes.")
 @click.argument(
     "source",
     required=False,

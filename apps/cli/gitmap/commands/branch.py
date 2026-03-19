@@ -124,7 +124,11 @@ def branch(
             return
 
         if not name:
-            raise click.ClickException("Branch name required")
+            raise click.ClickException(
+                "Branch name required.\n"
+                "  Usage: gitmap branch <name>\n"
+                "  Hint:  gitmap branch -l  to list existing branches"
+            )
 
         # Delete branch
         if delete:
