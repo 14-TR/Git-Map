@@ -235,7 +235,10 @@ def merge(
         merge_commit_id = None
         if not no_commit:
             commit_msg = f"Merge branch '{branch}' into '{current_branch}'"
-            new_commit = repo.create_commit(message=commit_msg)
+            new_commit = repo.create_commit(
+                message=commit_msg,
+                parent2=their_commit_id,  # Record second parent for merge commit graph
+            )
             merge_commit_id = new_commit.id
 
             console.print()

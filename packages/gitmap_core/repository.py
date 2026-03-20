@@ -563,6 +563,7 @@ class Repository:
             message: str,
             author: str | None = None,
             rationale: str | None = None,
+            parent2: str | None = None,
     ) -> Commit:
         """Create a new commit from current index.
 
@@ -570,6 +571,7 @@ class Repository:
             message: Commit message.
             author: Author name (uses config if not provided).
             rationale: Optional rationale explaining why this change was made.
+            parent2: Second parent commit ID for merge commits.
 
         Returns:
             Created Commit object.
@@ -596,6 +598,7 @@ class Repository:
                 message=message,
                 author=author,
                 parent=parent,
+                parent2=parent2,
                 map_data=map_data,
             )
 
@@ -619,7 +622,7 @@ class Repository:
                         payload={
                             "message": message,
                             "parent": parent,
-                            "parent2": None,
+                            "parent2": parent2,
                             "layers_count": layers_count,
                             "branch": branch,  # Track which branch the commit was made on
                         },
