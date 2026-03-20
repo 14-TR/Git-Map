@@ -293,3 +293,164 @@ class TestBuildGraph:
         assert len(feature_nodes) == 1
         labels = feature_nodes[0].labels
         assert any("feature/my-work" in lbl for lbl in labels)
+
+
+# ---- Merge commit graph (parent2) tests -----------------------------------------------------------------------
+
+
+class TestMergeCommitGraph:
+    """Tests for graph rendering when merge commits have two parents (parent2).
+
+    These tests exercise the parent2 code paths in _collect_commits,
+    _topological_sort, and build_graph that were previously untested.
+    """
+
+    def test_collect_commits_traverses_parent2(self, repo, map_a, map_b, map_c):
+        """_collect_commits must walk parent2 when collecting merge commits."""
+        # Create common base
+        repo.update_index(map_a)
+        c_base = repo.create_commit("Base", author="Tester")
+
+        # Create feature branch commit
+        repo.create_branch("feature/x")
+        repo.checkout_branch("feature/x")
+        repo.update_index(map_b)
+        c_feature = repo.create_commit("Feature work", author="Tester")
+
+        # Return to main, make a commit, then a merge commit
+        repo.checkout_branch("main")
+        repo.update_index(map_c)
+        c_main = repo.create_commit("Main work", author="Tester")
+
+        # Simulate merge: create commit with parent2 pointing to feature tip
+        repo.update_index({**map_c, "operationalLayers": map_c["operationalLayers"] + map_b["operationalLayers"]})
+        c_merge = repo.create_commit("Merge feature/x into main", author="Tester", parent2=c_feature.id)
+
+        all_commits, labels = _collect_commits(repo, limit=20)
+
+        # All 4 commits should be reachable
+        assert c_base.id in all_commits
+        assert c_feature.id in all_commits
+        assert c_main.id in all_commits
+        assert c_merge.id in all_commits
+
+    def test_topological_sort_handles_merge_commit(self, repo, map_a, map_b, map_c):
+        """_topological_sort must process merge commits with parent2 correctly."""
+        repo.update_index(map_a)
+        c_base = repo.create_commit("Base", author="Tester")
+
+        repo.create_branch("feature/x")
+        repo.checkout_branch("feature/x")
+        repo.update_index(map_b)
+        c_feature = repo.create_commit("Feature", author="Tester")
+
+        repo.checkout_branch("main")
+        repo.update_index(map_c)
+        repo.create_commit("Main", author="Tester")
+
+        repo.update_index(map_a)
+        c_merge = repo.create_commit("Merge", author="Tester", parent2=c_feature.id)
+
+        all_commits, _ = _collect_commits(repo, limit=20)
+        result = _topological_sort(all_commits)
+
+        ids = [c.id for c in result]
+        # Merge commit must come before its parents
+        assert ids.index(c_merge.id) < ids.index(c_base.id)
+        # All commits present
+        assert len(result) == len(all_commits)
+
+    def test_build_graph_merge_commit_has_connector_lines(self, repo, map_a, map_b, map_c):
+        """build_graph must produce connector lines for a merge commit with parent2."""
+        repo.update_index(map_a)
+        repo.create_commit("Base", author="Tester")
+
+        repo.create_branch("feature/x")
+        repo.checkout_branch("feature/x")
+        repo.update_index(map_b)
+        c_feature = repo.create_commit("Feature", author="Tester")
+
+        repo.checkout_branch("main")
+        repo.update_index(map_c)
+        repo.create_commit("Main", author="Tester")
+
+        # Merge commit links main and feature
+        repo.update_index(map_a)
+        c_merge = repo.create_commit("Merge feature/x", author="Tester", parent2=c_feature.id)
+
+        nodes = build_graph(repo, limit=20)
+
+        # The merge node must exist
+        merge_nodes = [n for n in nodes if n.commit.id == c_merge.id]
+        assert len(merge_nodes) == 1
+        merge_node = merge_nodes[0]
+
+        # A merge commit with parent2 must produce connector lines (the |\ decoration)
+        assert len(merge_node.connector_lines) > 0
+        connector = merge_node.connector_lines[0]
+        assert "\\" in connector
+
+    def test_build_graph_merge_commit_uses_two_lanes(self, repo, map_a, map_b, map_c):
+        """Graph must use at least two lanes when a merge commit has two parents."""
+        repo.update_index(map_a)
+        repo.create_commit("Base", author="Tester")
+
+        repo.create_branch("feature/y")
+        repo.checkout_branch("feature/y")
+        repo.update_index(map_b)
+        c_feature = repo.create_commit("Feature Y", author="Tester")
+
+        repo.checkout_branch("main")
+        repo.update_index(map_c)
+        repo.create_commit("Main ahead", author="Tester")
+
+        repo.update_index(map_a)
+        repo.create_commit("Merge feature/y", author="Tester", parent2=c_feature.id)
+
+        nodes = build_graph(repo, limit=20)
+        lanes_used = {n.lane for n in nodes}
+        assert len(lanes_used) >= 2
+
+    def test_create_commit_stores_parent2(self, repo, map_a, map_b):
+        """repository.create_commit must persist parent2 on the commit object."""
+        repo.update_index(map_a)
+        c1 = repo.create_commit("First", author="Tester")
+
+        repo.create_branch("feature/z")
+        repo.checkout_branch("feature/z")
+        repo.update_index(map_b)
+        c_feature = repo.create_commit("Feature Z", author="Tester")
+
+        repo.checkout_branch("main")
+        repo.update_index(map_a)
+        c_merge = repo.create_commit("Merge", author="Tester", parent2=c_feature.id)
+
+        # Reload from disk to confirm persistence
+        loaded = repo.get_commit(c_merge.id)
+        assert loaded is not None
+        assert loaded.parent2 == c_feature.id
+
+    def test_collect_commits_follows_sub_parent_chain(self, repo, map_a, map_b, map_c):
+        """_collect_commits must walk the entire parent chain off parent2, not just one hop."""
+        repo.update_index(map_a)
+        c_root = repo.create_commit("Root", author="Tester")
+
+        repo.create_branch("feature/deep")
+        repo.checkout_branch("feature/deep")
+        repo.update_index(map_b)
+        c_f1 = repo.create_commit("Feature 1", author="Tester")
+        repo.update_index(map_c)
+        c_f2 = repo.create_commit("Feature 2", author="Tester")
+
+        repo.checkout_branch("main")
+        repo.update_index(map_a)
+        # Merge commit: parent2 is c_f2 (which itself chains to c_f1 and c_root)
+        c_merge = repo.create_commit("Merge deep feature", author="Tester", parent2=c_f2.id)
+
+        all_commits, _ = _collect_commits(repo, limit=20)
+
+        # The full chain through parent2 must be included
+        assert c_root.id in all_commits
+        assert c_f1.id in all_commits
+        assert c_f2.id in all_commits
+        assert c_merge.id in all_commits
