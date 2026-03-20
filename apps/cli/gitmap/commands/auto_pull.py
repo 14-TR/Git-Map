@@ -1,6 +1,6 @@
 """GitMap auto-pull command.
 
-Automatically pulls updates for all bitmap repositories in a directory.
+Automatically pulls updates for all GitMap repositories in a directory.
 Scans for .gitmap repositories and updates them from Portal.
 
 Execution Context:
@@ -42,7 +42,7 @@ console = Console()
     "--directory",
     "-d",
     default="repositories",
-    help="Directory containing bitmap repositories (defaults to 'repositories').",
+    help="Directory containing GitMap repositories (defaults to 'repositories').",
 )
 @click.option(
     "--branch",
@@ -94,7 +94,7 @@ def auto_pull(
         auto_commit: bool,
         commit_message: str,
 ) -> None:
-    """Automatically pull updates for all bitmap repositories.
+    """Automatically pull updates for all GitMap repositories.
 
     Scans a directory for GitMap repositories and pulls the latest changes
     from Portal for each one. Useful for keeping multiple local repositories

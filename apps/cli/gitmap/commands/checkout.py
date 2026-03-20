@@ -87,7 +87,16 @@ def checkout(
             console.print("[dim]Branch has no commits yet[/dim]")
 
     except Exception as checkout_error:
-        msg = f"Checkout failed: {checkout_error}"
+        # Provide more helpful hints for common failures
+        err_str = str(checkout_error)
+        if "not found" in err_str.lower() or "does not exist" in err_str.lower():
+            msg = (
+                f"Branch '{branch}' not found.\n"
+                "  Hint: use 'gitmap branch' to list available branches,\n"
+                "        or 'gitmap checkout -b {branch}' to create it."
+            ).format(branch=branch)
+        else:
+            msg = f"Checkout failed: {checkout_error}"
         raise click.ClickException(msg) from checkout_error
 
 

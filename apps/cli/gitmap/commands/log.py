@@ -99,7 +99,7 @@ def _print_graph(limit: int, oneline: bool, repo) -> None:
 # ---- Log Command --------------------------------------------------------------------------------------------
 
 
-@click.command()
+@click.command(epilog="Tip: use 'gitmap show <commit>' to inspect a commit in detail.")
 @click.option(
     "--limit",
     "-n",

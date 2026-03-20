@@ -108,7 +108,10 @@ def merge(
 
         # Check branch exists
         if branch not in repo.list_branches():
-            raise click.ClickException(f"Branch '{branch}' not found")
+            raise click.ClickException(
+                f"Branch '{branch}' not found.\n"
+                "  Hint: use 'gitmap branch' to list available branches."
+            )
 
         # Get commit data
         our_commit_id = repo.get_branch_commit(current_branch)

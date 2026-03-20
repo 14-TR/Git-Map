@@ -31,7 +31,7 @@ console = Console()
 # ---- Status Command -----------------------------------------------------------------------------------------
 
 
-@click.command()
+@click.command(epilog="Tip: use 'gitmap diff' to see a full breakdown of changes.")
 def status() -> None:
     """Show the working tree status.
 
