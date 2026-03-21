@@ -42,6 +42,7 @@ from gitmap_cli.commands.push import push
 from gitmap_cli.commands.revert import revert
 from gitmap_cli.commands.setup_repos import setup_repos
 from gitmap_cli.commands.stash import stash
+from gitmap_cli.commands.show import show
 from gitmap_cli.commands.status import status
 from gitmap_cli.commands.tag import tag
 
@@ -97,6 +98,7 @@ cli.add_command(diff)
 cli.add_command(layer_settings_merge)
 cli.add_command(list_maps, name="list")
 cli.add_command(log)
+cli.add_command(show)
 cli.add_command(merge)
 cli.add_command(merge_from, name="merge-from")
 cli.add_command(notify)
