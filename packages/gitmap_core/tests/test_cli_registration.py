@@ -19,12 +19,12 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-# Ensure the CLI package is importable
-_cli_app_dir = Path(__file__).parent.parent.parent.parent / "apps" / "cli" / "gitmap"
-if str(_cli_app_dir) not in sys.path:
-    sys.path.insert(0, str(_cli_app_dir))
+# Ensure the CLI package is importable as 'gitmap_cli'
+_cli_parent_dir = Path(__file__).parent.parent.parent.parent / "apps" / "cli"
+if str(_cli_parent_dir) not in sys.path:
+    sys.path.insert(0, str(_cli_parent_dir))
 
-from main import cli  # noqa: E402
+from gitmap_cli.main import cli  # noqa: E402
 
 
 # ---- Fixtures ------------------------------------------------------------------------------------------------
