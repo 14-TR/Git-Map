@@ -20,11 +20,31 @@ import pytest
 from click.testing import CliRunner
 
 # Ensure the CLI package is importable as 'gitmap_cli'
-_cli_parent_dir = Path(__file__).parent.parent.parent.parent / "apps" / "cli"
-if str(_cli_parent_dir) not in sys.path:
-    sys.path.insert(0, str(_cli_parent_dir))
+# The package dir is named 'gitmap' but the package name is 'gitmap_cli' (via pyproject.toml mapping)
+# When not pip-installed, we register it manually as a module alias
+import importlib
+import types
 
-from gitmap_cli.main import cli  # noqa: E402
+_cli_dir = Path(__file__).parent.parent.parent.parent / "apps" / "cli" / "gitmap"
+_cli_commands_dir = _cli_dir / "commands"
+
+if "gitmap_cli" not in sys.modules:
+    # Register gitmap_cli as a package pointing to the gitmap directory
+    _pkg = types.ModuleType("gitmap_cli")
+    _pkg.__path__ = [str(_cli_dir)]
+    _pkg.__package__ = "gitmap_cli"
+    sys.modules["gitmap_cli"] = _pkg
+
+    # Register gitmap_cli.commands subpackage
+    _cmds = types.ModuleType("gitmap_cli.commands")
+    _cmds.__path__ = [str(_cli_commands_dir)]
+    _cmds.__package__ = "gitmap_cli.commands"
+    sys.modules["gitmap_cli.commands"] = _cmds
+
+if str(_cli_dir) not in sys.path:
+    sys.path.insert(0, str(_cli_dir))
+
+from main import cli  # noqa: E402
 
 
 # ---- Fixtures ------------------------------------------------------------------------------------------------
