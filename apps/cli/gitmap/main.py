@@ -22,6 +22,8 @@ from pathlib import Path
 
 import click
 
+from gitmap_cli.help_formatter import GroupedHelpGroup
+
 from gitmap_cli.commands.auto_pull import auto_pull
 from gitmap_cli.commands.branch import branch
 from gitmap_cli.commands.checkout import checkout
