@@ -22,6 +22,8 @@ from pathlib import Path
 
 import click
 
+from gitmap_cli.help_formatter import GroupedHelpGroup
+
 from gitmap_cli.commands.auto_pull import auto_pull
 from gitmap_cli.commands.branch import branch
 from gitmap_cli.commands.checkout import checkout
@@ -69,7 +71,7 @@ merge_from = _merge_from_module.merge_from
 # ---- CLI Group ----------------------------------------------------------------------------------------------
 
 
-@click.group()
+@click.group(cls=GroupedHelpGroup)
 @click.version_option(version="0.6.0", prog_name="gitmap")
 def cli() -> None:
     """GitMap - Version control for ArcGIS web maps.
