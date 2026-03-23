@@ -2,27 +2,44 @@
 
 Get from zero to your first committed map version in under 5 minutes.
 
-## 1. Initialize a Repository
+## Prerequisites
 
-Navigate to a working directory and initialize Git-Map:
-
-```bash
-mkdir my-maps
-cd my-maps
-gitmap init --project-name "My Maps" --user-name "Your Name"
-```
-
-This creates a `.gitmap/` directory that tracks all your map versions.
-
-## 2. Pull a Map from Portal
-
-Authenticate and pull a web map from ArcGIS Online or Portal:
+Make sure you have gitmap installed:
 
 ```bash
-gitmap pull --url https://www.arcgis.com --branch main
+pip install gitmap
+gitmap --version
 ```
 
-Git-Map fetches the map JSON and stages it locally. Nothing is committed yet.
+## 1. Set Up Credentials
+
+Before connecting to Portal, export your credentials:
+
+```bash
+export PORTAL_URL=https://your-org.maps.arcgis.com
+export ARCGIS_USERNAME=your_username
+export ARCGIS_PASSWORD=your_password
+```
+
+Or copy the example env file and edit it:
+
+```bash
+cp configs/env.example .env
+# edit .env with your credentials
+```
+
+## 2. Clone an Existing Map
+
+The quickest way to start is cloning a map directly from Portal:
+
+```bash
+gitmap clone abc123def456
+cd YourMapTitle
+```
+
+Replace `abc123def456` with your web map's item ID (visible in the Portal URL).
+
+This creates a local repository with the map's current state as the initial commit.
 
 ## 3. Check Status
 
@@ -30,21 +47,33 @@ Git-Map fetches the map JSON and stages it locally. Nothing is committed yet.
 gitmap status
 ```
 
-You'll see something like:
+Expected output:
 
 ```
 ╭─ GitMap Status ─╮
 │ On branch: main │
 ╰─────────────────╯
-Changes not committed:
-  Staged map with 4 layer(s)
-Use "gitmap commit -m <message>" to commit changes
+Nothing to commit, working tree clean
 ```
 
-## 4. Commit
+## 4. Create a Branch and Experiment
 
 ```bash
-gitmap commit -m "Initial snapshot of production map"
+gitmap branch feature/new-basemap
+gitmap checkout feature/new-basemap
+```
+
+Edit the map in Portal, then pull the changes down:
+
+```bash
+gitmap pull
+gitmap status
+```
+
+## 5. Commit Your Changes
+
+```bash
+gitmap commit -m "Switched to dark basemap"
 ```
 
 Output:
@@ -52,48 +81,38 @@ Output:
 ```
 Created commit a3f2c1b0
 
-  Message:   Initial snapshot of production map
-  Author:    Your Name
-  Layers:    4
+  Message: Switched to dark basemap
+  Author:  Your Name
+  Layers:  4
 
-Branch 'main' updated to a3f2c1b0
+Branch 'feature/new-basemap' updated to a3f2c1b0
 ```
 
-## 5. Create a Branch and Experiment
+## 6. Review What Changed
 
 ```bash
-gitmap branch feature/new-basemap
-gitmap checkout feature/new-basemap
+gitmap diff --branch main
 ```
 
-Make your changes (edit the map in Portal), then pull and commit again:
+Shows a layer-by-layer comparison between your feature branch and `main`.
+
+## 7. View History
 
 ```bash
-gitmap pull
-gitmap commit -m "Switched to dark basemap"
+gitmap log --oneline
 ```
 
-## 6. View History
+## 8. Merge and Deploy
 
-```bash
-gitmap log
-```
-
-## 7. Diff Two Versions
-
-```bash
-gitmap diff
-```
-
-## 8. Merge and Push
-
-When the feature is ready, merge it back and push to Portal:
+When the feature looks good, merge it back to `main` and push:
 
 ```bash
 gitmap checkout main
 gitmap merge feature/new-basemap
 gitmap push
 ```
+
+The map is now live in Portal.
 
 ---
 
