@@ -30,7 +30,12 @@ from pathlib import Path
 from typing import Any
 
 import click
-from apscheduler.schedulers.background import BackgroundScheduler
+try:
+    from apscheduler.schedulers.background import BackgroundScheduler as _BackgroundScheduler
+    _HAS_APSCHEDULER = True
+except ImportError:  # pragma: no cover
+    _BackgroundScheduler = None  # type: ignore[assignment,misc]
+    _HAS_APSCHEDULER = False
 from rich.console import Console
 from rich.table import Table
 
@@ -327,7 +332,10 @@ def run_daemon(config: dict[str, Any]) -> None:
     logger.info("=" * 80)
 
     # Create scheduler
-    scheduler = BackgroundScheduler()
+    if not _HAS_APSCHEDULER:
+        logger.error("apscheduler is not installed. Install it with: pip install apscheduler")
+        sys.exit(1)
+    scheduler = _BackgroundScheduler()
 
     # Schedule auto-pull job
     scheduler.add_job(
@@ -447,6 +455,14 @@ def start(
         gitmap daemon start --interval 60 --auto-commit
         gitmap daemon start --interval 120 --directory my-repos --branch main
     """
+    # Check if apscheduler is installed before attempting to fork
+    if not _HAS_APSCHEDULER:
+        raise click.ClickException(
+            "The 'apscheduler' package is required for the daemon command.\n"
+            "  Install it with: pip install apscheduler\n"
+            "  Or install the full CLI: pip install gitmap-cli"
+        )
+
     # Check if daemon is already running
     if is_daemon_running():
         console.print("[red]✗ Daemon is already running[/red]")

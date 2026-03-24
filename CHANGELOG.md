@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `gitmap doctor` command — environment diagnostic tool that checks Python version,
+  required/optional packages, env vars, repo state, and (optionally) Portal connectivity
+- `gitmap doctor --portal` flag to test live Portal connectivity
+- `gitmap doctor --fix` flag to print install commands for missing packages
+- 6 new tests for the doctor command (total: 733)
+
+### Fixed
+- Lazy `apscheduler` import in `daemon.py` — no longer raises `ModuleNotFoundError`
+  at import time if apscheduler is not installed; shows a clear error message instead
+
 ## [0.6.0] - 2026-03-05
 
 ### Added

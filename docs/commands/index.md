@@ -26,6 +26,7 @@ Git-Map provides a Git-inspired CLI for managing web map versions.
 | [`cherry-pick`](cherry-pick.md) | Apply a specific commit to the current branch |
 | [`lsm`](lsm.md) | Transfer popup/form settings between maps |
 | [`config`](config.md) | View or update repository configuration |
+| [`doctor`](doctor.md) | Check environment for common issues |
 | [`context`](context.md) | Visualize the event history graph |
 | [`notify`](notify.md) | Send notifications to Portal group members |
 | [`auto-pull`](auto-pull.md) | Sync all repositories with Portal |

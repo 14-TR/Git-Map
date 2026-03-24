@@ -60,6 +60,7 @@ nav:
     - tag: commands/tag.md
     - lsm: commands/lsm.md
     - config: commands/config.md
+    - doctor: commands/doctor.md
     - context: commands/context.md
     - notify: commands/notify.md
     - auto-pull: commands/auto-pull.md
