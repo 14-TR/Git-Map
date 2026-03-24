@@ -38,6 +38,7 @@ from gitmap_cli.commands.init import init
 from gitmap_cli.commands.list import list_maps
 from gitmap_cli.commands.log import log
 from gitmap_cli.commands.show import show
+from gitmap_cli.commands.doctor import doctor
 from gitmap_cli.commands.merge import merge
 from gitmap_cli.commands.notify import notify
 from gitmap_cli.commands.pull import pull
@@ -83,7 +84,7 @@ class GitMapGroup(click.Group):
         ("History", ["commit", "log", "show", "diff", "revert", "cherry-pick"]),
         ("Sync with Portal", ["push", "pull", "list"]),
         ("Merge & Stash", ["merge", "merge-from", "stash", "tag"]),
-        ("Config & Automation", ["config", "context", "notify", "auto-pull", "setup-repos", "daemon"]),
+        ("Config & Automation", ["config", "context", "notify", "auto-pull", "setup-repos", "daemon", "doctor"]),
         ("Advanced", ["lsm"]),
     ]
 
@@ -143,6 +144,7 @@ cli.add_command(config)
 cli.add_command(context)
 cli.add_command(daemon)
 cli.add_command(diff)
+cli.add_command(doctor)
 cli.add_command(layer_settings_merge)
 cli.add_command(list_maps, name="list")
 cli.add_command(log)

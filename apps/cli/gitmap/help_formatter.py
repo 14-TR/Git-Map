@@ -45,7 +45,7 @@ COMMAND_SECTIONS: list[tuple[str, list[str]]] = [
     ),
     (
         "Tooling",
-        ["config", "context", "daemon"],
+        ["config", "context", "daemon", "doctor"],
     ),
 ]
 

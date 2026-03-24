@@ -73,6 +73,7 @@ class TestCommandRegistration:
         "context",
         "daemon",
         "diff",
+        "doctor",
         "init",
         "list",
         "log",
