@@ -12,11 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   required/optional packages, env vars, repo state, and (optionally) Portal connectivity
 - `gitmap doctor --portal` flag to test live Portal connectivity
 - `gitmap doctor --fix` flag to print install commands for missing packages
-- 6 new tests for the doctor command (total: 733)
+- `gitmap completions` command — generate shell completion scripts for bash, zsh, and fish
+- `gitmap completions --install <shell>` — auto-install completion into shell RC file
+- 1 new test for completions command registration (total: 734)
 
 ### Fixed
 - Lazy `apscheduler` import in `daemon.py` — no longer raises `ModuleNotFoundError`
   at import time if apscheduler is not installed; shows a clear error message instead
+- Removed dead `GitMapGroup` class from `main.py` (was shadowed by `GroupedHelpGroup`)
+- Fixed duplicate `show` import and duplicate `cli.add_command(show)` call in `main.py`
 
 ## [0.6.0] - 2026-03-05
 
