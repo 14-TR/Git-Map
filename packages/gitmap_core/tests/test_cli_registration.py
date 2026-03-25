@@ -89,6 +89,7 @@ class TestCommandRegistration:
         "stash",
         "status",
         "tag",
+        "completions",
     ]
 
     def test_help_exits_cleanly(self, runner: CliRunner) -> None:
@@ -120,6 +121,13 @@ class TestCommandRegistration:
         assert "commit" in result.output.lower(), (
             "Expected 'commit' in show help text"
         )
+
+
+    def test_completions_command_registered(self, runner: CliRunner) -> None:
+        """'gitmap completions' must be registered and exit cleanly."""
+        result = runner.invoke(cli, ["completions", "--help"])
+        assert result.exit_code == 0, f"completions --help failed:\n{result.output}"
+        assert "bash" in result.output.lower() or "shell" in result.output.lower()
 
     def test_version_flag(self, runner: CliRunner) -> None:
         """--version should report a version string."""

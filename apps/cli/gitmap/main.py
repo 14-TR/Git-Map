@@ -46,9 +46,9 @@ from gitmap_cli.commands.push import push
 from gitmap_cli.commands.revert import revert
 from gitmap_cli.commands.setup_repos import setup_repos
 from gitmap_cli.commands.stash import stash
-from gitmap_cli.commands.show import show
 from gitmap_cli.commands.status import status
 from gitmap_cli.commands.tag import tag
+from gitmap_cli.commands.completions import completions
 
 # Import hyphenated modules using importlib.util (kebab-case filenames)
 _layer_settings_merge_path = Path(__file__).parent / "commands" / "layer-settings-merge.py"
@@ -75,50 +75,8 @@ merge_from = _merge_from_module.merge_from
 # ---- Grouped Help ------------------------------------------------------------------------------------------
 
 
-class GitMapGroup(click.Group):
-    """click.Group subclass that renders commands in logical sections."""
 
-    SECTIONS = [
-        ("Repository", ["init", "clone", "status"]),
-        ("Branches", ["branch", "checkout"]),
-        ("History", ["commit", "log", "show", "diff", "revert", "cherry-pick"]),
-        ("Sync with Portal", ["push", "pull", "list"]),
-        ("Merge & Stash", ["merge", "merge-from", "stash", "tag"]),
-        ("Config & Automation", ["config", "context", "notify", "auto-pull", "setup-repos", "daemon", "doctor"]),
-        ("Advanced", ["lsm"]),
-    ]
-
-    def format_commands(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
-        """Render commands grouped by section."""
-        # Build lookup of name -> command
-        commands = {}
-        for name in self.list_commands(ctx):
-            cmd = self.get_command(ctx, name)
-            if cmd and not cmd.hidden:
-                commands[name] = cmd
-
-        # Collect known names
-        known = {n for section in self.SECTIONS for n in section[1]}
-        ungrouped = [n for n in sorted(commands.keys()) if n not in known]
-
-        sections_to_render = list(self.SECTIONS)
-        if ungrouped:
-            sections_to_render.append(("Other", ungrouped))
-
-        for section_name, names in sections_to_render:
-            rows = []
-            for name in names:
-                if name in commands:
-                    cmd = commands[name]
-                    help_text = cmd.get_short_help_str(limit=formatter.width)
-                    rows.append((name, help_text))
-            if rows:
-                with formatter.section(section_name):
-                    formatter.write_dl(rows)
-
-
-
-@click.group(cls=GitMapGroup)
+@click.group(cls=GroupedHelpGroup)
 @click.version_option(version="0.6.0", prog_name="gitmap")
 def cli() -> None:
     """GitMap - Version control for ArcGIS web maps.
@@ -149,13 +107,13 @@ cli.add_command(layer_settings_merge)
 cli.add_command(list_maps, name="list")
 cli.add_command(log)
 cli.add_command(show)
+cli.add_command(completions)
 cli.add_command(merge)
 cli.add_command(merge_from, name="merge-from")
 cli.add_command(notify)
 cli.add_command(push)
 cli.add_command(pull)
 cli.add_command(revert)
-cli.add_command(show)
 cli.add_command(stash)
 cli.add_command(tag)
 cli.add_command(auto_pull, name="auto-pull")
