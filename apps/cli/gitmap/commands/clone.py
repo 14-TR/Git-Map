@@ -11,7 +11,7 @@ Dependencies:
     - gitmap_core: Repository and connection management
 
 Metadata:
-    Version: 0.1.0
+    Version: 0.2.0
     Author: GitMap Team
 """
 from __future__ import annotations
@@ -21,6 +21,7 @@ from pathlib import Path
 
 import click
 from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from gitmap_core.connection import get_connection
 from gitmap_core.maps import get_webmap_by_id
@@ -33,7 +34,7 @@ console = Console()
 # ---- Clone Command ------------------------------------------------------------------------------------------
 
 
-@click.command()
+@click.command(epilog="Tip: run 'gitmap status' after cloning to see the initial map state.")
 @click.argument(
     "item_id",
     required=True,
@@ -74,73 +75,96 @@ def clone(
     try:
         # Use PORTAL_URL from env if set, otherwise use provided URL (or click default)
         portal_url = os.environ.get("PORTAL_URL") or url
-        
-        # Connect to Portal
-        console.print(f"[dim]Connecting to {portal_url}...[/dim]")
-        connection = get_connection(url=portal_url, username=username if username else None)
 
-        if connection.username:
-            console.print(f"[dim]Authenticated as {connection.username}[/dim]")
+        item = None
+        map_data: dict = {}
+        connection = None
 
-        # Fetch web map
-        console.print(f"[dim]Fetching web map {item_id}...[/dim]")
-        item, map_data = get_webmap_by_id(connection.gis, item_id)
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+            transient=True,
+        ) as progress:
+            task = progress.add_task(f"Connecting to {portal_url}...", total=None)
 
-        # Determine target directory
-        if directory:
-            target_dir = Path(directory).resolve()
-        else:
-            # Use sanitized map title
-            safe_title = "".join(
-                c if c.isalnum() or c in "-_" else "_"
-                for c in item.title
+            connection = get_connection(url=portal_url, username=username if username else None)
+
+            progress.update(task, description=f"Fetching web map {item_id}...")
+            item, map_data = get_webmap_by_id(connection.gis, item_id)
+
+            progress.update(task, description="Initializing local repository...")
+
+            # Determine target directory
+            if directory:
+                target_dir = Path(directory).resolve()
+            else:
+                safe_title = "".join(
+                    c if c.isalnum() or c in "-_" else "_"
+                    for c in item.title
+                )
+                target_dir = Path.cwd() / safe_title
+
+            if target_dir.exists():
+                raise click.ClickException(
+                    f"Directory '{target_dir}' already exists.\n"
+                    "  Hint: remove it or use --directory to specify a different location."
+                )
+
+            target_dir.mkdir(parents=True)
+            repo = Repository(target_dir)
+
+            repo.init(
+                project_name=item.title,
+                user_name=connection.username or "",
             )
-            target_dir = Path.cwd() / safe_title
 
-        # Check if directory exists
-        if target_dir.exists():
-            raise click.ClickException(f"Directory '{target_dir}' already exists")
+            config = repo.get_config()
+            config.remote = Remote(
+                name="origin",
+                url=portal_url,
+                item_id=item_id,
+            )
+            repo.update_config(config)
 
-        # Create directory and initialize repo
-        target_dir.mkdir(parents=True)
-        repo = Repository(target_dir)
+            repo.update_index(map_data)
+            repo.create_commit(
+                message=f"Clone from Portal: {item.title}",
+                author=connection.username or "GitMap",
+            )
 
-        repo.init(
-            project_name=item.title,
-            user_name=connection.username or "",
-        )
-
-        # Configure remote
-        config = repo.get_config()
-        config.remote = Remote(
-            name="origin",
-            url=portal_url,
-            item_id=item_id,
-        )
-        repo.update_config(config)
-
-        # Stage and commit the map
-        repo.update_index(map_data)
-        repo.create_commit(
-            message=f"Clone from Portal: {item.title}",
-            author=connection.username or "GitMap",
-        )
+            progress.update(task, description="Done.")
 
         # Display result
-        console.print()
-        console.print(f"[green]Cloned '{item.title}' into {target_dir}[/green]")
+        auth_line = f" [dim](as {connection.username})[/dim]" if connection and connection.username else ""
+        console.print(f"[green]✓ Cloned '{item.title}'[/green]{auth_line}")
         console.print()
         console.print(f"  [bold]Item ID:[/bold] {item_id}")
-        console.print(f"  [bold]Title:[/bold] {item.title}")
+        console.print(f"  [bold]Title:[/bold]   {item.title}")
 
         layers = map_data.get("operationalLayers", [])
-        console.print(f"  [bold]Layers:[/bold] {len(layers)}")
+        console.print(f"  [bold]Layers:[/bold]  {len(layers)}")
+        console.print(f"  [bold]Path:[/bold]    {target_dir}")
 
         console.print()
-        console.print(f"[dim]cd {target_dir.name} && gitmap status[/dim]")
+        console.print(f"[dim]cd {target_dir.name}[/dim]")
+        console.print("[dim]gitmap status[/dim]")
 
+    except click.ClickException:
+        raise
     except Exception as clone_error:
-        msg = f"Clone failed: {clone_error}"
+        err = str(clone_error)
+        if "not connected" in err.lower() or "connect()" in err.lower():
+            msg = (
+                "Clone failed: Portal authentication error.\n"
+                "  Hint: check PORTAL_URL, ARCGIS_USERNAME, and ARCGIS_PASSWORD in your .env file."
+            )
+        elif "not found" in err.lower() or "404" in err or "no item" in err.lower():
+            msg = (
+                f"Clone failed: item '{item_id}' not found on Portal.\n"
+                "  Hint: verify the item ID and that you have access to it.\n"
+                "  Use 'gitmap list' to browse available web maps."
+            )
+        else:
+            msg = f"Clone failed: {clone_error}"
         raise click.ClickException(msg) from clone_error
-
-
