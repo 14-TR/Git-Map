@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `epilog` tip hints on `gitmap pull` and `gitmap clone` pointing to recommended follow-up commands
 
 ### Changed
+- Python 3.14 supported — all three packages (`gitmap-core`, `gitmap-cli`, `gitmap`) now declare `requires-python = ">=3.11,<3.15"`; CI matrix extended to include Python 3.14; all 734 tests pass
 - `gitmap push` output now shows auth username inline (✓ Pushed as username) rather than a separate dim line
 - `gitmap clone` output now shows the local path alongside item ID, title, and layer count
 

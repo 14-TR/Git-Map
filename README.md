@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/14-TR/Git-Map/actions/workflows/ci.yml/badge.svg)](https://github.com/14-TR/Git-Map/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/gitmap.svg)](https://pypi.org/project/gitmap/)
-[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-674%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
 
@@ -55,7 +55,7 @@ Merged feature/new-basemap into main
 
 ### Prerequisites
 
-- Python 3.11, 3.12, or 3.13
+- Python 3.11, 3.12, 3.13, or 3.14
 - ArcGIS Portal or ArcGIS Online account
 
 ### Install from PyPI (Recommended)
@@ -593,7 +593,7 @@ python -m pytest packages/gitmap_core/tests --cov=packages/gitmap_core --cov-rep
 
 ### CI
 
-Tests run automatically on every push and PR via [GitHub Actions](https://github.com/14-TR/Git-Map/actions) across Python 3.11, 3.12, and 3.13.
+Tests run automatically on every push and PR via [GitHub Actions](https://github.com/14-TR/Git-Map/actions) across Python 3.11, 3.12, 3.13, and 3.14.
 
 ---
 

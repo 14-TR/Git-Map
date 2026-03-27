@@ -3,7 +3,7 @@ name = "gitmap"
 version = "0.6.0"
 description = "Git-like version control for ArcGIS web maps — installs everything you need"
 readme = "README.md"
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.11,<3.15"
 license = {text = "MIT"}
 authors = [
     {name = "TR Ingram", email = "tr@ingramgeoai.com"}
@@ -20,6 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: GIS",
     "Topic :: Software Development :: Version Control",
     "Typing :: Typed",
