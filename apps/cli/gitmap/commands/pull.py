@@ -11,13 +11,14 @@ Dependencies:
     - gitmap_core: Remote operations
 
 Metadata:
-    Version: 0.1.0
+    Version: 0.2.0
     Author: GitMap Team
 """
 from __future__ import annotations
 
 import click
 from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from gitmap_core.connection import get_connection
 from gitmap_core.remote import RemoteOperations
@@ -31,7 +32,7 @@ console = Console()
 # ---- Pull Command -------------------------------------------------------------------------------------------
 
 
-@click.command()
+@click.command(epilog="Tip: use 'gitmap diff' to review pulled changes before committing.")
 @click.option(
     "--branch",
     "-b",
@@ -64,7 +65,8 @@ def pull(
     """Pull latest changes from Portal.
 
     Fetches the web map from Portal and updates the local staging area.
-    Does not automatically commit - review changes with 'gitmap diff'.
+    Does not automatically commit — review changes with 'gitmap diff'
+    then save with 'gitmap commit'.
 
     Examples:
         gitmap pull
@@ -76,47 +78,58 @@ def pull(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
+            raise click.ClickException(
+                "Not a GitMap repository. Run 'gitmap init' to create one."
+            )
 
         # Determine Portal URL
         config = repo.get_config()
         if url:
-            # Use provided URL
             portal_url = url
         elif config.remote and config.remote.url:
-            # Use configured remote URL
             portal_url = config.remote.url
         else:
-            # Get from environment variable (required)
             portal_url = get_portal_url()
 
-        # Connect to Portal
-        console.print(f"[dim]Connecting to {portal_url}...[/dim]")
-        connection = get_connection(
-            url=portal_url,
-            username=username if username else None,
-        )
-
-        if connection.username:
-            console.print(f"[dim]Authenticated as {connection.username}[/dim]")
-
-        # Perform pull
         target_branch = branch or repo.get_current_branch()
-        console.print(f"[dim]Pulling branch '{target_branch}'...[/dim]")
 
-        remote_ops = RemoteOperations(repo, connection)
-        map_data = remote_ops.pull(target_branch)
+        map_data: dict = {}
+        connection = None
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+            transient=True,
+        ) as progress:
+            task = progress.add_task(f"Connecting to {portal_url}...", total=None)
+
+            connection = get_connection(
+                url=portal_url,
+                username=username if username else None,
+            )
+
+            progress.update(task, description=f"Pulling '{target_branch}' from Portal...")
+            remote_ops = RemoteOperations(repo, connection)
+            map_data = remote_ops.pull(target_branch)
+
+            progress.update(task, description="Done.")
 
         # Display result
         layers = map_data.get("operationalLayers", [])
-
-        console.print()
-        console.print(f"[green]Pulled '{target_branch}' from Portal[/green]")
+        auth_line = f" [dim](as {connection.username})[/dim]" if connection and connection.username else ""
+        console.print(f"[green]✓ Pulled '{target_branch}' from Portal[/green]{auth_line}")
         console.print()
         console.print(f"  [bold]Layers:[/bold] {len(layers)}")
 
+        if rationale:
+            console.print()
+            console.print(f"  [bold]Rationale:[/bold] {rationale}")
+
         console.print()
-        console.print("[dim]Changes staged. Use 'gitmap diff' to review and 'gitmap commit' to save.[/dim]")
+        console.print(
+            "[dim]Changes staged. Use 'gitmap diff' to review and 'gitmap commit' to save.[/dim]"
+        )
 
         # Record event in context store (non-blocking)
         try:
@@ -125,28 +138,35 @@ def pull(
                     event_type="pull",
                     repo=str(repo.root),
                     ref=target_branch,
-                    actor=connection.username,
+                    actor=connection.username if connection else None,
                     payload={
                         "layers_count": len(layers),
                         "portal_url": portal_url,
-                        "branch": target_branch,  # Track which branch was pulled to
+                        "branch": target_branch,
                     },
                     rationale=rationale if rationale else None,
                 )
-            
-            # Auto-regenerate context graph if enabled
+
             config = repo.get_config()
             if config.auto_visualize:
                 repo.regenerate_context_graph()
-            
-            if rationale:
-                console.print()
-                console.print(f"  [bold]Rationale:[/bold] {rationale}")
         except Exception:
             pass  # Don't fail pull if context recording fails
 
+    except click.ClickException:
+        raise
     except Exception as pull_error:
-        msg = f"Pull failed: {pull_error}"
+        err = str(pull_error)
+        if "not connected" in err.lower() or "connect()" in err.lower():
+            msg = (
+                "Pull failed: Portal authentication error.\n"
+                "  Hint: check PORTAL_URL, ARCGIS_USERNAME, and ARCGIS_PASSWORD in your .env file."
+            )
+        elif "not found" in err.lower() or "no item" in err.lower():
+            msg = (
+                "Pull failed: web map not found on Portal.\n"
+                "  Hint: verify the item ID in .gitmap/config.json and that the item still exists."
+            )
+        else:
+            msg = f"Pull failed: {pull_error}"
         raise click.ClickException(msg) from pull_error
-
-

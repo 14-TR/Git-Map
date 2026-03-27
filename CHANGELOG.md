@@ -8,19 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- `gitmap doctor` command — environment diagnostic tool that checks Python version,
-  required/optional packages, env vars, repo state, and (optionally) Portal connectivity
-- `gitmap doctor --portal` flag to test live Portal connectivity
-- `gitmap doctor --fix` flag to print install commands for missing packages
-- `gitmap completions` command — generate shell completion scripts for bash, zsh, and fish
-- `gitmap completions --install <shell>` — auto-install completion into shell RC file
-- 1 new test for completions command registration (total: 734)
+- Rich spinner progress indicators on `gitmap push`, `gitmap pull`, and `gitmap clone` — network operations now show live feedback instead of bare dim text
+- Context-aware error hints on `push`/`pull`/`clone` for common failure modes (auth errors, item not found)
+- "Nothing to push" guard on `gitmap push` when repository has no commits
+- `epilog` tip hints on `gitmap pull` and `gitmap clone` pointing to recommended follow-up commands
 
-### Fixed
-- Lazy `apscheduler` import in `daemon.py` — no longer raises `ModuleNotFoundError`
-  at import time if apscheduler is not installed; shows a clear error message instead
-- Removed dead `GitMapGroup` class from `main.py` (was shadowed by `GroupedHelpGroup`)
-- Fixed duplicate `show` import and duplicate `cli.add_command(show)` call in `main.py`
+### Changed
+- `gitmap push` output now shows auth username inline (✓ Pushed as username) rather than a separate dim line
+- `gitmap clone` output now shows the local path alongside item ID, title, and layer count
 
 ## [0.6.0] - 2026-03-05
 

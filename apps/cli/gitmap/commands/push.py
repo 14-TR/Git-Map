@@ -11,7 +11,7 @@ Dependencies:
     - gitmap_core: Remote operations
 
 Metadata:
-    Version: 0.1.0
+    Version: 0.2.0
     Author: GitMap Team
 """
 from __future__ import annotations
@@ -20,6 +20,7 @@ import os
 
 import click
 from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from gitmap_core.connection import get_connection
 from gitmap_core.remote import RemoteOperations
@@ -87,50 +88,76 @@ def push(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
+            raise click.ClickException(
+                "Not a GitMap repository. Run 'gitmap init' to create one."
+            )
+
+        # Check for commits before pushing
+        head_commit = repo.get_head_commit()
+        if not head_commit:
+            raise click.ClickException(
+                "Nothing to push — repository has no commits.\n"
+                "  Hint: stage changes and run 'gitmap commit -m \"message\"' first."
+            )
 
         # Determine Portal URL
         config = repo.get_config()
-        portal_url = url or (config.remote.url if config.remote else os.environ.get("PORTAL_URL", "https://www.arcgis.com"))
-
-        # Connect to Portal
-        console.print(f"[dim]Connecting to {portal_url}...[/dim]")
-        connection = get_connection(
-            url=portal_url,
-            username=username if username else None,
+        portal_url = url or (
+            config.remote.url if config.remote else os.environ.get("PORTAL_URL", "https://www.arcgis.com")
         )
 
-        if connection.username:
-            console.print(f"[dim]Authenticated as {connection.username}[/dim]")
-
-        # Perform push
         target_branch = branch or repo.get_current_branch()
-        console.print(f"[dim]Pushing branch '{target_branch}'...[/dim]")
 
-        remote_ops = RemoteOperations(repo, connection)
-        item, notification_status = remote_ops.push(target_branch, skip_notifications=no_notify)
+        item = None
+        notification_status: dict = {"attempted": False, "sent": False, "users_notified": [], "reason": ""}
+        connection = None
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+            transient=True,
+        ) as progress:
+            task = progress.add_task(f"Connecting to {portal_url}...", total=None)
+
+            connection = get_connection(
+                url=portal_url,
+                username=username if username else None,
+            )
+
+            progress.update(task, description=f"Pushing '{target_branch}' to Portal...")
+            remote_ops = RemoteOperations(repo, connection)
+            item, notification_status = remote_ops.push(target_branch, skip_notifications=no_notify)
+
+            progress.update(task, description="Done.")
 
         # Display result
+        auth_line = f" [dim](as {connection.username})[/dim]" if connection and connection.username else ""
+        console.print(f"[green]✓ Pushed '{target_branch}' to Portal[/green]{auth_line}")
         console.print()
-        console.print(f"[green]Pushed '{target_branch}' to Portal[/green]")
-        console.print()
-        console.print(f"  [bold]Item ID:[/bold] {item.id}")
-        console.print(f"  [bold]Title:[/bold] {item.title}")
-        console.print(f"  [bold]URL:[/bold] {item.homepage}")
-        
-        # Display notification status
+        console.print(f"  [bold]Item ID:[/bold]  {item.id}")
+        console.print(f"  [bold]Title:[/bold]    {item.title}")
+        console.print(f"  [bold]URL:[/bold]      {item.homepage}")
+
+        # Notification status
         if notification_status["attempted"]:
             console.print()
             if notification_status["sent"]:
                 users_count = len(notification_status["users_notified"])
                 console.print(f"[green]✓ Notifications sent to {users_count} user(s)[/green]")
-                if users_count <= 10:  # Show usernames if not too many
+                if users_count <= 10:
                     console.print(f"  [dim]Users: {', '.join(notification_status['users_notified'])}[/dim]")
             else:
-                console.print(f"[yellow]⚠ Notifications not sent[/yellow]")
+                console.print("[yellow]⚠ Notifications not sent[/yellow]")
                 if notification_status["reason"]:
                     console.print(f"  [dim]Reason: {notification_status['reason']}[/dim]")
-                console.print(f"  [dim]Tip: Share the map with groups that have members to receive notifications[/dim]")
+                console.print(
+                    "  [dim]Tip: Share the map with groups that have members to receive notifications[/dim]"
+                )
+
+        if rationale:
+            console.print()
+            console.print(f"  [bold]Rationale:[/bold] {rationale}")
 
         # Record event in context store (non-blocking)
         try:
@@ -139,29 +166,36 @@ def push(
                     event_type="push",
                     repo=str(repo.root),
                     ref=target_branch,
-                    actor=connection.username,
+                    actor=connection.username if connection else None,
                     payload={
                         "item_id": item.id,
                         "item_title": item.title,
                         "portal_url": portal_url,
-                        "branch": target_branch,  # Track which branch was pushed
+                        "branch": target_branch,
                     },
                     rationale=rationale if rationale else None,
                 )
-            
-            # Auto-regenerate context graph if enabled
+
             config = repo.get_config()
             if config.auto_visualize:
                 repo.regenerate_context_graph()
-            
-            if rationale:
-                console.print()
-                console.print(f"  [bold]Rationale:[/bold] {rationale}")
         except Exception:
             pass  # Don't fail push if context recording fails
 
+    except click.ClickException:
+        raise
     except Exception as push_error:
-        msg = f"Push failed: {push_error}"
+        err = str(push_error)
+        if "not connected" in err.lower() or "connect()" in err.lower():
+            msg = (
+                "Push failed: Portal authentication error.\n"
+                "  Hint: check PORTAL_URL, ARCGIS_USERNAME, and ARCGIS_PASSWORD in your .env file."
+            )
+        elif "not found" in err.lower() or "404" in err:
+            msg = (
+                f"Push failed: item not found on Portal.\n"
+                "  Hint: verify the item ID in .gitmap/config.json or run 'gitmap clone' again."
+            )
+        else:
+            msg = f"Push failed: {push_error}"
         raise click.ClickException(msg) from push_error
-
-
