@@ -81,7 +81,7 @@ pip install -e apps/cli/gitmap
 
 ```bash
 gitmap --version
-# gitmap, version 0.6.0
+# gitmap, version 0.7.0
 ```
 
 ---
@@ -559,9 +559,9 @@ APP_GROUP=cli APP_NAME=gitmap docker-compose up app
 ```
 Git-Map/
 ├── apps/
-│   └── cli/gitmap/          # CLI application (gitmap-cli 0.6.0)
+│   └── cli/gitmap/          # CLI application (gitmap-cli 0.7.0)
 ├── packages/
-│   └── gitmap_core/         # Core library (gitmap_core 0.6.0)
+│   └── gitmap_core/         # Core library (gitmap_core 0.7.0)
 ├── configs/                 # Config templates (.env.example)
 ├── docker/                  # Docker config
 └── documentation/           # Specs and design docs

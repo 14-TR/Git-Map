@@ -31,7 +31,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "gitmap-core>=0.6.0",
+    "gitmap-core>=0.7.0",
     "click>=8.1.0",
     "rich>=13.0.0",
     "apscheduler>=3.10.0",

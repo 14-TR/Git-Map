@@ -7,11 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-03-29
+
 ### Added
+- `gitmap completions` command — generates and auto-installs shell completion scripts for bash, zsh, and fish (via `gitmap completions --install <shell>`)
+- `gitmap doctor` diagnostic command — checks Python version, required packages, environment variables, and (optionally) Portal connectivity; exits non-zero when issues found (useful for scripting)
+- `--format html` option on `gitmap diff` — exports a self-contained dark-themed HTML diff report for sharing with stakeholders
+- `--output` option on `gitmap diff` for custom report file paths
 - Rich spinner progress indicators on `gitmap push`, `gitmap pull`, and `gitmap clone` — network operations now show live feedback instead of bare dim text
 - Context-aware error hints on `push`/`pull`/`clone` for common failure modes (auth errors, item not found)
 - "Nothing to push" guard on `gitmap push` when repository has no commits
 - `epilog` tip hints on `gitmap pull` and `gitmap clone` pointing to recommended follow-up commands
+- Documentation: `gitmap completions` command reference page added to the MkDocs site
 
 ### Changed
 - Python 3.14 supported — all three packages (`gitmap-core`, `gitmap-cli`, `gitmap`) now declare `requires-python = ">=3.11,<3.15"`; CI matrix extended to include Python 3.14; all 734 tests pass
