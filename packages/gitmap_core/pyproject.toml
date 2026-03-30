@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitmap-core"
-version = "0.6.0"
+version = "0.7.0"
 description = "Core library for GitMap — version control for ArcGIS web maps"
 readme = "README.md"
 requires-python = ">=3.11,<3.15"

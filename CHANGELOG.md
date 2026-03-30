@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `gitmap push` output now shows auth username inline (✓ Pushed as username) rather than a separate dim line
 - `gitmap clone` output now shows the local path alongside item ID, title, and layer count
 
+### Fixed
+- Version numbers in `gitmap-core` and `gitmap-cli` pyproject.toml files and `main.py` docstring were stuck at 0.6.0 — bumped all to 0.7.0 to match the root meta-package and CHANGELOG
+
 ## [0.6.0] - 2026-03-05
 
 ### Added
