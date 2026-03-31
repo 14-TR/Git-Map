@@ -15,6 +15,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import json
@@ -27,8 +28,7 @@ from rich.syntax import Syntax
 from rich.table import Table
 from rich.text import Text
 
-from gitmap_core.diff import diff_maps
-from gitmap_core.diff import format_diff_stats
+from gitmap_core.diff import diff_maps, format_diff_stats
 from gitmap_core.repository import find_repository
 
 console = Console()
@@ -218,10 +218,10 @@ def _print_diff_text(map_diff, verbose: bool) -> None:
     help="Diff output format: 'text' for plain lines, 'visual' for Rich table.",
 )
 def show(
-        ref: str | None,
-        verbose: bool,
-        no_diff: bool,
-        fmt: str,
+    ref: str | None,
+    verbose: bool,
+    no_diff: bool,
+    fmt: str,
 ) -> None:
     """Show details of a commit.
 
@@ -243,9 +243,7 @@ def show(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException(
-                "Not a GitMap repository. Run 'gitmap init' to create one."
-            )
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         current_branch = repo.get_current_branch()
         head_commit_id = repo.get_head_commit()
@@ -255,15 +253,13 @@ def show(
             commit_id = _resolve_ref(repo, ref)
             if not commit_id:
                 raise click.ClickException(
-                    f"Unknown commit or branch: '{ref}'\n"
-                    "Hint: use 'gitmap log --oneline' to list available commits."
+                    f"Unknown commit or branch: '{ref}'\nHint: use 'gitmap log --oneline' to list available commits."
                 )
         else:
             commit_id = head_commit_id
             if not commit_id:
                 raise click.ClickException(
-                    "No commits yet. Make a commit first with:\n"
-                    "  gitmap commit -m 'Initial commit'"
+                    "No commits yet. Make a commit first with:\n  gitmap commit -m 'Initial commit'"
                 )
 
         commit = repo.get_commit(commit_id)
@@ -274,11 +270,13 @@ def show(
 
         # ---- Header panel -------------------------------------------
         label = ref or "HEAD"
-        console.print(Panel(
-            f"[bold]Showing commit[/bold] [cyan]{commit_id[:8]}[/cyan]",
-            title=f"gitmap show {label}",
-            border_style="blue",
-        ))
+        console.print(
+            Panel(
+                f"[bold]Showing commit[/bold] [cyan]{commit_id[:8]}[/cyan]",
+                title=f"gitmap show {label}",
+                border_style="blue",
+            )
+        )
         console.print()
 
         # ---- Commit metadata ----------------------------------------
@@ -295,15 +293,10 @@ def show(
                     _print_diff_section(commit, parent_commit, verbose, fmt)
                 else:
                     console.print()
-                    console.print(
-                        f"[dim]Parent commit {commit.parent[:8]} not found — "
-                        "cannot compute diff[/dim]"
-                    )
+                    console.print(f"[dim]Parent commit {commit.parent[:8]} not found — cannot compute diff[/dim]")
             else:
                 console.print()
-                console.print(
-                    "[dim]Root commit — no parent to diff against[/dim]"
-                )
+                console.print("[dim]Root commit — no parent to diff against[/dim]")
 
         console.print()
 

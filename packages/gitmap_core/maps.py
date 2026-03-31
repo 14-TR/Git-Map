@@ -14,6 +14,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import json
@@ -28,7 +29,7 @@ if TYPE_CHECKING:
 
 
 def get_webmap_json(
-        item: Item,
+    item: Item,
 ) -> dict[str, Any]:
     """Extract web map JSON from Portal item.
 
@@ -63,8 +64,8 @@ def get_webmap_json(
 
 
 def get_webmap_by_id(
-        gis: GIS,
-        item_id: str,
+    gis: GIS,
+    item_id: str,
 ) -> tuple[Item, dict[str, Any]]:
     """Fetch web map item and its JSON by item ID.
 
@@ -96,11 +97,11 @@ def get_webmap_by_id(
 
 
 def list_webmaps(
-        gis: GIS,
-        query: str = "",
-        owner: str = "",
-        tag: str = "",
-        max_results: int = 100,
+    gis: GIS,
+    query: str = "",
+    owner: str = "",
+    tag: str = "",
+    max_results: int = 100,
 ) -> list[dict[str, str]]:
     """List available web maps from the Portal.
 
@@ -123,26 +124,28 @@ def list_webmaps(
         query_parts = ['type:"Web Map"']
 
         if owner:
-            query_parts.append(f'owner:{owner}')
+            query_parts.append(f"owner:{owner}")
 
         if tag:
-            query_parts.append(f'tags:{tag}')
+            query_parts.append(f"tags:{tag}")
 
         if query:
             query_parts.append(query)
 
         # Combine all query parts with AND
-        search_query = ' AND '.join(query_parts)
+        search_query = " AND ".join(query_parts)
         items = gis.content.search(query=search_query, max_items=max_results)
 
         result = []
         for item in items:
-            result.append({
-                "id": getattr(item, "id", ""),
-                "title": getattr(item, "title", ""),
-                "owner": getattr(item, "owner", ""),
-                "type": getattr(item, "type", ""),
-            })
+            result.append(
+                {
+                    "id": getattr(item, "id", ""),
+                    "title": getattr(item, "title", ""),
+                    "owner": getattr(item, "owner", ""),
+                    "type": getattr(item, "type", ""),
+                }
+            )
         return result
     except Exception as search_error:
         msg = f"Failed to search web maps: {search_error}"
@@ -150,11 +153,11 @@ def list_webmaps(
 
 
 def list_services(
-        gis: GIS,
-        query: str = "",
-        owner: str = "",
-        service_type: str = "",
-        max_results: int = 100,
+    gis: GIS,
+    query: str = "",
+    owner: str = "",
+    service_type: str = "",
+    max_results: int = 100,
 ) -> list[dict[str, str]]:
     """List available services (Feature Services, Map Services, etc.) from the Portal.
 
@@ -181,24 +184,26 @@ def list_services(
             query_parts = ['type:"Feature Service"']
 
         if owner:
-            query_parts.append(f'owner:{owner}')
+            query_parts.append(f"owner:{owner}")
 
         if query:
             query_parts.append(query)
 
         # Combine all query parts with AND
-        search_query = ' AND '.join(query_parts)
+        search_query = " AND ".join(query_parts)
         items = gis.content.search(query=search_query, max_items=max_results)
 
         result = []
         for item in items:
-            result.append({
-                "id": getattr(item, "id", ""),
-                "title": getattr(item, "title", ""),
-                "owner": getattr(item, "owner", ""),
-                "type": getattr(item, "type", ""),
-                "url": getattr(item, "url", ""),
-            })
+            result.append(
+                {
+                    "id": getattr(item, "id", ""),
+                    "title": getattr(item, "title", ""),
+                    "owner": getattr(item, "owner", ""),
+                    "type": getattr(item, "type", ""),
+                    "url": getattr(item, "url", ""),
+                }
+            )
         return result
     except Exception as search_error:
         msg = f"Failed to search services: {search_error}"
@@ -209,7 +214,7 @@ def list_services(
 
 
 def get_operational_layers(
-        map_data: dict[str, Any],
+    map_data: dict[str, Any],
 ) -> list[dict[str, Any]]:
     """Extract operational layers from web map JSON.
 
@@ -223,7 +228,7 @@ def get_operational_layers(
 
 
 def get_basemap_layers(
-        map_data: dict[str, Any],
+    map_data: dict[str, Any],
 ) -> list[dict[str, Any]]:
     """Extract basemap layers from web map JSON.
 
@@ -238,8 +243,8 @@ def get_basemap_layers(
 
 
 def get_layer_by_id(
-        map_data: dict[str, Any],
-        layer_id: str,
+    map_data: dict[str, Any],
+    layer_id: str,
 ) -> dict[str, Any] | None:
     """Find a layer by its ID.
 
@@ -257,7 +262,7 @@ def get_layer_by_id(
 
 
 def get_layer_ids(
-        map_data: dict[str, Any],
+    map_data: dict[str, Any],
 ) -> list[str]:
     """Get all operational layer IDs.
 
@@ -267,19 +272,15 @@ def get_layer_ids(
     Returns:
         List of layer IDs.
     """
-    return [
-        layer.get("id", "")
-        for layer in get_operational_layers(map_data)
-        if layer.get("id")
-    ]
+    return [layer.get("id", "") for layer in get_operational_layers(map_data) if layer.get("id")]
 
 
 # ---- Map Comparison Functions -------------------------------------------------------------------------------
 
 
 def compare_layers(
-        layers1: list[dict[str, Any]],
-        layers2: list[dict[str, Any]],
+    layers1: list[dict[str, Any]],
+    layers2: list[dict[str, Any]],
 ) -> dict[str, Any]:
     """Compare two lists of layers.
 
@@ -300,11 +301,13 @@ def compare_layers(
     for layer_id in ids1:
         if layer_id in ids2:
             if ids1[layer_id] != ids2[layer_id]:
-                modified.append({
-                    "id": layer_id,
-                    "old": ids2[layer_id],
-                    "new": ids1[layer_id],
-                })
+                modified.append(
+                    {
+                        "id": layer_id,
+                        "old": ids2[layer_id],
+                        "new": ids1[layer_id],
+                    }
+                )
 
     return {
         "added": added,
@@ -317,8 +320,8 @@ def compare_layers(
 
 
 def save_map_json(
-        map_data: dict[str, Any],
-        filepath: Path,
+    map_data: dict[str, Any],
+    filepath: Path,
 ) -> None:
     """Save web map JSON to file.
 
@@ -330,7 +333,7 @@ def save_map_json(
 
 
 def load_map_json(
-        filepath: Path,
+    filepath: Path,
 ) -> dict[str, Any]:
     """Load web map JSON from file.
 
@@ -354,8 +357,8 @@ def load_map_json(
 
 
 def create_empty_webmap(
-        title: str = "New Map",
-        spatial_reference: int = 102100,
+    title: str = "New Map",
+    spatial_reference: int = 102100,
 ) -> dict[str, Any]:
     """Create an empty web map JSON structure.
 
@@ -379,5 +382,3 @@ def create_empty_webmap(
         "authoringApp": "GitMap",
         "authoringAppVersion": "0.1.0",
     }
-
-

@@ -14,6 +14,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import click
@@ -46,9 +47,9 @@ console = Console()
     help="Enable/disable automatic context graph regeneration after events.",
 )
 def config(
-        production_branch: str,
-        unset_production: bool,
-        auto_visualize: bool | None,
+    production_branch: str,
+    unset_production: bool,
+    auto_visualize: bool | None,
 ) -> None:
     """Manage repository configuration settings.
 
@@ -113,4 +114,3 @@ def config(
     except Exception as config_error:
         msg = f"Config operation failed: {config_error}"
         raise click.ClickException(msg) from config_error
-

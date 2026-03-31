@@ -2,6 +2,7 @@
 
 Tests version detection, compatibility checking, and API shims.
 """
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -329,8 +330,9 @@ class TestGetArcGISVersionImportError:
         with patch.dict("sys.modules", {"arcgis": None}):
             with patch("builtins.__import__", side_effect=ImportError("No module named 'arcgis'")):
                 compat.get_arcgis_version.cache_clear()
-                with patch("gitmap_core.compat.get_arcgis_version",
-                           side_effect=ImportError("arcgis package is not installed")):
+                with patch(
+                    "gitmap_core.compat.get_arcgis_version", side_effect=ImportError("arcgis package is not installed")
+                ):
                     try:
                         compat.get_arcgis_version()
                     except ImportError as e:
@@ -404,9 +406,7 @@ class TestCreateFolderEdgeCases:
     """Tests for edge cases in create_folder."""
 
     @patch("gitmap_core.compat.check_minimum_version")
-    def test_create_folder_object_result_no_id_returns_none_when_search_fails(
-        self, mock_check: MagicMock
-    ) -> None:
+    def test_create_folder_object_result_no_id_returns_none_when_search_fails(self, mock_check: MagicMock) -> None:
         """Test create_folder returns None when result has no ID and search finds nothing."""
         mock_check.return_value = True
 
@@ -426,9 +426,7 @@ class TestCreateFolderEdgeCases:
         assert result is None
 
     @patch("gitmap_core.compat.check_minimum_version")
-    def test_create_folder_search_finds_folder_by_title_dict(
-        self, mock_check: MagicMock
-    ) -> None:
+    def test_create_folder_search_finds_folder_by_title_dict(self, mock_check: MagicMock) -> None:
         """Test _search_for_folder finds folder by title in dict format."""
         mock_check.return_value = True
 
@@ -447,9 +445,7 @@ class TestCreateFolderEdgeCases:
         assert result["id"] == "dict-folder-id"
 
     @patch("gitmap_core.compat.check_minimum_version")
-    def test_create_folder_search_exception_raises(
-        self, mock_check: MagicMock
-    ) -> None:
+    def test_create_folder_search_exception_raises(self, mock_check: MagicMock) -> None:
         """Test create_folder re-raises when exception is not an 'already exists' error."""
         mock_check.return_value = True
 
@@ -460,6 +456,7 @@ class TestCreateFolderEdgeCases:
         mock_gis.users.me.folders = []
 
         import pytest
+
         with pytest.raises(Exception, match="Unexpected server error"):
             compat.create_folder(mock_gis, "SomeFolder")
 
@@ -488,9 +485,7 @@ class TestGetUserFoldersExceptionPaths:
     def test_get_user_folders_outer_exception_returns_empty(self) -> None:
         """Test that get_user_folders returns empty list if gis.users.me raises."""
         mock_gis = MagicMock()
-        type(mock_gis.users).me = property(
-            fget=lambda self: (_ for _ in ()).throw(Exception("not authenticated"))
-        )
+        type(mock_gis.users).me = property(fget=lambda self: (_ for _ in ()).throw(Exception("not authenticated")))
 
         result = compat.get_user_folders(mock_gis)
 

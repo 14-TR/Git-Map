@@ -15,6 +15,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import json
@@ -28,14 +29,10 @@ from rich.panel import Panel
 from rich.prompt import Prompt
 
 from gitmap_core.connection import get_connection
-from gitmap_core.maps import get_webmap_by_id
-from gitmap_core.maps import get_webmap_json
-from gitmap_core.maps import load_map_json
+from gitmap_core.maps import get_webmap_by_id, get_webmap_json, load_map_json
 from gitmap_core.models import Remote
 from gitmap_core.remote import RemoteOperations
-from gitmap_core.repository import Repository
-from gitmap_core.repository import find_repository
-from gitmap_core.repository import init_repository
+from gitmap_core.repository import Repository, find_repository, init_repository
 
 console = Console()
 
@@ -66,7 +63,7 @@ def _record_lsm_event(
                     "branch": current_branch,  # Track which branch the LSM was done on
                 },
             )
-        
+
         # Auto-regenerate context graph if enabled
         if config.auto_visualize:
             repo.regenerate_context_graph()
@@ -78,7 +75,7 @@ def _record_lsm_event(
 
 
 def _is_item_id(
-        identifier: str,
+    identifier: str,
 ) -> bool:
     """Check if identifier looks like a Portal item ID.
 
@@ -90,16 +87,12 @@ def _is_item_id(
     """
     # Item IDs are typically alphanumeric strings, often with hyphens
     # They're usually longer than branch names and don't contain slashes
-    return (
-        len(identifier) > 8
-        and "/" not in identifier
-        and identifier.replace("-", "").replace("_", "").isalnum()
-    )
+    return len(identifier) > 8 and "/" not in identifier and identifier.replace("-", "").replace("_", "").isalnum()
 
 
 def _find_repo_by_item_id(
-        item_id: str,
-        start_path: Path | None = None,
+    item_id: str,
+    start_path: Path | None = None,
 ) -> Repository | None:
     """Find GitMap repository by matching item ID in config.
 
@@ -114,9 +107,10 @@ def _find_repo_by_item_id(
     Returns:
         Repository if found, None otherwise.
     """
+
     def check_repo_at_path(path: Path) -> Repository | None:
         """Check if a path is a repo with matching item_id.
-        
+
         First checks if .gitmap/config.json exists (fast file check),
         then validates and checks the item_id.
         """
@@ -124,7 +118,7 @@ def _find_repo_by_item_id(
         gitmap_config = path / ".gitmap" / "config.json"
         if not gitmap_config.exists():
             return None
-        
+
         # Now create repo object and check item_id
         repo = Repository(path)
         if repo.exists() and repo.is_valid():
@@ -135,15 +129,15 @@ def _find_repo_by_item_id(
             except Exception:
                 pass
         return None
-    
+
     # Skip directory search to avoid hangs - the clone logic will check
     # if the expected directory already exists and validate it
     return None
 
 
 def _resolve_source_map(
-        source: str,
-        current_repo: Repository | None,
+    source: str,
+    current_repo: Repository | None,
 ) -> dict[str, Any]:
     """Resolve source identifier to map JSON data.
 
@@ -240,10 +234,7 @@ def _resolve_source_map(
 
         # Create a temporary directory for the clone
         # Use sanitized map title with item ID to ensure uniqueness
-        safe_title = "".join(
-            c if c.isalnum() or c in "-_" else "_"
-            for c in item.title
-        )
+        safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in item.title)
         # Create in a temp location relative to current repo or current directory
         if current_repo:
             base_dir = current_repo.root.parent
@@ -347,8 +338,8 @@ def _resolve_source_map(
 
 
 def _resolve_target_map(
-        target: str | None,
-        current_repo: Repository,
+    target: str | None,
+    current_repo: Repository,
 ) -> dict[str, Any]:
     """Resolve target identifier to map JSON data.
 
@@ -411,8 +402,8 @@ def _resolve_target_map(
 
 
 def _find_layer_by_name(
-        layers: list[dict[str, Any]],
-        layer_name: str,
+    layers: list[dict[str, Any]],
+    layer_name: str,
 ) -> dict[str, Any] | None:
     """Find layer in list by exact name match.
 
@@ -430,8 +421,8 @@ def _find_layer_by_name(
 
 
 def _transfer_layer_settings(
-        source_layer: dict[str, Any],
-        target_layer: dict[str, Any],
+    source_layer: dict[str, Any],
+    target_layer: dict[str, Any],
 ) -> dict[str, Any]:
     """Transfer popup and form settings from source to target layer.
 
@@ -512,12 +503,12 @@ def _transfer_layer_settings(
     help="Portal username that owns the remote folder (defaults to authenticated user).",
 )
 def layer_settings_merge(
-        source: str,
-        target: str | None,
-        dry_run: bool,
-        local_folder: str | None,
-        remote_folder: str | None,
-        folder_owner: str | None,
+    source: str,
+    target: str | None,
+    dry_run: bool,
+    local_folder: str | None,
+    remote_folder: str | None,
+    folder_owner: str | None,
 ) -> None:
     """Transfer popup and form settings between maps.
 
@@ -535,14 +526,16 @@ def layer_settings_merge(
     """
     try:
         if (local_folder or remote_folder) and target:
-            raise click.ClickException("Specify either a target map or a folder option (--local-folder/--remote-folder), not both")
-        
+            raise click.ClickException(
+                "Specify either a target map or a folder option (--local-folder/--remote-folder), not both"
+            )
+
         if local_folder and remote_folder:
             raise click.ClickException("Specify either --local-folder or --remote-folder, not both")
 
         # Get current repository (optional for folder operations)
         current_repo = find_repository()
-        
+
         # Only require repository if not using folder options
         if not local_folder and not remote_folder:
             if not current_repo:
@@ -566,7 +559,7 @@ def layer_settings_merge(
                 dry_run=dry_run,
             )
             return
-        
+
         if remote_folder:
             _transfer_to_remote_folder(
                 source_map=source_map,
@@ -629,8 +622,8 @@ def layer_settings_merge(
 
 
 def _transfer_settings_between_maps(
-        source_map: dict[str, Any],
-        target_map: dict[str, Any],
+    source_map: dict[str, Any],
+    target_map: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, list[str]]]:
     """Transfer popup and form settings between maps.
 
@@ -700,7 +693,7 @@ def _transfer_settings_between_maps(
 
 
 def _render_summary(
-        summary: dict[str, list[str]],
+    summary: dict[str, list[str]],
 ) -> None:
     """Render transfer summary to console."""
     transferred_layers = summary.get("transferred_layers", [])
@@ -712,14 +705,16 @@ def _render_summary(
     total_skipped = len(skipped_layers) + len(skipped_tables)
 
     console.print()
-    console.print(Panel(
-        f"[bold]Settings Transfer Summary[/bold]\n\n"
-        f"Layers - Transferred: {len(transferred_layers)}, Skipped: {len(skipped_layers)}\n"
-        f"Tables - Transferred: {len(transferred_tables)}, Skipped: {len(skipped_tables)}\n\n"
-        f"Total - Transferred: {total_transferred}, Skipped: {total_skipped}",
-        title="Results",
-        border_style="blue",
-    ))
+    console.print(
+        Panel(
+            f"[bold]Settings Transfer Summary[/bold]\n\n"
+            f"Layers - Transferred: {len(transferred_layers)}, Skipped: {len(skipped_layers)}\n"
+            f"Tables - Transferred: {len(transferred_tables)}, Skipped: {len(skipped_tables)}\n\n"
+            f"Total - Transferred: {total_transferred}, Skipped: {total_skipped}",
+            title="Results",
+            border_style="blue",
+        )
+    )
 
     if transferred_layers:
         console.print()
@@ -747,7 +742,7 @@ def _render_summary(
 
 
 def _get_portal_url(
-        current_repo: Repository | None,
+    current_repo: Repository | None,
 ) -> str:
     """Get Portal URL from repo config or default."""
     portal_url = os.environ.get("PORTAL_URL", "https://www.arcgis.com")
@@ -759,43 +754,40 @@ def _get_portal_url(
 
 
 def _get_or_clone_repo_for_item(
-        item_id: str,
-        item_title: str,
-        portal_url: str,
-        connection: Any,
-        start_path: Path | None = None,
+    item_id: str,
+    item_title: str,
+    portal_url: str,
+    connection: Any,
+    start_path: Path | None = None,
 ) -> Repository:
     """Get existing repo or clone a new one for the given item ID.
-    
+
     Args:
         item_id: Portal item ID.
         item_title: Item title (used for cloning).
         portal_url: Portal URL.
         connection: Portal connection object.
         start_path: Starting path for repository search.
-        
+
     Returns:
         Repository instance (existing or newly cloned).
     """
     # Check if expected clone directory already exists and has matching item_id
     # This avoids directory searching which can hang
-    safe_title = "".join(
-        c if c.isalnum() or c in "-_" else "_"
-        for c in item_title
-    )
-    
+    safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in item_title)
+
     # Determine base directory
     if start_path:
         base_dir = Path(start_path).resolve().parent
     else:
         base_dir = Path.cwd()
-    
+
     # Check common directory name patterns (without searching all directories)
     patterns_to_check = [
         base_dir / safe_title,  # Base name
         base_dir / f"{safe_title}_{item_id[:8]}",  # With item_id suffix
     ]
-    
+
     for clone_dir in patterns_to_check:
         if clone_dir.exists():
             existing_repo = Repository(clone_dir)
@@ -807,10 +799,10 @@ def _get_or_clone_repo_for_item(
                         return existing_repo
                 except Exception:
                     pass
-    
+
     # Clone if not found
     console.print(f"[dim]No repository found for item {item_id}, cloning...[/dim]")
-    
+
     # Use the first pattern that doesn't exist
     clone_dir = patterns_to_check[0]
     if clone_dir.exists():
@@ -826,7 +818,7 @@ def _get_or_clone_repo_for_item(
                 counter += 1
                 if counter > 100:  # Safety limit
                     break
-    
+
     # Create directory and initialize repo
     clone_dir.mkdir(parents=True, exist_ok=True)
     new_repo = init_repository(
@@ -835,7 +827,7 @@ def _get_or_clone_repo_for_item(
         user_name=connection.username or "",
         user_email="",
     )
-    
+
     # Configure remote
     config = new_repo.get_config()
     config.remote = Remote(
@@ -844,7 +836,7 @@ def _get_or_clone_repo_for_item(
         item_id=item_id,
     )
     new_repo.update_config(config)
-    
+
     # Fetch map data and create initial commit
     item, map_data = get_webmap_by_id(connection.gis, item_id)
     new_repo.update_index(map_data)
@@ -852,26 +844,26 @@ def _get_or_clone_repo_for_item(
         message=f"Clone from Portal: {item_title}",
         author=connection.username or "GitMap",
     )
-    
+
     console.print(f"[green]Cloned '{item_title}' into {clone_dir}[/green]")
     return new_repo
 
 
 def _resolve_folder_id(
-        folder_identifier: str,
-        connection: Any,
-        folder_owner: str | None,
+    folder_identifier: str,
+    connection: Any,
+    folder_owner: str | None,
 ) -> str:
     """Resolve folder identifier (ID or name) to folder ID.
-    
+
     Args:
         folder_identifier: Folder ID or folder name.
         connection: Portal connection object.
         folder_owner: Portal username that owns the folder.
-        
+
     Returns:
         Folder ID.
-        
+
     Raises:
         click.ClickException: If folder not found.
     """
@@ -879,7 +871,7 @@ def _resolve_folder_id(
     if not user:
         msg = "Unable to resolve Portal user for folder access"
         raise click.ClickException(msg)
-    
+
     # Check if it's already a folder ID (typically long alphanumeric string)
     # Folder IDs are usually longer than 8 characters and don't contain spaces
     if len(folder_identifier) > 8 and " " not in folder_identifier:
@@ -891,7 +883,7 @@ def _resolve_folder_id(
         except Exception:
             # Not a valid folder ID, try as name
             pass
-    
+
     # Try to find folder by name
     try:
         folders = user.folders
@@ -903,7 +895,7 @@ def _resolve_folder_id(
                     return folder_id
     except Exception:
         pass
-    
+
     # Try searching through user's items to find the folder
     try:
         user_items = user.items()
@@ -924,22 +916,22 @@ def _resolve_folder_id(
                     continue
     except Exception:
         pass
-    
+
     msg = f"Folder '{folder_identifier}' not found (tried as both ID and name)"
     raise click.ClickException(msg)
 
 
 def _transfer_to_local_folder(
-        source_map: dict[str, Any],
-        current_repo: Repository | None,
-        local_folder_path: str,
-        dry_run: bool,
+    source_map: dict[str, Any],
+    current_repo: Repository | None,
+    local_folder_path: str,
+    dry_run: bool,
 ) -> None:
     """Transfer settings from a source map to all gitmap repositories in a local folder.
-    
+
     For each gitmap repository found in the local folder, creates an 'lsm' branch
     with the changes, then prompts to merge and push.
-    
+
     Args:
         source_map: Source map JSON data.
         current_repo: Current repository context.
@@ -947,46 +939,46 @@ def _transfer_to_local_folder(
         dry_run: If True, preview changes without applying.
     """
     folder_path = Path(local_folder_path).resolve()
-    
+
     if not folder_path.exists():
         msg = f"Local folder '{local_folder_path}' does not exist"
         raise click.ClickException(msg)
-    
+
     if not folder_path.is_dir():
         msg = f"'{local_folder_path}' is not a directory"
         raise click.ClickException(msg)
-    
+
     # Find all gitmap repositories in the folder
     repos: list[Repository] = []
-    
+
     # Check if the folder itself is a gitmap repo
     repo = Repository(folder_path)
     if repo.exists() and repo.is_valid():
         repos.append(repo)
-    
+
     # Search subdirectories for gitmap repos
     for item in folder_path.iterdir():
         if item.is_dir():
             sub_repo = Repository(item)
             if sub_repo.exists() and sub_repo.is_valid():
                 repos.append(sub_repo)
-    
+
     if not repos:
         console.print(f"[yellow]No gitmap repositories found in '{local_folder_path}'[/yellow]")
         return
-    
+
     console.print(
         f"[dim]Processing {len(repos)} gitmap repositories in '{local_folder_path}'[/dim]",
     )
     console.print()
-    
+
     # Track repos that were successfully updated
     updated_repos: list[tuple[Repository, str]] = []  # (repo, repo_name)
-    
+
     for repo in repos:
         repo_name = repo.root.name
         console.print(f"[bold]{repo_name}[/bold]")
-        
+
         try:
             # Get current map state from repo
             current_branch = repo.get_current_branch()
@@ -1015,31 +1007,31 @@ def _transfer_to_local_folder(
                     console.print("[yellow]  Repository has no map data[/yellow]")
                     console.print()
                     continue
-            
+
             target_layers = target_map.get("operationalLayers", [])
             target_tables = target_map.get("tables", [])
-            
+
             if not target_layers and not target_tables:
                 console.print("[yellow]  Repository map has no operational layers or tables[/yellow]")
                 console.print()
                 continue
-            
+
             # Apply settings transfer
             updated_map, summary = _transfer_settings_between_maps(
                 source_map=source_map,
                 target_map=target_map,
             )
-            
+
             # Show summary (compact version)
             transferred_count = len(summary.get("transferred_layers", [])) + len(summary.get("transferred_tables", []))
             skipped_count = len(summary.get("skipped_layers", [])) + len(summary.get("skipped_tables", []))
             console.print(f"  [dim]Transferred: {transferred_count}, Skipped: {skipped_count}[/dim]")
-            
+
             if dry_run:
                 console.print("[dim]  Dry-run mode: No changes applied[/dim]")
                 console.print()
                 continue
-            
+
             # Ensure main branch exists
             branches = repo.list_branches()
             if "main" not in branches:
@@ -1055,12 +1047,12 @@ def _transfer_to_local_folder(
                         author="GitMap",
                     )
                     repo.create_branch("main")
-            
+
             # Checkout main (ensure we're on main branch)
             current_branch = repo.get_current_branch()
             if current_branch != "main":
                 repo.checkout_branch("main")
-            
+
             # Get the latest main commit ID
             main_commit_id = repo.get_branch_commit("main")
             if not main_commit_id:
@@ -1068,7 +1060,7 @@ def _transfer_to_local_folder(
                 main_commit_id = repo.get_head_commit()
                 if main_commit_id:
                     repo.update_branch("main", main_commit_id)
-            
+
             # Create or checkout lsm branch from latest main
             lsm_branch = "lsm"
             branches = repo.list_branches()  # Refresh branch list
@@ -1088,54 +1080,57 @@ def _transfer_to_local_folder(
                     # Fallback: create branch from current HEAD
                     repo.create_branch(lsm_branch)
                     repo.checkout_branch(lsm_branch)
-            
+
             # Apply changes to index
             repo.update_index(updated_map)
-            
+
             # Commit changes
             commit = repo.create_commit(
                 message=f"Layer settings merge: {repo_name}",
                 author="GitMap",
             )
-            
+
             console.print(f"  [green]Created commit {commit.id[:8]} in branch 'lsm'[/green]")
             updated_repos.append((repo, repo_name))
-            
+
         except Exception as process_error:
             console.print(f"  [red]Failed to process '{repo_name}': {process_error}[/red]")
-        
+
         console.print()
-    
+
     # Prompt to merge and push
     if not dry_run and updated_repos:
         console.print()
         console.print(f"[bold]Successfully updated {len(updated_repos)} repositories[/bold]")
         console.print()
-        
-        if Prompt.ask(
-            "Merge all 'lsm' branches to 'main'?",
-            choices=["yes", "no"],
-            default="yes",
-        ) == "yes":
+
+        if (
+            Prompt.ask(
+                "Merge all 'lsm' branches to 'main'?",
+                choices=["yes", "no"],
+                default="yes",
+            )
+            == "yes"
+        ):
             console.print()
             for repo, repo_name in updated_repos:
                 try:
                     console.print(f"[dim]Merging 'lsm' to 'main' in {repo_name}...[/dim]")
-                    
+
                     # Checkout main
                     repo.checkout_branch("main")
-                    
+
                     # Merge lsm into main
                     lsm_commit_id = repo.get_branch_commit("lsm")
                     if not lsm_commit_id:
-                        console.print(f"  [yellow]  No commits in 'lsm' branch, skipping[/yellow]")
+                        console.print("  [yellow]  No commits in 'lsm' branch, skipping[/yellow]")
                         continue
-                    
+
                     lsm_commit = repo.get_commit(lsm_commit_id)
                     if not lsm_commit:
-                        console.print(f"  [yellow]  Commit not found, skipping[/yellow]")
+                        console.print("  [yellow]  Commit not found, skipping[/yellow]")
                         continue
-                    
+
                     # Apply lsm changes to main (use lsm's data directly)
                     repo.update_index(lsm_commit.map_data)
                     merge_commit = repo.create_commit(
@@ -1143,22 +1138,27 @@ def _transfer_to_local_folder(
                         author="GitMap",
                     )
                     console.print(f"  [green]  Merged (commit {merge_commit.id[:8]})[/green]")
-                    
+
                 except Exception as merge_error:
                     console.print(f"  [red]  Failed to merge: {merge_error}[/red]")
-            
+
             console.print()
             # For local folders, we might not have Portal connection, so check if repos have remotes
             repos_with_remotes = [
-                (repo, repo_name) for repo, repo_name in updated_repos
+                (repo, repo_name)
+                for repo, repo_name in updated_repos
                 if repo.get_config().remote and repo.get_config().remote.item_id
             ]
-            
-            if repos_with_remotes and Prompt.ask(
-                "Push all changes to Portal?",
-                choices=["yes", "no"],
-                default="yes",
-            ) == "yes":
+
+            if (
+                repos_with_remotes
+                and Prompt.ask(
+                    "Push all changes to Portal?",
+                    choices=["yes", "no"],
+                    default="yes",
+                )
+                == "yes"
+            ):
                 console.print()
                 # Get portal URL from first repo with remote, or use default
                 portal_url = os.environ.get("PORTAL_URL", "https://www.arcgis.com")
@@ -1168,7 +1168,7 @@ def _transfer_to_local_folder(
                         portal_url = config.remote.url
                         break
                 connection = get_connection(url=portal_url)
-                
+
                 for repo, repo_name in repos_with_remotes:
                     try:
                         console.print(f"[dim]Pushing 'main' for {repo_name}...[/dim]")
@@ -1180,17 +1180,17 @@ def _transfer_to_local_folder(
 
 
 def _transfer_to_remote_folder(
-        source_map: dict[str, Any],
-        current_repo: Repository | None,
-        folder_id: str,
-        folder_owner: str | None,
-        dry_run: bool,
+    source_map: dict[str, Any],
+    current_repo: Repository | None,
+    folder_id: str,
+    folder_owner: str | None,
+    dry_run: bool,
 ) -> None:
     """Transfer settings from a source map to all web maps in a Portal folder.
-    
+
     For each target map, finds or clones the local gitmap repository, creates
     an 'lsm' branch with the changes, then prompts to merge and push.
-    
+
     Args:
         source_map: Source map JSON data.
         current_repo: Current repository context.
@@ -1234,10 +1234,10 @@ def _transfer_to_remote_folder(
 
     for item in webmaps:
         console.print(f"[bold]{item.title}[/bold] ({item.id})")
-        
+
         try:
             # Get or clone repository for this item
-            console.print(f"  [dim]Getting/cloning repository...[/dim]")
+            console.print("  [dim]Getting/cloning repository...[/dim]")
             start_path = current_repo.root if current_repo else None
             repo = _get_or_clone_repo_for_item(
                 item_id=item.id,
@@ -1246,35 +1246,35 @@ def _transfer_to_remote_folder(
                 connection=connection,
                 start_path=start_path,
             )
-            
+
             # Get current map state from Portal
-            console.print(f"  [dim]Fetching map from Portal...[/dim]")
+            console.print("  [dim]Fetching map from Portal...[/dim]")
             target_map = get_webmap_json(item)
-            
+
             target_layers = target_map.get("operationalLayers", [])
             target_tables = target_map.get("tables", [])
-            
+
             if not target_layers and not target_tables:
                 console.print("[yellow]  Target map has no operational layers or tables[/yellow]")
                 console.print()
                 continue
-            
+
             # Apply settings transfer
             updated_map, summary = _transfer_settings_between_maps(
                 source_map=source_map,
                 target_map=target_map,
             )
-            
+
             # Show summary (compact version)
             transferred_count = len(summary.get("transferred_layers", [])) + len(summary.get("transferred_tables", []))
             skipped_count = len(summary.get("skipped_layers", [])) + len(summary.get("skipped_tables", []))
             console.print(f"  [dim]Transferred: {transferred_count}, Skipped: {skipped_count}[/dim]")
-            
+
             if dry_run:
                 console.print("[dim]  Dry-run mode: No changes applied[/dim]")
                 console.print()
                 continue
-            
+
             # Ensure main branch exists
             branches = repo.list_branches()
             if "main" not in branches:
@@ -1290,12 +1290,12 @@ def _transfer_to_remote_folder(
                         author=connection.username or "GitMap",
                     )
                     repo.create_branch("main")
-            
+
             # Checkout main (ensure we're on main branch)
             current_branch = repo.get_current_branch()
             if current_branch != "main":
                 repo.checkout_branch("main")
-            
+
             # Pull latest from Portal to ensure main is up to date
             try:
                 remote_ops = RemoteOperations(repo, connection)
@@ -1306,16 +1306,16 @@ def _transfer_to_remote_folder(
                         message=f"Update from Portal: {item.title}",
                         author=connection.username or "GitMap",
                     )
-            except Exception as pull_error:
+            except Exception:
                 # If pull fails (e.g., no remote item for branch), use current Portal state
-                console.print(f"  [dim]Using current Portal state[/dim]")
+                console.print("  [dim]Using current Portal state[/dim]")
                 repo.update_index(target_map)
                 if repo.has_uncommitted_changes():
                     repo.create_commit(
                         message=f"Update from Portal: {item.title}",
                         author=connection.username or "GitMap",
                     )
-            
+
             # Get the latest main commit ID (after potential updates)
             main_commit_id = repo.get_branch_commit("main")
             if not main_commit_id:
@@ -1323,7 +1323,7 @@ def _transfer_to_remote_folder(
                 main_commit_id = repo.get_head_commit()
                 if main_commit_id:
                     repo.update_branch("main", main_commit_id)
-            
+
             # Create or checkout lsm branch from latest main
             lsm_branch = "lsm"
             branches = repo.list_branches()  # Refresh branch list
@@ -1343,55 +1343,58 @@ def _transfer_to_remote_folder(
                     # Fallback: create branch from current HEAD
                     repo.create_branch(lsm_branch)
                     repo.checkout_branch(lsm_branch)
-            
+
             # Apply changes to index
             repo.update_index(updated_map)
-            
+
             # Commit changes
             commit = repo.create_commit(
                 message=f"Layer settings merge: {item.title}",
                 author=connection.username or "GitMap",
             )
-            
+
             console.print(f"  [green]Created commit {commit.id[:8]} in branch 'lsm'[/green]")
             updated_repos.append((repo, item.title, item.id))
-            
+
         except Exception as process_error:
             console.print(f"  [red]Failed to process '{item.title}': {process_error}[/red]")
-        
+
         console.print()
-    
+
     # Prompt to merge and push
     if not dry_run and updated_repos:
         console.print()
         console.print(f"[bold]Successfully updated {len(updated_repos)} repositories[/bold]")
         console.print()
-        
-        if Prompt.ask(
-            "Merge all 'lsm' branches to 'main'?",
-            choices=["yes", "no"],
-            default="yes",
-        ) == "yes":
+
+        if (
+            Prompt.ask(
+                "Merge all 'lsm' branches to 'main'?",
+                choices=["yes", "no"],
+                default="yes",
+            )
+            == "yes"
+        ):
             console.print()
-            for repo, item_title, item_id in updated_repos:
+            for repo, item_title, _item_id in updated_repos:
                 try:
                     console.print(f"[dim]Merging 'lsm' to 'main' in {item_title}...[/dim]")
-                    
+
                     # Checkout main
                     repo.checkout_branch("main")
-                    
+
                     # Merge lsm into main
                     # Get the lsm commit
                     lsm_commit_id = repo.get_branch_commit("lsm")
                     if not lsm_commit_id:
-                        console.print(f"  [yellow]  No commits in 'lsm' branch, skipping[/yellow]")
+                        console.print("  [yellow]  No commits in 'lsm' branch, skipping[/yellow]")
                         continue
-                    
+
                     lsm_commit = repo.get_commit(lsm_commit_id)
                     if not lsm_commit:
-                        console.print(f"  [yellow]  Commit not found, skipping[/yellow]")
+                        console.print("  [yellow]  Commit not found, skipping[/yellow]")
                         continue
-                    
+
                     # Get main data
                     main_commit_id = repo.get_branch_commit("main")
                     main_data = repo.get_index()
@@ -1399,11 +1402,11 @@ def _transfer_to_remote_folder(
                         main_commit = repo.get_commit(main_commit_id)
                         if main_commit:
                             main_data = main_commit.map_data
-                    
+
                     if not main_data:
-                        console.print(f"  [yellow]  No data in main branch, skipping[/yellow]")
+                        console.print("  [yellow]  No data in main branch, skipping[/yellow]")
                         continue
-                    
+
                     # Apply lsm changes to main (use lsm's data directly)
                     repo.update_index(lsm_commit.map_data)
                     merge_commit = repo.create_commit(
@@ -1411,18 +1414,21 @@ def _transfer_to_remote_folder(
                         author=connection.username or "GitMap",
                     )
                     console.print(f"  [green]  Merged (commit {merge_commit.id[:8]})[/green]")
-                    
+
                 except Exception as merge_error:
                     console.print(f"  [red]  Failed to merge: {merge_error}[/red]")
-            
+
             console.print()
-            if Prompt.ask(
-                "Push all changes to Portal?",
-                choices=["yes", "no"],
-                default="yes",
-            ) == "yes":
+            if (
+                Prompt.ask(
+                    "Push all changes to Portal?",
+                    choices=["yes", "no"],
+                    default="yes",
+                )
+                == "yes"
+            ):
                 console.print()
-                for repo, item_title, item_id in updated_repos:
+                for repo, item_title, _item_id in updated_repos:
                     try:
                         console.print(f"[dim]Pushing 'main' for {item_title}...[/dim]")
                         remote_ops = RemoteOperations(repo, connection)
@@ -1430,4 +1436,3 @@ def _transfer_to_remote_folder(
                         console.print(f"  [green]  Pushed (Item ID: {item.id})[/green]")
                     except Exception as push_error:
                         console.print(f"  [red]  Failed to push: {push_error}[/red]")
-

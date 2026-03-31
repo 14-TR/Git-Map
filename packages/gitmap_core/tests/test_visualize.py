@@ -10,6 +10,7 @@ Dependencies:
     - pytest: Test framework
     - gitmap_core: Module under test
 """
+
 from __future__ import annotations
 
 import tempfile

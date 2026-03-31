@@ -14,6 +14,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import click
@@ -21,10 +22,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
 
-from gitmap_core.merge import apply_resolution
-from gitmap_core.merge import format_merge_summary
-from gitmap_core.merge import merge_maps
-from gitmap_core.merge import resolve_conflict
+from gitmap_core.merge import apply_resolution, format_merge_summary, merge_maps, resolve_conflict
 from gitmap_core.repository import find_repository
 
 console = Console()
@@ -80,9 +78,9 @@ def _record_merge_event(
     help="Abort an in-progress merge.",
 )
 def merge(
-        branch: str,
-        no_commit: bool,
-        abort_merge: bool,
+    branch: str,
+    no_commit: bool,
+    abort_merge: bool,
 ) -> None:
     """Merge a branch into the current branch.
 
@@ -109,8 +107,7 @@ def merge(
         # Check branch exists
         if branch not in repo.list_branches():
             raise click.ClickException(
-                f"Branch '{branch}' not found.\n"
-                "  Hint: use 'gitmap branch' to list available branches."
+                f"Branch '{branch}' not found.\n  Hint: use 'gitmap branch' to list available branches."
             )
 
         # Get commit data
@@ -142,9 +139,7 @@ def merge(
                 ancestor_commit = repo.get_commit(ancestor_id)
                 if ancestor_commit:
                     base_data = ancestor_commit.map_data
-                    console.print(
-                        f"[dim]Common ancestor: {ancestor_id[:8]}[/dim]"
-                    )
+                    console.print(f"[dim]Common ancestor: {ancestor_id[:8]}[/dim]")
 
         merge_result = merge_maps(
             ours=our_data,
@@ -161,29 +156,31 @@ def merge(
             # Check merged_data to see which conflicts are tables vs layers
             merged_tables = merge_result.merged_data.get("tables", [])
             merged_layers = merge_result.merged_data.get("operationalLayers", [])
-            
+
             table_ids = {table.get("id") for table in merged_tables if table.get("id")}
             layer_ids = {layer.get("id") for layer in merged_layers if layer.get("id")}
-            
+
             # A conflict could be in either, but check tables first (more specific)
             table_conflicts = [c for c in merge_result.conflicts if c.layer_id in table_ids]
             layer_conflicts = [c for c in merge_result.conflicts if c.layer_id not in table_ids]
 
             total_conflicts = len(merge_result.conflicts)
-            console.print(Panel(
-                f"[yellow]Merge has {total_conflicts} conflict(s)[/yellow]\n"
-                f"  Layers: {len(layer_conflicts)}\n"
-                f"  Tables: {len(table_conflicts)}",
-                title="Merge Conflicts",
-                border_style="yellow",
-            ))
+            console.print(
+                Panel(
+                    f"[yellow]Merge has {total_conflicts} conflict(s)[/yellow]\n"
+                    f"  Layers: {len(layer_conflicts)}\n"
+                    f"  Tables: {len(table_conflicts)}",
+                    title="Merge Conflicts",
+                    border_style="yellow",
+                )
+            )
 
             # Handle table conflicts - prompt once for all
             if table_conflicts:
                 console.print()
                 console.print(f"[bold]Table Conflicts ({len(table_conflicts)}):[/bold]")
                 console.print("  Tables will be resolved together.")
-                
+
                 table_choice = Prompt.ask(
                     "  Resolve all tables with",
                     choices=["ours", "theirs", "skip"],
@@ -200,7 +197,7 @@ def merge(
             if layer_conflicts:
                 console.print()
                 console.print(f"[bold]Layer Conflicts ({len(layer_conflicts)}):[/bold]")
-                
+
                 for conflict in layer_conflicts:
                     console.print()
                     console.print(f"[bold]Conflict in layer: {conflict.layer_title}[/bold]")
@@ -268,5 +265,3 @@ def merge(
     except Exception as merge_error:
         msg = f"Merge failed: {merge_error}"
         raise click.ClickException(msg) from merge_error
-
-

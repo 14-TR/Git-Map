@@ -13,10 +13,10 @@ Metadata:
     Version: 1.0.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import click
-
 
 # ---- Command Section Definitions ----------------------------------------------------------------------------
 
@@ -56,8 +56,7 @@ class GroupedHelpGroup(click.Group):
     def format_commands(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
         """Render commands in named sections instead of a flat list."""
         available: dict[str, click.BaseCommand | None] = {
-            name: self.get_command(ctx, name)
-            for name in self.list_commands(ctx)
+            name: self.get_command(ctx, name) for name in self.list_commands(ctx)
         }
 
         placed: set[str] = set()

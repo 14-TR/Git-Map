@@ -15,6 +15,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -112,12 +113,14 @@ def show(
         if output_format == "ascii":
             console.print(Panel(viz, title="Context Timeline", border_style="blue"))
         elif output_format.startswith("mermaid"):
-            console.print(Panel(
-                Syntax(viz, "text", theme="monokai"),
-                title="Mermaid Diagram",
-                subtitle="Copy to .md file for IDE preview",
-                border_style="green",
-            ))
+            console.print(
+                Panel(
+                    Syntax(viz, "text", theme="monokai"),
+                    title="Mermaid Diagram",
+                    subtitle="Copy to .md file for IDE preview",
+                    border_style="green",
+                )
+            )
 
     except ValueError as format_error:
         raise click.ClickException(str(format_error)) from format_error

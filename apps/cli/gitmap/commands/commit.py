@@ -14,6 +14,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import click
@@ -47,9 +48,9 @@ console = Console()
     help="Optional rationale explaining why this change is being made.",
 )
 def commit(
-        message: str,
-        author: str,
-        rationale: str,
+    message: str,
+    author: str,
+    rationale: str,
 ) -> None:
     """Record changes to the repository.
 
@@ -104,5 +105,3 @@ def commit(
     except Exception as commit_error:
         msg = f"Commit failed: {commit_error}"
         raise click.ClickException(msg) from commit_error
-
-

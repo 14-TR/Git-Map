@@ -3,6 +3,7 @@
 This module tests that the lazy import wrapper functions in __init__.py
 correctly delegate to their underlying implementations in visualize.py.
 """
+
 from __future__ import annotations
 
 import tempfile

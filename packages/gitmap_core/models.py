@@ -14,6 +14,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import json
@@ -49,13 +50,13 @@ class Commit:
 
     @classmethod
     def create(
-            cls,
-            commit_id: str,
-            message: str,
-            author: str,
-            parent: str | None = None,
-            parent2: str | None = None,
-            map_data: dict[str, Any] | None = None,
+        cls,
+        commit_id: str,
+        message: str,
+        author: str,
+        parent: str | None = None,
+        parent2: str | None = None,
+        map_data: dict[str, Any] | None = None,
     ) -> Commit:
         """Create a new commit with current timestamp.
 
@@ -81,7 +82,7 @@ class Commit:
         )
 
     def to_dict(
-            self,
+        self,
     ) -> dict[str, Any]:
         """Convert commit to dictionary for JSON serialization.
 
@@ -92,8 +93,8 @@ class Commit:
 
     @classmethod
     def from_dict(
-            cls,
-            data: dict[str, Any],
+        cls,
+        data: dict[str, Any],
     ) -> Commit:
         """Create commit from dictionary.
 
@@ -106,8 +107,8 @@ class Commit:
         return cls(**data)
 
     def save(
-            self,
-            commits_dir: Path,
+        self,
+        commits_dir: Path,
     ) -> Path:
         """Save commit to file.
 
@@ -123,8 +124,8 @@ class Commit:
 
     @classmethod
     def load(
-            cls,
-            filepath: Path,
+        cls,
+        filepath: Path,
     ) -> Commit:
         """Load commit from file.
 
@@ -158,7 +159,7 @@ class Branch:
     commit_id: str
 
     def to_dict(
-            self,
+        self,
     ) -> dict[str, str]:
         """Convert branch to dictionary.
 
@@ -169,8 +170,8 @@ class Branch:
 
     @classmethod
     def from_dict(
-            cls,
-            data: dict[str, str],
+        cls,
+        data: dict[str, str],
     ) -> Branch:
         """Create branch from dictionary.
 
@@ -204,7 +205,7 @@ class Remote:
     production_branch: str | None = None
 
     def to_dict(
-            self,
+        self,
     ) -> dict[str, Any]:
         """Convert remote to dictionary.
 
@@ -215,8 +216,8 @@ class Remote:
 
     @classmethod
     def from_dict(
-            cls,
-            data: dict[str, Any],
+        cls,
+        data: dict[str, Any],
     ) -> Remote:
         """Create remote from dictionary.
 
@@ -250,7 +251,7 @@ class RepoConfig:
     auto_visualize: bool = False
 
     def to_dict(
-            self,
+        self,
     ) -> dict[str, Any]:
         """Convert config to dictionary for JSON serialization.
 
@@ -270,8 +271,8 @@ class RepoConfig:
 
     @classmethod
     def from_dict(
-            cls,
-            data: dict[str, Any],
+        cls,
+        data: dict[str, Any],
     ) -> RepoConfig:
         """Create config from dictionary.
 
@@ -293,8 +294,8 @@ class RepoConfig:
         )
 
     def save(
-            self,
-            config_path: Path,
+        self,
+        config_path: Path,
     ) -> None:
         """Save config to file.
 
@@ -305,8 +306,8 @@ class RepoConfig:
 
     @classmethod
     def load(
-            cls,
-            config_path: Path,
+        cls,
+        config_path: Path,
     ) -> RepoConfig:
         """Load config from file.
 
@@ -325,5 +326,3 @@ class RepoConfig:
         except Exception as file_error:
             msg = f"Failed to load config from {config_path}: {file_error}"
             raise RuntimeError(msg) from file_error
-
-

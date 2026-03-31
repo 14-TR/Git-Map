@@ -14,6 +14,7 @@ Metadata:
     Version: 0.2.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import os
@@ -57,10 +58,10 @@ console = Console()
     help="Portal username (or use ARCGIS_USERNAME env var).",
 )
 def clone(
-        item_id: str,
-        directory: str,
-        url: str,
-        username: str,
+    item_id: str,
+    directory: str,
+    url: str,
+    username: str,
 ) -> None:
     """Clone a web map from Portal.
 
@@ -99,10 +100,7 @@ def clone(
             if directory:
                 target_dir = Path(directory).resolve()
             else:
-                safe_title = "".join(
-                    c if c.isalnum() or c in "-_" else "_"
-                    for c in item.title
-                )
+                safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in item.title)
                 target_dir = Path.cwd() / safe_title
 
             if target_dir.exists():

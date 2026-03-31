@@ -14,6 +14,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -63,7 +64,7 @@ class MergeResult:
 
     @property
     def has_conflicts(
-            self,
+        self,
     ) -> bool:
         """Check if there are unresolved conflicts."""
         return len(self.conflicts) > 0
@@ -73,9 +74,9 @@ class MergeResult:
 
 
 def merge_maps(
-        ours: dict[str, Any],
-        theirs: dict[str, Any],
-        base: dict[str, Any] | None = None,
+    ours: dict[str, Any],
+    theirs: dict[str, Any],
+    base: dict[str, Any] | None = None,
 ) -> MergeResult:
     """Merge two web map states.
 
@@ -133,23 +134,27 @@ def merge_maps(
                     merged_layers.append(our_layer)
                 else:
                     # Both changed - conflict
-                    result.conflicts.append(MergeConflict(
-                        layer_id=layer_id,
-                        layer_title=our_layer.get("title", "Untitled"),
-                        ours=our_layer,
-                        theirs=their_layer,
-                        base=base_layer,
-                    ))
+                    result.conflicts.append(
+                        MergeConflict(
+                            layer_id=layer_id,
+                            layer_title=our_layer.get("title", "Untitled"),
+                            ours=our_layer,
+                            theirs=their_layer,
+                            base=base_layer,
+                        )
+                    )
                     # Keep ours for now, user must resolve
                     merged_layers.append(our_layer)
             else:
                 # No base, both different - conflict
-                result.conflicts.append(MergeConflict(
-                    layer_id=layer_id,
-                    layer_title=our_layer.get("title", "Untitled"),
-                    ours=our_layer,
-                    theirs=their_layer,
-                ))
+                result.conflicts.append(
+                    MergeConflict(
+                        layer_id=layer_id,
+                        layer_title=our_layer.get("title", "Untitled"),
+                        ours=our_layer,
+                        theirs=their_layer,
+                    )
+                )
                 merged_layers.append(our_layer)
         else:
             # Only we have this layer
@@ -174,13 +179,15 @@ def merge_maps(
             base_layer = base_index[layer_id]
             if their_layer != base_layer:
                 # They modified a layer we deleted - conflict
-                result.conflicts.append(MergeConflict(
-                    layer_id=layer_id,
-                    layer_title=their_layer.get("title", "Untitled"),
-                    ours={},  # We deleted it
-                    theirs=their_layer,
-                    base=base_layer,
-                ))
+                result.conflicts.append(
+                    MergeConflict(
+                        layer_id=layer_id,
+                        layer_title=their_layer.get("title", "Untitled"),
+                        ours={},  # We deleted it
+                        theirs=their_layer,
+                        base=base_layer,
+                    )
+                )
             # Don't add - respect our deletion
         else:
             # They added this layer
@@ -226,23 +233,27 @@ def merge_maps(
                     merged_tables.append(our_table)
                 else:
                     # Both changed - conflict
-                    result.conflicts.append(MergeConflict(
-                        layer_id=table_id,
-                        layer_title=our_table.get("title", "Untitled"),
-                        ours=our_table,
-                        theirs=their_table,
-                        base=base_table,
-                    ))
+                    result.conflicts.append(
+                        MergeConflict(
+                            layer_id=table_id,
+                            layer_title=our_table.get("title", "Untitled"),
+                            ours=our_table,
+                            theirs=their_table,
+                            base=base_table,
+                        )
+                    )
                     # Keep ours for now, user must resolve
                     merged_tables.append(our_table)
             else:
                 # No base, both different - conflict
-                result.conflicts.append(MergeConflict(
-                    layer_id=table_id,
-                    layer_title=our_table.get("title", "Untitled"),
-                    ours=our_table,
-                    theirs=their_table,
-                ))
+                result.conflicts.append(
+                    MergeConflict(
+                        layer_id=table_id,
+                        layer_title=our_table.get("title", "Untitled"),
+                        ours=our_table,
+                        theirs=their_table,
+                    )
+                )
                 merged_tables.append(our_table)
         else:
             # Only we have this table
@@ -265,13 +276,15 @@ def merge_maps(
             base_table = base_table_index[table_id]
             if their_table != base_table:
                 # They modified a table we deleted - conflict
-                result.conflicts.append(MergeConflict(
-                    layer_id=table_id,
-                    layer_title=their_table.get("title", "Untitled"),
-                    ours={},  # We deleted it
-                    theirs=their_table,
-                    base=base_table,
-                ))
+                result.conflicts.append(
+                    MergeConflict(
+                        layer_id=table_id,
+                        layer_title=their_table.get("title", "Untitled"),
+                        ours={},  # We deleted it
+                        theirs=their_table,
+                        base=base_table,
+                    )
+                )
             # Don't add - respect our deletion
         else:
             # They added this table
@@ -286,7 +299,7 @@ def merge_maps(
 
 
 def _deep_copy(
-        obj: dict[str, Any],
+    obj: dict[str, Any],
 ) -> dict[str, Any]:
     """Create a deep copy of a dictionary.
 
@@ -297,12 +310,13 @@ def _deep_copy(
         Deep copy of the dictionary.
     """
     import json
+
     return json.loads(json.dumps(obj))
 
 
 def resolve_conflict(
-        conflict: MergeConflict,
-        resolution: str,
+    conflict: MergeConflict,
+    resolution: str,
 ) -> dict[str, Any]:
     """Resolve a merge conflict.
 
@@ -331,9 +345,9 @@ def resolve_conflict(
 
 
 def apply_resolution(
-        merge_result: MergeResult,
-        layer_id: str,
-        resolved_layer: dict[str, Any],
+    merge_result: MergeResult,
+    layer_id: str,
+    resolved_layer: dict[str, Any],
 ) -> MergeResult:
     """Apply a conflict resolution to merge result.
 
@@ -346,10 +360,7 @@ def apply_resolution(
         Updated merge result.
     """
     # Find and remove the conflict
-    merge_result.conflicts = [
-        c for c in merge_result.conflicts
-        if c.layer_id != layer_id
-    ]
+    merge_result.conflicts = [c for c in merge_result.conflicts if c.layer_id != layer_id]
 
     # Check if this is a table or layer
     tables = merge_result.merged_data.get("tables", [])
@@ -399,7 +410,7 @@ def apply_resolution(
 
 
 def format_merge_summary(
-        result: MergeResult,
+    result: MergeResult,
 ) -> str:
     """Format merge result as human-readable summary.
 
@@ -442,5 +453,3 @@ def format_merge_summary(
             lines.append(f"  ! {conflict.layer_title} ({conflict.layer_id})")
 
     return "\n".join(lines)
-
-

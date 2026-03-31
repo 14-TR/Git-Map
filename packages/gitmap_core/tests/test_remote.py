@@ -11,6 +11,7 @@ Dependencies:
     - unittest.mock: Mocking Portal/Repository objects
     - gitmap_core.remote: Module under test
 """
+
 from __future__ import annotations
 
 import json
@@ -84,9 +85,7 @@ def mock_repo_config_no_remote() -> RepoConfig:
 
 
 @pytest.fixture
-def mock_repository(
-    mock_repo_config: RepoConfig, sample_commit: Commit
-) -> MagicMock:
+def mock_repository(mock_repo_config: RepoConfig, sample_commit: Commit) -> MagicMock:
     """Create mock Repository."""
     repo = MagicMock()
     repo.get_config.return_value = mock_repo_config
@@ -141,9 +140,7 @@ def mock_portal_item(sample_map_data: dict[str, Any]) -> MagicMock:
 
 
 @pytest.fixture
-def remote_ops(
-    mock_repository: MagicMock, mock_connection: MagicMock
-) -> RemoteOperations:
+def remote_ops(mock_repository: MagicMock, mock_connection: MagicMock) -> RemoteOperations:
     """Create RemoteOperations instance."""
     return RemoteOperations(mock_repository, mock_connection)
 
@@ -154,9 +151,7 @@ def remote_ops(
 class TestRemoteOperationsInit:
     """Tests for RemoteOperations initialization."""
 
-    def test_init_with_repo_and_connection(
-        self, mock_repository: MagicMock, mock_connection: MagicMock
-    ) -> None:
+    def test_init_with_repo_and_connection(self, mock_repository: MagicMock, mock_connection: MagicMock) -> None:
         """Test initializing RemoteOperations."""
         ops = RemoteOperations(mock_repository, mock_connection)
 
@@ -170,9 +165,7 @@ class TestRemoteOperationsInit:
 
         assert gis == remote_ops.connection.gis
 
-    def test_remote_property(
-        self, remote_ops: RemoteOperations, mock_repo_config: RepoConfig
-    ) -> None:
+    def test_remote_property(self, remote_ops: RemoteOperations, mock_repo_config: RepoConfig) -> None:
         """Test remote property returns configured remote."""
         remote = remote_ops.remote
 
@@ -186,9 +179,7 @@ class TestRemoteOperationsInit:
 class TestFolderManagement:
     """Tests for folder management operations."""
 
-    def test_get_or_create_folder_uses_existing_folder_id(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_get_or_create_folder_uses_existing_folder_id(self, remote_ops: RemoteOperations) -> None:
         """Test that existing folder_id is reused."""
         result = remote_ops.get_or_create_folder()
 
@@ -216,9 +207,7 @@ class TestFolderManagement:
 
         assert result == "found-folder-id"
 
-    def test_get_or_create_folder_creates_new(
-        self, mock_repository: MagicMock, mock_connection: MagicMock
-    ) -> None:
+    def test_get_or_create_folder_creates_new(self, mock_repository: MagicMock, mock_connection: MagicMock) -> None:
         """Test creating new folder when none exists."""
         # Set up config without folder_id
         config = RepoConfig(
@@ -334,9 +323,7 @@ class TestFolderManagement:
         mock_connection.gis.users.me.items.return_value = []
 
         # Creation fails with "already exists" error
-        mock_connection.gis.content.folders.create.side_effect = Exception(
-            "Folder name is not available"
-        )
+        mock_connection.gis.content.folders.create.side_effect = Exception("Folder name is not available")
 
         # On retry, folder is found
         found_folder = MagicMock()
@@ -345,6 +332,7 @@ class TestFolderManagement:
 
         # Use a counter to return empty first, then the folder
         call_count = [0]
+
         def folders_side_effect():
             call_count[0] += 1
             if call_count[0] > 1:
@@ -373,9 +361,7 @@ class TestFolderManagement:
         mock_connection.gis.users.me.items.return_value = []
 
         # Creation fails with "already exists" error
-        mock_connection.gis.content.folders.create.side_effect = Exception(
-            "unable to create folder"
-        )
+        mock_connection.gis.content.folders.create.side_effect = Exception("unable to create folder")
 
         ops = RemoteOperations(mock_repository, mock_connection)
 
@@ -398,9 +384,7 @@ class TestFolderManagement:
         mock_connection.gis.users.me.items.return_value = []
 
         # Creation fails with unexpected error
-        mock_connection.gis.content.folders.create.side_effect = Exception(
-            "Network error: connection refused"
-        )
+        mock_connection.gis.content.folders.create.side_effect = Exception("Network error: connection refused")
 
         ops = RemoteOperations(mock_repository, mock_connection)
 
@@ -428,10 +412,7 @@ class TestFolderManagement:
         mock_connection.gis.users.me.items.return_value = [item_in_folder]
 
         # Folder info returns dict (not object)
-        mock_connection.gis.content.get_folder.return_value = {
-            "title": "TestProject",
-            "id": "dict-folder-id"
-        }
+        mock_connection.gis.content.get_folder.return_value = {"title": "TestProject", "id": "dict-folder-id"}
 
         ops = RemoteOperations(mock_repository, mock_connection)
         result = ops.get_or_create_folder()
@@ -551,9 +532,7 @@ class TestPushOperations:
 
         mock_repository.get_branch_commit.assert_called_with("specific/branch")
 
-    def test_push_raises_for_detached_head(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_push_raises_for_detached_head(self, remote_ops: RemoteOperations) -> None:
         """Test push raises error for detached HEAD."""
         remote_ops.repo.get_current_branch.return_value = None
 
@@ -562,9 +541,7 @@ class TestPushOperations:
 
         assert "No branch to push" in str(exc_info.value)
 
-    def test_push_raises_for_branch_without_commits(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_push_raises_for_branch_without_commits(self, remote_ops: RemoteOperations) -> None:
         """Test push raises error when branch has no commits."""
         remote_ops.repo.get_branch_commit.return_value = None
 
@@ -573,9 +550,7 @@ class TestPushOperations:
 
         assert "has no commits" in str(exc_info.value)
 
-    def test_push_raises_when_commit_not_found(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_push_raises_when_commit_not_found(self, remote_ops: RemoteOperations) -> None:
         """Test push raises error when commit not found."""
         remote_ops.repo.get_commit.return_value = None
 
@@ -594,9 +569,7 @@ class TestPushOperations:
 
         assert notification_status["attempted"] is False
 
-    def test_push_skip_notifications_flag(
-        self, remote_ops: RemoteOperations, mock_portal_item: MagicMock
-    ) -> None:
+    def test_push_skip_notifications_flag(self, remote_ops: RemoteOperations, mock_portal_item: MagicMock) -> None:
         """Test skip_notifications parameter."""
         # Set up as production branch
         remote_ops.config.remote.production_branch = "main"
@@ -893,9 +866,7 @@ class TestPullOperations:
         assert result == sample_map_data
         mock_repository.update_index.assert_called_once_with(sample_map_data)
 
-    def test_pull_raises_for_detached_head(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_pull_raises_for_detached_head(self, remote_ops: RemoteOperations) -> None:
         """Test pull raises error for detached HEAD."""
         remote_ops.repo.get_current_branch.return_value = None
 
@@ -904,9 +875,7 @@ class TestPullOperations:
 
         assert "No branch to pull" in str(exc_info.value)
 
-    def test_pull_raises_without_remote(
-        self, mock_repository: MagicMock, mock_connection: MagicMock
-    ) -> None:
+    def test_pull_raises_without_remote(self, mock_repository: MagicMock, mock_connection: MagicMock) -> None:
         """Test pull raises error when no remote configured."""
         config = RepoConfig(project_name="Test", remote=None)
         mock_repository.get_config.return_value = config
@@ -1176,9 +1145,7 @@ class TestBranchToItemTitle:
 class TestMetadataOperations:
     """Tests for metadata push operations."""
 
-    def test_push_metadata_creates_new(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_push_metadata_creates_new(self, remote_ops: RemoteOperations) -> None:
         """Test pushing metadata creates new item."""
         remote_ops.connection.gis.users.me.items.return_value = []
 
@@ -1192,9 +1159,7 @@ class TestMetadataOperations:
         call_kwargs = remote_ops.connection.gis.content.add.call_args
         assert call_kwargs.kwargs["item_properties"]["title"] == GITMAP_META_TITLE
 
-    def test_push_metadata_updates_existing(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_push_metadata_updates_existing(self, remote_ops: RemoteOperations) -> None:
         """Test pushing metadata updates existing item."""
         existing_item = MagicMock()
         existing_item.title = GITMAP_META_TITLE
@@ -1205,9 +1170,7 @@ class TestMetadataOperations:
         assert result == existing_item
         existing_item.update.assert_called_once()
 
-    def test_push_metadata_includes_branch_info(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_push_metadata_includes_branch_info(self, remote_ops: RemoteOperations) -> None:
         """Test metadata includes branch information."""
         remote_ops.connection.gis.users.me.items.return_value = []
 
@@ -1281,9 +1244,7 @@ class TestItemCreationUpdate:
 class TestFindBranchItem:
     """Tests for finding branch items in folders."""
 
-    def test_find_existing_branch_item(
-        self, remote_ops: RemoteOperations, mock_portal_item: MagicMock
-    ) -> None:
+    def test_find_existing_branch_item(self, remote_ops: RemoteOperations, mock_portal_item: MagicMock) -> None:
         """Test finding existing branch item."""
         mock_portal_item.title = "feature_test"
         remote_ops.connection.gis.users.me.items.return_value = [mock_portal_item]
@@ -1292,9 +1253,7 @@ class TestFindBranchItem:
 
         assert result == mock_portal_item
 
-    def test_find_branch_item_not_found(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_find_branch_item_not_found(self, remote_ops: RemoteOperations) -> None:
         """Test returns None when branch item not found."""
         remote_ops.connection.gis.users.me.items.return_value = []
 
@@ -1302,9 +1261,7 @@ class TestFindBranchItem:
 
         assert result is None
 
-    def test_find_branch_item_skips_non_webmap(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_find_branch_item_skips_non_webmap(self, remote_ops: RemoteOperations) -> None:
         """Test skips non-Web Map items."""
         item = MagicMock()
         item.title = "feature_test"
@@ -1315,9 +1272,7 @@ class TestFindBranchItem:
 
         assert result is None
 
-    def test_find_branch_item_handles_exception(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_find_branch_item_handles_exception(self, remote_ops: RemoteOperations) -> None:
         """Test returns None on exception."""
         remote_ops.connection.gis.users.me.items.side_effect = Exception("Error")
 
@@ -1332,9 +1287,7 @@ class TestFindBranchItem:
 class TestFindMetadataItem:
     """Tests for finding metadata items."""
 
-    def test_find_existing_metadata_item(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_find_existing_metadata_item(self, remote_ops: RemoteOperations) -> None:
         """Test finding existing metadata item."""
         meta_item = MagicMock()
         meta_item.title = GITMAP_META_TITLE
@@ -1344,9 +1297,7 @@ class TestFindMetadataItem:
 
         assert result == meta_item
 
-    def test_find_metadata_item_not_found(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_find_metadata_item_not_found(self, remote_ops: RemoteOperations) -> None:
         """Test returns None when metadata item not found."""
         remote_ops.connection.gis.users.me.items.return_value = []
 
@@ -1354,9 +1305,7 @@ class TestFindMetadataItem:
 
         assert result is None
 
-    def test_find_metadata_item_handles_exception(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_find_metadata_item_handles_exception(self, remote_ops: RemoteOperations) -> None:
         """Test returns None on exception."""
         remote_ops.connection.gis.users.me.items.side_effect = Exception("Error")
 
@@ -2081,21 +2030,15 @@ class TestCommitNotFoundEdgeCases:
 class TestMetadataEdgeCases:
     """Edge cases for metadata operations."""
 
-    def test_push_metadata_handles_folder_error(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_push_metadata_handles_folder_error(self, remote_ops: RemoteOperations) -> None:
         """Test metadata push handles folder creation error."""
         # get_or_create_folder raises
-        remote_ops.get_or_create_folder = MagicMock(
-            side_effect=RuntimeError("Folder error")
-        )
+        remote_ops.get_or_create_folder = MagicMock(side_effect=RuntimeError("Folder error"))
 
         with pytest.raises(RuntimeError):
             remote_ops.push_metadata()
 
-    def test_push_metadata_with_no_branches(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_push_metadata_with_no_branches(self, remote_ops: RemoteOperations) -> None:
         """Test metadata push with repository having no branches."""
         remote_ops.repo.list_branches.return_value = []
         remote_ops.repo.get_branch_commit.return_value = None
@@ -2149,9 +2092,7 @@ class TestFolderFallbackSearch:
         mock_connection.gis.content.get_folder.side_effect = get_folder_side_effect
 
         # But folder creation fails with exists error
-        mock_connection.gis.content.folders.create.side_effect = Exception(
-            "Folder name is not available"
-        )
+        mock_connection.gis.content.folders.create.side_effect = Exception("Folder name is not available")
 
         ops = RemoteOperations(mock_repository, mock_connection)
         result = ops.get_or_create_folder()
@@ -2172,9 +2113,7 @@ class TestFolderFallbackSearch:
         mock_connection.gis.users.me.items.return_value = []
 
         # Creation fails with unexpected error (not 'exists' related)
-        mock_connection.gis.content.folders.create.side_effect = Exception(
-            "Permission denied"
-        )
+        mock_connection.gis.content.folders.create.side_effect = Exception("Permission denied")
 
         ops = RemoteOperations(mock_repository, mock_connection)
 
@@ -2183,9 +2122,7 @@ class TestFolderFallbackSearch:
 
         assert "Failed to create folder" in str(exc_info.value)
 
-    def test_folder_get_returns_none(
-        self, mock_repository: MagicMock, mock_connection: MagicMock
-    ) -> None:
+    def test_folder_get_returns_none(self, mock_repository: MagicMock, mock_connection: MagicMock) -> None:
         """Test folder creation when get_folder returns None."""
         config = RepoConfig(
             project_name="TestProject",
@@ -2742,19 +2679,14 @@ class TestAdditionalFolderSearchEdgeCases:
         mock_connection.gis.users.me.items.return_value = [item_in_folder]
 
         # get_folder returns dict
-        mock_connection.gis.content.get_folder.return_value = {
-            "title": "TestProject",
-            "id": "dict-id"
-        }
+        mock_connection.gis.content.get_folder.return_value = {"title": "TestProject", "id": "dict-id"}
 
         ops = RemoteOperations(mock_repository, mock_connection)
         result = ops.get_or_create_folder()
 
         assert result == "dict-id"
 
-    def test_folder_search_case_difference_only(
-        self, mock_repository: MagicMock, mock_connection: MagicMock
-    ) -> None:
+    def test_folder_search_case_difference_only(self, mock_repository: MagicMock, mock_connection: MagicMock) -> None:
         """Test folder search matches with case difference only."""
         config = RepoConfig(
             project_name="TESTPROJECT",
@@ -2997,9 +2929,7 @@ class TestNotificationSharingDataTypes:
 class TestMetadataItemExceptionHandling:
     """Tests for metadata item exception handling."""
 
-    def test_find_metadata_item_raises_on_query(
-        self, remote_ops: RemoteOperations
-    ) -> None:
+    def test_find_metadata_item_raises_on_query(self, remote_ops: RemoteOperations) -> None:
         """Test _find_metadata_item handles exception and returns None."""
         # items() raises exception
         remote_ops.connection.gis.users.me.items.side_effect = Exception("Query failed")

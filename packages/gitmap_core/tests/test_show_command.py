@@ -12,6 +12,7 @@ Dependencies:
     - gitmap_core.repository: Module under test
     - gitmap_core.diff: Diff utilities
 """
+
 from __future__ import annotations
 
 import tempfile
@@ -21,8 +22,7 @@ from typing import Any
 import pytest
 
 from gitmap_core.diff import diff_maps
-from gitmap_core.repository import Repository, find_repository, init_repository
-
+from gitmap_core.repository import Repository
 
 # ---- Fixtures ------------------------------------------------------------------------------------------------
 
@@ -69,9 +69,9 @@ def map_data_v2() -> dict[str, Any]:
 
 @pytest.fixture
 def repo_with_two_commits(
-        repo: Repository,
-        map_data_v1: dict,
-        map_data_v2: dict,
+    repo: Repository,
+    map_data_v1: dict,
+    map_data_v2: dict,
 ) -> tuple[Repository, str, str]:
     """Repository with two commits; returns (repo, commit1_id, commit2_id)."""
     repo.update_index(map_data_v1)
@@ -160,9 +160,7 @@ class TestCommitRetrieval:
 class TestShowDiff:
     """Tests for the diff shown by the show command."""
 
-    def test_diff_between_commits_detects_added_layer(
-            self, repo_with_two_commits, map_data_v1, map_data_v2
-    ):
+    def test_diff_between_commits_detects_added_layer(self, repo_with_two_commits, map_data_v1, map_data_v2):
         repo, c1_id, c2_id = repo_with_two_commits
         c1 = repo.get_commit(c1_id)
         c2 = repo.get_commit(c2_id)
@@ -173,9 +171,7 @@ class TestShowDiff:
         added_titles = [ch.layer_title for ch in map_diff.added_layers]
         assert "Flood Risk" in added_titles
 
-    def test_diff_between_commits_detects_modified_layer(
-            self, repo_with_two_commits
-    ):
+    def test_diff_between_commits_detects_modified_layer(self, repo_with_two_commits):
         repo, c1_id, c2_id = repo_with_two_commits
         c1 = repo.get_commit(c1_id)
         c2 = repo.get_commit(c2_id)
@@ -190,9 +186,7 @@ class TestShowDiff:
         # Root commit has no parent — show should handle this gracefully
         assert not c1.parent or c1.parent == ""
 
-    def test_diff_identical_commits_has_no_changes(
-            self, repo: Repository, map_data_v1: dict
-    ):
+    def test_diff_identical_commits_has_no_changes(self, repo: Repository, map_data_v1: dict):
         """If two consecutive commits have the same data, diff shows no changes."""
         repo.update_index(map_data_v1)
         c1 = repo.create_commit("First", author="Tester")
@@ -248,9 +242,7 @@ class TestShowNoCommits:
 class TestBranchResolution:
     """Tests for resolving branch names in show."""
 
-    def test_feature_branch_resolves_to_correct_commit(
-            self, repo_with_two_commits, map_data_v2
-    ):
+    def test_feature_branch_resolves_to_correct_commit(self, repo_with_two_commits, map_data_v2):
         repo, c1_id, c2_id = repo_with_two_commits
 
         # Create a feature branch from HEAD

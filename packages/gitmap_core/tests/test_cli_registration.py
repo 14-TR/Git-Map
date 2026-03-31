@@ -11,19 +11,18 @@ Dependencies:
     - pytest: Test framework
     - click.testing: CLI test runner
 """
+
 from __future__ import annotations
-
-import sys
-from pathlib import Path
-
-import pytest
-from click.testing import CliRunner
 
 # Ensure the CLI package is importable as 'gitmap_cli'
 # The package dir is named 'gitmap' but the package name is 'gitmap_cli' (via pyproject.toml mapping)
 # When not pip-installed, we register it manually as a module alias
-import importlib
+import sys
 import types
+from pathlib import Path
+
+import pytest
+from click.testing import CliRunner
 
 _cli_dir = Path(__file__).parent.parent.parent.parent / "apps" / "cli" / "gitmap"
 _cli_commands_dir = _cli_dir / "commands"
@@ -45,7 +44,6 @@ if str(_cli_dir) not in sys.path:
     sys.path.insert(0, str(_cli_dir))
 
 from main import cli  # noqa: E402
-
 
 # ---- Fixtures ------------------------------------------------------------------------------------------------
 
@@ -101,27 +99,20 @@ class TestCommandRegistration:
         """Every command in EXPECTED_COMMANDS must appear in help output."""
         result = runner.invoke(cli, ["--help"])
         missing = [cmd for cmd in self.EXPECTED_COMMANDS if cmd not in result.output]
-        assert not missing, (
-            f"Commands missing from CLI registration: {missing}\n\n"
-            f"Full help output:\n{result.output}"
-        )
+        assert not missing, f"Commands missing from CLI registration: {missing}\n\nFull help output:\n{result.output}"
 
     def test_show_command_registered(self, runner: CliRunner) -> None:
         """Regression: 'show' command must be registered (was missing in v0.6.0)."""
         result = runner.invoke(cli, ["--help"])
         assert "show" in result.output, (
-            "'show' command not found in CLI help. "
-            "Ensure it is imported and registered in main.py."
+            "'show' command not found in CLI help. Ensure it is imported and registered in main.py."
         )
 
     def test_show_command_help(self, runner: CliRunner) -> None:
         """'gitmap show --help' should exit cleanly and describe the command."""
         result = runner.invoke(cli, ["show", "--help"])
         assert result.exit_code == 0, f"show --help failed:\n{result.output}"
-        assert "commit" in result.output.lower(), (
-            "Expected 'commit' in show help text"
-        )
-
+        assert "commit" in result.output.lower(), "Expected 'commit' in show help text"
 
     def test_completions_command_registered(self, runner: CliRunner) -> None:
         """'gitmap completions' must be registered and exit cleanly."""

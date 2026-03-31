@@ -2,6 +2,7 @@
 
 Tests cover Portal/AGOL notification helpers using mocked GIS connections.
 """
+
 from __future__ import annotations
 
 from unittest.mock import Mock, patch
@@ -272,9 +273,7 @@ class TestSendGroupNotification:
             "users": ["user1"],
         }
 
-        result = send_group_notification(
-            mock_gis, "group-123", "Subject", "Body text"
-        )
+        result = send_group_notification(mock_gis, "group-123", "Subject", "Body text")
 
         mock_group.notify.assert_called_once()
         call_kwargs = mock_group.notify.call_args[1]
@@ -289,8 +288,7 @@ class TestSendGroupNotification:
         mock_gis.groups.get.return_value = mock_group
 
         result = send_group_notification(
-            mock_gis, "group-123", "Subject", "Body",
-            users=["specific_user1", "specific_user2"]
+            mock_gis, "group-123", "Subject", "Body", users=["specific_user1", "specific_user2"]
         )
 
         call_kwargs = mock_group.notify.call_args[1]
@@ -302,10 +300,7 @@ class TestSendGroupNotification:
         mock_group = Mock()
         mock_gis.groups.get.return_value = mock_group
 
-        result = send_group_notification(
-            mock_gis, "group-123", "Subject", "Body",
-            users=["user1", "user2"]
-        )
+        result = send_group_notification(mock_gis, "group-123", "Subject", "Body", users=["user1", "user2"])
 
         assert set(result) == {"user1", "user2"}
 

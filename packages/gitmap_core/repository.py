@@ -13,6 +13,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -57,8 +58,8 @@ class Repository:
     """
 
     def __init__(
-            self,
-            root: Path | str,
+        self,
+        root: Path | str,
     ) -> None:
         """Initialize repository at given root path.
 
@@ -72,83 +73,83 @@ class Repository:
 
     @property
     def config_path(
-            self,
+        self,
     ) -> Path:
         """Path to config.json."""
         return self.gitmap_dir / CONFIG_FILE
 
     @property
     def head_path(
-            self,
+        self,
     ) -> Path:
         """Path to HEAD file."""
         return self.gitmap_dir / HEAD_FILE
 
     @property
     def index_path(
-            self,
+        self,
     ) -> Path:
         """Path to index.json staging area."""
         return self.gitmap_dir / INDEX_FILE
 
     @property
     def refs_dir(
-            self,
+        self,
     ) -> Path:
         """Path to refs directory."""
         return self.gitmap_dir / REFS_DIR
 
     @property
     def heads_dir(
-            self,
+        self,
     ) -> Path:
         """Path to refs/heads directory (local branches)."""
         return self.refs_dir / HEADS_DIR
 
     @property
     def remotes_dir(
-            self,
+        self,
     ) -> Path:
         """Path to refs/remotes directory."""
         return self.refs_dir / REMOTES_DIR
 
     @property
     def stash_dir(
-            self,
+        self,
     ) -> Path:
         """Path to stash directory."""
         return self.gitmap_dir / STASH_DIR
 
     @property
     def tags_dir(
-            self,
+        self,
     ) -> Path:
         """Path to refs/tags directory."""
         return self.refs_dir / TAGS_DIR
 
     @property
     def objects_dir(
-            self,
+        self,
     ) -> Path:
         """Path to objects directory."""
         return self.gitmap_dir / OBJECTS_DIR
 
     @property
     def commits_dir(
-            self,
+        self,
     ) -> Path:
         """Path to objects/commits directory."""
         return self.objects_dir / COMMITS_DIR
 
     @property
     def context_db_path(
-            self,
+        self,
     ) -> Path:
         """Path to context.db database."""
         return self.gitmap_dir / CONTEXT_DB
 
     def get_context_store(
-            self,
+        self,
     ) -> ContextStore:
         """Get context store for this repository.
 
@@ -160,13 +161,14 @@ class Repository:
             or use it as a context manager.
         """
         from gitmap_core.context import ContextStore
+
         return ContextStore(self.context_db_path)
 
     def regenerate_context_graph(
-            self,
-            output_file: str = "context-graph.md",
-            output_format: str = "mermaid",
-            limit: int = 50,
+        self,
+        output_file: str = "context-graph.md",
+        output_format: str = "mermaid",
+        limit: int = 50,
     ) -> Path | None:
         """Regenerate the context graph visualization.
 
@@ -212,7 +214,7 @@ class Repository:
     # ---- Repository State -----------------------------------------------------------------------------------
 
     def exists(
-            self,
+        self,
     ) -> bool:
         """Check if repository exists.
 
@@ -222,7 +224,7 @@ class Repository:
         return self.gitmap_dir.is_dir()
 
     def is_valid(
-            self,
+        self,
     ) -> bool:
         """Validate repository structure.
 
@@ -240,10 +242,10 @@ class Repository:
     # ---- Initialization -------------------------------------------------------------------------------------
 
     def init(
-            self,
-            project_name: str = "",
-            user_name: str = "",
-            user_email: str = "",
+        self,
+        project_name: str = "",
+        user_name: str = "",
+        user_email: str = "",
     ) -> None:
         """Initialize a new GitMap repository.
 
@@ -288,6 +290,7 @@ class Repository:
 
             # Initialize context database
             from gitmap_core.context import ContextStore
+
             with ContextStore(self.context_db_path):
                 pass  # Schema created on init
 
@@ -298,7 +301,7 @@ class Repository:
     # ---- HEAD Operations ------------------------------------------------------------------------------------
 
     def get_current_branch(
-            self,
+        self,
     ) -> str | None:
         """Get name of current branch.
 
@@ -314,7 +317,7 @@ class Repository:
         return None  # Detached HEAD
 
     def get_head_commit(
-            self,
+        self,
     ) -> str | None:
         """Get commit ID that HEAD points to.
 
@@ -332,8 +335,8 @@ class Repository:
         return None
 
     def _write_head(
-            self,
-            branch: str,
+        self,
+        branch: str,
     ) -> None:
         """Write branch reference to HEAD.
 
@@ -343,8 +346,8 @@ class Repository:
         self.head_path.write_text(f"ref: refs/heads/{branch}")
 
     def _write_head_detached(
-            self,
-            commit_id: str,
+        self,
+        commit_id: str,
     ) -> None:
         """Write commit ID directly to HEAD (detached state).
 
@@ -356,7 +359,7 @@ class Repository:
     # ---- Branch Operations ----------------------------------------------------------------------------------
 
     def list_branches(
-            self,
+        self,
     ) -> list[str]:
         """List all local branches.
 
@@ -374,8 +377,8 @@ class Repository:
         return sorted(branches)
 
     def get_branch_commit(
-            self,
-            branch: str,
+        self,
+        branch: str,
     ) -> str | None:
         """Get commit ID for a branch.
 
@@ -393,9 +396,9 @@ class Repository:
         return content if content else None
 
     def create_branch(
-            self,
-            name: str,
-            commit_id: str | None = None,
+        self,
+        name: str,
+        commit_id: str | None = None,
     ) -> Branch:
         """Create a new branch.
 
@@ -426,9 +429,9 @@ class Repository:
         return Branch(name=name, commit_id=commit_id or "")
 
     def update_branch(
-            self,
-            name: str,
-            commit_id: str,
+        self,
+        name: str,
+        commit_id: str,
     ) -> None:
         """Update branch to point to new commit.
 
@@ -447,8 +450,8 @@ class Repository:
         branch_path.write_text(commit_id)
 
     def delete_branch(
-            self,
-            name: str,
+        self,
+        name: str,
     ) -> None:
         """Delete a branch.
 
@@ -470,8 +473,8 @@ class Repository:
         branch_path.unlink()
 
     def checkout_branch(
-            self,
-            name: str,
+        self,
+        name: str,
     ) -> None:
         """Switch to a different branch.
 
@@ -501,7 +504,7 @@ class Repository:
     # ---- Index Operations -----------------------------------------------------------------------------------
 
     def get_index(
-            self,
+        self,
     ) -> dict[str, Any]:
         """Get current staging area (index) contents.
 
@@ -517,8 +520,8 @@ class Repository:
             return {}
 
     def _write_index(
-            self,
-            data: dict[str, Any],
+        self,
+        data: dict[str, Any],
     ) -> None:
         """Write data to index.json.
 
@@ -528,8 +531,8 @@ class Repository:
         self.index_path.write_text(json.dumps(data, indent=2))
 
     def update_index(
-            self,
-            map_data: dict[str, Any],
+        self,
+        map_data: dict[str, Any],
     ) -> None:
         """Update staging area with new map data.
 
@@ -541,8 +544,8 @@ class Repository:
     # ---- Commit Operations ----------------------------------------------------------------------------------
 
     def get_commit(
-            self,
-            commit_id: str,
+        self,
+        commit_id: str,
     ) -> Commit | None:
         """Load a commit by ID.
 
@@ -559,11 +562,11 @@ class Repository:
         return Commit.load(commit_path)
 
     def create_commit(
-            self,
-            message: str,
-            author: str | None = None,
-            rationale: str | None = None,
-            parent2: str | None = None,
+        self,
+        message: str,
+        author: str | None = None,
+        rationale: str | None = None,
+        parent2: str | None = None,
     ) -> Commit:
         """Create a new commit from current index.
 
@@ -645,10 +648,10 @@ class Repository:
             raise RuntimeError(msg) from commit_error
 
     def _generate_commit_id(
-            self,
-            message: str,
-            map_data: dict[str, Any],
-            parent: str | None,
+        self,
+        message: str,
+        map_data: dict[str, Any],
+        parent: str | None,
     ) -> str:
         """Generate unique commit ID.
 
@@ -660,19 +663,22 @@ class Repository:
         Returns:
             Short hash string for commit ID.
         """
-        content = json.dumps({
-            "message": message,
-            "map_data": map_data,
-            "parent": parent,
-        }, sort_keys=True)
+        content = json.dumps(
+            {
+                "message": message,
+                "map_data": map_data,
+                "parent": parent,
+            },
+            sort_keys=True,
+        )
 
         full_hash = hashlib.sha256(content.encode()).hexdigest()
         return full_hash[:12]
 
     def get_commit_history(
-            self,
-            start_commit: str | None = None,
-            limit: int | None = None,
+        self,
+        start_commit: str | None = None,
+        limit: int | None = None,
     ) -> list[Commit]:
         """Get commit history starting from a commit.
 
@@ -702,7 +708,7 @@ class Repository:
     # ---- Config Operations ----------------------------------------------------------------------------------
 
     def get_config(
-            self,
+        self,
     ) -> RepoConfig:
         """Load repository configuration.
 
@@ -719,8 +725,8 @@ class Repository:
         return RepoConfig.load(self.config_path)
 
     def update_config(
-            self,
-            config: RepoConfig,
+        self,
+        config: RepoConfig,
     ) -> None:
         """Save updated configuration.
 
@@ -732,7 +738,7 @@ class Repository:
     # ---- Status Operations ----------------------------------------------------------------------------------
 
     def has_uncommitted_changes(
-            self,
+        self,
     ) -> bool:
         """Check if index differs from HEAD commit.
 
@@ -755,9 +761,9 @@ class Repository:
     # ---- Revert Operations ----------------------------------------------------------------------------------
 
     def revert(
-            self,
-            commit_id: str,
-            rationale: str | None = None,
+        self,
+        commit_id: str,
+        rationale: str | None = None,
     ) -> Commit:
         """Revert a specific commit by creating an inverse commit.
 
@@ -805,7 +811,7 @@ class Repository:
             # Create the revert commit
             config = self.get_config()
             author = config.user_name or "Unknown"
-            message = f"Revert \"{commit_to_revert.message}\"\n\nThis reverts commit {commit_id[:8]}."
+            message = f'Revert "{commit_to_revert.message}"\n\nThis reverts commit {commit_id[:8]}.'
 
             revert_commit = self.create_commit(
                 message=message,
@@ -849,10 +855,10 @@ class Repository:
             raise RuntimeError(msg) from revert_error
 
     def _compute_revert(
-            self,
-            current_data: dict[str, Any],
-            commit_data: dict[str, Any],
-            parent_data: dict[str, Any],
+        self,
+        current_data: dict[str, Any],
+        commit_data: dict[str, Any],
+        parent_data: dict[str, Any],
     ) -> dict[str, Any]:
         """Compute the reverted state by applying inverse changes.
 
@@ -894,10 +900,10 @@ class Repository:
         return reverted
 
     def _revert_layers(
-            self,
-            current_layers: list[dict[str, Any]],
-            commit_layers: list[dict[str, Any]],
-            parent_layers: list[dict[str, Any]],
+        self,
+        current_layers: list[dict[str, Any]],
+        commit_layers: list[dict[str, Any]],
+        parent_layers: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Revert layer changes from a commit.
 
@@ -949,7 +955,7 @@ class Repository:
     # ---- Tag Operations -------------------------------------------------------------------------------------
 
     def list_tags(
-            self,
+        self,
     ) -> list[str]:
         """List all tags in the repository.
 
@@ -967,8 +973,8 @@ class Repository:
         return sorted(tags)
 
     def get_tag(
-            self,
-            name: str,
+        self,
+        name: str,
     ) -> str | None:
         """Get the commit ID a tag points to.
 
@@ -985,9 +991,9 @@ class Repository:
         return tag_path.read_text().strip()
 
     def create_tag(
-            self,
-            name: str,
-            commit_id: str | None = None,
+        self,
+        name: str,
+        commit_id: str | None = None,
     ) -> str:
         """Create a new tag pointing to a commit.
 
@@ -1053,8 +1059,8 @@ class Repository:
         return commit_id
 
     def delete_tag(
-            self,
-            name: str,
+        self,
+        name: str,
     ) -> None:
         """Delete a tag.
 
@@ -1092,14 +1098,12 @@ class Repository:
         except Exception:
             pass  # Don't fail tag deletion if context recording fails
 
-
-
     # ---- Cherry-Pick Operations ---------------------------------------------------------------------------------
 
     def cherry_pick(
-            self,
-            commit_id: str,
-            rationale: str | None = None,
+        self,
+        commit_id: str,
+        rationale: str | None = None,
     ) -> Commit:
         """Apply changes from a specific commit to the current branch.
 
@@ -1190,10 +1194,10 @@ class Repository:
             raise RuntimeError(msg) from cherry_pick_error
 
     def _apply_cherry_pick(
-            self,
-            current_data: dict[str, Any],
-            commit_data: dict[str, Any],
-            parent_data: dict[str, Any],
+        self,
+        current_data: dict[str, Any],
+        commit_data: dict[str, Any],
+        parent_data: dict[str, Any],
     ) -> dict[str, Any]:
         """Apply changes from a commit to the current state.
 
@@ -1231,10 +1235,10 @@ class Repository:
         return result
 
     def _apply_layer_changes(
-            self,
-            current_layers: list[dict[str, Any]],
-            commit_layers: list[dict[str, Any]],
-            parent_layers: list[dict[str, Any]],
+        self,
+        current_layers: list[dict[str, Any]],
+        commit_layers: list[dict[str, Any]],
+        parent_layers: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Apply layer changes from a commit to current state.
 
@@ -1283,13 +1287,13 @@ class Repository:
     # ---- Stash Operations -----------------------------------------------------------------------------------
 
     def _get_stash_list_path(
-            self,
+        self,
     ) -> Path:
         """Get path to stash list file."""
         return self.stash_dir / "stash_list.json"
 
     def _load_stash_list(
-            self,
+        self,
     ) -> list[dict[str, Any]]:
         """Load the stash stack from disk.
 
@@ -1306,8 +1310,8 @@ class Repository:
             return []
 
     def _save_stash_list(
-            self,
-            stash_list: list[dict[str, Any]],
+        self,
+        stash_list: list[dict[str, Any]],
     ) -> None:
         """Save the stash stack to disk.
 
@@ -1318,8 +1322,8 @@ class Repository:
         self._get_stash_list_path().write_text(json.dumps(stash_list, indent=2))
 
     def stash_push(
-            self,
-            message: str | None = None,
+        self,
+        message: str | None = None,
     ) -> dict[str, Any]:
         """Save current index state to the stash stack.
 
@@ -1343,6 +1347,7 @@ class Repository:
 
         # Generate stash ID
         import time
+
         stash_id = f"stash@{{{int(time.time())}}}"
 
         # Create stash entry
@@ -1362,12 +1367,15 @@ class Repository:
 
         # Update stash list (prepend - newest first)
         stash_list = self._load_stash_list()
-        stash_list.insert(0, {
-            "id": stash_id,
-            "file": stash_entry["timestamp"],
-            "message": stash_entry["message"],
-            "branch": branch,
-        })
+        stash_list.insert(
+            0,
+            {
+                "id": stash_id,
+                "file": stash_entry["timestamp"],
+                "message": stash_entry["message"],
+                "branch": branch,
+            },
+        )
         self._save_stash_list(stash_list)
 
         # Restore index to HEAD state
@@ -1401,8 +1409,8 @@ class Repository:
         return stash_entry
 
     def stash_pop(
-            self,
-            index: int = 0,
+        self,
+        index: int = 0,
     ) -> dict[str, Any]:
         """Apply and remove a stash entry.
 
@@ -1465,7 +1473,7 @@ class Repository:
         return stash_entry
 
     def stash_list(
-            self,
+        self,
     ) -> list[dict[str, Any]]:
         """List all stash entries.
 
@@ -1475,8 +1483,8 @@ class Repository:
         return self._load_stash_list()
 
     def stash_drop(
-            self,
-            index: int = 0,
+        self,
+        index: int = 0,
     ) -> dict[str, Any]:
         """Remove a stash entry without applying.
 
@@ -1532,7 +1540,7 @@ class Repository:
         return stash_ref
 
     def stash_clear(
-            self,
+        self,
     ) -> int:
         """Remove all stash entries.
 
@@ -1575,9 +1583,9 @@ class Repository:
         return count
 
     def find_common_ancestor(
-            self,
-            commit_id_a: str,
-            commit_id_b: str,
+        self,
+        commit_id_a: str,
+        commit_id_b: str,
     ) -> str | None:
         """Find the most recent common ancestor of two commits.
 
@@ -1636,7 +1644,7 @@ class Repository:
 
 
 def find_repository(
-        start_path: Path | str | None = None,
+    start_path: Path | str | None = None,
 ) -> Repository | None:
     """Find GitMap repository in current or parent directories.
 
@@ -1658,10 +1666,10 @@ def find_repository(
 
 
 def init_repository(
-        path: Path | str | None = None,
-        project_name: str = "",
-        user_name: str = "",
-        user_email: str = "",
+    path: Path | str | None = None,
+    project_name: str = "",
+    user_name: str = "",
+    user_email: str = "",
 ) -> Repository:
     """Initialize a new GitMap repository.
 
@@ -1681,5 +1689,3 @@ def init_repository(
         user_email=user_email,
     )
     return repo
-
-

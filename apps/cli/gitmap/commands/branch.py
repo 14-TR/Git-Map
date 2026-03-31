@@ -14,6 +14,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import click
@@ -73,10 +74,10 @@ def _record_branch_event(repo, action: str, branch_name: str, commit_id: str | N
     help="Show commit hash and message for each branch.",
 )
 def branch(
-        name: str | None,
-        delete: bool,
-        list_branches: bool,
-        verbose: bool,
+    name: str | None,
+    delete: bool,
+    list_branches: bool,
+    verbose: bool,
 ) -> None:
     """List or create branches.
 
@@ -134,7 +135,7 @@ def branch(
         if delete:
             repo.delete_branch(name)
             _record_branch_event(repo, action="delete", branch_name=name)
-            
+
             # Auto-regenerate context graph if enabled
             try:
                 config = repo.get_config()
@@ -142,14 +143,14 @@ def branch(
                     repo.regenerate_context_graph()
             except Exception:
                 pass  # Don't fail branch operation if visualization fails
-            
+
             console.print(f"[green]Deleted branch '{name}'[/green]")
             return
 
         # Create branch
         new_branch = repo.create_branch(name)
         _record_branch_event(repo, action="create", branch_name=new_branch.name, commit_id=new_branch.commit_id)
-        
+
         # Auto-regenerate context graph if enabled
         try:
             config = repo.get_config()
@@ -157,7 +158,7 @@ def branch(
                 repo.regenerate_context_graph()
         except Exception:
             pass  # Don't fail branch operation if visualization fails
-        
+
         console.print(f"[green]Created branch '{new_branch.name}'[/green]")
 
         if new_branch.commit_id:
@@ -168,5 +169,3 @@ def branch(
     except Exception as branch_error:
         msg = f"Branch operation failed: {branch_error}"
         raise click.ClickException(msg) from branch_error
-
-

@@ -14,6 +14,7 @@ Metadata:
     Version: 1.0.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -39,7 +40,7 @@ class GraphNode:
         connector_lines: Lines drawn between this node and the next.
     """
 
-    commit: "Commit"
+    commit: Commit
     lane: int
     labels: list[str] = field(default_factory=list)
     prefix_line: str = ""
@@ -50,9 +51,9 @@ class GraphNode:
 
 
 def _collect_commits(
-        repo: "Repository",
-        limit: int,
-) -> tuple[dict[str, "Commit"], dict[str, list[str]]]:
+    repo: Repository,
+    limit: int,
+) -> tuple[dict[str, Commit], dict[str, list[str]]]:
     """Walk all branches and collect reachable commits.
 
     Args:
@@ -68,7 +69,7 @@ def _collect_commits(
     head_commit_id = repo.get_head_commit()
 
     labels: dict[str, list[str]] = {}
-    all_commits: dict[str, "Commit"] = {}
+    all_commits: dict[str, Commit] = {}
 
     for branch in branches:
         tip = repo.get_branch_commit(branch)
@@ -76,7 +77,7 @@ def _collect_commits(
             continue
 
         # Build the ref label
-        is_current = (branch == current_branch)
+        is_current = branch == current_branch
         if is_current and tip == head_commit_id:
             label = f"HEAD -> {branch}"
         else:
@@ -113,8 +114,8 @@ def _collect_commits(
 
 
 def _topological_sort(
-        all_commits: dict[str, "Commit"],
-) -> list["Commit"]:
+    all_commits: dict[str, Commit],
+) -> list[Commit]:
     """Sort commits in reverse chronological topological order.
 
     Commits are sorted newest-first (children before parents) so the
@@ -147,7 +148,7 @@ def _topological_sort(
         reverse=True,
     )
 
-    result: list["Commit"] = []
+    result: list[Commit] = []
     while queue:
         cid = queue.pop(0)
         result.append(all_commits[cid])
@@ -200,10 +201,10 @@ def _build_lane_prefix(lanes: list[str | None], active_lane: int) -> str:
 
 
 def _build_connector(
-        lanes_before: list[str | None],
-        lanes_after: list[str | None],
-        active_lane: int,
-        merge_lane: int | None,
+    lanes_before: list[str | None],
+    lanes_after: list[str | None],
+    active_lane: int,
+    merge_lane: int | None,
 ) -> list[str]:
     """Build connector lines between two commit rows.
 
@@ -239,8 +240,8 @@ def _build_connector(
 
 
 def build_graph(
-        repo: "Repository",
-        limit: int = 20,
+    repo: Repository,
+    limit: int = 20,
 ) -> list[GraphNode]:
     """Build a list of GraphNodes representing the commit graph.
 

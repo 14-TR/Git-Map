@@ -14,6 +14,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import click
@@ -38,22 +39,24 @@ console = Console()
     required=False,
 )
 @click.option(
-    "--list", "-l",
+    "--list",
+    "-l",
     "list_tags",
     is_flag=True,
     help="List all tags.",
 )
 @click.option(
-    "--delete", "-d",
+    "--delete",
+    "-d",
     "delete_tag",
     is_flag=True,
     help="Delete a tag.",
 )
 def tag(
-        name: str | None,
-        commit: str | None,
-        list_tags: bool,
-        delete_tag: bool,
+    name: str | None,
+    commit: str | None,
+    list_tags: bool,
+    delete_tag: bool,
 ) -> None:
     """Create, list, or delete tags.
 
@@ -110,9 +113,7 @@ def tag(
         # Create tag
         if not name:
             # No name and no flags - show usage
-            raise click.ClickException(
-                "Usage: gitmap tag <name> [commit] or gitmap tag --list"
-            )
+            raise click.ClickException("Usage: gitmap tag <name> [commit] or gitmap tag --list")
 
         commit_id = repo.create_tag(name, commit)
         commit_obj = repo.get_commit(commit_id)

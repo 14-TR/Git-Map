@@ -15,14 +15,14 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import click
 from rich.console import Console
 from rich.panel import Panel
 
-from gitmap_core.diff import diff_maps
-from gitmap_core.diff import format_diff_summary
+from gitmap_core.diff import diff_maps, format_diff_summary
 from gitmap_core.repository import find_repository
 
 console = Console()
@@ -53,11 +53,13 @@ def status() -> None:
 
         # Display header
         branch_display = current_branch or "(detached HEAD)"
-        console.print(Panel(
-            f"[bold]On branch:[/bold] [cyan]{branch_display}[/cyan]",
-            title="GitMap Status",
-            border_style="blue",
-        ))
+        console.print(
+            Panel(
+                f"[bold]On branch:[/bold] [cyan]{branch_display}[/cyan]",
+                title="GitMap Status",
+                border_style="blue",
+            )
+        )
 
         # Display commit info
         if head_commit:
@@ -97,5 +99,3 @@ def status() -> None:
     except Exception as status_error:
         msg = f"Failed to get status: {status_error}"
         raise click.ClickException(msg) from status_error
-
-

@@ -17,19 +17,16 @@ Metadata:
     Version: 0.2.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
-import os
 from pathlib import Path
-from typing import Optional
 
 import click
 from rich.console import Console
 from rich.table import Table
 
-from gitmap_core.communication import get_group_member_usernames
-from gitmap_core.communication import list_groups
-from gitmap_core.communication import send_group_notification
+from gitmap_core.communication import get_group_member_usernames, list_groups, send_group_notification
 from gitmap_core.connection import get_connection
 
 from .utils import get_portal_url
@@ -93,21 +90,21 @@ console = Console()
     help="Portal password (or use ARCGIS_PASSWORD env var).",
 )
 def notify(
-        group: str,
-        user: tuple[str, ...],
-        subject: str,
-        message: str,
-        message_file: Optional[Path],
-        url: str,
-        username: str,
-        password: str,
-        list_groups_flag: bool,
+    group: str,
+    user: tuple[str, ...],
+    subject: str,
+    message: str,
+    message_file: Path | None,
+    url: str,
+    username: str,
+    password: str,
+    list_groups_flag: bool,
 ) -> None:
     """Send a notification to group members using ArcGIS APIs.
-    
+
     By default, notifies all members of the specified group. Use --user
     to target specific users (useful for testing).
-    
+
     Use --list-groups to query and display all available groups.
     """
     # Handle list groups mode
@@ -115,7 +112,7 @@ def notify(
         try:
             # Get Portal URL from parameter or environment variable
             portal_url = get_portal_url(url if url else None)
-            
+
             # Connect to Portal/AGOL
             console.print(f"[dim]Connecting to {portal_url}...[/dim]")
             connection = get_connection(
@@ -167,7 +164,7 @@ def notify(
 
         # Get Portal URL from parameter or environment variable
         portal_url = get_portal_url(url if url else None)
-        
+
         # Connect to Portal/AGOL
         console.print(f"[dim]Connecting to {portal_url}...[/dim]")
         connection = get_connection(
@@ -205,10 +202,8 @@ def notify(
         raise click.ClickException(msg) from notify_error
 
 
-def _load_message_body(inline_message: str, message_file: Optional[Path]) -> str:
+def _load_message_body(inline_message: str, message_file: Path | None) -> str:
     """Resolve the notification body content from CLI parameters."""
     if message_file:
         return message_file.read_text(encoding="utf-8")
     return inline_message
-
-

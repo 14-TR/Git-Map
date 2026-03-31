@@ -14,6 +14,7 @@ Metadata:
     Version: 0.2.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import os
@@ -62,11 +63,11 @@ console = Console()
     help="Optional rationale explaining why this push is being made.",
 )
 def push(
-        branch: str,
-        url: str,
-        username: str,
-        no_notify: bool,
-        rationale: str,
+    branch: str,
+    url: str,
+    username: str,
+    no_notify: bool,
+    rationale: str,
 ) -> None:
     """Push branch to ArcGIS Portal.
 
@@ -88,9 +89,7 @@ def push(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException(
-                "Not a GitMap repository. Run 'gitmap init' to create one."
-            )
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         # Check for commits before pushing
         head_commit = repo.get_head_commit()
@@ -151,9 +150,7 @@ def push(
                 console.print("[yellow]⚠ Notifications not sent[/yellow]")
                 if notification_status["reason"]:
                     console.print(f"  [dim]Reason: {notification_status['reason']}[/dim]")
-                console.print(
-                    "  [dim]Tip: Share the map with groups that have members to receive notifications[/dim]"
-                )
+                console.print("  [dim]Tip: Share the map with groups that have members to receive notifications[/dim]")
 
         if rationale:
             console.print()
@@ -193,7 +190,7 @@ def push(
             )
         elif "not found" in err.lower() or "404" in err:
             msg = (
-                f"Push failed: item not found on Portal.\n"
+                "Push failed: item not found on Portal.\n"
                 "  Hint: verify the item ID in .gitmap/config.json or run 'gitmap clone' again."
             )
         else:

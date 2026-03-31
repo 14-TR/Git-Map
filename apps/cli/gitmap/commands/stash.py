@@ -14,6 +14,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import click
@@ -30,14 +31,15 @@ console = Console()
 
 @click.group(invoke_without_command=True)
 @click.option(
-    "--message", "-m",
+    "--message",
+    "-m",
     default=None,
     help="Message describing the stash (for push).",
 )
 @click.pass_context
 def stash(
-        ctx: click.Context,
-        message: str | None,
+    ctx: click.Context,
+    message: str | None,
 ) -> None:
     """Save and restore work-in-progress changes.
 
@@ -58,12 +60,13 @@ def stash(
 
 @stash.command(name="push")
 @click.option(
-    "--message", "-m",
+    "--message",
+    "-m",
     default=None,
     help="Message describing the stash.",
 )
 def stash_push(
-        message: str | None,
+    message: str | None,
 ) -> None:
     """Save current index state to the stash stack.
 
@@ -81,7 +84,7 @@ def stash_push(
 
         stash_entry = repo.stash_push(message=message)
 
-        console.print(f"[green]Saved working directory and index state[/green]")
+        console.print("[green]Saved working directory and index state[/green]")
         console.print(f"  [bold]Stash:[/bold] {stash_entry['id']}")
         console.print(f"  [bold]Message:[/bold] {stash_entry['message']}")
 
@@ -101,7 +104,7 @@ def stash_push(
     required=False,
 )
 def stash_pop(
-        index: int,
+    index: int,
 ) -> None:
     """Apply and remove a stash entry.
 
@@ -119,7 +122,7 @@ def stash_pop(
 
         stash_entry = repo.stash_pop(index=index)
 
-        console.print(f"[green]Applied stash and removed from list[/green]")
+        console.print("[green]Applied stash and removed from list[/green]")
         console.print(f"  [bold]Stash:[/bold] {stash_entry.get('id', 'unknown')}")
         console.print(f"  [bold]Message:[/bold] {stash_entry['message']}")
 
@@ -182,7 +185,7 @@ def stash_list() -> None:
     required=False,
 )
 def stash_drop(
-        index: int,
+    index: int,
 ) -> None:
     """Remove a stash entry without applying.
 
@@ -200,7 +203,7 @@ def stash_drop(
 
         stash_ref = repo.stash_drop(index=index)
 
-        console.print(f"[green]Dropped stash[/green]")
+        console.print("[green]Dropped stash[/green]")
         console.print(f"  [bold]Stash:[/bold] {stash_ref.get('id', 'unknown')}")
         console.print(f"  [bold]Message:[/bold] {stash_ref.get('message', '')}")
 
@@ -211,12 +214,13 @@ def stash_drop(
 
 @stash.command(name="clear")
 @click.option(
-    "--force", "-f",
+    "--force",
+    "-f",
     is_flag=True,
     help="Skip confirmation prompt.",
 )
 def stash_clear(
-        force: bool,
+    force: bool,
 ) -> None:
     """Remove all stash entries.
 

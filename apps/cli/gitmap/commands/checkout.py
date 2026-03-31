@@ -14,6 +14,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import click
@@ -39,8 +40,8 @@ console = Console()
     help="Create branch if it doesn't exist.",
 )
 def checkout(
-        branch: str,
-        create: bool,
+    branch: str,
+    create: bool,
 ) -> None:
     """Switch to a different branch.
 
@@ -98,5 +99,3 @@ def checkout(
         else:
             msg = f"Checkout failed: {checkout_error}"
         raise click.ClickException(msg) from checkout_error
-
-

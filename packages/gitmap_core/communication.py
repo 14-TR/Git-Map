@@ -13,6 +13,7 @@ Metadata:
     Version: 0.2.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -60,8 +61,8 @@ def _resolve_group(gis: GIS, group_id_or_title: str):
 
 
 def get_group_member_usernames(
-        gis: GIS,
-        group_id_or_title: str,
+    gis: GIS,
+    group_id_or_title: str,
 ) -> list[str]:
     """Collect usernames for all members of a group.
 
@@ -101,9 +102,9 @@ def get_group_member_usernames(
 
 
 def list_groups(
-        gis: GIS,
-        query: str = "",
-        max_results: int = 100,
+    gis: GIS,
+    query: str = "",
+    max_results: int = 100,
 ) -> list[dict[str, str]]:
     """List available groups from the Portal.
 
@@ -125,11 +126,13 @@ def list_groups(
         groups = gis.groups.search(query)
         result = []
         for group in groups[:max_results]:
-            result.append({
-                "id": getattr(group, "id", ""),
-                "title": getattr(group, "title", ""),
-                "owner": getattr(group, "owner", ""),
-            })
+            result.append(
+                {
+                    "id": getattr(group, "id", ""),
+                    "title": getattr(group, "title", ""),
+                    "owner": getattr(group, "owner", ""),
+                }
+            )
         return result
     except Exception as search_error:
         msg = f"Failed to search groups: {search_error}"
@@ -137,11 +140,11 @@ def list_groups(
 
 
 def send_group_notification(
-        gis: GIS,
-        group_id_or_title: str,
-        subject: str,
-        body: str,
-        users: Sequence[str] | None = None,
+    gis: GIS,
+    group_id_or_title: str,
+    subject: str,
+    body: str,
+    users: Sequence[str] | None = None,
 ) -> Sequence[str]:
     """Send a notification to group members using ArcGIS `Group.notify`.
 
@@ -179,8 +182,8 @@ def send_group_notification(
 
 
 def get_item_group_users(
-        gis: GIS,
-        item,
+    gis: GIS,
+    item,
 ) -> list[str]:
     """Collect all users from groups that have access to a Portal item.
 
@@ -253,10 +256,10 @@ def get_item_group_users(
 
 
 def notify_item_group_users(
-        gis: GIS,
-        item,
-        subject: str,
-        body: str,
+    gis: GIS,
+    item,
+    subject: str,
+    body: str,
 ) -> list[str]:
     """Send notifications to all users from groups that have access to an item.
 
@@ -342,5 +345,3 @@ def notify_item_group_users(
     except Exception as notify_error:
         msg = f"Failed to notify item group users: {notify_error}"
         raise RuntimeError(msg) from notify_error
-
-

@@ -9,9 +9,12 @@ Dependencies:
     - pytest: Test framework
     - gitmap_core.diff: Module under test
 """
+
 from __future__ import annotations
 
 import pytest
+
+from pathlib import Path
 
 from gitmap_core.diff import (
     LayerChange,
@@ -21,10 +24,12 @@ from gitmap_core.diff import (
     diff_maps,
     format_diff_summary,
 )
+from gitmap_core.repository import Repository
 
 try:
     import click  # noqa: F401
     import rich  # noqa: F401
+
     _has_cli_deps = True
 except ModuleNotFoundError:
     _has_cli_deps = False
@@ -278,9 +283,7 @@ class TestDiffLayers:
         assert modified[0].layer_id == "layer-001"
         assert "values_changed" in modified[0].details
 
-    def test_detect_multiple_changes(
-        self, sample_layer_1: dict, sample_layer_2: dict, sample_layer_3: dict
-    ) -> None:
+    def test_detect_multiple_changes(self, sample_layer_1: dict, sample_layer_2: dict, sample_layer_3: dict) -> None:
         """Test detecting multiple types of changes."""
         # layers1: layer1 (modified), layer3 (added)
         # layers2: layer1 (original), layer2 (will be removed)
@@ -328,6 +331,7 @@ class TestDiffMaps:
     def test_identical_maps_no_changes(self, sample_map: dict) -> None:
         """Test comparing identical maps."""
         import copy
+
         map2 = copy.deepcopy(sample_map)
 
         diff = diff_maps(sample_map, map2)
@@ -337,6 +341,7 @@ class TestDiffMaps:
     def test_detect_layer_addition(self, sample_map: dict, sample_layer_3: dict) -> None:
         """Test detecting layer addition in maps."""
         import copy
+
         map2 = copy.deepcopy(sample_map)
         sample_map["operationalLayers"].append(sample_layer_3)
 
@@ -348,6 +353,7 @@ class TestDiffMaps:
     def test_detect_layer_removal(self, sample_map: dict) -> None:
         """Test detecting layer removal in maps."""
         import copy
+
         map2 = copy.deepcopy(sample_map)
         # Remove first layer from map1
         removed_layer = sample_map["operationalLayers"].pop(0)
@@ -376,6 +382,7 @@ class TestDiffMaps:
     def test_detect_property_changes(self, sample_map: dict) -> None:
         """Test detecting map property changes."""
         import copy
+
         map2 = copy.deepcopy(sample_map)
         sample_map["version"] = "2.30"
         sample_map["authoringApp"] = "GitMap Pro"
@@ -388,6 +395,7 @@ class TestDiffMaps:
     def test_ignores_layer_and_table_keys_in_properties(self, sample_map: dict) -> None:
         """Test that operationalLayers and tables are not in property_changes."""
         import copy
+
         map2 = copy.deepcopy(sample_map)
         # Only change layers, not properties
         sample_map["operationalLayers"].append({"id": "new", "title": "New"})
@@ -600,6 +608,7 @@ class TestResolveRef:
         """A valid branch name resolves to that branch's HEAD commit ID."""
         import os
         import sys
+
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "cli"))
         from gitmap.commands.diff import _resolve_ref
 
@@ -613,6 +622,7 @@ class TestResolveRef:
         """A valid full commit ID resolves to itself."""
         import os
         import sys
+
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "cli"))
         from gitmap.commands.diff import _resolve_ref
 
@@ -626,6 +636,7 @@ class TestResolveRef:
         """An unknown branch or bad commit ID returns None."""
         import os
         import sys
+
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "cli"))
         from gitmap.commands.diff import _resolve_ref
 
@@ -758,9 +769,7 @@ class TestFormatDiffVisual:
         """Added layer produces a '+' row."""
         from gitmap_core.diff import format_diff_visual
 
-        map_diff = MapDiff(
-            layer_changes=[LayerChange(layer_id="l1", layer_title="Roads", change_type="added")]
-        )
+        map_diff = MapDiff(layer_changes=[LayerChange(layer_id="l1", layer_title="Roads", change_type="added")])
         rows = format_diff_visual(map_diff, "source", "target")
         assert len(rows) == 1
         symbol, name, detail = rows[0]
@@ -772,9 +781,7 @@ class TestFormatDiffVisual:
         """Removed layer produces a '-' row."""
         from gitmap_core.diff import format_diff_visual
 
-        map_diff = MapDiff(
-            layer_changes=[LayerChange(layer_id="l2", layer_title="Parks", change_type="removed")]
-        )
+        map_diff = MapDiff(layer_changes=[LayerChange(layer_id="l2", layer_title="Parks", change_type="removed")])
         rows = format_diff_visual(map_diff, "main", "feature")
         symbol, name, detail = rows[0]
         assert symbol == "-"
@@ -813,9 +820,7 @@ class TestFormatDiffVisual:
         """Table changes are prefixed with [table]."""
         from gitmap_core.diff import format_diff_visual
 
-        map_diff = MapDiff(
-            table_changes=[LayerChange(layer_id="t1", layer_title="Assets", change_type="added")]
-        )
+        map_diff = MapDiff(table_changes=[LayerChange(layer_id="t1", layer_title="Assets", change_type="added")])
         rows = format_diff_visual(map_diff)
         assert rows[0][1].startswith("[table]")
 

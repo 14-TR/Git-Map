@@ -15,6 +15,7 @@ Metadata:
     Version: 1.0.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import importlib.util
@@ -24,8 +25,6 @@ from pathlib import Path
 
 import click
 from rich.console import Console
-from rich.table import Table
-from rich import box
 
 console = Console()
 
@@ -167,6 +166,7 @@ def doctor(check_portal: bool, show_fixes: bool) -> None:
         # Try to detect branch
         try:
             from gitmap_core.repository import Repository
+
             repo = Repository(cwd)
             branch = repo.get_current_branch()
             commits = repo.list_commits()
@@ -175,7 +175,7 @@ def doctor(check_portal: bool, show_fixes: bool) -> None:
         except Exception as repo_err:
             console.print(f"  [yellow]⚠[/yellow] Could not read repo state: {repo_err}")
     else:
-        console.print(f"  [yellow]⊘[/yellow] Not in a GitMap repository  [dim](run 'gitmap init' to start one)[/dim]")
+        console.print("  [yellow]⊘[/yellow] Not in a GitMap repository  [dim](run 'gitmap init' to start one)[/dim]")
     console.print()
 
     # ---- Portal connectivity check (optional) -----------------------------------------------------------
@@ -191,6 +191,7 @@ def doctor(check_portal: bool, show_fixes: bool) -> None:
         else:
             try:
                 from gitmap_core.connection import get_connection
+
                 console.print(f"  [dim]Connecting to {portal_url} ...[/dim]")
                 conn = get_connection(
                     url=portal_url,

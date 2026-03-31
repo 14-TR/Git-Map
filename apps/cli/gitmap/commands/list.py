@@ -16,9 +16,8 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
-from __future__ import annotations
 
-import os
+from __future__ import annotations
 
 import click
 from rich.console import Console
@@ -78,19 +77,19 @@ console = Console()
     help="Portal password (or use ARCGIS_PASSWORD env var).",
 )
 def list_maps(
-        query: str,
-        owner: str,
-        tag: str,
-        max_results: int,
-        url: str,
-        username: str,
-        password: str,
+    query: str,
+    owner: str,
+    tag: str,
+    max_results: int,
+    url: str,
+    username: str,
+    password: str,
 ) -> None:
     """List all available web maps from Portal/AGOL.
-    
+
     Displays web maps in a table with ID, title, owner, and type.
     Use --query, --owner, or --tag to filter results.
-    
+
     Examples:
         gitmap list --owner myusername
         gitmap list --tag production
@@ -100,7 +99,7 @@ def list_maps(
     try:
         # Get Portal URL from parameter or environment variable
         portal_url = get_portal_url(url if url else None)
-        
+
         # Connect to Portal/AGOL
         console.print(f"[dim]Connecting to {portal_url}...[/dim]")
         connection = get_connection(
@@ -144,4 +143,3 @@ def list_maps(
     except Exception as list_error:
         msg = f"Failed to list web maps: {list_error}"
         raise click.ClickException(msg) from list_error
-

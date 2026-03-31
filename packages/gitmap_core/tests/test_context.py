@@ -10,6 +10,7 @@ Dependencies:
     - pytest: Test framework
     - gitmap_core.context: Module under test
 """
+
 from __future__ import annotations
 
 import sqlite3
@@ -332,9 +333,7 @@ class TestContextStoreInit:
         store = ContextStore(temp_db)
 
         conn = sqlite3.connect(str(temp_db))
-        cursor = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        )
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
         tables = {row[0] for row in cursor.fetchall()}
 
         assert "events" in tables
@@ -349,9 +348,7 @@ class TestContextStoreInit:
         store = ContextStore(temp_db)
 
         conn = sqlite3.connect(str(temp_db))
-        cursor = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='index'"
-        )
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='index'")
         indexes = {row[0] for row in cursor.fetchall()}
 
         assert "idx_events_type" in indexes

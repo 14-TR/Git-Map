@@ -15,9 +15,9 @@ Metadata:
     Version: 0.2.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
-import os
 from datetime import datetime
 from pathlib import Path
 
@@ -85,14 +85,14 @@ console = Console()
     help="Custom commit message template (use {repo} for repository name, {date} for timestamp).",
 )
 def auto_pull(
-        directory: str,
-        branch: str,
-        url: str,
-        username: str,
-        password: str,
-        skip_errors: bool,
-        auto_commit: bool,
-        commit_message: str,
+    directory: str,
+    branch: str,
+    url: str,
+    username: str,
+    password: str,
+    skip_errors: bool,
+    auto_commit: bool,
+    commit_message: str,
 ) -> None:
     """Automatically pull updates for all GitMap repositories.
 
@@ -168,14 +168,10 @@ def auto_pull(
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-
             for idx, repo_path in enumerate(repos_to_pull, 1):
                 repo_name = repo_path.name
 
-                task = progress.add_task(
-                    f"[{idx}/{len(repos_to_pull)}] Pulling '{repo_name}'...",
-                    total=None
-                )
+                task = progress.add_task(f"[{idx}/{len(repos_to_pull)}] Pulling '{repo_name}'...", total=None)
 
                 try:
                     # Load repository
@@ -194,7 +190,7 @@ def auto_pull(
                         # No valid branch found
                         progress.update(
                             task,
-                            description=f"[{idx}/{len(repos_to_pull)}] ⊘ Skipped '{repo_name}' (no branches found)"
+                            description=f"[{idx}/{len(repos_to_pull)}] ⊘ Skipped '{repo_name}' (no branches found)",
                         )
                         skipped_count += 1
                         continue
@@ -220,7 +216,7 @@ def auto_pull(
                             else:
                                 # Default commit message
                                 msg = f"Auto-pull from Portal ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
-                            
+
                             # Create commit
                             new_commit = repo.create_commit(
                                 message=msg,
@@ -233,30 +229,27 @@ def auto_pull(
                     if commit_id:
                         progress.update(
                             task,
-                            description=f"[{idx}/{len(repos_to_pull)}] ✓ Pulled & Committed '{repo_name}' ({layer_count} layers, {commit_id})"
+                            description=f"[{idx}/{len(repos_to_pull)}] ✓ Pulled & Committed '{repo_name}' ({layer_count} layers, {commit_id})",
                         )
                     else:
                         progress.update(
                             task,
-                            description=f"[{idx}/{len(repos_to_pull)}] ✓ Pulled '{repo_name}' ({layer_count} layers)"
+                            description=f"[{idx}/{len(repos_to_pull)}] ✓ Pulled '{repo_name}' ({layer_count} layers)",
                         )
                     success_count += 1
 
                 except Exception as pull_error:
                     if skip_errors:
-                        progress.update(
-                            task,
-                            description=f"[{idx}/{len(repos_to_pull)}] ✗ Failed '{repo_name}'"
+                        progress.update(task, description=f"[{idx}/{len(repos_to_pull)}] ✗ Failed '{repo_name}'")
+                        failed_repos.append(
+                            {
+                                "name": repo_name,
+                                "path": str(repo_path),
+                                "error": str(pull_error),
+                            }
                         )
-                        failed_repos.append({
-                            "name": repo_name,
-                            "path": str(repo_path),
-                            "error": str(pull_error),
-                        })
                     else:
-                        raise click.ClickException(
-                            f"Pull failed for '{repo_name}': {pull_error}"
-                        ) from pull_error
+                        raise click.ClickException(f"Pull failed for '{repo_name}': {pull_error}") from pull_error
 
         # Display summary
         console.print()
@@ -286,7 +279,9 @@ def auto_pull(
                 console.print("[dim]Use 'gitmap log' in each repo to review commits.[/dim]")
             else:
                 console.print("[dim]Note: Changes are staged but not committed.[/dim]")
-                console.print("[dim]Use 'gitmap diff' and 'gitmap commit' in each repo to review and save changes.[/dim]")
+                console.print(
+                    "[dim]Use 'gitmap diff' and 'gitmap commit' in each repo to review and save changes.[/dim]"
+                )
                 console.print("[dim]Tip: Use '--auto-commit' flag to automatically commit changes.[/dim]")
 
     except Exception as auto_pull_error:

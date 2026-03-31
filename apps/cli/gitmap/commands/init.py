@@ -15,6 +15,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -43,7 +44,7 @@ def _record_init_events(repo: Repository, user_name: str | None = None) -> None:
                     "commit_id": None,
                 },
             )
-        
+
         # Auto-regenerate context graph if enabled
         config = repo.get_config()
         if config.auto_visualize:
@@ -81,10 +82,10 @@ def _record_init_events(repo: Repository, user_name: str | None = None) -> None:
     required=False,
 )
 def init(
-        path: str,
-        project_name: str,
-        user_name: str,
-        user_email: str,
+    path: str,
+    project_name: str,
+    user_name: str,
+    user_email: str,
 ) -> None:
     """Initialize a new GitMap repository.
 
@@ -101,9 +102,7 @@ def init(
         repo = Repository(repo_path)
 
         if repo.exists():
-            console.print(
-                f"[yellow]GitMap repository already exists at {repo.gitmap_dir}[/yellow]"
-            )
+            console.print(f"[yellow]GitMap repository already exists at {repo.gitmap_dir}[/yellow]")
             return
 
         repo.init(
@@ -115,20 +114,16 @@ def init(
         # Record the main branch creation event
         _record_init_events(repo, user_name=user_name if user_name else None)
 
-        console.print(
-            f"[green]Initialized empty GitMap repository in {repo.gitmap_dir}[/green]"
-        )
+        console.print(f"[green]Initialized empty GitMap repository in {repo.gitmap_dir}[/green]")
         console.print()
         console.print("Repository structure created:")
         console.print(f"  [dim]{repo.gitmap_dir}/[/dim]")
-        console.print(f"    [dim]├── config.json[/dim]")
-        console.print(f"    [dim]├── HEAD[/dim]")
-        console.print(f"    [dim]├── index.json[/dim]")
-        console.print(f"    [dim]├── refs/heads/main[/dim]")
-        console.print(f"    [dim]└── objects/commits/[/dim]")
+        console.print("    [dim]├── config.json[/dim]")
+        console.print("    [dim]├── HEAD[/dim]")
+        console.print("    [dim]├── index.json[/dim]")
+        console.print("    [dim]├── refs/heads/main[/dim]")
+        console.print("    [dim]└── objects/commits/[/dim]")
 
     except Exception as init_error:
         msg = f"Failed to initialize repository: {init_error}"
         raise click.ClickException(msg) from init_error
-
-

@@ -8,6 +8,7 @@ Dependencies:
     - gitmap_core.graph: Module under test
     - gitmap_core.repository: Repository fixture
 """
+
 from __future__ import annotations
 
 import tempfile
@@ -18,7 +19,6 @@ import pytest
 
 from gitmap_core.graph import GraphNode, _collect_commits, _topological_sort, build_graph
 from gitmap_core.repository import Repository
-
 
 # ---- Fixtures ------------------------------------------------------------------------------------------------
 
