@@ -123,6 +123,13 @@ def init(
         console.print("    [dim]├── index.json[/dim]")
         console.print("    [dim]├── refs/heads/main[/dim]")
         console.print("    [dim]└── objects/commits/[/dim]")
+        console.print()
+        console.print("[bold]Next steps:[/bold]")
+        console.print("  1. [cyan]gitmap clone <item_id>[/cyan]     — pull a map from ArcGIS Portal")
+        console.print("  2. [cyan]gitmap pull[/cyan]                — fetch the map into staging")
+        console.print('  3. [cyan]gitmap commit -m "msg"[/cyan]   — snapshot the current state')
+        console.print()
+        console.print("[dim]Tip: run 'gitmap doctor' to verify your environment is ready.[/dim]")
 
     except Exception as init_error:
         msg = f"Failed to initialize repository: {init_error}"

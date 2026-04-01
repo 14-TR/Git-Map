@@ -1,35 +1,111 @@
 # gitmap diff
 
-Show changes between the current index and the last commit, or between two commits.
+Show changes between states — index vs HEAD, two branches, or two commits.
 
 ## Usage
 
 ```bash
-gitmap diff [OPTIONS]
+gitmap diff [SOURCE] [TARGET] [OPTIONS]
 ```
+
+## Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `SOURCE` | Branch name or commit ID to compare *from* (optional) |
+| `TARGET` | Branch name or commit ID to compare *to* (optional; requires SOURCE) |
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `--commit` | Compare a specific commit against its parent |
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `--verbose` | `-v` | false | Show property-level field changes |
+| `--format` | | `text` | Output format: `text` or `visual` |
+
+## Modes
+
+| Arguments provided | What is compared |
+|--------------------|-----------------|
+| *(none)* | Index (staging area) vs HEAD |
+| `SOURCE` only | Index vs that branch or commit |
+| `SOURCE TARGET` | SOURCE directly vs TARGET (index not involved) |
 
 ## Examples
 
 ```bash
-# Diff index vs HEAD
+# Compare staging area to HEAD
 gitmap diff
 
-# Diff a specific commit
-gitmap diff --commit a3f2c1b0
+# Compare staging area to another branch
+gitmap diff main
+
+# Compare two branches
+gitmap diff main feature/new-basemap
+
+# Compare two commits
+gitmap diff abc123 def456
+
+# Visual Rich table output
+gitmap diff main feature/new-basemap --format visual
+
+# Show field-level changes
+gitmap diff --verbose
+
+# Combine: visual + verbose
+gitmap diff main feature/new-basemap --format visual -v
 ```
 
-## Output
+## Text output (default)
 
 ```
-Diff: index → a3f2c1b0
+╭─ GitMap Diff ──────────────────────────────────╮
+│ Comparing index → HEAD (a3f2c1b0)              │
+╰─────────────────────────────────────────────────╯
 
-  + layer "Flood Zones"      (added)
-  ~ layer "Parcels"          symbology changed
-  - layer "Old Boundaries"   (removed)
++1 added  ~1 modified
+
+  + Flood Zones
+  ~ Parcels  (2 field(s) changed)
 ```
+
+## Visual output (`--format visual`)
+
+Renders a Rich table with colored diff symbols:
+
+| Symbol | Color | Meaning |
+|--------|-------|---------|
+| `+` | Green | Layer or table added |
+| `-` | Red | Layer or table removed |
+| `~` | Yellow | Layer or table modified |
+| `*` | Cyan | Map-level property changed |
+
+```
+╭─ GitMap Diff ─────────────────────────────────────╮
+│ main → feature/new-basemap                        │
+│ +1 added  ~1 modified                             │
+╰───────────────────────────────────────────────────╯
+
+     Layer / Table           Change
+  +  Flood Zones             added
+  ~  Parcels                 2 field(s) changed
+```
+
+## Verbose mode (`-v`)
+
+With `--verbose`, modified layers show field-level JSON diffs:
+
+```
+Detailed Changes:
+
+Layer: Parcels
+{
+  "opacity": [0.8, 1.0],
+  "visible": [false, true]
+}
+```
+
+## See also
+
+- [`gitmap show`](show.md) — inspect a single commit with its diff
+- [`gitmap log`](log.md) — find commit IDs to compare
+- [`gitmap commit`](commit.md) — save staged changes as a commit
