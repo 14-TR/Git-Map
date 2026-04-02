@@ -71,7 +71,9 @@ nav:
     - Day-to-Day Workflow: guides/workflow.md
     - Branching Strategy: guides/branching.md
     - Working with Portals: guides/portals.md
+    - Python API Reference: guides/api-reference.md
   - Contributing: contributing.md
+  - Technical Paper: technical-paper.md
 
 plugins:
   - search

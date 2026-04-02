@@ -52,7 +52,7 @@ Git-Map/
 1. Fork the repo and create a `feature/` branch from `main`.
 2. Write tests for any new functionality.
 3. Ensure all tests pass locally.
-4. Open a PR — the [PR template](.github/PULL_REQUEST_TEMPLATE.md) will guide you.
+4. Open a PR — the PR template will guide you through the required fields.
 
 ## Code Style
 

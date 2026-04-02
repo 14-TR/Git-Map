@@ -26,12 +26,22 @@ Then see the [Quickstart](getting-started/quickstart.md) to run your first commi
 
 ## Core Workflow
 
-```
+```bash
 gitmap init          # Start tracking a directory
 gitmap pull          # Fetch current map from Portal
 gitmap commit -m "My change"
 gitmap push          # Deploy to Portal
 ```
+
+## Feature Highlights
+
+- **18+ CLI commands** — init, clone, commit, branch, checkout, diff, log, merge, push, pull, revert, stash, tag, cherry-pick, and more
+- **Three-way merge** — layer-atomic merge algorithm adapted for ArcGIS web map JSON
+- **Rich diff engine** — property-level diffs powered by DeepDiff, showing exactly what changed
+- **Context graph** — SQLite-backed event history with timeline visualization
+- **MCP server** — expose all operations to AI coding agents (Cursor, Claude, etc.)
+- **ArcGIS Pro toolbox** — native Python Toolbox with 9 tools for the Pro ribbon UI
+- **Bulk operations** — `setup-repos` and `auto-pull` for managing dozens of maps at once
 
 ## Compatibility
 
