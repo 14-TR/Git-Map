@@ -15,6 +15,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import json
@@ -55,9 +56,9 @@ class RemoteOperations:
     """
 
     def __init__(
-            self,
-            repo: Repository,
-            connection: PortalConnection,
+        self,
+        repo: Repository,
+        connection: PortalConnection,
     ) -> None:
         """Initialize remote operations.
 
@@ -71,14 +72,14 @@ class RemoteOperations:
 
     @property
     def gis(
-            self,
+        self,
     ) -> GIS:
         """Get GIS connection."""
         return self.connection.gis
 
     @property
     def remote(
-            self,
+        self,
     ) -> Remote | None:
         """Get configured remote."""
         return self.config.remote
@@ -86,7 +87,7 @@ class RemoteOperations:
     # ---- Folder Management ----------------------------------------------------------------------------------
 
     def get_or_create_folder(
-            self,
+        self,
     ) -> str:
         """Get or create the GitMap folder in Portal.
 
@@ -126,9 +127,13 @@ class RemoteOperations:
                         # Get folder info
                         folder_info = self.gis.content.get_folder(item_folder, user.username)
                         if folder_info:
-                            folder_title = getattr(folder_info, "title", None) or (folder_info.get("title") if isinstance(folder_info, dict) else None)
+                            folder_title = getattr(folder_info, "title", None) or (
+                                folder_info.get("title") if isinstance(folder_info, dict) else None
+                            )
                             if folder_title == folder_name:
-                                folder_id = getattr(folder_info, "id", None) or (folder_info.get("id") if isinstance(folder_info, dict) else None)
+                                folder_id = getattr(folder_info, "id", None) or (
+                                    folder_info.get("id") if isinstance(folder_info, dict) else None
+                                )
                                 if folder_id:
                                     return folder_id
             except Exception:
@@ -194,9 +199,9 @@ class RemoteOperations:
     # ---- Push Operations ------------------------------------------------------------------------------------
 
     def push(
-            self,
-            branch: str | None = None,
-            skip_notifications: bool = False,
+        self,
+        branch: str | None = None,
+        skip_notifications: bool = False,
     ) -> tuple[Item, dict[str, Any]]:
         """Push branch to Portal.
 
@@ -244,7 +249,11 @@ class RemoteOperations:
                             "users_notified": [],
                         }
 
-                        if not skip_notifications and self.remote.production_branch and branch == self.remote.production_branch:
+                        if (
+                            not skip_notifications
+                            and self.remote.production_branch
+                            and branch == self.remote.production_branch
+                        ):
                             notification_status["attempted"] = True
                             try:
                                 # Check if item is shared with groups
@@ -284,16 +293,18 @@ class RemoteOperations:
                                             item=updated_item,
                                             subject=f"Production Map Updated: {updated_item.title}",
                                             body=f"The production map '{updated_item.title}' has been updated.\n\n"
-                                                 f"Branch: {branch}\n"
-                                                 f"Commit: {commit.id[:8]}\n"
-                                                 f"Message: {commit.message}\n\n"
-                                                 f"View the map: {updated_item.homepage}",
+                                            f"Branch: {branch}\n"
+                                            f"Commit: {commit.id[:8]}\n"
+                                            f"Message: {commit.message}\n\n"
+                                            f"View the map: {updated_item.homepage}",
                                         )
                                         if notified_users:
                                             notification_status["sent"] = True
                                             notification_status["users_notified"] = notified_users
                                         else:
-                                            notification_status["reason"] = "No users found in groups that have access to the map"
+                                            notification_status["reason"] = (
+                                                "No users found in groups that have access to the map"
+                                            )
                             except Exception as notify_error:
                                 # Don't fail the push if notifications fail
                                 notification_status["reason"] = f"Notification error: {notify_error}"
@@ -321,7 +332,12 @@ class RemoteOperations:
                 "users_notified": [],
             }
 
-            if not skip_notifications and self.remote and self.remote.production_branch and branch == self.remote.production_branch:
+            if (
+                not skip_notifications
+                and self.remote
+                and self.remote.production_branch
+                and branch == self.remote.production_branch
+            ):
                 notification_status["attempted"] = True
                 try:
                     # Check if item is shared with groups
@@ -361,10 +377,10 @@ class RemoteOperations:
                                 item=updated_item,
                                 subject=f"Production Map Updated: {updated_item.title}",
                                 body=f"The production map '{updated_item.title}' has been updated.\n\n"
-                                     f"Branch: {branch}\n"
-                                     f"Commit: {commit.id[:8]}\n"
-                                     f"Message: {commit.message}\n\n"
-                                     f"View the map: {updated_item.homepage}",
+                                f"Branch: {branch}\n"
+                                f"Commit: {commit.id[:8]}\n"
+                                f"Message: {commit.message}\n\n"
+                                f"View the map: {updated_item.homepage}",
                             )
                             if notified_users:
                                 notification_status["sent"] = True
@@ -382,9 +398,9 @@ class RemoteOperations:
             raise RuntimeError(msg) from push_error
 
     def _find_branch_item(
-            self,
-            branch: str,
-            folder_id: str,
+        self,
+        branch: str,
+        folder_id: str,
     ) -> Item | None:
         """Find existing web map item for branch.
 
@@ -410,8 +426,8 @@ class RemoteOperations:
             return None
 
     def _branch_to_item_title(
-            self,
-            branch: str,
+        self,
+        branch: str,
     ) -> str:
         """Convert branch name to Portal item title.
 
@@ -425,8 +441,8 @@ class RemoteOperations:
         return branch.replace("/", "_")
 
     def _find_branch_item_in_root(
-            self,
-            branch: str,
+        self,
+        branch: str,
     ) -> Item | None:
         """Find existing web map item for branch in user's root content.
 
@@ -458,10 +474,10 @@ class RemoteOperations:
             return None
 
     def _create_webmap_item_in_root(
-            self,
-            branch: str,
-            map_data: dict[str, Any],
-            commit: Any,
+        self,
+        branch: str,
+        map_data: dict[str, Any],
+        commit: Any,
     ) -> Item:
         """Create new web map item in user's root content (no folder).
 
@@ -493,11 +509,11 @@ class RemoteOperations:
         return item
 
     def _create_webmap_item(
-            self,
-            branch: str,
-            map_data: dict[str, Any],
-            commit: Any,
-            folder_id: str,
+        self,
+        branch: str,
+        map_data: dict[str, Any],
+        commit: Any,
+        folder_id: str,
     ) -> Item:
         """Create new web map item in Portal folder.
 
@@ -537,10 +553,10 @@ class RemoteOperations:
         return item
 
     def _update_webmap_item(
-            self,
-            item: Item,
-            map_data: dict[str, Any],
-            commit: Any,
+        self,
+        item: Item,
+        map_data: dict[str, Any],
+        commit: Any,
     ) -> Item:
         """Update existing web map item.
 
@@ -566,8 +582,8 @@ class RemoteOperations:
     # ---- Pull Operations ------------------------------------------------------------------------------------
 
     def pull(
-            self,
-            branch: str | None = None,
+        self,
+        branch: str | None = None,
     ) -> dict[str, Any]:
         """Pull latest from Portal.
 
@@ -644,9 +660,9 @@ class RemoteOperations:
             raise RuntimeError(msg) from pull_error
 
     def _update_remote_ref(
-            self,
-            branch: str,
-            commit_id: str,
+        self,
+        branch: str,
+        commit_id: str,
     ) -> None:
         """Update remote tracking reference.
 
@@ -663,7 +679,7 @@ class RemoteOperations:
     # ---- Metadata Operations --------------------------------------------------------------------------------
 
     def push_metadata(
-            self,
+        self,
     ) -> Item:
         """Push repository metadata to Portal.
 
@@ -707,8 +723,8 @@ class RemoteOperations:
             )
 
     def _find_metadata_item(
-            self,
-            folder_id: str,
+        self,
+        folder_id: str,
     ) -> Item | None:
         """Find metadata item in folder."""
         try:
@@ -722,5 +738,3 @@ class RemoteOperations:
             return None
         except Exception:
             return None
-
-

@@ -14,6 +14,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import click
@@ -39,8 +40,8 @@ console = Console()
     help="Optional rationale explaining why this cherry-pick is being made.",
 )
 def cherry_pick(
-        commit_hash: str,
-        rationale: str,
+    commit_hash: str,
+    rationale: str,
 ) -> None:
     """Apply changes from a specific commit to the current branch.
 

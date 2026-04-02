@@ -7,6 +7,7 @@ Tests the layer-level merge logic for GitMap including:
 - Table merging
 - Summary formatting
 """
+
 from __future__ import annotations
 
 import pytest
@@ -123,12 +124,14 @@ class TestMergeResult:
     def test_has_conflicts_true(self):
         """Test has_conflicts property when conflicts exist."""
         result = MergeResult()
-        result.conflicts.append(MergeConflict(
-            layer_id="layer1",
-            layer_title="Test",
-            ours={},
-            theirs={},
-        ))
+        result.conflicts.append(
+            MergeConflict(
+                layer_id="layer1",
+                layer_title="Test",
+                ours={},
+                theirs={},
+            )
+        )
         assert result.has_conflicts is True
 
 
@@ -201,10 +204,7 @@ class TestMergeMaps:
         result = merge_maps(our_map, their_map, base_map)
 
         # Layer2 should use their version since we didn't change it
-        layer2 = next(
-            (l for l in result.merged_data["operationalLayers"] if l["id"] == "layer2"),
-            None
-        )
+        layer2 = next((l for l in result.merged_data["operationalLayers"] if l["id"] == "layer2"), None)
         assert layer2 is not None
         assert layer2["title"] == "Layer Two Updated"
         assert "layer2" in result.modified_layers
@@ -700,14 +700,23 @@ def _can_import_mcp_tools() -> bool:
     """Check if MCP tools can be imported via relative path."""
     import os
     import sys
+
     scripts_dir = os.path.join(
-        os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts",
+        os.path.dirname(__file__),
+        "..",
+        "..",
+        "..",
+        "apps",
+        "mcp",
+        "gitmap-mcp",
+        "scripts",
     )
     if not os.path.isdir(os.path.join(scripts_dir, "tools")):
         return False
     sys.path.insert(0, scripts_dir)
     try:
         from tools.commit_tools import gitmap_merge  # noqa: F401
+
         return True
     except Exception:
         return False
@@ -732,14 +741,13 @@ class TestGitmapMergeMCPTool:
         import sys
 
         from gitmap_core.repository import init_repository
-        sys.path.insert(0, os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
-        ))
+
+        sys.path.insert(
+            0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts")
+        )
 
         repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
-        base_data = {
-            "operationalLayers": [{"id": "l-base", "title": "Base Layer"}]
-        }
+        base_data = {"operationalLayers": [{"id": "l-base", "title": "Base Layer"}]}
         repo.update_index(base_data)
         repo.create_commit(message="initial commit")
 
@@ -759,9 +767,10 @@ class TestGitmapMergeMCPTool:
         """Clean merge with no conflicts succeeds and creates a commit."""
         import os
         import sys
-        sys.path.insert(0, os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
-        ))
+
+        sys.path.insert(
+            0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts")
+        )
         from tools.commit_tools import gitmap_merge
 
         their_layers = [
@@ -783,9 +792,10 @@ class TestGitmapMergeMCPTool:
         """no_commit=True stages the merge but does not create a commit."""
         import os
         import sys
-        sys.path.insert(0, os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
-        ))
+
+        sys.path.insert(
+            0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts")
+        )
         from tools.commit_tools import gitmap_merge
 
         their_layers = [
@@ -804,12 +814,14 @@ class TestGitmapMergeMCPTool:
         """Merging a non-existent branch returns a structured error."""
         import os
         import sys
-        sys.path.insert(0, os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
-        ))
+
+        sys.path.insert(
+            0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts")
+        )
         from tools.commit_tools import gitmap_merge
 
         from gitmap_core.repository import init_repository
+
         repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
         repo.update_index({"operationalLayers": []})
         repo.create_commit(message="init")
@@ -823,12 +835,14 @@ class TestGitmapMergeMCPTool:
         """Merging a branch into itself returns a structured error."""
         import os
         import sys
-        sys.path.insert(0, os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
-        ))
+
+        sys.path.insert(
+            0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts")
+        )
         from tools.commit_tools import gitmap_merge
 
         from gitmap_core.repository import init_repository
+
         repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
         repo.update_index({"operationalLayers": []})
         repo.create_commit(message="init")
@@ -842,9 +856,10 @@ class TestGitmapMergeMCPTool:
         """Conflicts are returned as structured data when no strategy given."""
         import os
         import sys
-        sys.path.insert(0, os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
-        ))
+
+        sys.path.insert(
+            0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts")
+        )
         from tools.commit_tools import gitmap_merge
 
         from gitmap_core.repository import init_repository
@@ -879,9 +894,10 @@ class TestGitmapMergeMCPTool:
         """strategy='ours' auto-resolves conflicts with our version."""
         import os
         import sys
-        sys.path.insert(0, os.path.join(
-            os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts"
-        ))
+
+        sys.path.insert(
+            0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "mcp", "gitmap-mcp", "scripts")
+        )
         from tools.commit_tools import gitmap_merge
 
         from gitmap_core.repository import init_repository
@@ -935,7 +951,7 @@ class TestTableThreeWayMerge:
         base_table = {"id": "t1", "title": "Original Table", "url": "http://example.com/t"}
         their_table = {"id": "t1", "title": "Their Updated Table", "url": "http://example.com/t"}
         base = {"operationalLayers": [], "tables": [base_table]}
-        ours = {"operationalLayers": [], "tables": [base_table]}   # unchanged
+        ours = {"operationalLayers": [], "tables": [base_table]}  # unchanged
         theirs = {"operationalLayers": [], "tables": [their_table]}
 
         result = merge_maps(ours, theirs, base)
@@ -983,8 +999,8 @@ class TestTableThreeWayMerge:
         """Table was in base, they deleted it, we kept it — our version survives (line 249-251)."""
         base_table = {"id": "t1", "title": "Keep Me"}
         base = {"operationalLayers": [], "tables": [base_table]}
-        ours = {"operationalLayers": [], "tables": [base_table]}   # we kept it
-        theirs = {"operationalLayers": [], "tables": []}           # they deleted it
+        ours = {"operationalLayers": [], "tables": [base_table]}  # we kept it
+        theirs = {"operationalLayers": [], "tables": []}  # they deleted it
 
         result = merge_maps(ours, theirs, base)
 

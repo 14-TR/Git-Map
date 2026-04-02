@@ -13,6 +13,7 @@ Dependencies:
     - pytest: Test framework
     - click.testing: CLI test runner
 """
+
 from __future__ import annotations
 
 import sys
@@ -62,17 +63,13 @@ class TestDoctorCommand:
         with runner.isolated_filesystem(temp_dir=tmp_path):
             result = runner.invoke(cli, ["doctor"])
         # Exit 0 (all ok) or 1 (issues found) — both are fine, just no crash
-        assert result.exit_code in (0, 1), (
-            f"Unexpected exit code {result.exit_code}:\n{result.output}"
-        )
+        assert result.exit_code in (0, 1), f"Unexpected exit code {result.exit_code}:\n{result.output}"
 
     def test_doctor_shows_python_version(self, runner: CliRunner, tmp_path) -> None:
         """doctor output should mention the Python version."""
         with runner.isolated_filesystem(temp_dir=tmp_path):
             result = runner.invoke(cli, ["doctor"])
-        assert "Python" in result.output, (
-            f"Expected 'Python' in doctor output:\n{result.output}"
-        )
+        assert "Python" in result.output, f"Expected 'Python' in doctor output:\n{result.output}"
 
     def test_doctor_shows_packages(self, runner: CliRunner, tmp_path) -> None:
         """doctor output should list package check results."""
@@ -91,6 +88,4 @@ class TestDoctorCommand:
     def test_doctor_registered_in_help(self, runner: CliRunner) -> None:
         """doctor must appear in top-level --help output."""
         result = runner.invoke(cli, ["--help"])
-        assert "doctor" in result.output, (
-            f"'doctor' not found in CLI help:\n{result.output}"
-        )
+        assert "doctor" in result.output, f"'doctor' not found in CLI help:\n{result.output}"

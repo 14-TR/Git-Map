@@ -14,6 +14,7 @@ Metadata:
     Version: 0.2.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import click
@@ -57,10 +58,10 @@ console = Console()
     help="Optional rationale explaining why this pull is being made.",
 )
 def pull(
-        branch: str,
-        url: str,
-        username: str,
-        rationale: str,
+    branch: str,
+    url: str,
+    username: str,
+    rationale: str,
 ) -> None:
     """Pull latest changes from Portal.
 
@@ -78,9 +79,7 @@ def pull(
         repo = find_repository()
 
         if not repo:
-            raise click.ClickException(
-                "Not a GitMap repository. Run 'gitmap init' to create one."
-            )
+            raise click.ClickException("Not a GitMap repository. Run 'gitmap init' to create one.")
 
         # Determine Portal URL
         config = repo.get_config()
@@ -127,9 +126,7 @@ def pull(
             console.print(f"  [bold]Rationale:[/bold] {rationale}")
 
         console.print()
-        console.print(
-            "[dim]Changes staged. Use 'gitmap diff' to review and 'gitmap commit' to save.[/dim]"
-        )
+        console.print("[dim]Changes staged. Use 'gitmap diff' to review and 'gitmap commit' to save.[/dim]")
 
         # Record event in context store (non-blocking)
         try:

@@ -14,6 +14,7 @@ Metadata:
     Version: 0.7.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import importlib.util
@@ -21,34 +22,32 @@ import sys
 from pathlib import Path
 
 import click
-
-from gitmap_cli.help_formatter import GroupedHelpGroup
-
 from gitmap_cli.commands.auto_pull import auto_pull
 from gitmap_cli.commands.branch import branch
 from gitmap_cli.commands.checkout import checkout
 from gitmap_cli.commands.cherry_pick import cherry_pick
 from gitmap_cli.commands.clone import clone
 from gitmap_cli.commands.commit import commit
+from gitmap_cli.commands.completions import completions
 from gitmap_cli.commands.config import config
 from gitmap_cli.commands.context import context
 from gitmap_cli.commands.daemon import daemon
 from gitmap_cli.commands.diff import diff
+from gitmap_cli.commands.doctor import doctor
 from gitmap_cli.commands.init import init
 from gitmap_cli.commands.list import list_maps
 from gitmap_cli.commands.log import log
-from gitmap_cli.commands.show import show
-from gitmap_cli.commands.doctor import doctor
 from gitmap_cli.commands.merge import merge
 from gitmap_cli.commands.notify import notify
 from gitmap_cli.commands.pull import pull
 from gitmap_cli.commands.push import push
 from gitmap_cli.commands.revert import revert
 from gitmap_cli.commands.setup_repos import setup_repos
+from gitmap_cli.commands.show import show
 from gitmap_cli.commands.stash import stash
 from gitmap_cli.commands.status import status
 from gitmap_cli.commands.tag import tag
-from gitmap_cli.commands.completions import completions
+from gitmap_cli.help_formatter import GroupedHelpGroup
 
 # Import hyphenated modules using importlib.util (kebab-case filenames)
 _layer_settings_merge_path = Path(__file__).parent / "commands" / "layer-settings-merge.py"
@@ -73,7 +72,6 @@ merge_from = _merge_from_module.merge_from
 # ---- CLI Group ----------------------------------------------------------------------------------------------
 
 # ---- Grouped Help ------------------------------------------------------------------------------------------
-
 
 
 @click.group(cls=GroupedHelpGroup)
@@ -139,5 +137,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-
-

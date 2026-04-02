@@ -16,6 +16,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import atexit
@@ -30,8 +31,10 @@ from pathlib import Path
 from typing import Any
 
 import click
+
 try:
     from apscheduler.schedulers.background import BackgroundScheduler as _BackgroundScheduler
+
     _HAS_APSCHEDULER = True
 except ImportError:  # pragma: no cover
     _BackgroundScheduler = None  # type: ignore[assignment,misc]
@@ -68,7 +71,7 @@ def is_daemon_running() -> bool:
         return False
 
     try:
-        with open(PID_FILE, "r") as f:
+        with open(PID_FILE) as f:
             pid = int(f.read().strip())
 
         # Check if process exists
@@ -87,7 +90,7 @@ def get_daemon_pid() -> int | None:
         return None
 
     try:
-        with open(PID_FILE, "r") as f:
+        with open(PID_FILE) as f:
             return int(f.read().strip())
     except (ValueError, OSError):
         return None
@@ -119,7 +122,7 @@ def load_config() -> dict[str, Any] | None:
         return None
 
     try:
-        with open(CONFIG_FILE, "r") as f:
+        with open(CONFIG_FILE) as f:
             return json.load(f)
     except (json.JSONDecodeError, OSError):
         return None
@@ -246,7 +249,9 @@ def execute_auto_pull(config: dict[str, Any], logger: logging.Logger) -> None:
 
                 # Log success
                 if commit_id:
-                    logger.info(f"[{idx}/{len(repos_to_pull)}] ✓ Pulled & Committed '{repo_name}' ({layer_count} layers, {commit_id})")
+                    logger.info(
+                        f"[{idx}/{len(repos_to_pull)}] ✓ Pulled & Committed '{repo_name}' ({layer_count} layers, {commit_id})"
+                    )
                 else:
                     logger.info(f"[{idx}/{len(repos_to_pull)}] ✓ Pulled '{repo_name}' ({layer_count} layers)")
 
@@ -255,11 +260,13 @@ def execute_auto_pull(config: dict[str, Any], logger: logging.Logger) -> None:
             except Exception as pull_error:
                 logger.error(f"[{idx}/{len(repos_to_pull)}] ✗ Failed '{repo_name}': {pull_error}")
                 if skip_errors:
-                    failed_repos.append({
-                        "name": repo_name,
-                        "path": str(repo_path),
-                        "error": str(pull_error),
-                    })
+                    failed_repos.append(
+                        {
+                            "name": repo_name,
+                            "path": str(repo_path),
+                            "error": str(pull_error),
+                        }
+                    )
                 else:
                     raise
 
@@ -299,7 +306,7 @@ def run_daemon(config: dict[str, Any]) -> None:
         format="%(asctime)s [%(levelname)s] %(message)s",
         handlers=[
             logging.FileHandler(LOG_FILE),
-        ]
+        ],
     )
     logger = logging.getLogger("gitmap-daemon")
 
@@ -340,11 +347,11 @@ def run_daemon(config: dict[str, Any]) -> None:
     # Schedule auto-pull job
     scheduler.add_job(
         func=execute_auto_pull,
-        trigger='interval',
+        trigger="interval",
         minutes=interval_minutes,
         args=[config, logger],
-        id='auto_pull_job',
-        name='Auto-pull repositories',
+        id="auto_pull_job",
+        name="Auto-pull repositories",
         max_instances=1,  # Prevent overlapping executions
     )
 
@@ -511,7 +518,7 @@ def start(
             time.sleep(1)
 
             if is_daemon_running():
-                console.print(f"[green]✓ Daemon started successfully[/green]")
+                console.print("[green]✓ Daemon started successfully[/green]")
                 console.print(f"[dim]PID: {pid}[/dim]")
                 console.print()
                 console.print("[dim]Use 'gitmap daemon status' to check status[/dim]")
@@ -523,7 +530,7 @@ def start(
 
             sys.exit(0)
     except OSError as fork_error:
-        raise click.ClickException(f"Failed to fork daemon: {fork_error}")
+        raise click.ClickException(f"Failed to fork daemon: {fork_error}") from fork_error
 
     # Child process continues here
     # Detach from parent
@@ -533,7 +540,7 @@ def start(
     sys.stdout.flush()
     sys.stderr.flush()
 
-    with open(os.devnull, 'r') as devnull:
+    with open(os.devnull) as devnull:
         os.dup2(devnull.fileno(), sys.stdin.fileno())
 
     # Run daemon
@@ -620,12 +627,12 @@ def status() -> None:
     # Configuration
     if config:
         table.add_row("Interval", f"{config.get('interval_minutes', 'N/A')} minutes")
-        table.add_row("Directory", config.get('directory', 'N/A'))
-        table.add_row("Branch", config.get('branch', 'N/A'))
-        table.add_row("Auto-commit", str(config.get('auto_commit', False)))
+        table.add_row("Directory", config.get("directory", "N/A"))
+        table.add_row("Branch", config.get("branch", "N/A"))
+        table.add_row("Auto-commit", str(config.get("auto_commit", False)))
 
-        if config.get('commit_message'):
-            table.add_row("Commit Message", config.get('commit_message'))
+        if config.get("commit_message"):
+            table.add_row("Commit Message", config.get("commit_message"))
 
     # Log file
     if LOG_FILE.exists():
@@ -687,14 +694,14 @@ def logs(lines: int, follow: bool) -> None:
 
         try:
             # Display last N lines first
-            with open(LOG_FILE, "r") as f:
+            with open(LOG_FILE) as f:
                 all_lines = f.readlines()
                 recent_lines = all_lines[-lines:] if len(all_lines) > lines else all_lines
                 for line in recent_lines:
                     console.print(line.rstrip())
 
             # Follow new lines
-            with open(LOG_FILE, "r") as f:
+            with open(LOG_FILE) as f:
                 # Seek to end
                 f.seek(0, 2)
 
@@ -711,7 +718,7 @@ def logs(lines: int, follow: bool) -> None:
 
     else:
         # Display last N lines
-        with open(LOG_FILE, "r") as f:
+        with open(LOG_FILE) as f:
             all_lines = f.readlines()
             recent_lines = all_lines[-lines:] if len(all_lines) > lines else all_lines
 

@@ -14,6 +14,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import click
@@ -39,8 +40,8 @@ console = Console()
     help="Optional rationale explaining why this revert is being made.",
 )
 def revert(
-        commit_hash: str,
-        rationale: str,
+    commit_hash: str,
+    rationale: str,
 ) -> None:
     """Revert a specific commit.
 
@@ -68,8 +69,7 @@ def revert(
         commit_to_revert = repo.get_commit(commit_hash)
         if not commit_to_revert:
             raise click.ClickException(
-                f"Commit '{commit_hash}' not found.\n"
-                "  Hint: use 'gitmap log --oneline' to list commits."
+                f"Commit '{commit_hash}' not found.\n  Hint: use 'gitmap log --oneline' to list commits."
             )
 
         # Display what we're reverting

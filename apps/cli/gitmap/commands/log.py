@@ -14,12 +14,11 @@ Metadata:
     Version: 0.2.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import click
 from rich.console import Console
-from rich.table import Table
-from rich.text import Text
 
 from gitmap_core.graph import build_graph
 from gitmap_core.repository import find_repository
@@ -77,19 +76,13 @@ def _print_graph(limit: int, oneline: bool, repo) -> None:
         else:
             # Full format
             head_label = f" {label_str}" if label_str else ""
-            console.print(
-                f"{prefix} [bold cyan]commit {commit.id}[/bold cyan]{head_label}"
-            )
+            console.print(f"{prefix} [bold cyan]commit {commit.id}[/bold cyan]{head_label}")
             console.print(f"{'|' if node.lane >= 0 else ' '} Author: {commit.author}")
             console.print(f"{'|' if node.lane >= 0 else ' '} Date:   {commit.timestamp}")
             layers = commit.map_data.get("operationalLayers", [])
             console.print(f"{'|' if node.lane >= 0 else ' '}")
-            console.print(
-                f"{'|' if node.lane >= 0 else ' '}     {commit.message}"
-            )
-            console.print(
-                f"{'|' if node.lane >= 0 else ' '} [dim]({len(layers)} layer(s))[/dim]"
-            )
+            console.print(f"{'|' if node.lane >= 0 else ' '}     {commit.message}")
+            console.print(f"{'|' if node.lane >= 0 else ' '} [dim]({len(layers)} layer(s))[/dim]")
 
         # Draw connector lines (e.g. for merge commits)
         for connector in node.connector_lines:
@@ -124,10 +117,10 @@ def _print_graph(limit: int, oneline: bool, repo) -> None:
     help="Show history for a specific branch (defaults to current branch).",
 )
 def log(
-        limit: int,
-        oneline: bool,
-        show_graph: bool,
-        branch: str | None,
+    limit: int,
+    oneline: bool,
+    show_graph: bool,
+    branch: str | None,
 ) -> None:
     """Show commit history.
 
@@ -182,9 +175,7 @@ def log(
             # Compact format
             for commit in commits:
                 marker = "[yellow]*[/yellow] " if commit.id == head_commit else "  "
-                console.print(
-                    f"{marker}[cyan]{commit.id[:8]}[/cyan] {commit.message}"
-                )
+                console.print(f"{marker}[cyan]{commit.id[:8]}[/cyan] {commit.message}")
         else:
             # Full format
             for i, commit in enumerate(commits):

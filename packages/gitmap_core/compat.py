@@ -10,6 +10,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import logging
@@ -37,6 +38,7 @@ def get_arcgis_version() -> tuple[int, int, int]:
     """
     try:
         import arcgis
+
         version_str = getattr(arcgis, "__version__", "0.0.0")
         parts = version_str.split(".")
         major = int(parts[0]) if len(parts) > 0 else 0
@@ -197,6 +199,7 @@ def create_folder(gis: GIS, folder_name: str) -> dict[str, Any] | None:
     The function will search for the folder after creation if the API
     returns an empty result (common on some Portal versions).
     """
+
     def _extract_folder_info(result: Any) -> dict[str, Any] | None:
         """Extract folder info from API result."""
         if not result:
@@ -208,9 +211,7 @@ def create_folder(gis: GIS, folder_name: str) -> dict[str, Any] | None:
         else:
             # Object with attributes - try multiple attribute names
             folder_id = (
-                getattr(result, "id", None) or
-                getattr(result, "folderId", None) or
-                getattr(result, "folder_id", None)
+                getattr(result, "id", None) or getattr(result, "folderId", None) or getattr(result, "folder_id", None)
             )
             if folder_id:
                 return {"id": folder_id, "title": getattr(result, "title", folder_name)}
@@ -375,7 +376,7 @@ def search_content(
                 search_params["item_type"] = item_type
             else:
                 # Append to query for older versions
-                search_params["query"] = f"{query} type:\"{item_type}\""
+                search_params["query"] = f'{query} type:"{item_type}"'
 
         return gis.content.search(**search_params)
     except Exception as e:

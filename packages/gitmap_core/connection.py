@@ -14,6 +14,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import os
@@ -34,7 +35,7 @@ if TYPE_CHECKING:
 
 
 def _load_env_file(
-        env_path: Path | None = None,
+    env_path: Path | None = None,
 ) -> None:
     """Load environment variables from .env file.
 
@@ -90,7 +91,7 @@ class PortalConnection:
 
     @property
     def gis(
-            self,
+        self,
     ) -> GIS:
         """Get authenticated GIS connection.
 
@@ -107,7 +108,7 @@ class PortalConnection:
 
     @property
     def is_connected(
-            self,
+        self,
     ) -> bool:
         """Check if connected to Portal.
 
@@ -117,8 +118,8 @@ class PortalConnection:
         return self._gis is not None
 
     def connect(
-            self,
-            password: str | None = None,
+        self,
+        password: str | None = None,
     ) -> GIS:
         """Establish connection to Portal.
 
@@ -176,7 +177,7 @@ class PortalConnection:
             raise RuntimeError(msg) from connection_error
 
     def disconnect(
-            self,
+        self,
     ) -> None:
         """Disconnect from Portal."""
         self._gis = None
@@ -186,9 +187,9 @@ class PortalConnection:
 
 
 def get_connection(
-        url: str = "https://www.arcgis.com",
-        username: str | None = None,
-        password: str | None = None,
+    url: str = "https://www.arcgis.com",
+    username: str | None = None,
+    password: str | None = None,
 ) -> PortalConnection:
     """Create and authenticate a Portal connection.
 
@@ -209,8 +210,8 @@ def get_connection(
 
 
 def get_agol_connection(
-        username: str | None = None,
-        password: str | None = None,
+    username: str | None = None,
+    password: str | None = None,
 ) -> PortalConnection:
     """Create connection to ArcGIS Online.
 
@@ -228,5 +229,3 @@ def get_agol_connection(
         username=username,
         password=password,
     )
-
-

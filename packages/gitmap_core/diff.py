@@ -13,6 +13,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -57,49 +58,49 @@ class MapDiff:
 
     @property
     def has_changes(
-            self,
+        self,
     ) -> bool:
         """Check if any changes exist."""
         return bool(self.layer_changes or self.table_changes or self.property_changes)
 
     @property
     def added_layers(
-            self,
+        self,
     ) -> list[LayerChange]:
         """Get added layers."""
         return [c for c in self.layer_changes if c.change_type == "added"]
 
     @property
     def removed_layers(
-            self,
+        self,
     ) -> list[LayerChange]:
         """Get removed layers."""
         return [c for c in self.layer_changes if c.change_type == "removed"]
 
     @property
     def modified_layers(
-            self,
+        self,
     ) -> list[LayerChange]:
         """Get modified layers."""
         return [c for c in self.layer_changes if c.change_type == "modified"]
 
     @property
     def added_tables(
-            self,
+        self,
     ) -> list[LayerChange]:
         """Get added tables."""
         return [c for c in self.table_changes if c.change_type == "added"]
 
     @property
     def removed_tables(
-            self,
+        self,
     ) -> list[LayerChange]:
         """Get removed tables."""
         return [c for c in self.table_changes if c.change_type == "removed"]
 
     @property
     def modified_tables(
-            self,
+        self,
     ) -> list[LayerChange]:
         """Get modified tables."""
         return [c for c in self.table_changes if c.change_type == "modified"]
@@ -109,8 +110,8 @@ class MapDiff:
 
 
 def diff_maps(
-        map1: dict[str, Any],
-        map2: dict[str, Any],
+    map1: dict[str, Any],
+    map2: dict[str, Any],
 ) -> MapDiff:
     """Compare two web map JSON structures.
 
@@ -149,8 +150,8 @@ def diff_maps(
 
 
 def diff_layers(
-        layers1: list[dict[str, Any]],
-        layers2: list[dict[str, Any]],
+    layers1: list[dict[str, Any]],
+    layers2: list[dict[str, Any]],
 ) -> list[LayerChange]:
     """Compare two lists of operational layers.
 
@@ -170,20 +171,24 @@ def diff_layers(
     # Find added layers (in layers1 but not layers2)
     for layer_id, layer in index1.items():
         if layer_id not in index2:
-            changes.append(LayerChange(
-                layer_id=str(layer_id),
-                layer_title=layer.get("title", "Untitled"),
-                change_type="added",
-            ))
+            changes.append(
+                LayerChange(
+                    layer_id=str(layer_id),
+                    layer_title=layer.get("title", "Untitled"),
+                    change_type="added",
+                )
+            )
 
     # Find removed layers (in layers2 but not layers1)
     for layer_id, layer in index2.items():
         if layer_id not in index1:
-            changes.append(LayerChange(
-                layer_id=str(layer_id),
-                layer_title=layer.get("title", "Untitled"),
-                change_type="removed",
-            ))
+            changes.append(
+                LayerChange(
+                    layer_id=str(layer_id),
+                    layer_title=layer.get("title", "Untitled"),
+                    change_type="removed",
+                )
+            )
 
     # Find modified layers (in both but different)
     for layer_id in index1:
@@ -193,20 +198,22 @@ def diff_layers(
 
             if layer1 != layer2:
                 deep_diff = DeepDiff(layer2, layer1, ignore_order=True)
-                changes.append(LayerChange(
-                    layer_id=str(layer_id),
-                    layer_title=layer1.get("title", "Untitled"),
-                    change_type="modified",
-                    details=deep_diff.to_dict() if deep_diff else {},
-                ))
+                changes.append(
+                    LayerChange(
+                        layer_id=str(layer_id),
+                        layer_title=layer1.get("title", "Untitled"),
+                        change_type="modified",
+                        details=deep_diff.to_dict() if deep_diff else {},
+                    )
+                )
 
     return changes
 
 
 def diff_json(
-        obj1: Any,
-        obj2: Any,
-        ignore_order: bool = True,
+    obj1: Any,
+    obj2: Any,
+    ignore_order: bool = True,
 ) -> dict[str, Any]:
     """Generic JSON diff using DeepDiff.
 
@@ -226,7 +233,7 @@ def diff_json(
 
 
 def format_diff_summary(
-        map_diff: MapDiff,
+    map_diff: MapDiff,
 ) -> str:
     """Format MapDiff as human-readable summary.
 
@@ -279,12 +286,10 @@ def format_diff_summary(
     return "\n".join(lines)
 
 
-
-
 def format_diff_visual(
-        map_diff: "MapDiff",
-        label_a: str = "source",
-        label_b: str = "target",
+    map_diff: MapDiff,
+    label_a: str = "source",
+    label_b: str = "target",
 ) -> list[tuple[str, str, str]]:
     """Format MapDiff as a list of rows for table rendering.
 
@@ -329,7 +334,7 @@ def format_diff_visual(
     return rows
 
 
-def format_diff_stats(map_diff: "MapDiff") -> dict[str, int]:
+def format_diff_stats(map_diff: MapDiff) -> dict[str, int]:
     """Return a summary statistics dict for a MapDiff.
 
     Args:

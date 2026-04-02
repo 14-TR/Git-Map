@@ -11,6 +11,7 @@ Notes:
     ``gitmap_core.communication`` (and other modules) try to do
     ``from arcgis.gis import GIS``.
 """
+
 from __future__ import annotations
 
 import sys
@@ -23,6 +24,7 @@ from unittest.mock import MagicMock
 # CI or developer environments.  Rather than skipping all tests, we register
 # lightweight MagicMock objects for the sub-modules that gitmap_core imports.
 # Tests that need specific behaviour can refine these mocks with ``patch``.
+
 
 def _install_arcgis_mock() -> None:
     """Add arcgis stub modules to sys.modules if not already present."""
@@ -54,6 +56,7 @@ _install_arcgis_mock()
 # If gitmap_core.communication was imported before conftest ran (e.g. via an
 # earlier conftest or plugin), its module-level ``GIS`` sentinel may still be
 # ``None``.  Fix that up so tests see a truthy sentinel by default.
+
 
 def _fix_already_imported_sentinels() -> None:
     comm_key = "gitmap_core.communication"

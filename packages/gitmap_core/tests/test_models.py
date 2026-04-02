@@ -11,6 +11,7 @@ Dependencies:
     - pytest: Test framework
     - gitmap_core.models: Module under test
 """
+
 from __future__ import annotations
 
 import json
@@ -29,9 +30,7 @@ from gitmap_core.models import Branch, Commit, Remote, RepoConfig
 def sample_map_data() -> dict:
     """Create sample web map JSON data for testing."""
     return {
-        "operationalLayers": [
-            {"id": "layer1", "title": "Test Layer", "url": "https://example.com/layer"}
-        ],
+        "operationalLayers": [{"id": "layer1", "title": "Test Layer", "url": "https://example.com/layer"}],
         "baseMap": {"title": "Topographic"},
         "version": "2.29",
     }

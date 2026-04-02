@@ -11,6 +11,7 @@ Dependencies:
     - unittest.mock: Mocking ArcGIS objects
     - gitmap_core.maps: Module under test
 """
+
 from __future__ import annotations
 
 import json
@@ -116,9 +117,7 @@ def temp_json_path() -> Path:
 class TestGetWebmapJson:
     """Tests for get_webmap_json function."""
 
-    def test_extract_webmap_json(
-        self, mock_webmap_item: MagicMock, sample_webmap_data: dict
-    ) -> None:
+    def test_extract_webmap_json(self, mock_webmap_item: MagicMock, sample_webmap_data: dict) -> None:
         """Test extracting web map JSON from Portal item."""
         result = get_webmap_json(mock_webmap_item)
 
@@ -162,9 +161,7 @@ class TestGetWebmapJson:
 class TestGetWebmapById:
     """Tests for get_webmap_by_id function."""
 
-    def test_fetch_webmap_by_id(
-        self, mock_gis: MagicMock, sample_webmap_data: dict
-    ) -> None:
+    def test_fetch_webmap_by_id(self, mock_gis: MagicMock, sample_webmap_data: dict) -> None:
         """Test fetching web map by item ID."""
         item = MagicMock()
         item.type = "Web Map"
@@ -544,9 +541,7 @@ class TestCompareLayers:
 class TestSerialization:
     """Tests for save_map_json and load_map_json functions."""
 
-    def test_save_map_json(
-        self, temp_json_path: Path, sample_webmap_data: dict
-    ) -> None:
+    def test_save_map_json(self, temp_json_path: Path, sample_webmap_data: dict) -> None:
         """Test saving map JSON to file."""
         save_map_json(sample_webmap_data, temp_json_path)
 
@@ -554,18 +549,14 @@ class TestSerialization:
         content = json.loads(temp_json_path.read_text())
         assert content == sample_webmap_data
 
-    def test_save_map_json_formatting(
-        self, temp_json_path: Path, sample_webmap_data: dict
-    ) -> None:
+    def test_save_map_json_formatting(self, temp_json_path: Path, sample_webmap_data: dict) -> None:
         """Test that saved JSON is indented."""
         save_map_json(sample_webmap_data, temp_json_path)
 
         content = temp_json_path.read_text()
         assert "\n" in content  # Has newlines (indented)
 
-    def test_load_map_json(
-        self, temp_json_path: Path, sample_webmap_data: dict
-    ) -> None:
+    def test_load_map_json(self, temp_json_path: Path, sample_webmap_data: dict) -> None:
         """Test loading map JSON from file."""
         temp_json_path.write_text(json.dumps(sample_webmap_data))
 
@@ -589,9 +580,7 @@ class TestSerialization:
 
         assert "Failed to load map JSON" in str(exc_info.value)
 
-    def test_round_trip(
-        self, temp_json_path: Path, sample_webmap_data: dict
-    ) -> None:
+    def test_round_trip(self, temp_json_path: Path, sample_webmap_data: dict) -> None:
         """Test save then load returns identical data."""
         save_map_json(sample_webmap_data, temp_json_path)
         result = load_map_json(temp_json_path)

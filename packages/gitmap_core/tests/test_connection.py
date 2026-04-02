@@ -7,6 +7,7 @@ Covers:
 
 Uses mocks to avoid actual ArcGIS API calls.
 """
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch

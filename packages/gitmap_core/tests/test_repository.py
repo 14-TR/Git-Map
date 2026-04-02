@@ -10,6 +10,7 @@ Dependencies:
     - pytest: Test framework
     - gitmap_core.repository: Module under test
 """
+
 from __future__ import annotations
 
 import json
@@ -182,9 +183,7 @@ class TestRepositoryState:
         """Test is_valid() returns True for properly initialized repo."""
         assert initialized_repo.is_valid() is True
 
-    def test_is_valid_false_when_missing_config(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_is_valid_false_when_missing_config(self, initialized_repo: Repository) -> None:
         """Test is_valid() returns False when config missing."""
         initialized_repo.config_path.unlink()
 
@@ -252,9 +251,7 @@ class TestRepositoryInitialization:
 
         assert repo.context_db_path.exists()
 
-    def test_init_uses_directory_name_as_default_project_name(
-        self, temp_repo_dir: Path
-    ) -> None:
+    def test_init_uses_directory_name_as_default_project_name(self, temp_repo_dir: Path) -> None:
         """Test init uses directory name when project_name not provided."""
         repo = Repository(temp_repo_dir)
         repo.init()
@@ -282,35 +279,27 @@ class TestHeadOperations:
 
         assert branch == "main"
 
-    def test_get_current_branch_returns_none_for_detached(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_get_current_branch_returns_none_for_detached(self, initialized_repo: Repository) -> None:
         """Test returns None for detached HEAD."""
         # Simulate detached HEAD by writing commit ID directly
         initialized_repo.head_path.write_text("abc123")
 
         assert initialized_repo.get_current_branch() is None
 
-    def test_get_current_branch_returns_none_if_no_head(
-        self, temp_repo_dir: Path
-    ) -> None:
+    def test_get_current_branch_returns_none_if_no_head(self, temp_repo_dir: Path) -> None:
         """Test returns None if HEAD file doesn't exist."""
         repo = Repository(temp_repo_dir)
 
         assert repo.get_current_branch() is None
 
-    def test_get_head_commit_with_branch(
-        self, repo_with_commit: Repository
-    ) -> None:
+    def test_get_head_commit_with_branch(self, repo_with_commit: Repository) -> None:
         """Test getting HEAD commit when on branch."""
         commit_id = repo_with_commit.get_head_commit()
 
         assert commit_id is not None
         assert len(commit_id) == 12  # Short hash
 
-    def test_get_head_commit_detached(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_get_head_commit_detached(self, initialized_repo: Repository) -> None:
         """Test getting HEAD commit when detached."""
         initialized_repo.head_path.write_text("abc123456789")
 
@@ -318,9 +307,7 @@ class TestHeadOperations:
 
         assert commit_id == "abc123456789"
 
-    def test_get_head_commit_returns_none_for_empty_branch(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_get_head_commit_returns_none_for_empty_branch(self, initialized_repo: Repository) -> None:
         """Test returns None for branch with no commits."""
         commit_id = initialized_repo.get_head_commit()
 
@@ -354,17 +341,13 @@ class TestBranchOperations:
         assert commit_id is not None
         assert len(commit_id) == 12
 
-    def test_get_branch_commit_returns_none_for_nonexistent(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_get_branch_commit_returns_none_for_nonexistent(self, initialized_repo: Repository) -> None:
         """Test returns None for nonexistent branch."""
         commit_id = initialized_repo.get_branch_commit("nonexistent")
 
         assert commit_id is None
 
-    def test_get_branch_commit_returns_none_for_empty_branch(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_get_branch_commit_returns_none_for_empty_branch(self, initialized_repo: Repository) -> None:
         """Test returns None for branch with no commits."""
         commit_id = initialized_repo.get_branch_commit("main")
 
@@ -380,17 +363,13 @@ class TestBranchOperations:
         assert branch.commit_id == head_commit
         assert (repo_with_commit.heads_dir / "feature" / "test").exists()
 
-    def test_create_branch_with_specific_commit(
-        self, repo_with_commit: Repository
-    ) -> None:
+    def test_create_branch_with_specific_commit(self, repo_with_commit: Repository) -> None:
         """Test creating branch at specific commit."""
         branch = repo_with_commit.create_branch("feature/test", commit_id="custom123")
 
         assert branch.commit_id == "custom123"
 
-    def test_create_branch_raises_if_exists(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_create_branch_raises_if_exists(self, initialized_repo: Repository) -> None:
         """Test create_branch raises error if branch exists."""
         with pytest.raises(RuntimeError) as exc_info:
             initialized_repo.create_branch("main")
@@ -404,9 +383,7 @@ class TestBranchOperations:
         commit_id = repo_with_commit.get_branch_commit("main")
         assert commit_id == "newcommit123"
 
-    def test_update_branch_raises_if_not_exists(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_update_branch_raises_if_not_exists(self, initialized_repo: Repository) -> None:
         """Test update_branch raises error if branch doesn't exist."""
         with pytest.raises(RuntimeError) as exc_info:
             initialized_repo.update_branch("nonexistent", "abc123")
@@ -421,18 +398,14 @@ class TestBranchOperations:
 
         assert "to-delete" not in repo_with_commit.list_branches()
 
-    def test_delete_branch_raises_if_current(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_delete_branch_raises_if_current(self, initialized_repo: Repository) -> None:
         """Test delete_branch raises error for current branch."""
         with pytest.raises(RuntimeError) as exc_info:
             initialized_repo.delete_branch("main")
 
         assert "Cannot delete current branch" in str(exc_info.value)
 
-    def test_delete_branch_raises_if_not_exists(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_delete_branch_raises_if_not_exists(self, initialized_repo: Repository) -> None:
         """Test delete_branch raises error if branch doesn't exist."""
         with pytest.raises(RuntimeError) as exc_info:
             initialized_repo.delete_branch("nonexistent")
@@ -447,9 +420,7 @@ class TestBranchOperations:
 
         assert repo_with_commit.get_current_branch() == "feature/test"
 
-    def test_checkout_branch_loads_commit_to_index(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_checkout_branch_loads_commit_to_index(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test checkout loads branch commit state to index."""
         # Modify index
         repo_with_commit.update_index({"modified": True})
@@ -462,9 +433,7 @@ class TestBranchOperations:
         index = repo_with_commit.get_index()
         assert index == sample_map_data
 
-    def test_checkout_branch_clears_index_for_empty_branch(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_checkout_branch_clears_index_for_empty_branch(self, initialized_repo: Repository) -> None:
         """Test checkout clears index for branch with no commits."""
         initialized_repo.update_index({"some": "data"})
         initialized_repo.create_branch("empty-branch")
@@ -474,9 +443,7 @@ class TestBranchOperations:
         index = initialized_repo.get_index()
         assert index == {}
 
-    def test_checkout_branch_raises_if_not_exists(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_checkout_branch_raises_if_not_exists(self, initialized_repo: Repository) -> None:
         """Test checkout_branch raises error for nonexistent branch."""
         with pytest.raises(RuntimeError) as exc_info:
             initialized_repo.checkout_branch("nonexistent")
@@ -490,17 +457,13 @@ class TestBranchOperations:
 class TestIndexOperations:
     """Tests for index/staging area operations."""
 
-    def test_get_index_returns_empty_dict_initially(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_get_index_returns_empty_dict_initially(self, initialized_repo: Repository) -> None:
         """Test get_index returns empty dict after init."""
         index = initialized_repo.get_index()
 
         assert index == {}
 
-    def test_get_index_returns_empty_when_no_file(
-        self, temp_repo_dir: Path
-    ) -> None:
+    def test_get_index_returns_empty_when_no_file(self, temp_repo_dir: Path) -> None:
         """Test get_index returns empty dict when file doesn't exist."""
         repo = Repository(temp_repo_dir)
 
@@ -508,9 +471,7 @@ class TestIndexOperations:
 
         assert index == {}
 
-    def test_get_index_handles_invalid_json(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_get_index_handles_invalid_json(self, initialized_repo: Repository) -> None:
         """Test get_index handles invalid JSON gracefully."""
         initialized_repo.index_path.write_text("not valid json")
 
@@ -518,18 +479,14 @@ class TestIndexOperations:
 
         assert index == {}
 
-    def test_update_index(
-        self, initialized_repo: Repository, sample_map_data: dict
-    ) -> None:
+    def test_update_index(self, initialized_repo: Repository, sample_map_data: dict) -> None:
         """Test updating index with new map data."""
         initialized_repo.update_index(sample_map_data)
 
         index = initialized_repo.get_index()
         assert index == sample_map_data
 
-    def test_update_index_overwrites_previous(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_update_index_overwrites_previous(self, initialized_repo: Repository) -> None:
         """Test update_index replaces previous content."""
         initialized_repo.update_index({"first": "data"})
         initialized_repo.update_index({"second": "data"})
@@ -544,9 +501,7 @@ class TestIndexOperations:
 class TestCommitOperations:
     """Tests for commit operations."""
 
-    def test_create_commit(
-        self, initialized_repo: Repository, sample_map_data: dict
-    ) -> None:
+    def test_create_commit(self, initialized_repo: Repository, sample_map_data: dict) -> None:
         """Test creating a commit."""
         initialized_repo.update_index(sample_map_data)
 
@@ -557,9 +512,7 @@ class TestCommitOperations:
         assert commit.author == "Tester"
         assert len(commit.id) == 12
 
-    def test_create_commit_uses_config_author(
-        self, initialized_repo: Repository, sample_map_data: dict
-    ) -> None:
+    def test_create_commit_uses_config_author(self, initialized_repo: Repository, sample_map_data: dict) -> None:
         """Test commit uses config author when not specified."""
         initialized_repo.update_index(sample_map_data)
 
@@ -567,9 +520,7 @@ class TestCommitOperations:
 
         assert commit.author == "Test User"
 
-    def test_create_commit_updates_branch(
-        self, initialized_repo: Repository, sample_map_data: dict
-    ) -> None:
+    def test_create_commit_updates_branch(self, initialized_repo: Repository, sample_map_data: dict) -> None:
         """Test commit updates current branch."""
         initialized_repo.update_index(sample_map_data)
 
@@ -578,9 +529,7 @@ class TestCommitOperations:
         branch_commit = initialized_repo.get_branch_commit("main")
         assert branch_commit == commit.id
 
-    def test_create_commit_with_parent(
-        self, repo_with_commit: Repository
-    ) -> None:
+    def test_create_commit_with_parent(self, repo_with_commit: Repository) -> None:
         """Test commit has parent when previous commits exist."""
         first_commit = repo_with_commit.get_head_commit()
         repo_with_commit.update_index({"new": "data"})
@@ -589,9 +538,7 @@ class TestCommitOperations:
 
         assert commit.parent == first_commit
 
-    def test_create_commit_saves_to_objects(
-        self, initialized_repo: Repository, sample_map_data: dict
-    ) -> None:
+    def test_create_commit_saves_to_objects(self, initialized_repo: Repository, sample_map_data: dict) -> None:
         """Test commit is saved to objects directory."""
         initialized_repo.update_index(sample_map_data)
 
@@ -600,17 +547,12 @@ class TestCommitOperations:
         commit_path = initialized_repo.commits_dir / f"{commit.id}.json"
         assert commit_path.exists()
 
-    def test_create_commit_with_rationale(
-        self, initialized_repo: Repository, sample_map_data: dict
-    ) -> None:
+    def test_create_commit_with_rationale(self, initialized_repo: Repository, sample_map_data: dict) -> None:
         """Test commit with rationale parameter."""
         initialized_repo.update_index(sample_map_data)
 
         # Should not raise - rationale is recorded in context store
-        commit = initialized_repo.create_commit(
-            "Test commit",
-            rationale="This explains why we made this change"
-        )
+        commit = initialized_repo.create_commit("Test commit", rationale="This explains why we made this change")
 
         assert commit is not None
 
@@ -623,9 +565,7 @@ class TestCommitOperations:
         assert commit is not None
         assert commit.id == commit_id
 
-    def test_get_commit_returns_none_for_nonexistent(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_get_commit_returns_none_for_nonexistent(self, initialized_repo: Repository) -> None:
         """Test get_commit returns None for nonexistent commit."""
         commit = initialized_repo.get_commit("nonexistent123")
 
@@ -642,9 +582,7 @@ class TestCommitOperations:
         assert history[0].message == "Second commit"
         assert history[1].message == "Initial commit"
 
-    def test_get_commit_history_with_limit(
-        self, repo_with_commit: Repository
-    ) -> None:
+    def test_get_commit_history_with_limit(self, repo_with_commit: Repository) -> None:
         """Test commit history respects limit."""
         for i in range(5):
             repo_with_commit.update_index({"num": i})
@@ -654,9 +592,7 @@ class TestCommitOperations:
 
         assert len(history) == 3
 
-    def test_get_commit_history_from_specific_commit(
-        self, repo_with_commit: Repository
-    ) -> None:
+    def test_get_commit_history_from_specific_commit(self, repo_with_commit: Repository) -> None:
         """Test history starting from specific commit."""
         first_id = repo_with_commit.get_head_commit()
         repo_with_commit.update_index({"second": "data"})
@@ -707,31 +643,23 @@ class TestConfigOperations:
 class TestStatusOperations:
     """Tests for status-related operations."""
 
-    def test_has_uncommitted_changes_true_with_new_data(
-        self, repo_with_commit: Repository
-    ) -> None:
+    def test_has_uncommitted_changes_true_with_new_data(self, repo_with_commit: Repository) -> None:
         """Test detects uncommitted changes."""
         repo_with_commit.update_index({"new": "changes"})
 
         assert repo_with_commit.has_uncommitted_changes() is True
 
-    def test_has_uncommitted_changes_false_when_clean(
-        self, repo_with_commit: Repository
-    ) -> None:
+    def test_has_uncommitted_changes_false_when_clean(self, repo_with_commit: Repository) -> None:
         """Test returns False when no changes."""
         assert repo_with_commit.has_uncommitted_changes() is False
 
-    def test_has_uncommitted_changes_true_when_no_commits(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_has_uncommitted_changes_true_when_no_commits(self, initialized_repo: Repository) -> None:
         """Test returns True when index has data but no commits."""
         initialized_repo.update_index({"some": "data"})
 
         assert initialized_repo.has_uncommitted_changes() is True
 
-    def test_has_uncommitted_changes_false_when_empty_no_commits(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_has_uncommitted_changes_false_when_empty_no_commits(self, initialized_repo: Repository) -> None:
         """Test returns False when empty index and no commits."""
         assert initialized_repo.has_uncommitted_changes() is False
 
@@ -763,18 +691,14 @@ class TestContextStore:
 class TestFindRepository:
     """Tests for find_repository function."""
 
-    def test_find_repository_in_current_dir(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_find_repository_in_current_dir(self, initialized_repo: Repository) -> None:
         """Test finding repo in current directory."""
         repo = find_repository(initialized_repo.root)
 
         assert repo is not None
         assert repo.root == initialized_repo.root
 
-    def test_find_repository_in_parent(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_find_repository_in_parent(self, initialized_repo: Repository) -> None:
         """Test finding repo in parent directory."""
         child_dir = initialized_repo.root / "child"
         child_dir.mkdir()
@@ -784,9 +708,7 @@ class TestFindRepository:
         assert repo is not None
         assert repo.root == initialized_repo.root
 
-    def test_find_repository_returns_none_when_not_found(
-        self, temp_repo_dir: Path
-    ) -> None:
+    def test_find_repository_returns_none_when_not_found(self, temp_repo_dir: Path) -> None:
         """Test returns None when no repo found."""
         repo = find_repository(temp_repo_dir)
 
@@ -825,35 +747,27 @@ class TestInitRepository:
 class TestGenerateCommitId:
     """Tests for commit ID generation."""
 
-    def test_generate_commit_id_is_deterministic(
-        self, initialized_repo: Repository, sample_map_data: dict
-    ) -> None:
+    def test_generate_commit_id_is_deterministic(self, initialized_repo: Repository, sample_map_data: dict) -> None:
         """Test same content produces same ID."""
         id1 = initialized_repo._generate_commit_id("msg", sample_map_data, None)
         id2 = initialized_repo._generate_commit_id("msg", sample_map_data, None)
 
         assert id1 == id2
 
-    def test_generate_commit_id_different_for_different_content(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_generate_commit_id_different_for_different_content(self, initialized_repo: Repository) -> None:
         """Test different content produces different ID."""
         id1 = initialized_repo._generate_commit_id("msg", {"a": 1}, None)
         id2 = initialized_repo._generate_commit_id("msg", {"b": 2}, None)
 
         assert id1 != id2
 
-    def test_generate_commit_id_length(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_generate_commit_id_length(self, initialized_repo: Repository) -> None:
         """Test commit ID is 12 characters."""
         commit_id = initialized_repo._generate_commit_id("msg", {}, None)
 
         assert len(commit_id) == 12
 
-    def test_generate_commit_id_includes_parent(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_generate_commit_id_includes_parent(self, initialized_repo: Repository) -> None:
         """Test parent affects commit ID."""
         id1 = initialized_repo._generate_commit_id("msg", {}, None)
         id2 = initialized_repo._generate_commit_id("msg", {}, "parent123")
@@ -872,9 +786,7 @@ class TestRevert:
         with pytest.raises(RuntimeError, match="not found"):
             initialized_repo.revert("nonexistent")
 
-    def test_revert_creates_new_commit(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_revert_creates_new_commit(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test revert creates a new commit."""
         # Create a second commit with changes
         modified_data = sample_map_data.copy()
@@ -890,9 +802,7 @@ class TestRevert:
         assert "Revert" in revert_commit.message
         assert second_commit.id[:8] in revert_commit.message
 
-    def test_revert_restores_layer_removal(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_revert_restores_layer_removal(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test revert restores a removed layer."""
         # Create commit that removes a layer
         modified_data = sample_map_data.copy()
@@ -908,9 +818,7 @@ class TestRevert:
         layer_ids = [l.get("id") for l in layers]
         assert "layer-2" in layer_ids
 
-    def test_revert_removes_added_layer(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_revert_removes_added_layer(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test revert removes an added layer."""
         # Create commit that adds a layer
         modified_data = sample_map_data.copy()
@@ -928,9 +836,7 @@ class TestRevert:
         assert "layer-1" in layer_ids
         assert "layer-2" in layer_ids
 
-    def test_revert_restores_modified_layer(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_revert_restores_modified_layer(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test revert restores a modified layer to original state."""
         # Create commit that modifies a layer
         modified_data = sample_map_data.copy()
@@ -947,9 +853,7 @@ class TestRevert:
         assert layer_1 is not None
         assert layer_1["title"] == "Roads"
 
-    def test_revert_with_rationale(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_revert_with_rationale(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test revert accepts rationale parameter."""
         modified_data = sample_map_data.copy()
         modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
@@ -963,9 +867,7 @@ class TestRevert:
 
         assert revert_commit is not None
 
-    def test_revert_updates_branch(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_revert_updates_branch(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test revert updates the current branch."""
         modified_data = sample_map_data.copy()
         modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
@@ -996,9 +898,7 @@ class TestRevert:
 class TestComputeRevert:
     """Tests for _compute_revert helper method."""
 
-    def test_compute_revert_layer_addition(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_compute_revert_layer_addition(self, initialized_repo: Repository) -> None:
         """Test computing revert for layer addition."""
         parent_data = {"operationalLayers": [{"id": "1", "title": "A"}]}
         commit_data = {
@@ -1009,17 +909,13 @@ class TestComputeRevert:
         }
         current_data = commit_data.copy()
 
-        result = initialized_repo._compute_revert(
-            current_data, commit_data, parent_data
-        )
+        result = initialized_repo._compute_revert(current_data, commit_data, parent_data)
 
         layer_ids = [l["id"] for l in result["operationalLayers"]]
         assert "1" in layer_ids
         assert "2" not in layer_ids
 
-    def test_compute_revert_layer_removal(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_compute_revert_layer_removal(self, initialized_repo: Repository) -> None:
         """Test computing revert for layer removal."""
         parent_data = {
             "operationalLayers": [
@@ -1030,32 +926,24 @@ class TestComputeRevert:
         commit_data = {"operationalLayers": [{"id": "1", "title": "A"}]}
         current_data = commit_data.copy()
 
-        result = initialized_repo._compute_revert(
-            current_data, commit_data, parent_data
-        )
+        result = initialized_repo._compute_revert(current_data, commit_data, parent_data)
 
         layer_ids = [l["id"] for l in result["operationalLayers"]]
         assert "1" in layer_ids
         assert "2" in layer_ids
 
-    def test_compute_revert_layer_modification(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_compute_revert_layer_modification(self, initialized_repo: Repository) -> None:
         """Test computing revert for layer modification."""
         parent_data = {"operationalLayers": [{"id": "1", "title": "Original"}]}
         commit_data = {"operationalLayers": [{"id": "1", "title": "Modified"}]}
         current_data = commit_data.copy()
 
-        result = initialized_repo._compute_revert(
-            current_data, commit_data, parent_data
-        )
+        result = initialized_repo._compute_revert(current_data, commit_data, parent_data)
 
         layer = result["operationalLayers"][0]
         assert layer["title"] == "Original"
 
-    def test_compute_revert_preserves_unrelated_changes(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_compute_revert_preserves_unrelated_changes(self, initialized_repo: Repository) -> None:
         """Test revert preserves changes not from the reverted commit."""
         parent_data = {"operationalLayers": [{"id": "1", "title": "A"}]}
         commit_data = {
@@ -1073,9 +961,7 @@ class TestComputeRevert:
             ]
         }
 
-        result = initialized_repo._compute_revert(
-            current_data, commit_data, parent_data
-        )
+        result = initialized_repo._compute_revert(current_data, commit_data, parent_data)
 
         layer_ids = [l["id"] for l in result["operationalLayers"]]
         assert "1" in layer_ids
@@ -1118,9 +1004,7 @@ class TestTags:
         assert repo_with_commit.tags_dir.exists()
         assert (repo_with_commit.tags_dir / "v1.0.0").exists()
 
-    def test_create_tag_with_specific_commit(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_create_tag_with_specific_commit(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test creating a tag pointing to specific commit."""
         # Create a second commit
         modified_data = sample_map_data.copy()
@@ -1223,9 +1107,7 @@ class TestCherryPick:
         with pytest.raises(RuntimeError, match="not found"):
             initialized_repo.cherry_pick("nonexistent")
 
-    def test_cherry_pick_creates_new_commit(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_cherry_pick_creates_new_commit(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test cherry-pick creates a new commit."""
         # Create feature branch with new commit
         repo_with_commit.create_branch("feature")
@@ -1246,9 +1128,7 @@ class TestCherryPick:
         assert new_commit.id != feature_commit.id
         assert feature_commit.id[:8] in new_commit.message
 
-    def test_cherry_pick_applies_added_layer(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_cherry_pick_applies_added_layer(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test cherry-pick applies layer additions."""
         # Create feature branch
         repo_with_commit.create_branch("feature")
@@ -1276,9 +1156,7 @@ class TestCherryPick:
         layer_ids = [l.get("id") for l in layers]
         assert "layer-3" in layer_ids
 
-    def test_cherry_pick_applies_removed_layer(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_cherry_pick_applies_removed_layer(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test cherry-pick applies layer removals."""
         # Create feature branch
         repo_with_commit.create_branch("feature")
@@ -1302,9 +1180,7 @@ class TestCherryPick:
         assert "layer-2" not in layer_ids
         assert "layer-1" in layer_ids
 
-    def test_cherry_pick_applies_modified_layer(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_cherry_pick_applies_modified_layer(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test cherry-pick applies layer modifications."""
         # Create feature branch
         repo_with_commit.create_branch("feature")
@@ -1328,9 +1204,7 @@ class TestCherryPick:
         assert layer_1 is not None
         assert layer_1["title"] == "Modified Roads"
 
-    def test_cherry_pick_with_rationale(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_cherry_pick_with_rationale(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test cherry-pick accepts rationale parameter."""
         repo_with_commit.create_branch("feature")
         repo_with_commit.checkout_branch("feature")
@@ -1349,9 +1223,7 @@ class TestCherryPick:
 
         assert new_commit is not None
 
-    def test_cherry_pick_updates_branch(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_cherry_pick_updates_branch(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test cherry-pick updates the current branch."""
         repo_with_commit.create_branch("feature")
         repo_with_commit.checkout_branch("feature")
@@ -1385,9 +1257,7 @@ class TestStash:
         with pytest.raises(RuntimeError, match="No changes to stash"):
             repo_with_commit.stash_push()
 
-    def test_stash_push(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_stash_push(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test pushing changes to stash."""
         # Make changes
         modified_data = sample_map_data.copy()
@@ -1406,9 +1276,7 @@ class TestStash:
         layer_ids = [l.get("id") for l in current_index.get("operationalLayers", [])]
         assert "layer-3" not in layer_ids
 
-    def test_stash_push_creates_dir(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_stash_push_creates_dir(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test stash push creates stash directory."""
         assert not repo_with_commit.stash_dir.exists()
 
@@ -1424,9 +1292,7 @@ class TestStash:
 class TestApplyLayerChanges:
     """Tests for _apply_layer_changes helper method."""
 
-    def test_apply_layer_changes_addition(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_apply_layer_changes_addition(self, initialized_repo: Repository) -> None:
         """Test applying layer additions."""
         current = [{"id": "1", "title": "A"}]
         parent = [{"id": "1", "title": "A"}]
@@ -1438,9 +1304,7 @@ class TestApplyLayerChanges:
         assert "1" in layer_ids
         assert "2" in layer_ids
 
-    def test_apply_layer_changes_removal(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_apply_layer_changes_removal(self, initialized_repo: Repository) -> None:
         """Test applying layer removals."""
         current = [{"id": "1", "title": "A"}, {"id": "2", "title": "B"}]
         parent = [{"id": "1", "title": "A"}, {"id": "2", "title": "B"}]
@@ -1452,9 +1316,7 @@ class TestApplyLayerChanges:
         assert "1" in layer_ids
         assert "2" not in layer_ids
 
-    def test_apply_layer_changes_modification(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_apply_layer_changes_modification(self, initialized_repo: Repository) -> None:
         """Test applying layer modifications."""
         current = [{"id": "1", "title": "Original"}]
         parent = [{"id": "1", "title": "Original"}]
@@ -1464,9 +1326,7 @@ class TestApplyLayerChanges:
 
         assert result[0]["title"] == "Modified"
 
-    def test_apply_layer_changes_no_duplicate(
-        self, initialized_repo: Repository
-    ) -> None:
+    def test_apply_layer_changes_no_duplicate(self, initialized_repo: Repository) -> None:
         """Test adding a layer that already exists."""
         current = [{"id": "1", "title": "A"}, {"id": "2", "title": "B"}]
         parent = [{"id": "1", "title": "A"}]
@@ -1478,9 +1338,7 @@ class TestApplyLayerChanges:
         layer_ids = [l["id"] for l in result]
         assert layer_ids.count("2") == 1
 
-    def test_stash_list_after_push(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_stash_list_after_push(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test listing stashes after push."""
         modified_data = sample_map_data.copy()
         modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
@@ -1492,9 +1350,7 @@ class TestApplyLayerChanges:
         assert len(stashes) == 1
         assert "First stash" in stashes[0]["message"]
 
-    def test_stash_multiple(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_stash_multiple(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test pushing multiple stashes."""
         # First stash
         modified_data = sample_map_data.copy()
@@ -1519,9 +1375,7 @@ class TestApplyLayerChanges:
         with pytest.raises(RuntimeError, match="No stash entries"):
             initialized_repo.stash_pop()
 
-    def test_stash_pop(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_stash_pop(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test popping a stash."""
         # Make changes and stash
         modified_data = sample_map_data.copy()
@@ -1545,9 +1399,7 @@ class TestApplyLayerChanges:
         # Stash list should be empty
         assert len(repo_with_commit.stash_list()) == 0
 
-    def test_stash_pop_specific_index(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_stash_pop_specific_index(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test popping a specific stash index."""
         # Create two stashes
         modified_data = sample_map_data.copy()
@@ -1576,9 +1428,7 @@ class TestApplyLayerChanges:
         assert len(stashes) == 1
         assert "Second" in stashes[0]["message"]
 
-    def test_stash_pop_invalid_index(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_stash_pop_invalid_index(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test pop with invalid index."""
         modified_data = sample_map_data.copy()
         modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
@@ -1588,9 +1438,7 @@ class TestApplyLayerChanges:
         with pytest.raises(RuntimeError, match="Invalid stash index"):
             repo_with_commit.stash_pop(index=5)
 
-    def test_stash_drop(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_stash_drop(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test dropping a stash."""
         modified_data = sample_map_data.copy()
         modified_data["operationalLayers"].append({"id": "layer-3", "title": "New"})
@@ -1614,14 +1462,12 @@ class TestApplyLayerChanges:
         with pytest.raises(RuntimeError, match="No stash entries"):
             initialized_repo.stash_drop()
 
-    def test_stash_clear(
-        self, repo_with_commit: Repository, sample_map_data: dict
-    ) -> None:
+    def test_stash_clear(self, repo_with_commit: Repository, sample_map_data: dict) -> None:
         """Test clearing all stashes."""
         # Create multiple stashes
         for i in range(3):
             modified_data = sample_map_data.copy()
-            modified_data["operationalLayers"].append({"id": f"layer-{i+3}", "title": f"New {i}"})
+            modified_data["operationalLayers"].append({"id": f"layer-{i + 3}", "title": f"New {i}"})
             repo_with_commit.update_index(modified_data)
             repo_with_commit.stash_push(message=f"Stash {i}")
 
@@ -1734,8 +1580,9 @@ class TestFindCommonAncestor:
         initialized_repo.checkout_branch("main")
         c_main = self._make_commit(initialized_repo, "on main", layers=[{"id": "m1"}])
 
-        assert initialized_repo.find_common_ancestor(c_main, c_br) == \
-               initialized_repo.find_common_ancestor(c_br, c_main)
+        assert initialized_repo.find_common_ancestor(c_main, c_br) == initialized_repo.find_common_ancestor(
+            c_br, c_main
+        )
 
     def test_ancestor_with_merge_commit(
         self,

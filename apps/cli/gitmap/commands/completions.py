@@ -13,6 +13,7 @@ Metadata:
     Version: 1.0.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import os
@@ -40,14 +41,12 @@ eval "$(_GITMAP_COMPLETE=bash_source gitmap)"
 
 # Then reload your shell:
 source ~/.bashrc""",
-
     "zsh": """\
 # Add to ~/.zshrc:
 eval "$(_GITMAP_COMPLETE=zsh_source gitmap)"
 
 # Then reload your shell:
 source ~/.zshrc""",
-
     "fish": """\
 # Add to ~/.config/fish/completions/gitmap.fish:
 _GITMAP_COMPLETE=fish_source gitmap | source
@@ -106,10 +105,7 @@ def completions(
         console.print()
         console.print("[bold]GitMap Shell Completions[/bold]")
         console.print()
-        console.print(
-            "Enable tab-completion so pressing [cyan]<Tab>[/cyan] auto-completes "
-            "commands and options."
-        )
+        console.print("Enable tab-completion so pressing [cyan]<Tab>[/cyan] auto-completes commands and options.")
         console.print()
         if detected:
             console.print(f"Detected shell: [cyan]{detected}[/cyan]")
@@ -127,6 +123,7 @@ def completions(
     if print_script:
         # Emit the raw script so the user can pipe it
         import subprocess
+
         env = os.environ.copy()
         env[_COMPLETE_VAR[target_shell]] = f"{target_shell}_source"
         result = subprocess.run(
@@ -145,16 +142,15 @@ def completions(
     # Print instructions
     instructions = _INSTALL_INSTRUCTIONS[target_shell]
     console.print()
-    console.print(Panel(
-        Syntax(instructions, "bash", theme="monokai", background_color="default"),
-        title=f"[bold]Completion setup for {target_shell}[/bold]",
-        border_style="cyan",
-    ))
-    console.print()
     console.print(
-        f"Or run [cyan]gitmap completions --install {target_shell}[/cyan] "
-        "to add this automatically."
+        Panel(
+            Syntax(instructions, "bash", theme="monokai", background_color="default"),
+            title=f"[bold]Completion setup for {target_shell}[/bold]",
+            border_style="cyan",
+        )
     )
+    console.print()
+    console.print(f"Or run [cyan]gitmap completions --install {target_shell}[/cyan] to add this automatically.")
     console.print()
 
 
@@ -205,7 +201,7 @@ def _auto_install(shell: str) -> None:
         # Fish uses a separate file, write the full source command
         rc_dir = os.path.dirname(rc_file)
         os.makedirs(rc_dir, exist_ok=True)
-        line = f"_GITMAP_COMPLETE=fish_source gitmap | source\n"
+        line = "_GITMAP_COMPLETE=fish_source gitmap | source\n"
         try:
             with open(rc_file, "w") as fh:
                 fh.write(f"{marker}\n{line}")

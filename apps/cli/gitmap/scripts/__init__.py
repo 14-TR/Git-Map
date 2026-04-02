@@ -6,6 +6,5 @@ This module holds the implementation details that main.py orchestrates.
 Metadata:
     Version: 0.1.0
 """
+
 from __future__ import annotations
-
-

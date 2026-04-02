@@ -11,6 +11,7 @@ Dependencies:
     - gitmap_core.repository: Repository management
     - tools.stash_tools: MCP stash tool functions (path-injected)
 """
+
 from __future__ import annotations
 
 import sys
@@ -21,14 +22,11 @@ import pytest
 from gitmap_core.repository import Repository, init_repository
 
 # Inject the MCP scripts directory so stash_tools can be imported directly.
-_MCP_SCRIPTS = str(
-    Path(__file__).parent.parent.parent.parent
-    / "apps" / "mcp" / "gitmap-mcp" / "scripts"
-)
+_MCP_SCRIPTS = str(Path(__file__).parent.parent.parent.parent / "apps" / "mcp" / "gitmap-mcp" / "scripts")
 if _MCP_SCRIPTS not in sys.path:
     sys.path.insert(0, _MCP_SCRIPTS)
 
-from tools.stash_tools import (
+from tools.stash_tools import (  # noqa: E402
     gitmap_stash_drop,
     gitmap_stash_list,
     gitmap_stash_pop,
@@ -50,12 +48,14 @@ def repo(tmp_path: Path) -> Repository:
 @pytest.fixture
 def dirty_repo(repo: Repository, tmp_path: Path) -> Repository:
     """Repository with uncommitted index changes."""
-    repo.update_index({
-        "operationalLayers": [
-            {"id": "l0", "title": "Base Layer"},
-            {"id": "l1", "title": "Uncommitted Layer"},
-        ]
-    })
+    repo.update_index(
+        {
+            "operationalLayers": [
+                {"id": "l0", "title": "Base Layer"},
+                {"id": "l1", "title": "Uncommitted Layer"},
+            ]
+        }
+    )
     return repo
 
 
@@ -127,14 +127,10 @@ class TestGitmapStashList:
         assert result["count"] == 1
         assert result["entries"][0]["index"] == 0
 
-    def test_list_multiple_entries_newest_first(
-        self, repo: Repository, tmp_path: Path
-    ) -> None:
+    def test_list_multiple_entries_newest_first(self, repo: Repository, tmp_path: Path) -> None:
         """Multiple stash entries are returned newest-first."""
         for label in ("first", "second"):
-            repo.update_index({
-                "operationalLayers": [{"id": label, "title": label}]
-            })
+            repo.update_index({"operationalLayers": [{"id": label, "title": label}]})
             gitmap_stash_push(message=label, path=str(tmp_path))
 
         result = gitmap_stash_list(path=str(tmp_path))
@@ -177,9 +173,7 @@ class TestGitmapStashPop:
         assert result["success"] is False
         assert "error" in result
 
-    def test_pop_invalid_index_returns_error(
-        self, dirty_repo: Repository, tmp_path: Path
-    ) -> None:
+    def test_pop_invalid_index_returns_error(self, dirty_repo: Repository, tmp_path: Path) -> None:
         """Popping an out-of-range index returns a structured error."""
         gitmap_stash_push(path=str(tmp_path))
         result = gitmap_stash_pop(index=99, path=str(tmp_path))
@@ -214,9 +208,7 @@ class TestGitmapStashDrop:
         assert "stash_id" in result
         assert dirty_repo.stash_list().__len__() == 0
 
-    def test_drop_does_not_restore_index(
-        self, dirty_repo: Repository, tmp_path: Path
-    ) -> None:
+    def test_drop_does_not_restore_index(self, dirty_repo: Repository, tmp_path: Path) -> None:
         """Dropping does not restore the working index (unlike pop)."""
         gitmap_stash_push(path=str(tmp_path))
 

@@ -15,9 +15,9 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import click
@@ -92,15 +92,15 @@ console = Console()
     help="Skip maps that already have directories (instead of failing).",
 )
 def setup_repos(
-        directory: str,
-        owner: str,
-        query: str,
-        tag: str,
-        max_results: int,
-        url: str,
-        username: str,
-        password: str,
-        skip_existing: bool,
+    directory: str,
+    owner: str,
+    query: str,
+    tag: str,
+    max_results: int,
+    url: str,
+    username: str,
+    password: str,
+    skip_existing: bool,
 ) -> None:
     """Bulk clone web maps into a repositories directory.
 
@@ -176,26 +176,19 @@ def setup_repos(
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-
             for idx, webmap_info in enumerate(webmaps, 1):
                 item_id = webmap_info.get("id", "")
                 title = webmap_info.get("title", "Unknown")
                 map_owner = webmap_info.get("owner", "")
 
-                task = progress.add_task(
-                    f"[{idx}/{len(webmaps)}] Cloning '{title}'...",
-                    total=None
-                )
+                task = progress.add_task(f"[{idx}/{len(webmaps)}] Cloning '{title}'...", total=None)
 
                 try:
                     # Fetch web map data
                     item, map_data = get_webmap_by_id(connection.gis, item_id)
 
                     # Create sanitized directory name
-                    safe_title = "".join(
-                        c if c.isalnum() or c in "-_" else "_"
-                        for c in title
-                    )
+                    safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in title)
                     target_dir = base_dir / safe_title
 
                     # Check if directory exists
@@ -237,11 +230,13 @@ def setup_repos(
 
                 except Exception as clone_error:
                     progress.update(task, description=f"[{idx}/{len(webmaps)}] ✗ Failed '{title}'")
-                    failed_maps.append({
-                        "title": title,
-                        "id": item_id,
-                        "error": str(clone_error),
-                    })
+                    failed_maps.append(
+                        {
+                            "title": title,
+                            "id": item_id,
+                            "error": str(clone_error),
+                        }
+                    )
 
         # Display summary
         console.print()

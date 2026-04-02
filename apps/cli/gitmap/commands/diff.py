@@ -14,12 +14,12 @@ Metadata:
     Version: 0.3.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import json
 
 import click
-from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
@@ -41,8 +41,8 @@ console = Console()
 
 
 def _resolve_ref(
-        repo: Repository,
-        ref: str,
+    repo: Repository,
+    ref: str,
 ) -> str | None:
     """Resolve a branch name or commit ID to a commit ID.
 
@@ -61,10 +61,10 @@ def _resolve_ref(
 
 
 def _print_diff_table(
-        map_diff,
-        label_a: str,
-        label_b: str,
-        verbose: bool,
+    map_diff,
+    label_a: str,
+    label_b: str,
+    verbose: bool,
 ) -> None:
     """Display a MapDiff result as a Rich table.
 
@@ -91,11 +91,13 @@ def _print_diff_table(
         stat_parts.append(f"[yellow]~{stats['modified']} modified[/yellow]")
     stats_line = "  ".join(stat_parts) if stat_parts else "no changes"
 
-    console.print(Panel(
-        f"[cyan]{label_a}[/cyan] → [yellow]{label_b}[/yellow]\n{stats_line}",
-        title="GitMap Diff",
-        border_style="blue",
-    ))
+    console.print(
+        Panel(
+            f"[cyan]{label_a}[/cyan] → [yellow]{label_b}[/yellow]\n{stats_line}",
+            title="GitMap Diff",
+            border_style="blue",
+        )
+    )
 
     # Build table
     table = Table(show_header=True, header_style="bold white", box=None, padding=(0, 1))
@@ -181,11 +183,13 @@ def _print_diff(
         console.print("[green]No differences[/green]")
         return
 
-    console.print(Panel(
-        f"Comparing [cyan]{label_a}[/cyan] → [yellow]{label_b}[/yellow]",
-        title="GitMap Diff",
-        border_style="blue",
-    ))
+    console.print(
+        Panel(
+            f"Comparing [cyan]{label_a}[/cyan] → [yellow]{label_b}[/yellow]",
+            title="GitMap Diff",
+            border_style="blue",
+        )
+    )
 
     console.print(format_diff_summary(map_diff))
 
@@ -268,27 +272,19 @@ def diff(
             # ---- Two-argument form: compare two refs directly ---------
             source_id = _resolve_ref(repo, source)
             if not source_id:
-                raise click.ClickException(
-                    f"Branch or commit not found: '{source}'"
-                )
+                raise click.ClickException(f"Branch or commit not found: '{source}'")
 
             target_id = _resolve_ref(repo, target)
             if not target_id:
-                raise click.ClickException(
-                    f"Branch or commit not found: '{target}'"
-                )
+                raise click.ClickException(f"Branch or commit not found: '{target}'")
 
             source_commit = repo.get_commit(source_id)
             if not source_commit:
-                raise click.ClickException(
-                    f"Could not load commit '{source_id}'"
-                )
+                raise click.ClickException(f"Could not load commit '{source_id}'")
 
             target_commit = repo.get_commit(target_id)
             if not target_commit:
-                raise click.ClickException(
-                    f"Could not load commit '{target_id}'"
-                )
+                raise click.ClickException(f"Could not load commit '{target_id}'")
 
             map_diff = diff_maps(source_commit.map_data, target_commit.map_data)
             label_a = f"{source} ({source_id[:8]})"
@@ -302,9 +298,7 @@ def diff(
                 # Resolve the single ref argument
                 commit_id = _resolve_ref(repo, source)
                 if not commit_id:
-                    raise click.ClickException(
-                        f"Branch or commit not found: '{source}'"
-                    )
+                    raise click.ClickException(f"Branch or commit not found: '{source}'")
                 label_b = f"{source} ({commit_id[:8]})"
             else:
                 # Default to HEAD

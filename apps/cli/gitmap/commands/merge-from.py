@@ -15,6 +15,7 @@ Metadata:
     Version: 1.0.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -23,12 +24,8 @@ import click
 from rich.console import Console
 from rich.panel import Panel
 
-from gitmap_core.merge import apply_resolution
-from gitmap_core.merge import format_merge_summary
-from gitmap_core.merge import merge_maps
-from gitmap_core.merge import resolve_conflict
-from gitmap_core.repository import Repository
-from gitmap_core.repository import find_repository
+from gitmap_core.merge import apply_resolution, format_merge_summary, merge_maps, resolve_conflict
+from gitmap_core.repository import Repository, find_repository
 
 console = Console()
 
@@ -119,10 +116,10 @@ def merge_from(
         console.print(f"[dim]Target branch: {current_branch}[/dim]")
 
         # Get map data from both branches
-        console.print(f"\n[dim]Getting map data from source repository...[/dim]")
+        console.print("\n[dim]Getting map data from source repository...[/dim]")
         theirs_data = get_branch_map_data(source_repo_obj, source_branch)
 
-        console.print(f"[dim]Getting map data from current branch...[/dim]")
+        console.print("[dim]Getting map data from current branch...[/dim]")
         # Get our data (from index or commit)
         our_data = target_repo.get_index()
         our_commit_id = target_repo.get_branch_commit(current_branch)
@@ -160,13 +157,15 @@ def merge_from(
             layer_conflicts = [c for c in merge_result.conflicts if c.layer_id not in table_ids]
 
             total_conflicts = len(merge_result.conflicts)
-            console.print(Panel(
-                f"[yellow]Merge has {total_conflicts} conflict(s)[/yellow]\n"
-                f"  Layers: {len(layer_conflicts)}\n"
-                f"  Tables: {len(table_conflicts)}",
-                title="Merge Conflicts",
-                border_style="yellow",
-            ))
+            console.print(
+                Panel(
+                    f"[yellow]Merge has {total_conflicts} conflict(s)[/yellow]\n"
+                    f"  Layers: {len(layer_conflicts)}\n"
+                    f"  Tables: {len(table_conflicts)}",
+                    title="Merge Conflicts",
+                    border_style="yellow",
+                )
+            )
 
             # Handle table conflicts - prompt once for all
             if table_conflicts:
@@ -175,6 +174,7 @@ def merge_from(
                 console.print("  Tables will be resolved together.")
 
                 from rich.prompt import Prompt
+
                 table_choice = Prompt.ask(
                     "  Resolve all tables with",
                     choices=["ours", "theirs", "skip"],
@@ -193,6 +193,7 @@ def merge_from(
                 console.print(f"[bold]Layer Conflicts ({len(layer_conflicts)}):[/bold]")
 
                 from rich.prompt import Prompt
+
                 for conflict in layer_conflicts:
                     console.print()
                     console.print(f"[bold]Conflict in layer: {conflict.layer_title}[/bold]")

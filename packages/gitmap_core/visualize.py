@@ -13,6 +13,7 @@ Metadata:
     Version: 0.1.0
     Author: GitMap Team
 """
+
 from __future__ import annotations
 
 import html
@@ -325,7 +326,7 @@ def generate_mermaid_flowchart(
             # Get shape for event type
             shape_l, shape_r = EVENT_SHAPES.get(event.event_type, ("[", "]"))
 
-        lines.append(f"    {node_id}{shape_l}\"{label}\"{shape_r}")
+        lines.append(f'    {node_id}{shape_l}"{label}"{shape_r}')
 
     # Track which node pairs are connected by explicit edges
     connected_pairs: set[tuple[str, str]] = set()
@@ -349,10 +350,7 @@ def generate_mermaid_flowchart(
                 lines.append(f"    {source_id} --> |{edge.relationship}| {target_id}")
 
     # Sort events oldest first for chronological flow (excluding skipped duplicates)
-    sorted_events = sorted(
-        [e for e in data.events if e.id not in skip_events],
-        key=lambda e: e.timestamp
-    )
+    sorted_events = sorted([e for e in data.events if e.id not in skip_events], key=lambda e: e.timestamp)
     branch_events = [e for e in sorted_events if e.event_type == "branch"]
     commit_events = [e for e in sorted_events if e.event_type == "commit"]
     non_branch_events = [e for e in sorted_events if e.event_type != "branch"]
@@ -485,8 +483,7 @@ def generate_mermaid_flowchart(
 
                 # Find the last commit on target branch before merge and connect
                 if target_branch and target_branch in commits_by_branch:
-                    target_commits = [c for c in commits_by_branch[target_branch]
-                                      if c.timestamp < event.timestamp]
+                    target_commits = [c for c in commits_by_branch[target_branch] if c.timestamp < event.timestamp]
                     if target_commits:
                         last_target = target_commits[-1]
                         target_id = f"e_{last_target.id[:8]}"
@@ -505,10 +502,8 @@ def generate_mermaid_flowchart(
                 ann_node_id = f"a_{ann.id[:8]}"
                 annotation_node_ids.append(ann_node_id)
                 # Use note shape for annotations (asymmetric)
-                ann_label = _sanitize_mermaid_text(
-                    f"{ann.annotation_type.upper()}: {ann.content}"
-                )
-                lines.append(f"    {ann_node_id}>{{\"{ann_label}\"}}")
+                ann_label = _sanitize_mermaid_text(f"{ann.annotation_type.upper()}: {ann.content}")
+                lines.append(f'    {ann_node_id}>{{"{ann_label}"}}')
                 # Connect annotation to its event with dashed line
                 lines.append(f"    {ann_node_id} -.-> {event_node_id}")
 
@@ -664,7 +659,7 @@ def generate_mermaid_git_graph(
             if not msg:
                 msg = f"Commit {event.ref[:8] if event.ref else event.id[:8]}"
             msg = _sanitize_mermaid_text(msg)
-            commit_id = (event.ref[:8] if event.ref else event.id[:8])
+            commit_id = event.ref[:8] if event.ref else event.id[:8]
 
             # Check if this is a merge commit (has parent2)
             parent2 = payload.get("parent2")
