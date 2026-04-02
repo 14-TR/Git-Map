@@ -20,7 +20,8 @@ gitmap diff [SOURCE] [TARGET] [OPTIONS]
 | Option | Short | Default | Description |
 |--------|-------|---------|-------------|
 | `--verbose` | `-v` | false | Show property-level field changes |
-| `--format` | | `text` | Output format: `text` or `visual` |
+| `--format` | | `text` | Output format: `text`, `visual`, or `html` |
+| `--output` | `-o` | `diff-report.html` | Output file path (used with `--format html`) |
 
 ## Modes
 
@@ -47,6 +48,10 @@ gitmap diff abc123 def456
 
 # Visual Rich table output
 gitmap diff main feature/new-basemap --format visual
+
+# Export shareable HTML report
+gitmap diff main feature --format html
+gitmap diff main feature --format html --output /tmp/my-diff.html
 
 # Show field-level changes
 gitmap diff --verbose
@@ -90,6 +95,21 @@ Renders a Rich table with colored diff symbols:
   ~  Parcels                 2 field(s) changed
 ```
 
+## HTML output (`--format html`)
+
+Self-contained dark-themed HTML report with:
+- Stats badges (added / removed / modified counts)
+- Color-coded diff table
+- Expanded JSON detail block for modified layers
+- Footer with generation timestamp
+
+Useful for sharing diffs with stakeholders who don't have GitMap installed.
+
+```bash
+gitmap diff main staging --format html --output staging-diff.html
+# ✓ HTML report written to /path/to/staging-diff.html
+```
+
 ## Verbose mode (`-v`)
 
 With `--verbose`, modified layers show field-level JSON diffs:
@@ -109,3 +129,4 @@ Layer: Parcels
 - [`gitmap show`](show.md) — inspect a single commit with its diff
 - [`gitmap log`](log.md) — find commit IDs to compare
 - [`gitmap commit`](commit.md) — save staged changes as a commit
+- [`gitmap context`](context.md) — visualize event history

@@ -354,3 +354,182 @@ def format_diff_stats(map_diff: MapDiff) -> dict[str, int]:
         "modified": modified,
         "total": added + removed + modified,
     }
+
+
+def format_diff_html(
+        map_diff: "MapDiff",
+        label_a: str = "source",
+        label_b: str = "target",
+        title: str = "GitMap Diff Report",
+) -> str:
+    """Render MapDiff as a self-contained HTML report.
+
+    Produces a single-file HTML page with embedded CSS suitable for
+    sharing with stakeholders who don't have GitMap installed.
+
+    Args:
+        map_diff: MapDiff object to render.
+        label_a: Label for the source (left) state.
+        label_b: Label for the target (right) state.
+        title: Page title and report heading.
+
+    Returns:
+        Complete HTML document as a string.
+    """
+    import html
+    import json
+    from datetime import datetime, timezone
+
+    stats = format_diff_stats(map_diff)
+    rows = format_diff_visual(map_diff, label_a, label_b)
+    generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+    # Build stats badges
+    badge_parts: list[str] = []
+    if stats["added"]:
+        badge_parts.append(
+            f'<span class="badge badge-added">+{stats["added"]} added</span>'
+        )
+    if stats["removed"]:
+        badge_parts.append(
+            f'<span class="badge badge-removed">-{stats["removed"]} removed</span>'
+        )
+    if stats["modified"]:
+        badge_parts.append(
+            f'<span class="badge badge-modified">~{stats["modified"]} modified</span>'
+        )
+    if not badge_parts:
+        badge_parts.append('<span class="badge badge-clean">✓ no changes</span>')
+    badges_html = " ".join(badge_parts)
+
+    # Build table rows
+    symbol_class = {"+": "added", "-": "removed", "~": "modified", "*": "property"}
+    symbol_label = {"+": "added", "-": "removed", "~": "modified", "*": "changed"}
+
+    row_html_parts: list[str] = []
+    for symbol, name, detail in rows:
+        cls = symbol_class.get(symbol, "modified")
+        lbl = symbol_label.get(symbol, symbol)
+        esc_name = html.escape(name)
+        esc_detail = html.escape(detail)
+        row_html_parts.append(
+            f'<tr class="row-{cls}">'
+            f'<td class="symbol">{html.escape(symbol)}</td>'
+            f'<td class="name">{esc_name}</td>'
+            f'<td class="status {cls}">{lbl}</td>'
+            f'<td class="detail">{esc_detail}</td>'
+            f"</tr>"
+        )
+
+    # Build detailed changes section
+    detail_sections: list[str] = []
+    for change in map_diff.modified_layers:
+        if change.details:
+            details_str = html.escape(json.dumps(change.details, indent=2))
+            detail_sections.append(
+                f'<div class="detail-block">'
+                f'<h3>Layer: {html.escape(change.layer_title)}'
+                f' <code class="layer-id">{html.escape(change.layer_id)}</code></h3>'
+                f'<pre class="json-block">{details_str}</pre>'
+                f"</div>"
+            )
+
+    details_html = ""
+    if detail_sections:
+        details_html = (
+            '<section class="details-section">'
+            "<h2>Detailed Field Changes</h2>"
+            + "".join(detail_sections)
+            + "</section>"
+        )
+
+    rows_html = "".join(row_html_parts) if row_html_parts else (
+        '<tr><td colspan="4" class="no-changes">No changes detected.</td></tr>'
+    )
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{html.escape(title)}</title>
+  <style>
+    *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    :root {{
+      --bg: #0f172a; --surface: #1e293b; --border: #334155;
+      --text: #e2e8f0; --muted: #94a3b8;
+      --added: #22c55e; --removed: #ef4444; --modified: #f59e0b; --prop: #38bdf8;
+      --font-mono: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+    }}
+    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg); color: var(--text); padding: 2rem; line-height: 1.5; }}
+    header {{ border-bottom: 1px solid var(--border); padding-bottom: 1.25rem; margin-bottom: 1.5rem; }}
+    header h1 {{ font-size: 1.5rem; font-weight: 700; margin-bottom: 0.35rem; }}
+    .subtitle {{ color: var(--muted); font-size: 0.875rem; }}
+    .badges {{ display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }}
+    .badge {{ display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px;
+              font-size: 0.8rem; font-weight: 600; }}
+    .badge-added   {{ background: #14532d; color: var(--added); }}
+    .badge-removed {{ background: #450a0a; color: var(--removed); }}
+    .badge-modified{{ background: #451a03; color: var(--modified); }}
+    .badge-clean   {{ background: #0c4a1a; color: var(--added); }}
+    table {{ width: 100%; border-collapse: collapse; margin-bottom: 2rem;
+             background: var(--surface); border-radius: 0.5rem; overflow: hidden; }}
+    thead th {{ background: #0f172a; color: var(--muted); text-align: left;
+                padding: 0.6rem 1rem; font-size: 0.8rem; text-transform: uppercase;
+                letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }}
+    tbody tr {{ border-bottom: 1px solid var(--border); }}
+    tbody tr:last-child {{ border-bottom: none; }}
+    td {{ padding: 0.6rem 1rem; font-size: 0.9rem; }}
+    td.symbol {{ font-family: var(--font-mono); font-weight: 700; width: 2rem; }}
+    td.name {{ font-family: var(--font-mono); }}
+    td.status {{ font-size: 0.8rem; width: 6rem; text-transform: uppercase;
+                  font-weight: 600; letter-spacing: 0.03em; }}
+    td.detail {{ color: var(--muted); font-size: 0.85rem; }}
+    td.no-changes {{ text-align: center; color: var(--muted); padding: 1.5rem; }}
+    .row-added   td.symbol, .row-added   td.status {{ color: var(--added); }}
+    .row-removed td.symbol, .row-removed td.status {{ color: var(--removed); }}
+    .row-modified td.symbol, .row-modified td.status {{ color: var(--modified); }}
+    .row-property td.symbol, .row-property td.status {{ color: var(--prop); }}
+    .details-section {{ margin-top: 1rem; }}
+    .details-section h2 {{ font-size: 1.1rem; margin-bottom: 1rem;
+                           border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }}
+    .detail-block {{ background: var(--surface); border-radius: 0.5rem;
+                     margin-bottom: 1rem; overflow: hidden; }}
+    .detail-block h3 {{ padding: 0.75rem 1rem; font-size: 0.95rem;
+                         border-bottom: 1px solid var(--border); }}
+    code.layer-id {{ font-family: var(--font-mono); font-size: 0.8rem;
+                      color: var(--muted); margin-left: 0.5rem; }}
+    pre.json-block {{ font-family: var(--font-mono); font-size: 0.78rem; color: #a5f3fc;
+                       padding: 1rem; overflow-x: auto; white-space: pre-wrap; }}
+    footer {{ margin-top: 2rem; font-size: 0.75rem; color: var(--muted);
+              border-top: 1px solid var(--border); padding-top: 1rem; }}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>{html.escape(title)}</h1>
+    <p class="subtitle">
+      Comparing <strong>{html.escape(label_a)}</strong>
+      &rarr; <strong>{html.escape(label_b)}</strong>
+    </p>
+    <div class="badges">{badges_html}</div>
+  </header>
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Layer / Table</th>
+        <th>Status</th>
+        <th>Change Detail</th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows_html}
+    </tbody>
+  </table>
+  {details_html}
+  <footer>Generated by GitMap &mdash; {generated}</footer>
+</body>
+</html>
+"""
