@@ -6,7 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/gitmap.svg)](https://pypi.org/project/gitmap/)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-674%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
+[![Tests](https://img.shields.io/badge/tests-734%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
 
 GitMap brings Git-like version control to ArcGIS Online and Enterprise Portal web maps. Branch, commit, diff, merge, push, and pull maps using workflows your team already knows.
 

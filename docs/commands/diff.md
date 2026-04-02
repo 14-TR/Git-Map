@@ -1,6 +1,6 @@
 # gitmap diff
 
-Show changes between map states — index vs HEAD, branch vs branch, or commit vs commit.
+Show changes between states — index vs HEAD, two branches, or two commits.
 
 ## Usage
 
@@ -12,75 +12,90 @@ gitmap diff [SOURCE] [TARGET] [OPTIONS]
 
 | Argument | Description |
 |----------|-------------|
-| `SOURCE` | Branch name or commit ID (optional) |
-| `TARGET` | Branch name or commit ID (optional) |
-
-When called with no arguments, compares the staging area (index) to HEAD.
+| `SOURCE` | Branch name or commit ID to compare *from* (optional) |
+| `TARGET` | Branch name or commit ID to compare *to* (optional; requires SOURCE) |
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `--verbose, -v` | Show detailed property-level changes |
-| `--format [text\|visual\|html]` | Output format (default: `text`) |
-| `--output, -o PATH` | Write output to file (used with `--format html`; default: `diff-report.html`) |
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `--verbose` | `-v` | false | Show property-level field changes |
+| `--format` | | `text` | Output format: `text`, `visual`, or `html` |
+| `--output` | `-o` | `diff-report.html` | Output file path (used with `--format html`) |
+
+## Modes
+
+| Arguments provided | What is compared |
+|--------------------|-----------------|
+| *(none)* | Index (staging area) vs HEAD |
+| `SOURCE` only | Index vs that branch or commit |
+| `SOURCE TARGET` | SOURCE directly vs TARGET (index not involved) |
 
 ## Examples
 
 ```bash
-# Index vs HEAD (default)
+# Compare staging area to HEAD
 gitmap diff
 
-# Index vs a specific branch
+# Compare staging area to another branch
 gitmap diff main
 
-# Index vs a specific commit
-gitmap diff abc123
+# Compare two branches
+gitmap diff main feature/new-basemap
 
-# Branch vs branch
-gitmap diff main feature/new-layer
+# Compare two commits
+gitmap diff abc123 def456
 
-# Rich table view in terminal
-gitmap diff main feature --format visual
+# Visual Rich table output
+gitmap diff main feature/new-basemap --format visual
 
 # Export shareable HTML report
 gitmap diff main feature --format html
 gitmap diff main feature --format html --output /tmp/my-diff.html
 
-# Verbose: show per-field changes
+# Show field-level changes
 gitmap diff --verbose
+
+# Combine: visual + verbose
+gitmap diff main feature/new-basemap --format visual -v
 ```
 
-## Output Formats
-
-### `text` (default)
-
-Plain summary listing added, removed, and modified layers.
+## Text output (default)
 
 ```
-Added layers (1):
-  + Flood Zones (layer-001)
-Modified layers (1):
-  ~ Parcels (layer-002)
-Removed layers (1):
-  - Old Boundaries (layer-003)
+╭─ GitMap Diff ──────────────────────────────────╮
+│ Comparing index → HEAD (a3f2c1b0)              │
+╰─────────────────────────────────────────────────╯
+
++1 added  ~1 modified
+
+  + Flood Zones
+  ~ Parcels  (2 field(s) changed)
 ```
 
-### `visual`
+## Visual output (`--format visual`)
 
-Rich table with color-coded rows in the terminal.
+Renders a Rich table with colored diff symbols:
+
+| Symbol | Color | Meaning |
+|--------|-------|---------|
+| `+` | Green | Layer or table added |
+| `-` | Red | Layer or table removed |
+| `~` | Yellow | Layer or table modified |
+| `*` | Cyan | Map-level property changed |
 
 ```
-╭─ GitMap Diff ──────────────────────────────────────╮
-│ index → HEAD (a3f9c12)                              │
-│ +1 added  ~1 modified  -1 removed                  │
-╰────────────────────────────────────────────────────╯
-  + Flood Zones       Added in index
-  ~ Parcels           1 field(s) changed
-  - Old Boundaries    Removed in index (present in HEAD)
+╭─ GitMap Diff ─────────────────────────────────────╮
+│ main → feature/new-basemap                        │
+│ +1 added  ~1 modified                             │
+╰───────────────────────────────────────────────────╯
+
+     Layer / Table           Change
+  +  Flood Zones             added
+  ~  Parcels                 2 field(s) changed
 ```
 
-### `html`
+## HTML output (`--format html`)
 
 Self-contained dark-themed HTML report with:
 - Stats badges (added / removed / modified counts)
@@ -95,7 +110,23 @@ gitmap diff main staging --format html --output staging-diff.html
 # ✓ HTML report written to /path/to/staging-diff.html
 ```
 
-## See Also
+## Verbose mode (`-v`)
 
-- [`gitmap log`](log.md) — view commit history
+With `--verbose`, modified layers show field-level JSON diffs:
+
+```
+Detailed Changes:
+
+Layer: Parcels
+{
+  "opacity": [0.8, 1.0],
+  "visible": [false, true]
+}
+```
+
+## See also
+
+- [`gitmap show`](show.md) — inspect a single commit with its diff
+- [`gitmap log`](log.md) — find commit IDs to compare
+- [`gitmap commit`](commit.md) — save staged changes as a commit
 - [`gitmap context`](context.md) — visualize event history
