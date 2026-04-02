@@ -13,8 +13,10 @@
         <link rel="canonical" href="https://14-tr.github.io/Git-Map/contributing/">
       
       
-        <link rel="prev" href="../guides/portals/">
+        <link rel="prev" href="../guides/api-reference/">
       
+      
+        <link rel="next" href="../technical-paper/">
       
       
         
@@ -311,6 +313,25 @@
     
   
   Contributing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../technical-paper/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Technical Paper
 
       </a>
     </li>
@@ -1517,6 +1538,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/api-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1697,6 +1746,33 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../technical-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technical Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1863,12 +1939,12 @@
 <h2 id="running-tests">Running Tests<a class="headerlink" href="#running-tests" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pytest<span class="w"> </span>packages/gitmap_core/tests<span class="w"> </span>-v
 </code></pre></div>
-<p>All 716+ tests must pass before opening a PR. The CI pipeline runs the same suite on Python 3.11, 3.12, and 3.13.</p>
+<p>All 734+ tests must pass before opening a PR. The CI pipeline runs the same suite on Python 3.11, 3.12, 3.13, and 3.14.</p>
 <h2 id="project-structure">Project Structure<a class="headerlink" href="#project-structure" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Git-Map/
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── packages/
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>│   └── gitmap_core/        # Core library — version control engine
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>│       └── tests/          # 716+ tests live here
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>│       └── tests/          # 734+ tests live here
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>├── apps/
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│   ├── cli/gitmap/         # `gitmap` CLI (Click + Rich)
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>│   ├── mcp/                # MCP server for AI agent integration
@@ -1884,7 +1960,7 @@
 <li>Fork the repo and create a <code>feature/</code> branch from <code>main</code>.</li>
 <li>Write tests for any new functionality.</li>
 <li>Ensure all tests pass locally.</li>
-<li>Open a PR — the <a href=".github/PULL_REQUEST_TEMPLATE.md">PR template</a> will guide you.</li>
+<li>Open a PR — the PR template will guide you through the required fields.</li>
 </ol>
 <h2 id="code-style">Code Style<a class="headerlink" href="#code-style" title="Permanent link">&para;</a></h2>
 <ul>

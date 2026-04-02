@@ -13,6 +13,8 @@
         <link rel="canonical" href="https://14-tr.github.io/Git-Map/technical-paper/">
       
       
+        <link rel="prev" href="../contributing/">
+      
       
       
         
@@ -23,7 +25,7 @@
     
     
       
-        <title>Git-Map: A Version Control System for ArcGIS Web Maps - Git-Map</title>
+        <title>Technical Paper - Git-Map</title>
       
     
     
@@ -108,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Git-Map: A Version Control System for ArcGIS Web Maps
+              Technical Paper
             
           </span>
         </div>
@@ -307,6 +309,27 @@
     
   
   Contributing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Technical Paper
 
       </a>
     </li>
@@ -1513,6 +1536,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/api-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1543,6 +1594,1443 @@
   
 
       </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technical Paper
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technical Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#abstract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Abstract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Introduction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Problem Statement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-contributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Contributions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-system-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. System Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. System Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-high-level-component-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 High-Level Component Diagram
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-repository-on-disk-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Repository On-Disk Layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-technology-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Technology Stack
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-monorepo-package-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Monorepo Package Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Implementation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Implementation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-data-models-packagesgitmap_coremodelspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Data Models (packages/gitmap_core/models.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 Data Models (packages/gitmap_core/models.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#311-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.1 Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#312-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.2 Branch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#313-remote" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.3 Remote
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#314-repoconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.4 RepoConfig
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-repository-management-packagesgitmap_corerepositorypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Repository Management (packages/gitmap_core/repository.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 Repository Management (packages/gitmap_core/repository.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#321-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.1 Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#322-head-state-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.2 HEAD State Machine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#323-index-as-staging-area" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.3 Index as Staging Area
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#324-commit-id-generation-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.4 Commit ID Generation Algorithm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#325-common-ancestor-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.5 Common Ancestor Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-diff-engine-packagesgitmap_corediffpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Diff Engine (packages/gitmap_core/diff.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 Diff Engine (packages/gitmap_core/diff.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#331-mapdiff-data-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.1 MapDiff Data Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#332-layer-indexing-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.2 Layer Indexing Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#333-property-level-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.3 Property-Level Diff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#334-output-formatters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.4 Output Formatters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-merge-engine-packagesgitmap_coremergepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Merge Engine (packages/gitmap_core/merge.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.4 Merge Engine (packages/gitmap_core/merge.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#341-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4.1 Algorithm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#342-conflict-representation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4.2 Conflict Representation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#343-complexity-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4.3 Complexity Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#344-merge-command-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4.4 Merge Command Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-commit-graph-renderer-packagesgitmap_coregraphpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Commit Graph Renderer (packages/gitmap_core/graph.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.5 Commit Graph Renderer (packages/gitmap_core/graph.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#351-algorithm-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5.1 Algorithm Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#352-design-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5.2 Design Decisions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-context-graph-packagesgitmap_corecontextpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 Context Graph (packages/gitmap_core/context.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.6 Context Graph (packages/gitmap_core/context.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#361-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6.1 Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#362-event-recording-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6.2 Event Recording Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#363-graph-edges-for-operation-lineage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6.3 Graph Edges for Operation Lineage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#364-context-aware-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6.4 Context-Aware Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-remote-operations-packagesgitmap_coreremotepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 Remote Operations (packages/gitmap_core/remote.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.7 Remote Operations (packages/gitmap_core/remote.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#371-push-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7.1 Push Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#372-pull-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7.2 Pull Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#373-production-branch-notifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7.3 Production Branch Notifications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#374-portal-api-compatibility-compatpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7.4 Portal API Compatibility (compat.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#38-cli-application-appscligitmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.8 CLI Application (apps/cli/gitmap/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.8 CLI Application (apps/cli/gitmap/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#381-command-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.8.1 Command Groups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#382-grouped-help-formatter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.8.2 Grouped Help Formatter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#383-key-command-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.8.3 Key Command Implementations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#384-kebab-case-file-import-workaround" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.8.4 Kebab-Case File Import Workaround
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#39-mcp-server-appsmcpgitmap-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.9 MCP Server (apps/mcp/gitmap-mcp/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.9 MCP Server (apps/mcp/gitmap-mcp/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#391-tool-inventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.9.1 Tool Inventory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#392-server-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.9.2 Server Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#393-ai-agent-use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.9.3 AI Agent Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#310-arcgis-pro-toolbox-integrationsarcgis_progitmappyt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.10 ArcGIS Pro Toolbox (integrations/arcgis_pro/GitMap.pyt)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#311-openclaw-integration-integrationsopenclaw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.11 OpenClaw Integration (integrations/openclaw/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-api-interface-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. API / Interface Specification
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. API / Interface Specification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-core-library-public-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Core Library Public API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.1 Core Library Public API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#repository-packagesgitmap_corerepositorypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repository (packages/gitmap_core/repository.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-level-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Module-level functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#diff-api-packagesgitmap_corediffpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diff API (packages/gitmap_core/diff.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#merge-api-packagesgitmap_coremergepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merge API (packages/gitmap_core/merge.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graph-api-packagesgitmap_coregraphpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph API (packages/gitmap_core/graph.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#context-api-packagesgitmap_corecontextpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context API (packages/gitmap_core/context.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-cli-command-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 CLI Command Reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-pypi-package-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 PyPI Package Distribution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-performance-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Performance Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Performance Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-commit-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Commit Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-history-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 History Traversal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-common-ancestor-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Common Ancestor Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-diff-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Diff Engine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-context-store-sqlite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 Context Store (SQLite)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#56-graph-rendering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6 Graph Rendering
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Security Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Security Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-authentication-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Authentication Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-repository-data-privacy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Repository Data Privacy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-input-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Input Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-portal-api-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 Portal API Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-mcp-server-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 MCP Server Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-known-limitations-technical-debt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Known Limitations &amp; Technical Debt
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Known Limitations &amp; Technical Debt">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-pull-does-not-auto-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Pull Does Not Auto-Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-commit-id-collision-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Commit ID Collision Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-layers-without-id-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Layers Without id Field
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-kebab-case-command-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Kebab-Case Command Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-no-real-time-collaboration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 No Real-Time Collaboration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#76-full-snapshot-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.6 Full Snapshot Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#77-no-network-aware-push-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.7 No Network-Aware Push Retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#78-stash_push-timestamp-based-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.8 stash_push Timestamp-Based ID
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#79-duplicate-production-notification-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.9 Duplicate Production Notification Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-related-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Related Work
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Related Work">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-esri-versioned-geodatabases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Esri Versioned Geodatabases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-arcgis-versioning-services-rest-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 ArcGIS Versioning Services (REST API)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-git-flat-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Git + Flat Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-existing-gis-version-control-research" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Existing GIS Version Control Research
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#85-json-version-control-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.5 JSON Version Control Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#86-novel-aspects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.6 Novel Aspects
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-future-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Future Work
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Future Work">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-network-remote-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Network Remote Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-delta-compression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Delta Compression
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-portal-item-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 Portal Item Monitoring
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-conflict-resolution-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.4 Conflict Resolution UI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#95-fts5-full-text-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.5 FTS5 Full-Text Search
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#96-branch-name-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.6 Branch Name Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#97-auto-pull-fast-forward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.7 Auto-Pull Fast-Forward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#98-pypi-ecosystem-badges-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.8 PyPI Ecosystem Badges &amp; CI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#99-arcgis-pro-ribbon-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.9 ArcGIS Pro Ribbon Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#910-community-documentation-portal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.10 Community Documentation Portal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-appendix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Appendix
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Appendix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-project-file-tree-source-files-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Project File Tree (Source Files Only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-dependency-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 Dependency List
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-configuration-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 Configuration Reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#104-test-coverage-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.4 Test Coverage Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#105-recent-git-history-last-30-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.5 Recent Git History (Last 30 Commits)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
