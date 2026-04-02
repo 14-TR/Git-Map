@@ -890,3 +890,172 @@ class TestFormatDiffStats:
         stats = format_diff_stats(map_diff)
         assert stats["total"] == stats["added"] + stats["removed"] + stats["modified"]
         assert stats["total"] == 3
+
+
+# ---- format_diff_html Tests ---------------------------------------------------------------------------------
+
+
+class TestFormatDiffHtml:
+    """Tests for format_diff_html output."""
+
+    def test_returns_string(self) -> None:
+        """format_diff_html returns a string."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff()
+        result = format_diff_html(map_diff, "main", "feature")
+        assert isinstance(result, str)
+
+    def test_contains_html_boilerplate(self) -> None:
+        """Output starts with DOCTYPE and contains <html>."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff()
+        result = format_diff_html(map_diff, "main", "feature")
+        assert "<!DOCTYPE html>" in result
+        assert "<html" in result
+        assert "</html>" in result
+
+    def test_labels_appear_in_output(self) -> None:
+        """Source and target labels appear in the HTML."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff()
+        result = format_diff_html(map_diff, "my-source", "my-target")
+        assert "my-source" in result
+        assert "my-target" in result
+
+    def test_custom_title(self) -> None:
+        """Custom title appears in the <title> tag and heading."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff()
+        result = format_diff_html(map_diff, "a", "b", title="My Custom Report")
+        assert "My Custom Report" in result
+
+    def test_no_changes_badge(self) -> None:
+        """Empty diff shows no-changes badge."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff()
+        result = format_diff_html(map_diff, "a", "b")
+        assert "no changes" in result.lower()
+
+    def test_added_layer_appears(self) -> None:
+        """Added layer shows up in the table."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff(
+            layer_changes=[
+                LayerChange(layer_id="l1", layer_title="Flood Zones", change_type="added"),
+            ]
+        )
+        result = format_diff_html(map_diff, "index", "HEAD")
+        assert "Flood Zones" in result
+        assert "badge-added" in result
+
+    def test_removed_layer_appears(self) -> None:
+        """Removed layer shows up in the table."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff(
+            layer_changes=[
+                LayerChange(layer_id="l2", layer_title="Old Roads", change_type="removed"),
+            ]
+        )
+        result = format_diff_html(map_diff, "index", "HEAD")
+        assert "Old Roads" in result
+        assert "badge-removed" in result
+
+    def test_modified_layer_appears(self) -> None:
+        """Modified layer shows in table with modified badge."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff(
+            layer_changes=[
+                LayerChange(
+                    layer_id="l3",
+                    layer_title="Parcels",
+                    change_type="modified",
+                    details={"values_changed": {"root['opacity']": {"old": 1.0, "new": 0.5}}},
+                ),
+            ]
+        )
+        result = format_diff_html(map_diff, "index", "HEAD")
+        assert "Parcels" in result
+        assert "badge-modified" in result
+
+    def test_modified_layer_details_in_output(self) -> None:
+        """Detailed field changes section is emitted for modified layers with details."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff(
+            layer_changes=[
+                LayerChange(
+                    layer_id="l3",
+                    layer_title="Parcels",
+                    change_type="modified",
+                    details={"values_changed": {"root['opacity']": {"old": 1.0, "new": 0.5}}},
+                ),
+            ]
+        )
+        result = format_diff_html(map_diff, "index", "HEAD")
+        assert "Detailed Field Changes" in result
+        assert "values_changed" in result
+
+    def test_no_detail_section_when_no_details(self) -> None:
+        """No detail section rendered when modified layer has no details dict."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff(
+            layer_changes=[
+                LayerChange(layer_id="l3", layer_title="Parcels", change_type="modified"),
+            ]
+        )
+        result = format_diff_html(map_diff, "index", "HEAD")
+        assert "Detailed Field Changes" not in result
+
+    def test_table_changes_appear(self) -> None:
+        """Table changes are rendered in the output."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff(
+            table_changes=[
+                LayerChange(layer_id="t1", layer_title="Lookup Table", change_type="added"),
+            ]
+        )
+        result = format_diff_html(map_diff, "main", "feature")
+        assert "Lookup Table" in result
+
+    def test_property_changes_appear(self) -> None:
+        """Map property changes are included in the output."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff(property_changes={"values_changed": {}})
+        result = format_diff_html(map_diff, "main", "feature")
+        assert "Map properties" in result
+
+    def test_html_escaping(self) -> None:
+        """Layer titles with HTML special chars are escaped."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff(
+            layer_changes=[
+                LayerChange(
+                    layer_id="l1",
+                    layer_title="<script>alert('xss')</script>",
+                    change_type="added",
+                ),
+            ]
+        )
+        result = format_diff_html(map_diff, "a", "b")
+        assert "<script>" not in result
+        assert "&lt;script&gt;" in result
+
+    def test_generated_timestamp_in_footer(self) -> None:
+        """Footer contains a Generated timestamp."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff()
+        result = format_diff_html(map_diff, "a", "b")
+        assert "Generated by GitMap" in result

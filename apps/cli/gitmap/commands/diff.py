@@ -26,8 +26,13 @@ from rich.syntax import Syntax
 from rich.table import Table
 from rich.text import Text
 
-from gitmap_core.diff import diff_maps, format_diff_stats, format_diff_summary, format_diff_visual
-from gitmap_core.repository import Repository, find_repository
+from gitmap_core.diff import diff_maps
+from gitmap_core.diff import format_diff_html
+from gitmap_core.diff import format_diff_stats
+from gitmap_core.diff import format_diff_summary
+from gitmap_core.diff import format_diff_visual
+from gitmap_core.repository import find_repository
+from gitmap_core.repository import Repository
 
 console = Console()
 
@@ -124,12 +129,38 @@ def _print_diff_table(
                 console.print(syntax)
 
 
+
+def _print_diff_html(
+        map_diff,
+        label_a: str,
+        label_b: str,
+        output_path: str | None,
+) -> None:
+    """Render diff as a self-contained HTML file.
+
+    Args:
+        map_diff: MapDiff object to render.
+        label_a: Label for the source state.
+        label_b: Label for the target state.
+        output_path: File path to write HTML; defaults to diff-report.html.
+    """
+    import os
+    out = output_path or "diff-report.html"
+    title = f"GitMap Diff: {label_a} → {label_b}"
+    html_content = format_diff_html(map_diff, label_a, label_b, title)
+    with open(out, "w", encoding="utf-8") as fh:
+        fh.write(html_content)
+    abs_path = os.path.abspath(out)
+    console.print(f"[green]✓[/green] HTML report written to [cyan]{abs_path}[/cyan]")
+
+
 def _print_diff(
-    map_diff,
-    label_a: str,
-    label_b: str,
-    verbose: bool,
-    fmt: str = "text",
+        map_diff,
+        label_a: str,
+        label_b: str,
+        verbose: bool,
+        fmt: str = "text",
+        output: str | None = None,
 ) -> None:
     """Display a MapDiff result to the console.
 
@@ -140,6 +171,9 @@ def _print_diff(
         verbose: Whether to show property-level change details.
         fmt: Output format: 'text' or 'visual'.
     """
+    if fmt == "html":
+        _print_diff_html(map_diff, label_a, label_b, output)
+        return
     if fmt == "visual":
         _print_diff_table(map_diff, label_a, label_b, verbose)
         return
@@ -176,7 +210,7 @@ def _print_diff(
 # ---- Diff Command -------------------------------------------------------------------------------------------
 
 
-@click.command(epilog="Tip: use --format visual for a Rich table view of changes.")
+@click.command(epilog="Tip: use --format visual for a Rich table, or --format html to export a shareable report.")
 @click.argument(
     "source",
     required=False,
@@ -194,16 +228,23 @@ def _print_diff(
 @click.option(
     "--format",
     "fmt",
-    type=click.Choice(["text", "visual"], case_sensitive=False),
+    type=click.Choice(["text", "visual", "html"], case_sensitive=False),
     default="text",
     show_default=True,
-    help="Output format: 'text' for plain summary, 'visual' for Rich table.",
+    help="Output format: 'text' for plain summary, 'visual' for Rich table, 'html' for exportable report.",
+)
+@click.option(
+    "--output",
+    "-o",
+    default=None,
+    help="Output file path (used with --format html; default: diff-report.html).",
 )
 def diff(
-    source: str | None,
-    target: str | None,
-    verbose: bool,
-    fmt: str,
+        source: str | None,
+        target: str | None,
+        verbose: bool,
+        fmt: str,
+        output: str | None,
 ) -> None:
     """Show changes between states.
 
@@ -274,7 +315,7 @@ def diff(
             map_diff = diff_maps(index_data, target_commit.map_data)
             label_a = "index"
 
-        _print_diff(map_diff, label_a, label_b, verbose, fmt)
+        _print_diff(map_diff, label_a, label_b, verbose, fmt, output)
 
     except Exception as diff_error:
         msg = f"Diff failed: {diff_error}"
