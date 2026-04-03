@@ -17,6 +17,8 @@ Metadata:
 
 from __future__ import annotations
 
+import json
+
 import click
 from rich.console import Console
 
@@ -116,11 +118,20 @@ def _print_graph(limit: int, oneline: bool, repo) -> None:
     default=None,
     help="Show history for a specific branch (defaults to current branch).",
 )
+@click.option(
+    "--format",
+    "fmt",
+    type=click.Choice(["text", "json"], case_sensitive=False),
+    default="text",
+    show_default=True,
+    help="Output format: 'text' for human-readable, 'json' for machine-readable.",
+)
 def log(
     limit: int,
     oneline: bool,
     show_graph: bool,
     branch: str | None,
+    fmt: str,
 ) -> None:
     """Show commit history.
 
@@ -136,6 +147,8 @@ def log(
         gitmap log --graph --oneline
         gitmap log --branch feature/my-layer
         gitmap log -b main --oneline
+        gitmap log --format json
+        gitmap log -n 5 --format json
     """
     try:
         repo = find_repository()
@@ -168,7 +181,28 @@ def log(
             head_commit = repo.get_head_commit()
 
         if not commits:
-            console.print("[dim]No commits yet[/dim]")
+            if fmt == "json":
+                click.echo("[]")
+            else:
+                console.print("[dim]No commits yet[/dim]")
+            return
+
+        # ---- JSON output ----
+        if fmt == "json":
+            entries = []
+            for commit in commits:
+                layers = commit.map_data.get("operationalLayers", [])
+                entries.append({
+                    "id": commit.id,
+                    "short_id": commit.id[:8],
+                    "message": commit.message,
+                    "author": commit.author,
+                    "timestamp": commit.timestamp,
+                    "parent": commit.parent,
+                    "layers": len(layers),
+                    "is_head": commit.id == head_commit,
+                })
+            click.echo(json.dumps(entries, indent=2))
             return
 
         if oneline:

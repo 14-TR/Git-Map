@@ -174,6 +174,10 @@ def _print_diff(
     if fmt == "html":
         _print_diff_html(map_diff, label_a, label_b, output)
         return
+    if fmt == "json":
+        click.echo(json.dumps(map_diff.to_dict(), indent=2))
+        return
+
     if fmt == "visual":
         _print_diff_table(map_diff, label_a, label_b, verbose)
         return
