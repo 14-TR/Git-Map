@@ -18,6 +18,8 @@ Metadata:
 
 from __future__ import annotations
 
+import json
+
 import click
 from rich.console import Console
 from rich.panel import Panel
@@ -32,7 +34,15 @@ console = Console()
 
 
 @click.command(epilog="Tip: use 'gitmap diff' to see a full breakdown of changes.")
-def status() -> None:
+@click.option(
+    "--format",
+    "fmt",
+    type=click.Choice(["text", "json"], case_sensitive=False),
+    default="text",
+    show_default=True,
+    help="Output format: 'text' for human-readable, 'json' for machine-readable.",
+)
+def status(fmt: str) -> None:
     """Show the working tree status.
 
     Displays the current branch, whether there are uncommitted changes,
@@ -50,8 +60,34 @@ def status() -> None:
         # Get current branch
         current_branch = repo.get_current_branch()
         head_commit = repo.get_head_commit()
+        has_changes = repo.has_uncommitted_changes()
 
-        # Display header
+        # Build diff if there are changes
+        map_diff = None
+        if has_changes:
+            index_data = repo.get_index()
+            if head_commit:
+                commit = repo.get_commit(head_commit)
+                if commit:
+                    map_diff = diff_maps(index_data, commit.map_data)
+
+        # ---- JSON output ----
+        if fmt == "json":
+            result = {
+                "branch": current_branch or None,
+                "head_commit": head_commit[:8] if head_commit else None,
+                "clean": not has_changes,
+            }
+            if head_commit:
+                commit = repo.get_commit(head_commit)
+                if commit:
+                    result["head_message"] = commit.message
+            if map_diff:
+                result["diff"] = map_diff.to_dict()
+            click.echo(json.dumps(result, indent=2))
+            return
+
+        # ---- Text output (original) ----
         branch_display = current_branch or "(detached HEAD)"
         console.print(
             Panel(
@@ -61,7 +97,6 @@ def status() -> None:
             )
         )
 
-        # Display commit info
         if head_commit:
             commit = repo.get_commit(head_commit)
             if commit:
@@ -71,20 +106,13 @@ def status() -> None:
 
         console.print()
 
-        # Check for uncommitted changes
-        if repo.has_uncommitted_changes():
+        if has_changes:
             console.print("[yellow]Changes not committed:[/yellow]")
 
-            # Get diff details
-            index_data = repo.get_index()
-
-            if head_commit:
-                commit = repo.get_commit(head_commit)
-                if commit:
-                    map_diff = diff_maps(index_data, commit.map_data)
-                    console.print(format_diff_summary(map_diff))
+            if map_diff:
+                console.print(format_diff_summary(map_diff))
             else:
-                # No commits yet, show what's staged
+                index_data = repo.get_index()
                 layers = index_data.get("operationalLayers", [])
                 if layers:
                     console.print(f"  Staged map with {len(layers)} layer(s)")

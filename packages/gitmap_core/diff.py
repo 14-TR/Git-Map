@@ -106,6 +106,31 @@ class MapDiff:
         return [c for c in self.table_changes if c.change_type == "modified"]
 
 
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize the diff to a plain dictionary for JSON output.
+
+        Returns:
+            Dictionary with layer_changes, table_changes, property_changes,
+            and summary statistics.
+        """
+        def _change_to_dict(c: LayerChange) -> dict[str, Any]:
+            d: dict[str, Any] = {
+                "layer_id": c.layer_id,
+                "title": c.layer_title,
+                "change_type": c.change_type,
+            }
+            if c.details:
+                d["details"] = c.details
+            return d
+
+        return {
+            "has_changes": self.has_changes,
+            "stats": format_diff_stats(self),
+            "layer_changes": [_change_to_dict(c) for c in self.layer_changes],
+            "table_changes": [_change_to_dict(c) for c in self.table_changes],
+            "property_changes": self.property_changes,
+        }
+
 # ---- Diff Functions -----------------------------------------------------------------------------------------
 
 
