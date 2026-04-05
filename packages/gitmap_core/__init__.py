@@ -11,7 +11,7 @@ Dependencies:
     - deepdiff: JSON comparison
 
 Metadata:
-    Version: 0.5.0
+    Version: 0.7.0
     Author: GitMap Team
 """
 
@@ -22,7 +22,7 @@ from gitmap_core.context import Annotation, ContextStore, Edge, Event
 from gitmap_core.models import Branch, Commit, Remote, RepoConfig
 from gitmap_core.visualize import GraphData
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 
 # Public API - core data models loaded eagerly
 __all__ = [
