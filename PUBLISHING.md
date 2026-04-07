@@ -61,6 +61,14 @@ Packages to configure:
 
 ## Publishing a New Release
 
+Before tagging, run the local release guardrail:
+
+```bash
+python3 scripts/release_checks.py
+```
+
+This verifies that the published package versions, dependency pins, project metadata, and publish workflow tag patterns are still aligned.
+
 ### Patch release (core fix)
 
 ```bash
