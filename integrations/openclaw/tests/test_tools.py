@@ -12,16 +12,18 @@ Dependencies:
 """
 from __future__ import annotations
 
+import importlib.util
 import subprocess
-import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-# Add integrations dir so tools can be imported standalone
-sys.path.insert(0, str(Path(__file__).parent.parent))
-import tools as gitmap_tools
+TOOLS_PATH = Path(__file__).resolve().parents[1] / "tools.py"
+TOOLS_SPEC = importlib.util.spec_from_file_location("gitmap_openclaw_tools", TOOLS_PATH)
+gitmap_tools = importlib.util.module_from_spec(TOOLS_SPEC)
+assert TOOLS_SPEC.loader is not None
+TOOLS_SPEC.loader.exec_module(gitmap_tools)
 
 
 # ---- _find_gitmap() ------------------------------------------------------------------

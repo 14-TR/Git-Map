@@ -61,6 +61,46 @@ def collect_release_state() -> dict[str, str | list[str]]:
     }
 
 
+def _validate_package_metadata(pyproject: Path) -> None:
+    data = _load_pyproject(pyproject)
+    project = data["project"]
+
+    readme_path = pyproject.parent / project.get("readme", "")
+    assert project.get("readme") == "README.md", f"{pyproject} should publish README.md"
+    assert readme_path.is_file(), f"README declared by {pyproject} does not exist: {readme_path}"
+
+    assert project.get("license", {}).get("text") == "MIT", f"{pyproject} should declare MIT license"
+    urls = project.get("urls", {})
+    for required_url in ("Homepage", "Repository", "Bug Tracker"):
+        assert required_url in urls, f"{pyproject} missing project.urls.{required_url}"
+
+    classifiers = set(project.get("classifiers", []))
+    setuptools_tool = data.get("tool", {}).get("setuptools", {})
+    packages = setuptools_tool.get("packages", [])
+    package_data = setuptools_tool.get("package-data", {})
+    package_dirs = setuptools_tool.get("package-dir", {})
+
+    if "Typing :: Typed" in classifiers and packages:
+        for package_name in packages:
+            if "." in package_name:
+                continue
+
+            declared_package_data = package_data.get(package_name, [])
+            assert "py.typed" in declared_package_data, (
+                f"{pyproject} marks package as typed but does not declare py.typed for top-level package {package_name}"
+            )
+
+            configured_dir = package_dirs.get(package_name) or package_dirs.get("")
+            if configured_dir:
+                package_dir = pyproject.parent / configured_dir
+            else:
+                package_dir = pyproject.parent / package_name.replace('.', '/')
+
+            assert (package_dir / 'py.typed').is_file(), (
+                f"{pyproject} marks package as typed but is missing {package_dir / 'py.typed'}"
+            )
+
+
 def validate_release_state() -> None:
     state = collect_release_state()
     versions = {
@@ -79,12 +119,7 @@ def validate_release_state() -> None:
     assert f"gitmap-core>={version}" in state["cli_dependencies"], state["cli_dependencies"]
 
     for pyproject in (ROOT_PYPROJECT, CORE_PYPROJECT, CLI_PYPROJECT):
-        project = _load_pyproject(pyproject)["project"]
-        assert project.get("readme") == "README.md", f"{pyproject} should publish README.md"
-        assert project.get("license", {}).get("text") == "MIT", f"{pyproject} should declare MIT license"
-        urls = project.get("urls", {})
-        for required_url in ("Homepage", "Repository", "Bug Tracker"):
-            assert required_url in urls, f"{pyproject} missing project.urls.{required_url}"
+        _validate_package_metadata(pyproject)
 
     workflow_text = PUBLISH_WORKFLOW.read_text()
     for tag_pattern in ('- "core-v*"', '- "cli-v*"', '- "v*"'):
