@@ -8,9 +8,7 @@ from click.testing import CliRunner
 
 
 def _pyproject_version(pyproject_path: Path) -> str:
-    version_line = next(
-        line for line in pyproject_path.read_text().splitlines() if line.startswith("version = ")
-    )
+    version_line = next(line for line in pyproject_path.read_text().splitlines() if line.startswith("version = "))
     return version_line.split('"')[1]
 
 

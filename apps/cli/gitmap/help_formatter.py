@@ -53,7 +53,7 @@ COMMAND_SECTIONS: list[tuple[str, list[str]]] = [
 ]
 
 HELP_FOOTER = (
-    "Getting started: gitmap init → gitmap status → gitmap commit -m \"Initial snapshot\"\n"
+    'Getting started: gitmap init → gitmap status → gitmap commit -m "Initial snapshot"\n'
     "Need shell completions? Run: gitmap completions"
 )
 
