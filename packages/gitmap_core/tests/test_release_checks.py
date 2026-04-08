@@ -34,3 +34,11 @@ def test_release_versions_and_dependencies_are_synced() -> None:
 def test_release_metadata_and_publish_workflow_are_valid() -> None:
     release_checks = _load_release_checks_module()
     release_checks.validate_release_state()
+
+
+def test_release_metadata_requires_existing_readmes_and_typed_markers() -> None:
+    release_checks = _load_release_checks_module()
+
+    release_checks._validate_package_metadata(release_checks.ROOT_PYPROJECT)
+    release_checks._validate_package_metadata(release_checks.CORE_PYPROJECT)
+    release_checks._validate_package_metadata(release_checks.CLI_PYPROJECT)
