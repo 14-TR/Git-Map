@@ -192,16 +192,18 @@ def log(
             entries = []
             for commit in commits:
                 layers = commit.map_data.get("operationalLayers", [])
-                entries.append({
-                    "id": commit.id,
-                    "short_id": commit.id[:8],
-                    "message": commit.message,
-                    "author": commit.author,
-                    "timestamp": commit.timestamp,
-                    "parent": commit.parent,
-                    "layers": len(layers),
-                    "is_head": commit.id == head_commit,
-                })
+                entries.append(
+                    {
+                        "id": commit.id,
+                        "short_id": commit.id[:8],
+                        "message": commit.message,
+                        "author": commit.author,
+                        "timestamp": commit.timestamp,
+                        "parent": commit.parent,
+                        "layers": len(layers),
+                        "is_head": commit.id == head_commit,
+                    }
+                )
             click.echo(json.dumps(entries, indent=2))
             return
 

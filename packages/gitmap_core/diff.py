@@ -105,7 +105,6 @@ class MapDiff:
         """Get modified tables."""
         return [c for c in self.table_changes if c.change_type == "modified"]
 
-
     def to_dict(self) -> dict[str, Any]:
         """Serialize the diff to a plain dictionary for JSON output.
 
@@ -113,6 +112,7 @@ class MapDiff:
             Dictionary with layer_changes, table_changes, property_changes,
             and summary statistics.
         """
+
         def _change_to_dict(c: LayerChange) -> dict[str, Any]:
             d: dict[str, Any] = {
                 "layer_id": c.layer_id,
@@ -130,6 +130,7 @@ class MapDiff:
             "table_changes": [_change_to_dict(c) for c in self.table_changes],
             "property_changes": self.property_changes,
         }
+
 
 # ---- Diff Functions -----------------------------------------------------------------------------------------
 
@@ -382,10 +383,10 @@ def format_diff_stats(map_diff: MapDiff) -> dict[str, int]:
 
 
 def format_diff_html(
-        map_diff: "MapDiff",
-        label_a: str = "source",
-        label_b: str = "target",
-        title: str = "GitMap Diff Report",
+    map_diff: "MapDiff",
+    label_a: str = "source",
+    label_b: str = "target",
+    title: str = "GitMap Diff Report",
 ) -> str:
     """Render MapDiff as a self-contained HTML report.
 
@@ -412,17 +413,11 @@ def format_diff_html(
     # Build stats badges
     badge_parts: list[str] = []
     if stats["added"]:
-        badge_parts.append(
-            f'<span class="badge badge-added">+{stats["added"]} added</span>'
-        )
+        badge_parts.append(f'<span class="badge badge-added">+{stats["added"]} added</span>')
     if stats["removed"]:
-        badge_parts.append(
-            f'<span class="badge badge-removed">-{stats["removed"]} removed</span>'
-        )
+        badge_parts.append(f'<span class="badge badge-removed">-{stats["removed"]} removed</span>')
     if stats["modified"]:
-        badge_parts.append(
-            f'<span class="badge badge-modified">~{stats["modified"]} modified</span>'
-        )
+        badge_parts.append(f'<span class="badge badge-modified">~{stats["modified"]} modified</span>')
     if not badge_parts:
         badge_parts.append('<span class="badge badge-clean">✓ no changes</span>')
     badges_html = " ".join(badge_parts)
@@ -453,7 +448,7 @@ def format_diff_html(
             details_str = html.escape(json.dumps(change.details, indent=2))
             detail_sections.append(
                 f'<div class="detail-block">'
-                f'<h3>Layer: {html.escape(change.layer_title)}'
+                f"<h3>Layer: {html.escape(change.layer_title)}"
                 f' <code class="layer-id">{html.escape(change.layer_id)}</code></h3>'
                 f'<pre class="json-block">{details_str}</pre>'
                 f"</div>"
@@ -462,14 +457,13 @@ def format_diff_html(
     details_html = ""
     if detail_sections:
         details_html = (
-            '<section class="details-section">'
-            "<h2>Detailed Field Changes</h2>"
-            + "".join(detail_sections)
-            + "</section>"
+            '<section class="details-section"><h2>Detailed Field Changes</h2>' + "".join(detail_sections) + "</section>"
         )
 
-    rows_html = "".join(row_html_parts) if row_html_parts else (
-        '<tr><td colspan="4" class="no-changes">No changes detected.</td></tr>'
+    rows_html = (
+        "".join(row_html_parts)
+        if row_html_parts
+        else ('<tr><td colspan="4" class="no-changes">No changes detected.</td></tr>')
     )
 
     return f"""<!DOCTYPE html>

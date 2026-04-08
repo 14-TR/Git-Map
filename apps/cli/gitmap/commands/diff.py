@@ -129,12 +129,11 @@ def _print_diff_table(
                 console.print(syntax)
 
 
-
 def _print_diff_html(
-        map_diff,
-        label_a: str,
-        label_b: str,
-        output_path: str | None,
+    map_diff,
+    label_a: str,
+    label_b: str,
+    output_path: str | None,
 ) -> None:
     """Render diff as a self-contained HTML file.
 
@@ -145,6 +144,7 @@ def _print_diff_html(
         output_path: File path to write HTML; defaults to diff-report.html.
     """
     import os
+
     out = output_path or "diff-report.html"
     title = f"GitMap Diff: {label_a} → {label_b}"
     html_content = format_diff_html(map_diff, label_a, label_b, title)
@@ -155,12 +155,12 @@ def _print_diff_html(
 
 
 def _print_diff(
-        map_diff,
-        label_a: str,
-        label_b: str,
-        verbose: bool,
-        fmt: str = "text",
-        output: str | None = None,
+    map_diff,
+    label_a: str,
+    label_b: str,
+    verbose: bool,
+    fmt: str = "text",
+    output: str | None = None,
 ) -> None:
     """Display a MapDiff result to the console.
 
@@ -244,11 +244,11 @@ def _print_diff(
     help="Output file path (used with --format html; default: diff-report.html).",
 )
 def diff(
-        source: str | None,
-        target: str | None,
-        verbose: bool,
-        fmt: str,
-        output: str | None,
+    source: str | None,
+    target: str | None,
+    verbose: bool,
+    fmt: str,
+    output: str | None,
 ) -> None:
     """Show changes between states.
 
