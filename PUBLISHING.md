@@ -61,13 +61,16 @@ Packages to configure:
 
 ## Publishing a New Release
 
-Before tagging, run the local release guardrail:
+Before tagging, run the local release guardrails:
 
 ```bash
 python3 scripts/release_checks.py
+python3 -m build packages/gitmap_core --outdir dist/
+python3 scripts/verify_dist_install.py core
 ```
 
-This verifies that the published package versions, dependency pins, project metadata, and publish workflow tag patterns are still aligned.
+This verifies that the published package versions, dependency pins, project metadata, publish workflow tag patterns, and dist-install smoke tests are still aligned.
+The publish workflow now runs the same clean-venv install smoke test for `core`, `cli`, and `meta` before uploading artifacts to PyPI.
 
 ### Patch release (core fix)
 
