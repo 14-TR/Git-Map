@@ -134,6 +134,13 @@ class TestCommandRegistration:
         assert "gitmap init" in result.output
         assert "gitmap completions" in result.output
 
+    def test_help_uses_gitmap_prog_name(self, runner: CliRunner) -> None:
+        """Help output should show the installed command name, not the internal function name."""
+        result = runner.invoke(cli, ["--help"])
+        assert result.exit_code == 0
+        assert "Usage: gitmap [OPTIONS] COMMAND [ARGS]..." in result.output
+        assert "Usage: cli [OPTIONS] COMMAND [ARGS]..." not in result.output
+
     @pytest.mark.parametrize(
         ("mistyped", "expected"),
         [
@@ -147,6 +154,8 @@ class TestCommandRegistration:
         result = runner.invoke(cli, [mistyped])
         assert result.exit_code != 0
         assert "No such command" in result.output
+        assert "Try 'gitmap --help' for help." in result.output
         assert "Did you mean:" in result.output
         assert expected in result.output
         assert "gitmap --help" in result.output
+        assert "Try 'cli --help' for help." not in result.output
