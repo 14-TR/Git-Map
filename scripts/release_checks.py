@@ -18,6 +18,7 @@ CORE_INIT = REPO_ROOT / "packages/gitmap_core/__init__.py"
 CLI_INIT = REPO_ROOT / "apps/cli/gitmap/__init__.py"
 CLI_MAIN = REPO_ROOT / "apps/cli/gitmap/main.py"
 PUBLISH_WORKFLOW = REPO_ROOT / ".github/workflows/publish.yml"
+CI_WORKFLOW = REPO_ROOT / ".github/workflows/ci.yml"
 
 
 def _load_pyproject(path: Path) -> dict:
@@ -126,6 +127,17 @@ def validate_release_state() -> None:
         assert tag_pattern in workflow_text, f"Missing publish tag pattern: {tag_pattern}"
     for package_name in ("gitmap-core", "gitmap-cli", "gitmap"):
         assert f"https://pypi.org/p/{package_name}" in workflow_text, f"Missing PyPI environment URL for {package_name}"
+
+    ci_workflow_text = CI_WORKFLOW.read_text()
+    assert "package-validation:" in ci_workflow_text, "CI workflow missing package validation job"
+    for expected_command in (
+        "python scripts/release_checks.py",
+        "python -m build packages/gitmap_core --outdir dist/core",
+        "python -m build apps/cli/gitmap --outdir dist/cli",
+        "python -m build . --outdir dist/meta",
+        "python -m twine check dist/core/* dist/cli/* dist/meta/*",
+    ):
+        assert expected_command in ci_workflow_text, f"CI workflow missing packaging command: {expected_command}"
 
 
 if __name__ == "__main__":
