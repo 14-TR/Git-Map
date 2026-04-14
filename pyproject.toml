@@ -34,7 +34,7 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/14-TR/Git-Map"
 Repository = "https://github.com/14-TR/Git-Map"
-Documentation = "https://github.com/14-TR/Git-Map/blob/main/README.md"
+Documentation = "https://14-tr.github.io/Git-Map/"
 "Bug Tracker" = "https://github.com/14-TR/Git-Map/issues"
 Changelog = "https://github.com/14-TR/Git-Map/blob/main/CHANGELOG.md"
 
