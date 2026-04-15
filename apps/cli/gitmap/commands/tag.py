@@ -123,6 +123,8 @@ def tag(
         if commit_obj:
             console.print(f"  [bold]Message:[/bold] {commit_obj.message.split(chr(10))[0]}")
 
+    except click.ClickException:
+        raise
     except Exception as tag_error:
         msg = f"Tag operation failed: {tag_error}"
         raise click.ClickException(msg) from tag_error
