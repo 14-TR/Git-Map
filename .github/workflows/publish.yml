@@ -43,6 +43,9 @@ jobs:
       - name: Build gitmap-core wheel and sdist
         run: python -m build packages/gitmap_core --outdir dist/
 
+      - name: Smoke-test gitmap-core dist install
+        run: python scripts/verify_dist_install.py core
+
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -92,6 +95,9 @@ jobs:
       - name: Build gitmap-cli wheel and sdist
         run: python -m build apps/cli/gitmap --outdir dist/
 
+      - name: Smoke-test gitmap-cli dist install
+        run: python scripts/verify_dist_install.py cli
+
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -140,6 +146,9 @@ jobs:
 
       - name: Build gitmap wheel and sdist
         run: python -m build . --outdir dist/
+
+      - name: Smoke-test gitmap meta-package dist install
+        run: python scripts/verify_dist_install.py meta
 
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4

@@ -127,6 +127,10 @@ def validate_release_state() -> None:
         assert tag_pattern in workflow_text, f"Missing publish tag pattern: {tag_pattern}"
     for package_name in ("gitmap-core", "gitmap-cli", "gitmap"):
         assert f"https://pypi.org/p/{package_name}" in workflow_text, f"Missing PyPI environment URL for {package_name}"
+    for dist_kind in ("core", "cli", "meta"):
+        assert f"python scripts/verify_dist_install.py {dist_kind}" in workflow_text, (
+            f"Missing dist smoke-test step for {dist_kind}"
+        )
 
     ci_workflow_text = CI_WORKFLOW.read_text()
     assert "package-validation:" in ci_workflow_text, "CI workflow missing package validation job"

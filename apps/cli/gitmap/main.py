@@ -74,7 +74,7 @@ merge_from = _merge_from_module.merge_from
 # ---- Grouped Help ------------------------------------------------------------------------------------------
 
 
-@click.group(cls=GroupedHelpGroup)
+@click.group(name="gitmap", cls=GroupedHelpGroup)
 @click.version_option(version="0.7.0", prog_name="gitmap")
 def cli() -> None:
     """GitMap - Version control for ArcGIS web maps.
