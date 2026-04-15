@@ -126,6 +126,7 @@ Layer: Parcels
 
 ## See also
 
+- [Reviewing Diffs and Sharing Change Reports](../guides/reviewing-diffs.md) — branch review workflow and HTML report patterns
 - [`gitmap show`](show.md) — inspect a single commit with its diff
 - [`gitmap log`](log.md) — find commit IDs to compare
 - [`gitmap commit`](commit.md) — save staged changes as a commit

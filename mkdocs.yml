@@ -69,6 +69,7 @@ nav:
     - daemon: commands/daemon.md
   - Guides:
     - Day-to-Day Workflow: guides/workflow.md
+    - Reviewing Diffs: guides/reviewing-diffs.md
     - Branching Strategy: guides/branching.md
     - Working with Portals: guides/portals.md
     - Python API Reference: guides/api-reference.md
