@@ -166,6 +166,8 @@ def branch(
         else:
             console.print("[dim]Branch created (no commits yet)[/dim]")
 
+    except click.ClickException:
+        raise
     except Exception as branch_error:
         msg = f"Branch operation failed: {branch_error}"
         raise click.ClickException(msg) from branch_error
