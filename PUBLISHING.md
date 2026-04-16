@@ -66,10 +66,14 @@ Before tagging, run the local release guardrails:
 ```bash
 python3 scripts/release_checks.py
 python3 -m build packages/gitmap_core --outdir dist/
+python3 -m build apps/cli/gitmap --outdir dist/
+python3 -m build . --outdir dist/
 python3 scripts/verify_dist_install.py core
+python3 scripts/verify_dist_install.py cli
+python3 scripts/verify_dist_install.py meta
 ```
 
-This verifies that the published package versions, dependency pins, project metadata, publish workflow tag patterns, and dist-install smoke tests are still aligned.
+This verifies that the published package versions, dependency pins, project metadata, publish workflow tag patterns, and dist-install smoke tests are still aligned. It also catches root meta-package build regressions, which is important in this monorepo because setuptools can otherwise try to auto-discover top-level folders instead of building the `gitmap` meta-package.
 The publish workflow now runs the same clean-venv install smoke test for `core`, `cli`, and `meta` before uploading artifacts to PyPI.
 
 ### Patch release (core fix)
