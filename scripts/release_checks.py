@@ -78,6 +78,12 @@ def _validate_package_metadata(pyproject: Path) -> None:
     classifiers = set(project.get("classifiers", []))
     setuptools_tool = data.get("tool", {}).get("setuptools", {})
     packages = setuptools_tool.get("packages", [])
+
+    if pyproject == ROOT_PYPROJECT:
+        assert packages == [], (
+            f"{pyproject} should explicitly declare an empty package list so the meta-package build does not auto-discover monorepo folders"
+        )
+
     package_data = setuptools_tool.get("package-data", {})
     package_dirs = setuptools_tool.get("package-dir", {})
 
