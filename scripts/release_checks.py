@@ -146,6 +146,9 @@ def validate_release_state() -> None:
         "python -m build apps/cli/gitmap --outdir dist/cli",
         "python -m build . --outdir dist/meta",
         "python -m twine check dist/core/* dist/cli/* dist/meta/*",
+        "python scripts/verify_dist_install.py core",
+        "python scripts/verify_dist_install.py cli",
+        "python scripts/verify_dist_install.py meta",
     ):
         assert expected_command in ci_workflow_text, f"CI workflow missing packaging command: {expected_command}"
 

@@ -36,6 +36,18 @@ def test_release_metadata_and_publish_workflow_are_valid() -> None:
     release_checks.validate_release_state()
 
 
+def test_ci_package_validation_smoke_tests_dist_installs() -> None:
+    release_checks = _load_release_checks_module()
+    ci_workflow_text = release_checks.CI_WORKFLOW.read_text()
+
+    for expected_command in (
+        "python scripts/verify_dist_install.py core",
+        "python scripts/verify_dist_install.py cli",
+        "python scripts/verify_dist_install.py meta",
+    ):
+        assert expected_command in ci_workflow_text
+
+
 def test_release_metadata_requires_existing_readmes_and_typed_markers() -> None:
     release_checks = _load_release_checks_module()
 
