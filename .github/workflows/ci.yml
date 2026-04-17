@@ -112,3 +112,27 @@ jobs:
 
       - name: Check rendered package metadata
         run: python -m twine check dist/core/* dist/cli/* dist/meta/*
+
+      - name: Smoke-test built package installs
+        run: |
+          mv dist dist-build
+
+          mkdir -p dist
+          cp dist-build/core/* dist/
+          python scripts/verify_dist_install.py core
+
+          rm -rf dist
+          mkdir -p dist
+          cp dist-build/core/* dist/
+          cp dist-build/cli/* dist/
+          python scripts/verify_dist_install.py cli
+
+          rm -rf dist
+          mkdir -p dist
+          cp dist-build/core/* dist/
+          cp dist-build/cli/* dist/
+          cp dist-build/meta/* dist/
+          python scripts/verify_dist_install.py meta
+
+          rm -rf dist
+          mv dist-build dist
