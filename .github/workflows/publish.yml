@@ -35,6 +35,9 @@ jobs:
       - name: Install build tools
         run: python -m pip install --upgrade pip build
 
+      - name: Validate release tag
+        run: python scripts/release_checks.py --ref-name "${{ github.ref_name }}"
+
       - name: Run tests before publishing
         run: |
           pip install -e "packages/gitmap_core[dev]"
@@ -87,6 +90,9 @@ jobs:
       - name: Install build tools
         run: python -m pip install --upgrade pip build
 
+      - name: Validate release tag
+        run: python scripts/release_checks.py --ref-name "${{ github.ref_name }}"
+
       - name: Run core tests (CLI depends on core)
         run: |
           pip install -e "packages/gitmap_core[dev]"
@@ -138,6 +144,9 @@ jobs:
 
       - name: Install build tools
         run: python -m pip install --upgrade pip build
+
+      - name: Validate release tag
+        run: python scripts/release_checks.py --ref-name "${{ github.ref_name }}"
 
       - name: Run core tests before publishing
         run: |

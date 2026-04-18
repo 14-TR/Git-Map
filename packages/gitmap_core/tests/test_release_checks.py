@@ -3,6 +3,8 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
+import pytest
+
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 RELEASE_CHECKS_PATH = REPO_ROOT / "scripts/release_checks.py"
@@ -54,3 +56,60 @@ def test_release_metadata_requires_existing_readmes_and_typed_markers() -> None:
     release_checks._validate_package_metadata(release_checks.ROOT_PYPROJECT)
     release_checks._validate_package_metadata(release_checks.CORE_PYPROJECT)
     release_checks._validate_package_metadata(release_checks.CLI_PYPROJECT)
+
+
+@pytest.mark.parametrize(
+    ("ref_name", "expected_version"),
+    [
+        ("refs/tags/core-v1.2.3", "1.2.3"),
+        ("cli-v1.2.3", "1.2.3"),
+        ("v1.2.3", "1.2.3"),
+    ],
+)
+def test_validate_release_tag_accepts_matching_tags(ref_name: str, expected_version: str) -> None:
+    release_checks = _load_release_checks_module()
+
+    release_checks.validate_release_tag(
+        ref_name,
+        state={
+            "root_version": expected_version,
+            "core_version": expected_version,
+            "cli_version": expected_version,
+        },
+    )
+
+
+@pytest.mark.parametrize(
+    ("ref_name", "state", "message"),
+    [
+        (
+            "refs/tags/core-v9.9.9",
+            {"root_version": "1.2.3", "core_version": "1.2.3", "cli_version": "1.2.3"},
+            "expected version 1.2.3",
+        ),
+        (
+            "cli-v2.0.0",
+            {"root_version": "1.2.3", "core_version": "1.2.3", "cli_version": "1.2.3"},
+            "expected version 1.2.3",
+        ),
+        (
+            "v0.0.1",
+            {"root_version": "1.2.3", "core_version": "1.2.3", "cli_version": "1.2.3"},
+            "expected version 1.2.3",
+        ),
+        (
+            "refs/heads/main",
+            {"root_version": "1.2.3", "core_version": "1.2.3", "cli_version": "1.2.3"},
+            "Release tag must be one of",
+        ),
+    ],
+)
+def test_validate_release_tag_rejects_mismatched_or_invalid_tags(
+    ref_name: str,
+    state: dict[str, str],
+    message: str,
+) -> None:
+    release_checks = _load_release_checks_module()
+
+    with pytest.raises(AssertionError, match=message):
+        release_checks.validate_release_tag(ref_name, state=state)
