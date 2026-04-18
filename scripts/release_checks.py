@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import re
 import sys
 from pathlib import Path
@@ -108,6 +109,28 @@ def _validate_package_metadata(pyproject: Path) -> None:
             )
 
 
+def validate_release_tag(ref_name: str, state: dict[str, str | list[str]] | None = None) -> None:
+    normalized_ref = ref_name.removeprefix("refs/tags/")
+    tag_match = re.fullmatch(r"(?:(core|cli)-)?v(.+)", normalized_ref)
+    assert tag_match, (
+        "Release tag must be one of core-v<version>, cli-v<version>, or v<version>: "
+        f"{ref_name}"
+    )
+
+    package_prefix, tag_version = tag_match.groups()
+    state = state or collect_release_state()
+    expected_versions = {
+        None: state["root_version"],
+        "core": state["core_version"],
+        "cli": state["cli_version"],
+    }
+    expected_version = expected_versions[package_prefix]
+    assert tag_version == expected_version, (
+        f"Release tag {normalized_ref} does not match expected version {expected_version}"
+    )
+
+
+
 def validate_release_state() -> None:
     state = collect_release_state()
     versions = {
@@ -153,7 +176,20 @@ def validate_release_state() -> None:
         assert expected_command in ci_workflow_text, f"CI workflow missing packaging command: {expected_command}"
 
 
-if __name__ == "__main__":
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ref-name", help="Git ref/tag name to validate against release metadata")
+    args = parser.parse_args()
+
     validate_release_state()
     state = collect_release_state()
+    if args.ref_name:
+        validate_release_tag(args.ref_name, state=state)
+        print(f"Release metadata OK for {args.ref_name} (GitMap v{state['root_version']})")
+        return
+
     print(f"Release metadata OK for GitMap v{state['root_version']}")
+
+
+if __name__ == "__main__":
+    main()
