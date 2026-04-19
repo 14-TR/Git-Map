@@ -17,6 +17,8 @@ from __future__ import annotations
 # Ensure the CLI package is importable as 'gitmap_cli'
 # The package dir is named 'gitmap' but the package name is 'gitmap_cli' (via pyproject.toml mapping)
 # When not pip-installed, we register it manually as a module alias
+import os
+import subprocess
 import sys
 import types
 from pathlib import Path
@@ -140,6 +142,59 @@ class TestCommandRegistration:
         assert result.exit_code == 0
         assert "Usage: gitmap [OPTIONS] COMMAND [ARGS]..." in result.output
         assert "Usage: cli [OPTIONS] COMMAND [ARGS]..." not in result.output
+
+
+    def test_direct_script_help_uses_gitmap_prog_name(self) -> None:
+        """Running the source script directly should still present the public gitmap command name."""
+        repo_root = Path(__file__).resolve().parents[3]
+        env = {
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join(
+                [
+                    str(repo_root / "packages"),
+                    str(repo_root / "apps" / "cli" / "gitmap"),
+                ]
+            ),
+        }
+
+        result = subprocess.run(
+            [sys.executable, str(repo_root / "apps" / "cli" / "gitmap" / "main.py"), "--help"],
+            capture_output=True,
+            text=True,
+            env=env,
+            check=False,
+        )
+
+        assert result.returncode == 0
+        assert "Usage: gitmap [OPTIONS] COMMAND [ARGS]..." in result.stdout
+        assert "Usage: main.py [OPTIONS] COMMAND [ARGS]..." not in result.stdout
+
+    def test_direct_script_unknown_command_points_to_gitmap_help(self) -> None:
+        """Source-script errors should point users at gitmap help, not main.py help."""
+        repo_root = Path(__file__).resolve().parents[3]
+        env = {
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join(
+                [
+                    str(repo_root / "packages"),
+                    str(repo_root / "apps" / "cli" / "gitmap"),
+                ]
+            ),
+        }
+
+        result = subprocess.run(
+            [sys.executable, str(repo_root / "apps" / "cli" / "gitmap" / "main.py"), "mergefrom"],
+            capture_output=True,
+            text=True,
+            env=env,
+            check=False,
+        )
+
+        assert result.returncode != 0
+        combined_output = result.stdout + result.stderr
+        assert "Try 'gitmap --help' for help." in combined_output
+        assert "Run 'gitmap --help' to see the full command list." in combined_output
+        assert "Try 'main.py --help' for help." not in combined_output
 
     @pytest.mark.parametrize(
         ("mistyped", "expected"),
