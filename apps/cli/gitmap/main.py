@@ -128,7 +128,7 @@ def main() -> int:
         Exit code (0 for success, non-zero for errors).
     """
     try:
-        cli()
+        cli(prog_name="gitmap")
         return 0
     except Exception as cli_error:
         click.echo(f"Error: {cli_error}", err=True)
