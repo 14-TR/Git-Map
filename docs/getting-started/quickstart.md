@@ -11,7 +11,7 @@ pip install gitmap
 gitmap --version
 ```
 
-## 1. Set Up Credentials
+## 1. Set up credentials
 
 Before connecting to Portal, export your credentials:
 
@@ -21,6 +21,8 @@ export ARCGIS_USERNAME=your_username
 export ARCGIS_PASSWORD=your_password
 ```
 
+If your environment already uses `PORTAL_USER` / `PORTAL_PASSWORD`, Git-Map accepts those aliases too.
+
 Or copy the example env file and edit it:
 
 ```bash
@@ -28,7 +30,15 @@ cp configs/env.example .env
 # edit .env with your credentials
 ```
 
-## 2. Clone an Existing Map
+## 2. Run a quick health check
+
+```bash
+gitmap doctor
+```
+
+This catches missing credentials or common environment problems before you start cloning maps.
+
+## 3. Clone an existing map
 
 The quickest way to start is cloning a map directly from Portal:
 
@@ -41,7 +51,7 @@ Replace `abc123def456` with your web map's item ID (visible in the Portal URL).
 
 This creates a local repository with the map's current state as the initial commit.
 
-## 3. Check Status
+## 4. Check status
 
 ```bash
 gitmap status
@@ -56,7 +66,7 @@ Expected output:
 Nothing to commit, working tree clean
 ```
 
-## 4. Create a Branch and Experiment
+## 5. Create a branch and experiment
 
 ```bash
 gitmap branch feature/new-basemap
@@ -70,7 +80,7 @@ gitmap pull
 gitmap status
 ```
 
-## 5. Commit Your Changes
+## 6. Commit your changes
 
 ```bash
 gitmap commit -m "Switched to dark basemap"
@@ -88,7 +98,7 @@ Created commit a3f2c1b0
 Branch 'feature/new-basemap' updated to a3f2c1b0
 ```
 
-## 6. Review What Changed
+## 7. Review what changed
 
 ```bash
 gitmap diff --branch main
@@ -96,13 +106,7 @@ gitmap diff --branch main
 
 Shows a layer-by-layer comparison between your feature branch and `main`.
 
-## 7. View History
-
-```bash
-gitmap log --oneline
-```
-
-## 8. Merge and Deploy
+## 8. Merge and deploy
 
 When the feature looks good, merge it back to `main` and push:
 

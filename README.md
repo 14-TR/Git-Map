@@ -60,34 +60,44 @@ Git-Map solves that with version-control primitives GIS teams already understand
 ### Requirements
 
 - Python 3.11, 3.12, 3.13, or 3.14
-- ArcGIS Online or Portal for ArcGIS access
+- ArcGIS Online account or Portal for ArcGIS access
 
-### Install from PyPI
+### Recommended: install from PyPI
 
 ```bash
 pip install gitmap
-```
-
-Verify:
-
-```bash
 gitmap --version
 ```
 
-### Install from source
+This installs the `gitmap` command plus the core library in one step.
+
+### Install from source for development
 
 ```bash
 git clone https://github.com/14-TR/Git-Map.git
 cd Git-Map
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -e "packages/gitmap_core[dev]"
 pip install -e apps/cli/gitmap
+gitmap --version
 ```
 
 ## 5-minute quickstart
 
 ### 1. Configure credentials
 
-Copy the example environment file:
+Git-Map supports either ArcGIS-style or Portal-style environment variable names.
+
+```bash
+export PORTAL_URL=https://your-org.maps.arcgis.com
+export ARCGIS_USERNAME=your_username
+export ARCGIS_PASSWORD=your_password
+```
+
+If your team already uses `PORTAL_USER` / `PORTAL_PASSWORD`, those also work.
+
+You can also copy the example environment file:
 
 ```bash
 cp configs/env.example .env
@@ -97,8 +107,11 @@ Then set your portal details:
 
 ```env
 PORTAL_URL=https://your-org.maps.arcgis.com
-PORTAL_USER=your_username
-PORTAL_PASSWORD=your_password
+ARCGIS_USERNAME=your_username
+ARCGIS_PASSWORD=your_password
+# Optional backwards-compatible aliases:
+# PORTAL_USER=your_username
+# PORTAL_PASSWORD=your_password
 ```
 
 `.env` is ignored by Git and should never be committed.
@@ -125,7 +138,7 @@ gitmap checkout feature/hydrology-update
 
 ### 4. Make edits and review the diff
 
-After editing the tracked map files:
+After editing the tracked map files or pulling down Portal changes:
 
 ```bash
 gitmap status
@@ -148,6 +161,18 @@ gitmap push
 ```
 
 That is the core Git-Map loop: **clone or init -> branch -> change -> diff -> commit -> push -> merge**.
+
+## First-run checklist
+
+If this is your first time using Git-Map, this is the fastest sanity check:
+
+1. `gitmap --version`
+2. set `PORTAL_URL`, `ARCGIS_USERNAME`, and `ARCGIS_PASSWORD`
+3. run `gitmap doctor`
+4. clone a known test map with `gitmap clone <item-id>`
+5. confirm `gitmap status` shows a clean working tree
+
+If auth fails, double-check the variable names in your shell or `.env` file before debugging anything deeper.
 
 ## Typical workflows
 
@@ -254,10 +279,10 @@ Git-Map supports several ways to provide credentials and repository settings.
 | Variable | Description |
 |---|---|
 | `PORTAL_URL` | Portal or ArcGIS Online URL |
-| `PORTAL_USER` | Portal username |
-| `PORTAL_PASSWORD` | Portal password |
-| `ARCGIS_USERNAME` | Alternate username variable |
-| `ARCGIS_PASSWORD` | Alternate password variable |
+| `ARCGIS_USERNAME` | Preferred ArcGIS/Portal username variable |
+| `ARCGIS_PASSWORD` | Preferred ArcGIS/Portal password variable |
+| `PORTAL_USER` | Backwards-compatible username alias |
+| `PORTAL_PASSWORD` | Backwards-compatible password alias |
 
 ### Repository config
 
@@ -315,6 +340,8 @@ python -m pytest packages/gitmap_core/tests integrations/openclaw/tests -x -q
 ## Documentation and support
 
 - Documentation site: <https://14-tr.github.io/Git-Map/>
+- Installation guide: <https://14-tr.github.io/Git-Map/getting-started/installation/>
+- Quickstart: <https://14-tr.github.io/Git-Map/getting-started/quickstart/>
 - Technical paper: <https://14-tr.github.io/Git-Map/technical-paper/>
 - Issues: <https://github.com/14-TR/Git-Map/issues>
 - Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
