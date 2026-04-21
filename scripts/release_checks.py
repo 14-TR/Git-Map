@@ -18,6 +18,7 @@ CLI_PYPROJECT = REPO_ROOT / "apps/cli/gitmap/pyproject.toml"
 CORE_INIT = REPO_ROOT / "packages/gitmap_core/__init__.py"
 CLI_INIT = REPO_ROOT / "apps/cli/gitmap/__init__.py"
 CLI_MAIN = REPO_ROOT / "apps/cli/gitmap/main.py"
+PUBLISHING_GUIDE = REPO_ROOT / "PUBLISHING.md"
 PUBLISH_WORKFLOW = REPO_ROOT / ".github/workflows/publish.yml"
 CI_WORKFLOW = REPO_ROOT / ".github/workflows/ci.yml"
 
@@ -131,6 +132,23 @@ def validate_release_tag(ref_name: str, state: dict[str, str | list[str]] | None
 
 
 
+def _validate_publishing_guide() -> None:
+    guide_text = PUBLISHING_GUIDE.read_text()
+    required_paths = (
+        "packages/gitmap_core/pyproject.toml",
+        "packages/gitmap_core/__init__.py",
+        "apps/cli/gitmap/pyproject.toml",
+        "apps/cli/gitmap/__init__.py",
+        "apps/cli/gitmap/main.py",
+        "pyproject.toml",
+    )
+    for required_path in required_paths:
+        assert required_path in guide_text, f"Publishing guide missing version-bump path: {required_path}"
+
+    for tag_pattern in ("core-v*", "cli-v*", "v*"):
+        assert tag_pattern in guide_text, f"Publishing guide missing tag pattern: {tag_pattern}"
+
+
 def validate_release_state() -> None:
     state = collect_release_state()
     versions = {
@@ -150,6 +168,9 @@ def validate_release_state() -> None:
 
     for pyproject in (ROOT_PYPROJECT, CORE_PYPROJECT, CLI_PYPROJECT):
         _validate_package_metadata(pyproject)
+
+    assert PUBLISHING_GUIDE.is_file(), f"Missing publishing guide: {PUBLISHING_GUIDE}"
+    _validate_publishing_guide()
 
     workflow_text = PUBLISH_WORKFLOW.read_text()
     for tag_pattern in ('- "core-v*"', '- "cli-v*"', '- "v*"'):

@@ -79,8 +79,8 @@ The publish workflow now runs the same clean-venv install smoke test for `core`,
 ### Patch release (core fix)
 
 ```bash
-# Bump version in packages/gitmap_core/pyproject.toml
-git add packages/gitmap_core/pyproject.toml
+# Bump version in packages/gitmap_core/pyproject.toml and packages/gitmap_core/__init__.py
+git add packages/gitmap_core/pyproject.toml packages/gitmap_core/__init__.py
 git commit -m "chore: bump core to v0.6.1"
 git tag core-v0.6.1
 git push origin main --tags
@@ -89,8 +89,8 @@ git push origin main --tags
 ### Patch release (CLI fix)
 
 ```bash
-# Bump version in apps/cli/gitmap/pyproject.toml and main.py
-git add apps/cli/gitmap/pyproject.toml apps/cli/gitmap/main.py
+# Bump version in apps/cli/gitmap/pyproject.toml, apps/cli/gitmap/__init__.py, and apps/cli/gitmap/main.py
+git add apps/cli/gitmap/pyproject.toml apps/cli/gitmap/__init__.py apps/cli/gitmap/main.py
 git commit -m "chore: bump cli to v0.6.1"
 git tag cli-v0.6.1
 git push origin main --tags
@@ -99,10 +99,12 @@ git push origin main --tags
 ### Full release (all packages)
 
 ```bash
-# 1. Bump versions in all three pyproject.toml files + main.py
+# 1. Bump versions in all three pyproject.toml files plus version-bearing Python modules
 # 2. Commit
 git add packages/gitmap_core/pyproject.toml \
+        packages/gitmap_core/__init__.py \
         apps/cli/gitmap/pyproject.toml \
+        apps/cli/gitmap/__init__.py \
         apps/cli/gitmap/main.py \
         pyproject.toml
 git commit -m "chore: release v0.7.0"
@@ -120,10 +122,10 @@ git push origin main --tags
 
 All three packages should stay in sync (same version number).
 
-| Component | File to update |
+| Component | Files to update |
 |---|---|
-| `gitmap-core` | `packages/gitmap_core/pyproject.toml` |
-| `gitmap-cli` | `apps/cli/gitmap/pyproject.toml` + `apps/cli/gitmap/main.py` |
+| `gitmap-core` | `packages/gitmap_core/pyproject.toml` + `packages/gitmap_core/__init__.py` |
+| `gitmap-cli` | `apps/cli/gitmap/pyproject.toml` + `apps/cli/gitmap/__init__.py` + `apps/cli/gitmap/main.py` |
 | `gitmap` meta | `pyproject.toml` (root) |
 
 ---

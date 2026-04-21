@@ -58,6 +58,12 @@ def test_release_metadata_requires_existing_readmes_and_typed_markers() -> None:
     release_checks._validate_package_metadata(release_checks.CLI_PYPROJECT)
 
 
+def test_publishing_guide_covers_version_bump_files_and_tag_patterns() -> None:
+    release_checks = _load_release_checks_module()
+
+    release_checks._validate_publishing_guide()
+
+
 @pytest.mark.parametrize(
     ("ref_name", "expected_version"),
     [

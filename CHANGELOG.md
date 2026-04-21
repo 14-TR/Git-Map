@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Publishing guide now lists every version-bearing file that must be bumped for `gitmap-core`, `gitmap-cli`, and the root `gitmap` meta-package before tagging a PyPI release
+- Release guardrails now validate that `PUBLISHING.md` still documents the required version-bump paths and tag patterns used by the publish workflow
+
 ## [0.7.0] - 2026-03-29
 
 ### Added
