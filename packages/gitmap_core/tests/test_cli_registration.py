@@ -122,6 +122,16 @@ class TestCommandRegistration:
         assert result.exit_code == 0, f"completions --help failed:\n{result.output}"
         assert "bash" in result.output.lower() or "shell" in result.output.lower()
 
+    def test_command_help_preserves_examples_as_separate_lines(self, runner: CliRunner) -> None:
+        """Command help should render example blocks as readable one-per-line entries."""
+        result = runner.invoke(cli, ["show", "--help"])
+        assert result.exit_code == 0, f"show --help failed:\n{result.output}"
+        assert "Examples:" in result.output
+        assert "gitmap show --format visual" in result.output
+        assert "gitmap show -v" in result.output
+        assert "Visual diff table" in result.output
+        assert "Examples:     gitmap show" not in result.output
+
     def test_version_flag(self, runner: CliRunner) -> None:
         """--version should report a version string."""
         result = runner.invoke(cli, ["--version"])
@@ -135,6 +145,16 @@ class TestCommandRegistration:
         assert "Getting started:" in result.output
         assert "gitmap init" in result.output
         assert "gitmap completions" in result.output
+
+    def test_help_footer_uses_separate_lines(self, runner: CliRunner) -> None:
+        """Top-level footer should keep quick-start and completions guidance on separate lines."""
+        result = runner.invoke(cli, ["--help"])
+        assert result.exit_code == 0
+        assert 'Getting started: gitmap init → gitmap status → gitmap commit -m "Initial' in result.output
+        assert 'Need shell completions? Run: gitmap completions' in result.output
+        footer_lines = result.output.strip().splitlines()[-2:]
+        assert footer_lines[-1] == 'Need shell completions? Run: gitmap completions'
+        assert footer_lines[0].startswith('snapshot"') or footer_lines[0].startswith('Getting started:')
 
     def test_help_uses_gitmap_prog_name(self, runner: CliRunner) -> None:
         """Help output should show the installed command name, not the internal function name."""
