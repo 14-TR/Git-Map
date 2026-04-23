@@ -73,6 +73,10 @@ nav:
     - Branching Strategy: guides/branching.md
     - Working with Portals: guides/portals.md
     - Python API Reference: guides/api-reference.md
+  - Examples:
+    - Overview: examples/index.md
+    - Release Review with HTML Diff: examples/release-review.md
+    - Multi-Map Sync Playbook: examples/multi-map-sync.md
   - Contributing: contributing.md
   - Technical Paper: technical-paper.md
 

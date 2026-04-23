@@ -43,6 +43,13 @@ gitmap push          # Deploy to Portal
 - **ArcGIS Pro toolbox** — native Python Toolbox with 9 tools for the Pro ribbon UI
 - **Bulk operations** — `setup-repos` and `auto-pull` for managing dozens of maps at once
 
+## Need a concrete workflow?
+
+If you already understand the basics but want copyable playbooks, head to the new [Examples](examples/index.md) section. It covers:
+
+- release review with a shareable HTML diff artifact
+- multi-map synchronization for teams managing many repositories
+
 ## Compatibility
 
 - **ArcGIS Online** — fully supported
