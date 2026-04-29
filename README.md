@@ -1,4 +1,4 @@
-# Git-Map
+# GitMap
 
 **Version control for ArcGIS web maps.**
 
@@ -8,92 +8,101 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-734%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
 
-Git-Map brings familiar Git workflows to ArcGIS Online and Portal for ArcGIS. Clone a web map, make changes in a branch, inspect diffs, merge safely, and push the approved version back to Portal.
+GitMap brings familiar Git workflows to ArcGIS Online and Portal for ArcGIS. Clone a web map, make changes in a branch, inspect exactly what changed, merge safely, and push the approved version back to Portal.
 
 ```bash
-$ gitmap clone a1b2c3d4e5f6
+$ gitmap clone abc123def456
 Cloned "County Flood Risk" into county-flood-risk
 
+$ cd county-flood-risk
 $ gitmap branch feature/new-basemap
 Created branch feature/new-basemap
 
-$ gitmap diff --branch main
+$ gitmap checkout feature/new-basemap
+Switched to branch feature/new-basemap
+
+$ gitmap pull
+Pulled latest web map JSON from Portal
+
+$ gitmap diff main feature/new-basemap --format visual
 ~ operationalLayers[2].visibility: false -> true
 + operationalLayers[5]: "Hydrants"
 
 $ gitmap commit -m "Add hydrants layer and enable parcels"
 [feature/new-basemap 8f2a1d9] Add hydrants layer and enable parcels
 
-$ gitmap push --branch feature/new-basemap
-Pushed feature/new-basemap to Portal
+$ gitmap checkout main
+$ gitmap merge feature/new-basemap
+$ gitmap push
+Pushed main to Portal
 ```
 
-## Why Git-Map?
+## Why GIS teams use GitMap
 
-ArcGIS web maps are JSON documents with real history, but most teams still manage them like opaque portal items. That creates a few recurring problems:
+ArcGIS web maps are JSON documents with real history, but most teams still manage them like opaque Portal items. That creates familiar problems:
 
-- changes land without a clear audit trail
-- experimentation is risky because production maps are easy to overwrite
-- it is hard to answer simple questions like “what changed?” or “who changed it?”
-- moving fixes between environments is mostly manual
+- production maps get overwritten without a clear audit trail
+- cartography, popup, layer, and renderer experiments are risky
+- reviewing “what changed?” usually means manual Portal inspection
+- promoting fixes between staging and production is repetitive
+- rolling back a bad map change is slower than it should be
 
-Git-Map solves that with version-control primitives GIS teams already understand:
+GitMap adds version-control primitives GIS teams already understand:
 
 - **commit history** for every saved map state
 - **branches** for safe experiments and parallel work
-- **diffs** that show exactly what changed in the map JSON
-- **merge + revert** workflows for safer releases and rollbacks
-- **push/pull sync** between your local repo and ArcGIS Portal or ArcGIS Online
-
-## What you can do with it
-
-- track a single critical map with commits and rollback points
-- compare production vs staging before publishing
-- branch a map for cartography or popup experiments
-- bulk-clone many maps with `setup-repos`
-- keep repositories synced with Portal using `auto-pull`
-- visualize history with the context graph tools
-- expose Git-Map operations to other tooling through its integrations
+- **ArcGIS-aware diffs** for layers, tables, renderers, popups, and JSON properties
+- **merge and revert workflows** for safer releases and rollbacks
+- **push/pull sync** between local repositories and ArcGIS Online or Portal
+- **automation hooks** for bulk map repositories, scheduled pulls, and AI-assisted workflows
 
 ## Install
 
 ### Requirements
 
 - Python 3.11, 3.12, 3.13, or 3.14
-- ArcGIS Online or Portal for ArcGIS access
+- Access to ArcGIS Online or Portal for ArcGIS
+- A web map item ID for the first repository you want to clone
 
-### Install from PyPI
+### Recommended: install from PyPI
 
 ```bash
 pip install gitmap
 ```
 
-Verify:
+Verify the CLI is available:
 
 ```bash
 gitmap --version
+gitmap --help
 ```
 
 ### Install from source
 
+Use this when developing GitMap itself or testing unreleased changes:
+
 ```bash
 git clone https://github.com/14-TR/Git-Map.git
 cd Git-Map
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -e "packages/gitmap_core[dev]"
 pip install -e apps/cli/gitmap
 ```
 
-## 5-minute quickstart
+## Quickstart: first successful workflow
 
-### 1. Configure credentials
+This walkthrough starts with an existing ArcGIS web map and finishes by pushing an approved main-branch state back to Portal.
 
-Copy the example environment file:
+### 1. Configure Portal credentials
+
+GitMap can read credentials from environment variables or from a local `.env` file. The repo includes a template:
 
 ```bash
 cp configs/env.example .env
 ```
 
-Then set your portal details:
+Edit `.env` with your Portal details:
 
 ```env
 PORTAL_URL=https://your-org.maps.arcgis.com
@@ -101,45 +110,83 @@ PORTAL_USER=your_username
 PORTAL_PASSWORD=your_password
 ```
 
+GitMap also accepts the alternate username/password names used by several ArcGIS tools:
+
+```env
+ARCGIS_USERNAME=your_username
+ARCGIS_PASSWORD=your_password
+```
+
 `.env` is ignored by Git and should never be committed.
 
-### 2. Clone an existing web map
+### 2. Clone a web map
+
+Copy the web map item ID from ArcGIS Online or Portal, then clone it:
 
 ```bash
 gitmap clone abc123def456
-cd MyWebMap
+cd YourMapTitle
 ```
 
-If you want to start a repo from scratch instead:
+To choose the local folder name yourself:
 
 ```bash
-gitmap init --project-name "Flood Risk Map"
+gitmap clone abc123def456 --directory flood-risk-map
+cd flood-risk-map
 ```
 
-### 3. Create a branch for your change
+### 3. Check the starting state
+
+```bash
+gitmap status
+gitmap log --limit 5
+```
+
+You should be on `main` with a clean working tree after the initial clone.
+
+### 4. Create a feature branch
 
 ```bash
 gitmap branch feature/hydrology-update
 gitmap checkout feature/hydrology-update
 ```
 
-### 4. Make edits and review the diff
+Make the map change in ArcGIS, or edit the tracked map JSON files locally if you are working at that level.
 
-After editing the tracked map files:
+### 5. Pull and review changes
+
+If the change was made in ArcGIS, pull the latest Portal state into your branch:
+
+```bash
+gitmap pull
+```
+
+Review the branch against `main`:
 
 ```bash
 gitmap status
-gitmap diff --branch main
+gitmap diff main feature/hydrology-update --format visual
 ```
 
-### 5. Commit and push
+For a shareable stakeholder review artifact:
 
 ```bash
-gitmap commit -m "Add hydrology layer"
-gitmap push --branch feature/hydrology-update
+gitmap diff main feature/hydrology-update --format html --output hydrology-review.html
 ```
 
-### 6. Merge when approved
+### 6. Commit the approved change
+
+```bash
+gitmap commit -m "Update hydrology layers"
+```
+
+Optional rationale text can be saved with the commit:
+
+```bash
+gitmap commit -m "Update hydrology layers" -r "Matches the April field-data refresh"
+```
+
+### 7. Merge and push
 
 ```bash
 gitmap checkout main
@@ -147,27 +194,27 @@ gitmap merge feature/hydrology-update
 gitmap push
 ```
 
-That is the core Git-Map loop: **clone or init -> branch -> change -> diff -> commit -> push -> merge**.
+That is the core GitMap loop: **clone → branch → pull or edit → diff → commit → merge → push**.
 
-## Typical workflows
+## Common workflows
 
-### Safe experimentation on production maps
+### Safely experiment with a production map
 
 ```bash
 gitmap checkout main
-gitmap branch feature/try-new-basemap
-gitmap checkout feature/try-new-basemap
+gitmap branch feature/try-imagery-basemap
+gitmap checkout feature/try-imagery-basemap
 
-# edit the map
-
-gitmap diff --branch main
+# make the map change in ArcGIS, then sync it locally
+gitmap pull
+gitmap diff main feature/try-imagery-basemap --format visual
 gitmap commit -m "Try imagery basemap"
 ```
 
-### Review what changed before a release
+### Review changes before release
 
 ```bash
-gitmap diff --branch main
+gitmap diff main feature/try-imagery-basemap --format html --output release-review.html
 gitmap log --limit 10
 gitmap show HEAD
 ```
@@ -187,83 +234,50 @@ gitmap setup-repos --owner myusername --directory repositories
 gitmap auto-pull --directory repositories --auto-commit
 ```
 
-## Command groups
+## Command reference at a glance
 
-### Repository setup
-
-- `gitmap init` — initialize a new repository
-- `gitmap clone` — clone a web map from Portal
-- `gitmap setup-repos` — bulk clone maps into a directory
-
-### Snapshot and history
-
-- `gitmap status` — inspect working tree state
-- `gitmap commit -m "message"` — record a snapshot
-- `gitmap log` — show commit history
-- `gitmap show` — inspect a commit in detail
-- `gitmap diff` — compare working tree, branch, or commit state
-- `gitmap tag` — create or manage tags
-- `gitmap revert` — reverse a previous commit
-- `gitmap stash` — save or restore in-progress changes
-- `gitmap cherry-pick` — apply a commit onto the current branch
-
-### Branching and merges
-
-- `gitmap branch` — list or create branches
-- `gitmap checkout` — switch branches
-- `gitmap merge` — merge into the current branch
-- `gitmap merge-from` — merge from another repository
-
-### Remote sync
-
-- `gitmap push` — push a branch to ArcGIS Portal
-- `gitmap pull` — pull the latest remote changes
-- `gitmap auto-pull` — sync many repositories automatically
-
-### Portal utilities
-
-- `gitmap list` — search available web maps
-- `gitmap lsm` — transfer popup and form settings between maps
-- `gitmap notify` — notify Portal group members through ArcGIS APIs
-
-### Tooling
-
-- `gitmap config` — manage repository settings
-- `gitmap context` — visualize event history and relationships
-- `gitmap daemon` — manage scheduled auto-pull updates
-- `gitmap doctor` — check your environment for common issues
-- `gitmap completions` — generate shell completion scripts
+| Command | What it does |
+|---|---|
+| `gitmap clone <ITEM_ID>` | Create a local repository from an ArcGIS web map |
+| `gitmap clone <ITEM_ID> --directory <PATH>` | Clone into a chosen local folder |
+| `gitmap status` | Show current branch and working tree state |
+| `gitmap branch <NAME>` | Create a branch |
+| `gitmap checkout <NAME>` | Switch branches |
+| `gitmap pull` | Fetch the latest Portal state into the current repo |
+| `gitmap diff [SOURCE] [TARGET]` | Compare the index, branches, or commits |
+| `gitmap diff main feature/x --format visual` | Show a Rich table branch comparison |
+| `gitmap diff main feature/x --format html --output review.html` | Export a shareable diff report |
+| `gitmap commit -m "message"` | Save the current map state as a commit |
+| `gitmap log --limit 10` | View recent history |
+| `gitmap show HEAD` | Inspect a commit |
+| `gitmap merge <BRANCH>` | Merge a feature branch into the current branch |
+| `gitmap push` | Publish the current branch back to ArcGIS |
+| `gitmap revert <COMMIT>` | Restore a previous commit without rewriting history |
+| `gitmap setup-repos` | Bulk-clone many maps |
+| `gitmap auto-pull` | Sync many repositories on a schedule |
+| `gitmap context show` | Visualize repository event history |
 
 Run `gitmap COMMAND --help` for command-specific options and examples.
 
-## Key features
-
-- **Git-style workflows for GIS** — familiar commands for branching, commits, history, and merges
-- **Property-level diffs** — inspect what changed in a web map instead of guessing
-- **Context graph** — visualize events and relationships over time
-- **Bulk operations** — onboard or sync many maps efficiently
-- **Portal-aware utilities** — manage notifications and layer setting transfers
-- **Minimal runtime requirements** — standard Python CLI, no heavyweight platform needed
-
 ## Configuration
 
-Git-Map supports several ways to provide credentials and repository settings.
+GitMap supports several ways to provide credentials and repository settings.
 
 ### Environment variables
 
 | Variable | Description |
 |---|---|
-| `PORTAL_URL` | Portal or ArcGIS Online URL |
+| `PORTAL_URL` | ArcGIS Online or Portal URL |
 | `PORTAL_USER` | Portal username |
 | `PORTAL_PASSWORD` | Portal password |
 | `ARCGIS_USERNAME` | Alternate username variable |
 | `ARCGIS_PASSWORD` | Alternate password variable |
 
+Command-line options such as `--url` and `--username` take precedence when a command supports them.
+
 ### Repository config
 
-Each repository stores Git-Map metadata in `.gitmap/config.json`.
-
-Example:
+Each repository stores GitMap metadata in `.gitmap/config.json`.
 
 ```json
 {
@@ -280,55 +294,54 @@ Example:
 }
 ```
 
+## Documentation and support
+
+- Documentation site: <https://14-tr.github.io/Git-Map/>
+- Installation guide: [docs/getting-started/installation.md](docs/getting-started/installation.md)
+- Quickstart guide: [docs/getting-started/quickstart.md](docs/getting-started/quickstart.md)
+- Core concepts: [docs/getting-started/concepts.md](docs/getting-started/concepts.md)
+- CLI command reference: [docs/commands/index.md](docs/commands/index.md)
+- Portal guide: [docs/guides/portals.md](docs/guides/portals.md)
+- Workflow guide: [docs/guides/workflow.md](docs/guides/workflow.md)
+- Technical paper: [docs/technical-paper.md](docs/technical-paper.md)
+- Issues: <https://github.com/14-TR/Git-Map/issues>
+
 ## Development
 
-### Project layout
-
-```text
-Git-Map/
-├── apps/
-│   └── cli/gitmap/                # CLI package
-├── packages/
-│   ├── gitmap_core/               # Core library
-│   └── gitmap_core/tests/         # Core test suite
-├── configs/                       # Example configuration
-├── docs/                          # Documentation site content
-├── documentation/                 # Internal design/spec material
-└── integrations/openclaw/tests/   # Integration tests
-```
-
-### Local dev install
-
 ```bash
+git clone https://github.com/14-TR/Git-Map.git
+cd Git-Map
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e "packages/gitmap_core[dev]"
 pip install -e apps/cli/gitmap
-```
-
-### Run tests
-
-```bash
 python -m pytest packages/gitmap_core/tests integrations/openclaw/tests -x -q
 ```
 
-## Documentation and support
+Project layout:
 
-- Documentation site: <https://14-tr.github.io/Git-Map/>
-- Technical paper: <https://14-tr.github.io/Git-Map/technical-paper/>
-- Issues: <https://github.com/14-TR/Git-Map/issues>
-- Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
-- Changelog: [CHANGELOG.md](CHANGELOG.md)
+```text
+Git-Map/
+├── apps/                         # CLI, MCP, and client app packages
+├── packages/gitmap_core/         # Core library and core tests
+├── configs/                      # Example configuration
+├── docs/                         # MkDocs documentation site content
+├── documentation/                # Internal design/spec material
+└── integrations/openclaw/tests/  # OpenClaw integration tests
+```
 
 ## Contributing
 
 Contributions are welcome. If you are fixing a bug or adding a feature:
 
 1. create a branch
-2. add or update tests
-3. keep the CLI behavior stable unless the change is intentional
-4. open a PR with a clear explanation of what changed and why
+2. add or update tests for behavior changes
+3. keep CLI behavior stable unless the change is intentional
+4. run the test suite before opening a PR
+5. open a PR with a clear explanation and sample output when useful
 
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+**GitMap** — the git for GIS.
