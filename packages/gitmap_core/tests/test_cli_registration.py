@@ -143,7 +143,6 @@ class TestCommandRegistration:
         assert "Usage: gitmap [OPTIONS] COMMAND [ARGS]..." in result.output
         assert "Usage: cli [OPTIONS] COMMAND [ARGS]..." not in result.output
 
-
     def test_direct_script_help_uses_gitmap_prog_name(self) -> None:
         """Running the source script directly should still present the public gitmap command name."""
         repo_root = Path(__file__).resolve().parents[3]

@@ -19,7 +19,16 @@ from __future__ import annotations
 
 import importlib.util
 import sys
+import types
 from pathlib import Path
+
+# Support direct source execution (`python apps/cli/gitmap/main.py`) in CI
+# before the CLI package itself is installed.
+if "gitmap_cli" not in sys.modules:
+    _pkg = types.ModuleType("gitmap_cli")
+    _pkg.__path__ = [str(Path(__file__).resolve().parent)]
+    _pkg.__package__ = "gitmap_cli"
+    sys.modules["gitmap_cli"] = _pkg
 
 import click
 from gitmap_cli.commands.auto_pull import auto_pull
