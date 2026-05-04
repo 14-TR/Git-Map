@@ -20,7 +20,7 @@ gitmap diff [SOURCE] [TARGET] [OPTIONS]
 | Option | Short | Default | Description |
 |--------|-------|---------|-------------|
 | `--verbose` | `-v` | false | Show property-level field changes |
-| `--format` | | `text` | Output format: `text`, `visual`, or `html` |
+| `--format` | | `text` | Output format: `text`, `visual`, `html`, or `json` |
 | `--output` | `-o` | `diff-report.html` | Output file path (used with `--format html`) |
 
 ## Modes
@@ -52,6 +52,9 @@ gitmap diff main feature/new-basemap --format visual
 # Export shareable HTML report
 gitmap diff main feature --format html
 gitmap diff main feature --format html --output /tmp/my-diff.html
+
+# Emit machine-readable JSON for automation
+gitmap diff main feature --format json
 
 # Show field-level changes
 gitmap diff --verbose
@@ -93,6 +96,34 @@ Renders a Rich table with colored diff symbols:
      Layer / Table           Change
   +  Flood Zones             added
   ~  Parcels                 2 field(s) changed
+```
+
+## JSON output (`--format json`)
+
+Emits a stable `gitmap.diff.v1` JSON payload for automation:
+
+```json
+{
+  "schema": "gitmap.diff.v1",
+  "has_changes": true,
+  "stats": {"added": 1, "removed": 0, "modified": 0, "total": 1},
+  "layer_changes": [
+    {
+      "object_type": "layer",
+      "layer_id": "flood-zones",
+      "title": "Flood Zones",
+      "change_type": "added"
+    }
+  ],
+  "table_changes": [],
+  "property_changes": {}
+}
+```
+
+Layer and table changes use the same object shape. `object_type` is `layer` or `table`, and `details` appears only when field-level details are available for a modified object.
+
+```bash
+gitmap diff main staging --format json
 ```
 
 ## HTML output (`--format html`)

@@ -113,8 +113,9 @@ class MapDiff:
             and summary statistics.
         """
 
-        def _change_to_dict(c: LayerChange) -> dict[str, Any]:
+        def _change_to_dict(c: LayerChange, object_type: str) -> dict[str, Any]:
             d: dict[str, Any] = {
+                "object_type": object_type,
                 "layer_id": c.layer_id,
                 "title": c.layer_title,
                 "change_type": c.change_type,
@@ -124,10 +125,11 @@ class MapDiff:
             return d
 
         return {
+            "schema": "gitmap.diff.v1",
             "has_changes": self.has_changes,
             "stats": format_diff_stats(self),
-            "layer_changes": [_change_to_dict(c) for c in self.layer_changes],
-            "table_changes": [_change_to_dict(c) for c in self.table_changes],
+            "layer_changes": [_change_to_dict(c, "layer") for c in self.layer_changes],
+            "table_changes": [_change_to_dict(c, "table") for c in self.table_changes],
             "property_changes": self.property_changes,
         }
 
