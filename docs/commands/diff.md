@@ -95,7 +95,7 @@ Renders a Rich table with colored diff symbols:
 
      Layer / Table           Change
   +  Flood Zones             added
-  ~  Parcels                 2 field(s) changed
+  ~  Parcels                 2 fields changed: opacity, popupInfo.title
 ```
 
 ## JSON output (`--format json`)
@@ -131,7 +131,8 @@ gitmap diff main staging --format json
 Self-contained dark-themed HTML report with:
 - Stats badges (added / removed / modified counts)
 - Color-coded diff table
-- Expanded JSON detail block for modified layers
+- Concise changed-field paths in modified rows
+- Expanded JSON detail blocks for modified layers, tables, and map properties
 - Footer with generation timestamp
 
 Useful for sharing diffs with stakeholders who don't have GitMap installed.
