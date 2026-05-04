@@ -16,6 +16,7 @@ Metadata:
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -260,6 +261,86 @@ def diff_json(
 # ---- Formatting Functions -----------------------------------------------------------------------------------
 
 
+_PATH_RE = re.compile(r"\['([^']+)'\]|\[(\d+)\]")
+
+
+def _format_deepdiff_path(path: Any) -> str:
+    """Convert a DeepDiff path into a compact, reviewer-friendly field path."""
+    if not isinstance(path, str):
+        return str(path)
+
+    if not path.startswith("root"):
+        return path
+
+    parts: list[str] = []
+    for key, index in _PATH_RE.findall(path):
+        if key:
+            parts.append(key)
+        elif index and parts:
+            parts[-1] = f"{parts[-1]}[{index}]"
+        elif index:
+            parts.append(f"[{index}]")
+    return ".".join(parts) if parts else "root"
+
+
+def _iter_deepdiff_paths(details: dict[str, Any]) -> list[str]:
+    """Return stable field paths from a DeepDiff ``to_dict`` payload."""
+    paths: list[str] = []
+    seen: set[str] = set()
+    categories = (
+        "values_changed",
+        "type_changes",
+        "dictionary_item_added",
+        "dictionary_item_removed",
+        "iterable_item_added",
+        "iterable_item_removed",
+    )
+
+    for category in (*categories, *(key for key in details if key not in categories)):
+        changes = details.get(category)
+        if isinstance(changes, dict):
+            raw_paths = changes.keys()
+        elif isinstance(changes, (list, set, tuple)):
+            raw_paths = changes
+        else:
+            raw_paths = []
+
+        for raw_path in raw_paths:
+            path = _format_deepdiff_path(raw_path)
+            if path not in seen:
+                seen.add(path)
+                paths.append(path)
+
+    return paths
+
+
+def format_diff_detail(
+    details: dict[str, Any],
+    max_paths: int = 3,
+) -> str:
+    """Format DeepDiff details as a compact changed-field summary."""
+    if not details:
+        return "1 field changed"
+
+    paths = _iter_deepdiff_paths(details)
+    count = len(paths) or len(details)
+    noun = "field" if count == 1 else "fields"
+
+    if not paths:
+        return f"{count} {noun} changed"
+
+    shown = paths[:max_paths]
+    suffix = f", +{len(paths) - max_paths} more" if len(paths) > max_paths else ""
+    return f"{count} {noun} changed: {', '.join(shown)}{suffix}"
+
+
+def _json_default(value: Any) -> Any:
+    """Make DeepDiff set-like categories printable in JSON detail blocks."""
+    if isinstance(value, set):
+        return sorted(value, key=str)
+    return str(value)
+
+
 def format_diff_summary(
     map_diff: MapDiff,
 ) -> str:
@@ -289,7 +370,7 @@ def format_diff_summary(
     if map_diff.modified_layers:
         lines.append(f"Modified layers ({len(map_diff.modified_layers)}):")
         for change in map_diff.modified_layers:
-            lines.append(f"  ~ {change.layer_title} ({change.layer_id})")
+            lines.append(f"  ~ {change.layer_title} ({change.layer_id}) - {format_diff_detail(change.details)}")
 
     if map_diff.added_tables:
         lines.append(f"Added tables ({len(map_diff.added_tables)}):")
@@ -304,12 +385,10 @@ def format_diff_summary(
     if map_diff.modified_tables:
         lines.append(f"Modified tables ({len(map_diff.modified_tables)}):")
         for change in map_diff.modified_tables:
-            lines.append(f"  ~ {change.layer_title} ({change.layer_id})")
+            lines.append(f"  ~ {change.layer_title} ({change.layer_id}) - {format_diff_detail(change.details)}")
 
     if map_diff.property_changes:
-        lines.append("Map properties changed:")
-        for key in map_diff.property_changes:
-            lines.append(f"  * {key}")
+        lines.append(f"Map properties changed: {format_diff_detail(map_diff.property_changes)}")
 
     return "\n".join(lines)
 
@@ -342,9 +421,7 @@ def format_diff_visual(
         rows.append(("-", change.layer_title, f"Removed in {label_a} (present in {label_b})"))
 
     for change in map_diff.modified_layers:
-        num_changes = len(change.details) if change.details else 1
-        detail = f"{num_changes} field(s) changed"
-        rows.append(("~", change.layer_title, detail))
+        rows.append(("~", change.layer_title, format_diff_detail(change.details)))
 
     for change in map_diff.added_tables:
         rows.append(("+", f"[table] {change.layer_title}", f"Added in {label_a}"))
@@ -353,11 +430,10 @@ def format_diff_visual(
         rows.append(("-", f"[table] {change.layer_title}", f"Removed in {label_a} (present in {label_b})"))
 
     for change in map_diff.modified_tables:
-        num_changes = len(change.details) if change.details else 1
-        rows.append(("~", f"[table] {change.layer_title}", f"{num_changes} field(s) changed"))
+        rows.append(("~", f"[table] {change.layer_title}", format_diff_detail(change.details)))
 
     if map_diff.property_changes:
-        rows.append(("*", "Map properties", f"{len(map_diff.property_changes)} top-level field(s) changed"))
+        rows.append(("*", "Map properties", format_diff_detail(map_diff.property_changes)))
 
     return rows
 
@@ -385,7 +461,7 @@ def format_diff_stats(map_diff: MapDiff) -> dict[str, int]:
 
 
 def format_diff_html(
-    map_diff: "MapDiff",
+    map_diff: MapDiff,
     label_a: str = "source",
     label_b: str = "target",
     title: str = "GitMap Diff Report",
@@ -406,11 +482,11 @@ def format_diff_html(
     """
     import html
     import json
-    from datetime import datetime, timezone
+    from datetime import UTC, datetime
 
     stats = format_diff_stats(map_diff)
     rows = format_diff_visual(map_diff, label_a, label_b)
-    generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    generated = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
 
     # Build stats badges
     badge_parts: list[str] = []
@@ -445,16 +521,28 @@ def format_diff_html(
 
     # Build detailed changes section
     detail_sections: list[str] = []
-    for change in map_diff.modified_layers:
-        if change.details:
-            details_str = html.escape(json.dumps(change.details, indent=2))
-            detail_sections.append(
-                f'<div class="detail-block">'
-                f"<h3>Layer: {html.escape(change.layer_title)}"
-                f' <code class="layer-id">{html.escape(change.layer_id)}</code></h3>'
-                f'<pre class="json-block">{details_str}</pre>'
-                f"</div>"
-            )
+    for label, changes in (("Layer", map_diff.modified_layers), ("Table", map_diff.modified_tables)):
+        for change in changes:
+            if change.details:
+                details_str = html.escape(json.dumps(change.details, indent=2, default=_json_default))
+                detail_sections.append(
+                    f'<div class="detail-block">'
+                    f"<h3>{label}: {html.escape(change.layer_title)}"
+                    f' <code class="layer-id">{html.escape(change.layer_id)}</code></h3>'
+                    f'<p class="detail-summary">{html.escape(format_diff_detail(change.details, max_paths=5))}</p>'
+                    f'<pre class="json-block">{details_str}</pre>'
+                    f"</div>"
+                )
+
+    if map_diff.property_changes:
+        property_details_str = html.escape(json.dumps(map_diff.property_changes, indent=2, default=_json_default))
+        detail_sections.append(
+            f'<div class="detail-block">'
+            f"<h3>Map Properties</h3>"
+            f'<p class="detail-summary">{html.escape(format_diff_detail(map_diff.property_changes, max_paths=5))}</p>'
+            f'<pre class="json-block">{property_details_str}</pre>'
+            f"</div>"
+        )
 
     details_html = ""
     if detail_sections:
@@ -519,6 +607,7 @@ def format_diff_html(
                      margin-bottom: 1rem; overflow: hidden; }}
     .detail-block h3 {{ padding: 0.75rem 1rem; font-size: 0.95rem;
                          border-bottom: 1px solid var(--border); }}
+    .detail-summary {{ padding: 0.75rem 1rem 0; color: var(--muted); font-size: 0.85rem; }}
     code.layer-id {{ font-family: var(--font-mono); font-size: 0.8rem;
                       color: var(--muted); margin-left: 0.5rem; }}
     pre.json-block {{ font-family: var(--font-mono); font-size: 0.78rem; color: #a5f3fc;

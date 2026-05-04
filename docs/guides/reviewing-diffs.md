@@ -46,6 +46,7 @@ Look for these signals:
 - `*` Top-level map property changed
 
 This is the best default for branch-to-branch reviews because it shows **what changed** without overwhelming you with every nested field.
+For modified rows, the detail column includes the first changed property paths, such as `opacity` or `drawingInfo.renderer.type`, so reviewers can quickly tell whether a change is a visual style edit, popup edit, visibility change, or broader map setting change.
 
 ## Detailed investigation: `--verbose`
 
@@ -66,7 +67,7 @@ Tip: start with `--format visual`, then re-run with `--verbose` only when someth
 
 ## Sharing with non-technical reviewers: HTML reports
 
-The HTML formatter creates a self-contained report with badges, a color-coded change table, and detailed JSON blocks for modified layers.
+The HTML formatter creates a self-contained report with badges, a color-coded change table, changed-field summaries, and detailed JSON blocks for modified layers, tables, and map-level properties.
 
 ```bash
 gitmap diff main release/q2-map-update --format html --output reports/q2-map-update.html

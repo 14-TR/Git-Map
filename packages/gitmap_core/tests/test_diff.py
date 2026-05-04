@@ -12,9 +12,9 @@ Dependencies:
 
 from __future__ import annotations
 
-import pytest
+from typing import TYPE_CHECKING
 
-from pathlib import Path
+import pytest
 
 from gitmap_core.diff import (
     LayerChange,
@@ -22,9 +22,14 @@ from gitmap_core.diff import (
     diff_json,
     diff_layers,
     diff_maps,
+    format_diff_detail,
     format_diff_summary,
 )
-from gitmap_core.repository import Repository
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from gitmap_core.repository import Repository
 
 try:
     import click  # noqa: F401
@@ -524,14 +529,19 @@ class TestFormatDiffSummary:
         """Test formatting modified layers."""
         diff = MapDiff(
             layer_changes=[
-                LayerChange("l1", "Updated Layer", "modified"),
+                LayerChange(
+                    "l1",
+                    "Updated Layer",
+                    "modified",
+                    details={"values_changed": {"root['opacity']": {"old_value": 1.0, "new_value": 0.5}}},
+                ),
             ]
         )
 
         result = format_diff_summary(diff)
 
         assert "Modified layers (1):" in result
-        assert "~ Updated Layer (l1)" in result
+        assert "~ Updated Layer (l1) - 1 field changed: opacity" in result
 
     def test_format_table_changes(self) -> None:
         """Test formatting table changes."""
@@ -560,9 +570,53 @@ class TestFormatDiffSummary:
 
         result = format_diff_summary(diff)
 
-        assert "Map properties changed:" in result
-        assert "* values_changed" in result
-        assert "* dictionary_item_added" in result
+        assert "Map properties changed: 2 fields changed" in result
+        assert "version" in result
+        assert "newKey" in result
+
+
+class TestFormatDiffDetail:
+    """Tests for compact DeepDiff detail summaries."""
+
+    def test_formats_nested_paths(self) -> None:
+        """DeepDiff paths are converted into readable dotted paths."""
+        details = {
+            "values_changed": {
+                "root['drawingInfo']['renderer']['type']": {"old_value": "simple", "new_value": "uniqueValue"},
+                "root['opacity']": {"old_value": 1.0, "new_value": 0.4},
+            }
+        }
+
+        result = format_diff_detail(details)
+
+        assert result == "2 fields changed: drawingInfo.renderer.type, opacity"
+
+    def test_limits_long_path_lists(self) -> None:
+        """Long summaries show the first paths and a remaining count."""
+        details = {
+            "values_changed": {
+                "root['a']": {},
+                "root['b']": {},
+                "root['c']": {},
+                "root['d']": {},
+            }
+        }
+
+        result = format_diff_detail(details, max_paths=2)
+
+        assert result == "4 fields changed: a, b, +2 more"
+
+    def test_handles_added_and_removed_paths(self) -> None:
+        """Path extraction includes dictionary additions and removals."""
+        details = {
+            "dictionary_item_added": {"root['popupInfo']"},
+            "dictionary_item_removed": {"root['labelingInfo']"},
+        }
+
+        result = format_diff_detail(details)
+
+        assert "popupInfo" in result
+        assert "labelingInfo" in result
 
     def test_format_mixed_changes(self) -> None:
         """Test formatting multiple types of changes."""
@@ -652,6 +706,7 @@ class TestResolveRef:
         import sys
 
         from click.testing import CliRunner
+
         from gitmap_core.repository import init_repository
 
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "cli"))
@@ -853,7 +908,30 @@ class TestFormatDiffVisual:
         symbol, name, detail = rows[0]
         assert symbol == "~"
         assert name == "Buildings"
-        assert "1" in detail
+        assert detail == "1 field changed: opacity"
+
+    def test_modified_layer_row_shows_nested_paths(self) -> None:
+        """Modified rows include enough field context to support review."""
+        from gitmap_core.diff import format_diff_visual
+
+        map_diff = MapDiff(
+            layer_changes=[
+                LayerChange(
+                    layer_id="l3",
+                    layer_title="Buildings",
+                    change_type="modified",
+                    details={
+                        "values_changed": {
+                            "root['drawingInfo']['renderer']['type']": {},
+                            "root['popupInfo']['title']": {},
+                        }
+                    },
+                )
+            ]
+        )
+        rows = format_diff_visual(map_diff)
+
+        assert rows[0][2] == "2 fields changed: drawingInfo.renderer.type, popupInfo.title"
 
     def test_property_changes_row(self) -> None:
         """Map-level property changes produce a '*' row."""
@@ -1048,6 +1126,7 @@ class TestFormatDiffHtml:
         )
         result = format_diff_html(map_diff, "index", "HEAD")
         assert "Detailed Field Changes" in result
+        assert "1 field changed: opacity" in result
         assert "values_changed" in result
 
     def test_no_detail_section_when_no_details(self) -> None:
@@ -1078,9 +1157,30 @@ class TestFormatDiffHtml:
         """Map property changes are included in the output."""
         from gitmap_core.diff import format_diff_html
 
-        map_diff = MapDiff(property_changes={"values_changed": {}})
+        map_diff = MapDiff(property_changes={"values_changed": {"root['baseMap']['title']": {}}})
         result = format_diff_html(map_diff, "main", "feature")
         assert "Map properties" in result
+        assert "Map Properties" in result
+        assert "baseMap.title" in result
+
+    def test_table_details_appear_in_output(self) -> None:
+        """Modified table details are rendered in the detailed section."""
+        from gitmap_core.diff import format_diff_html
+
+        map_diff = MapDiff(
+            table_changes=[
+                LayerChange(
+                    layer_id="t1",
+                    layer_title="Lookup Table",
+                    change_type="modified",
+                    details={"dictionary_item_added": {"root['fields'][0]"}},
+                ),
+            ]
+        )
+        result = format_diff_html(map_diff, "main", "feature")
+
+        assert "Table: Lookup Table" in result
+        assert "fields[0]" in result
 
     def test_html_escaping(self) -> None:
         """Layer titles with HTML special chars are escaped."""
