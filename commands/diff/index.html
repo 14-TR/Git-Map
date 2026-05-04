@@ -2150,7 +2150,7 @@
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>     Layer / Table           Change
 <a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>  +  Flood Zones             added
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>  ~  Parcels                 2 field(s) changed
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>  ~  Parcels                 2 fields changed: opacity, popupInfo.title
 </code></pre></div>
 <h2 id="json-output-format-json">JSON output (<code>--format json</code>)<a class="headerlink" href="#json-output-format-json" title="Permanent link">&para;</a></h2>
 <p>Emits a stable <code>gitmap.diff.v1</code> JSON payload for automation:</p>
@@ -2177,7 +2177,8 @@
 <p>Self-contained dark-themed HTML report with:
 - Stats badges (added / removed / modified counts)
 - Color-coded diff table
-- Expanded JSON detail block for modified layers
+- Concise changed-field paths in modified rows
+- Expanded JSON detail blocks for modified layers, tables, and map properties
 - Footer with generation timestamp</p>
 <p>Useful for sharing diffs with stakeholders who don't have GitMap installed.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>gitmap<span class="w"> </span>diff<span class="w"> </span>main<span class="w"> </span>staging<span class="w"> </span>--format<span class="w"> </span>html<span class="w"> </span>--output<span class="w"> </span>staging-diff.html

@@ -2020,7 +2020,8 @@
 <li><code>~</code> Modified layer or table</li>
 <li><code>*</code> Top-level map property changed</li>
 </ul>
-<p>This is the best default for branch-to-branch reviews because it shows <strong>what changed</strong> without overwhelming you with every nested field.</p>
+<p>This is the best default for branch-to-branch reviews because it shows <strong>what changed</strong> without overwhelming you with every nested field.
+For modified rows, the detail column includes the first changed property paths, such as <code>opacity</code> or <code>drawingInfo.renderer.type</code>, so reviewers can quickly tell whether a change is a visual style edit, popup edit, visibility change, or broader map setting change.</p>
 <h2 id="detailed-investigation-verbose">Detailed investigation: <code>--verbose</code><a class="headerlink" href="#detailed-investigation-verbose" title="Permanent link">&para;</a></h2>
 <p>If the summary tells you a layer changed but not <em>why</em>, add verbose mode:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>gitmap<span class="w"> </span>diff<span class="w"> </span>main<span class="w"> </span>feature/symbology<span class="w"> </span>--format<span class="w"> </span>visual<span class="w"> </span>--verbose
@@ -2034,7 +2035,7 @@
 </ul>
 <p>Tip: start with <code>--format visual</code>, then re-run with <code>--verbose</code> only when something looks suspicious.</p>
 <h2 id="sharing-with-non-technical-reviewers-html-reports">Sharing with non-technical reviewers: HTML reports<a class="headerlink" href="#sharing-with-non-technical-reviewers-html-reports" title="Permanent link">&para;</a></h2>
-<p>The HTML formatter creates a self-contained report with badges, a color-coded change table, and detailed JSON blocks for modified layers.</p>
+<p>The HTML formatter creates a self-contained report with badges, a color-coded change table, changed-field summaries, and detailed JSON blocks for modified layers, tables, and map-level properties.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>gitmap<span class="w"> </span>diff<span class="w"> </span>main<span class="w"> </span>release/q2-map-update<span class="w"> </span>--format<span class="w"> </span>html<span class="w"> </span>--output<span class="w"> </span>reports/q2-map-update.html
 </code></pre></div>
 <p>This is the best option when:</p>
