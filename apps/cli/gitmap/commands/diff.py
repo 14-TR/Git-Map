@@ -214,7 +214,9 @@ def _print_diff(
 # ---- Diff Command -------------------------------------------------------------------------------------------
 
 
-@click.command(epilog="Tip: use --format visual for a Rich table, or --format html to export a shareable report.")
+@click.command(
+    epilog="Tip: use --format visual for a Rich table, --format html to export a shareable report, or --format json for automation."
+)
 @click.argument(
     "source",
     required=False,
@@ -232,10 +234,10 @@ def _print_diff(
 @click.option(
     "--format",
     "fmt",
-    type=click.Choice(["text", "visual", "html"], case_sensitive=False),
+    type=click.Choice(["text", "visual", "html", "json"], case_sensitive=False),
     default="text",
     show_default=True,
-    help="Output format: 'text' for plain summary, 'visual' for Rich table, 'html' for exportable report.",
+    help="Output format: 'text' for plain summary, 'visual' for Rich table, 'html' for exportable report, 'json' for automation.",
 )
 @click.option(
     "--output",
@@ -264,6 +266,7 @@ def diff(
         gitmap diff abc123                        # Index vs commit abc123
         gitmap diff main feature/new-layer        # Branch vs branch
         gitmap diff main feature --format visual  # Visual table view
+        gitmap diff main feature --format json    # Machine-readable JSON
         gitmap diff abc123 def456                 # Commit vs commit
     """
     try:
