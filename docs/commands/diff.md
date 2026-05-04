@@ -20,7 +20,7 @@ gitmap diff [SOURCE] [TARGET] [OPTIONS]
 | Option | Short | Default | Description |
 |--------|-------|---------|-------------|
 | `--verbose` | `-v` | false | Show property-level field changes |
-| `--format` | | `text` | Output format: `text`, `visual`, or `html` |
+| `--format` | | `text` | Output format: `text`, `visual`, `html`, or `json` |
 | `--output` | `-o` | `diff-report.html` | Output file path (used with `--format html`) |
 
 ## Modes
@@ -52,6 +52,9 @@ gitmap diff main feature/new-basemap --format visual
 # Export shareable HTML report
 gitmap diff main feature --format html
 gitmap diff main feature --format html --output /tmp/my-diff.html
+
+# Emit machine-readable JSON for automation
+gitmap diff main feature --format json
 
 # Show field-level changes
 gitmap diff --verbose
@@ -93,6 +96,26 @@ Renders a Rich table with colored diff symbols:
      Layer / Table           Change
   +  Flood Zones             added
   ~  Parcels                 2 field(s) changed
+```
+
+## JSON output (`--format json`)
+
+Emits the existing `MapDiff.to_dict()` payload for automation and downstream visual diff tooling:
+
+```json
+{
+  "has_changes": true,
+  "stats": {"added": 1, "removed": 0, "modified": 0},
+  "layer_changes": [
+    {"layer_id": "flood-zones", "change_type": "added", "title": "Flood Zones"}
+  ],
+  "table_changes": [],
+  "property_changes": {}
+}
+```
+
+```bash
+gitmap diff main staging --format json
 ```
 
 ## HTML output (`--format html`)
