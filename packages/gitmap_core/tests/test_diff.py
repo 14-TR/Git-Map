@@ -675,11 +675,20 @@ class TestResolveRef:
 
         assert result.exit_code == 0, result.output
         payload = json.loads(result.output)
-        assert set(payload) == {"has_changes", "stats", "layer_changes", "table_changes", "property_changes"}
+        assert set(payload) == {
+            "schema",
+            "has_changes",
+            "stats",
+            "layer_changes",
+            "table_changes",
+            "property_changes",
+        }
+        assert payload["schema"] == "gitmap.diff.v1"
         assert payload["has_changes"] is True
         assert payload["stats"]["added"] == 1
         assert payload["table_changes"] == []
         assert payload["property_changes"] == {}
+        assert payload["layer_changes"][0]["object_type"] == "layer"
         assert payload["layer_changes"][0]["layer_id"] == "l2"
         assert payload["layer_changes"][0]["change_type"] == "added"
 
@@ -1109,6 +1118,7 @@ class TestMapDiffToDict:
         """Empty diff serializes correctly."""
         map_diff = MapDiff()
         result = map_diff.to_dict()
+        assert result["schema"] == "gitmap.diff.v1"
         assert result["has_changes"] is False
         assert result["stats"]["total"] == 0
         assert result["layer_changes"] == []
@@ -1131,6 +1141,7 @@ class TestMapDiffToDict:
         assert result["stats"]["added"] == 1
         assert len(result["layer_changes"]) == 1
         change = result["layer_changes"][0]
+        assert change["object_type"] == "layer"
         assert change["layer_id"] == "l1"
         assert change["title"] == "Roads"
         assert change["change_type"] == "added"
@@ -1174,6 +1185,7 @@ class TestMapDiffToDict:
         assert result["stats"]["modified"] == 2  # 1 layer + property_changes
         assert len(result["layer_changes"]) == 3
         assert len(result["table_changes"]) == 1
+        assert result["table_changes"][0]["object_type"] == "table"
         assert result["property_changes"] == {"baseMap": "changed"}
 
     def test_to_dict_is_json_serializable(self) -> None:
