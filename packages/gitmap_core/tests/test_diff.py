@@ -645,6 +645,44 @@ class TestResolveRef:
         result = _resolve_ref(repo, "nonexistent-branch")
         assert result is None
 
+    def test_diff_format_json_outputs_valid_mapdiff_json(self, tmp_path, monkeypatch) -> None:
+        """The CLI accepts --format json and emits the existing MapDiff.to_dict() shape."""
+        import json
+        import os
+        import sys
+
+        from click.testing import CliRunner
+        from gitmap_core.repository import init_repository
+
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "cli"))
+        from gitmap.commands.diff import diff
+
+        repo = init_repository(tmp_path, user_name="tester", user_email="t@t.com")
+        repo.update_index({"operationalLayers": [{"id": "l1", "title": "Base Layer"}], "tables": []})
+        repo.create_commit(message="base")
+        repo.update_index(
+            {
+                "operationalLayers": [
+                    {"id": "l1", "title": "Base Layer"},
+                    {"id": "l2", "title": "Added Layer"},
+                ],
+                "tables": [],
+            }
+        )
+
+        monkeypatch.chdir(tmp_path)
+        result = CliRunner().invoke(diff, ["--format", "json"])
+
+        assert result.exit_code == 0, result.output
+        payload = json.loads(result.output)
+        assert set(payload) == {"has_changes", "stats", "layer_changes", "table_changes", "property_changes"}
+        assert payload["has_changes"] is True
+        assert payload["stats"]["added"] == 1
+        assert payload["table_changes"] == []
+        assert payload["property_changes"] == {}
+        assert payload["layer_changes"][0]["layer_id"] == "l2"
+        assert payload["layer_changes"][0]["change_type"] == "added"
+
 
 class TestBranchToBranchDiff:
     """Integration tests for branch-to-branch diff via diff_maps."""
