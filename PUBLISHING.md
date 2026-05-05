@@ -2,15 +2,14 @@
 
 GitMap uses **PyPI Trusted Publishing** (OIDC) — no API tokens needed once configured.
 
-GitMap ships three packages:
+GitMap currently publishes two user-facing packages. The root `gitmap` PyPI name is occupied by an unrelated project, so it is not part of the active publish contract unless that name is transferred or explicitly re-approved.
 
 | PyPI Package | Tag Pattern | Install |
 |---|---|---|
 | `gitmap-core` | `core-v*` | `pip install gitmap-core` |
 | `gitmap-cli` | `cli-v*` | `pip install gitmap-cli` |
-| `gitmap` (meta) | `v*` | `pip install gitmap` |
 
-> **Most users want `pip install gitmap`** — it installs both core and CLI automatically.
+> **Most users want `pip install gitmap-cli`** — it installs the `gitmap` console command and depends on `gitmap-core`. Use `pip install gitmap-core` only for library/API use.
 
 ---
 
@@ -29,14 +28,12 @@ twine upload dist/gitmap_core-*
 python -m build apps/cli/gitmap --outdir dist/
 twine upload dist/gitmap_cli-*
 
-# Meta-package
-python -m build . --outdir dist/
-twine upload dist/gitmap-*
+# Do not build/upload the root gitmap meta-package while the PyPI name is unavailable.
 ```
 
 ### 2. Configure Trusted Publishers on PyPI
 
-Do this for **each** of the three packages after they exist on PyPI:
+Do this for **each** active package after it exists on PyPI:
 
 1. Go to `https://pypi.org/manage/project/<package-name>/settings/`
 2. Click **"Add a new publisher"** under "Trusted Publishers"
@@ -49,7 +46,6 @@ Do this for **each** of the three packages after they exist on PyPI:
 Packages to configure:
 - `https://pypi.org/manage/project/gitmap-core/settings/`
 - `https://pypi.org/manage/project/gitmap-cli/settings/`
-- `https://pypi.org/manage/project/gitmap/settings/`
 
 ### 3. Create the GitHub `pypi` Environment
 
@@ -67,14 +63,12 @@ Before tagging, run the local release guardrails:
 python3 scripts/release_checks.py
 python3 -m build packages/gitmap_core --outdir dist/
 python3 -m build apps/cli/gitmap --outdir dist/
-python3 -m build . --outdir dist/
 python3 scripts/verify_dist_install.py core
 python3 scripts/verify_dist_install.py cli
-python3 scripts/verify_dist_install.py meta
 ```
 
-This verifies that the published package versions, dependency pins, project metadata, publish workflow tag patterns, and dist-install smoke tests are still aligned. It also catches root meta-package build regressions, which is important in this monorepo because setuptools can otherwise try to auto-discover top-level folders instead of building the `gitmap` meta-package.
-The publish workflow now runs the same clean-venv install smoke test for `core`, `cli`, and `meta` before uploading artifacts to PyPI.
+This verifies that the published package versions, dependency pins, project metadata, publish workflow tag patterns, and dist-install smoke tests are still aligned.
+The publish workflow now runs the same clean-venv install smoke test for `core` and `cli` before uploading artifacts to PyPI.
 
 ### Patch release (core fix)
 
@@ -96,21 +90,19 @@ git tag cli-v0.6.1
 git push origin main --tags
 ```
 
-### Full release (all packages)
+### Full release (core + CLI)
 
 ```bash
-# 1. Bump versions in all three pyproject.toml files + main.py
+# 1. Bump versions in the core/CLI pyproject.toml files + main.py
 # 2. Commit
 git add packages/gitmap_core/pyproject.toml \
         apps/cli/gitmap/pyproject.toml \
-        apps/cli/gitmap/main.py \
-        pyproject.toml
+        apps/cli/gitmap/main.py
 git commit -m "chore: release v0.7.0"
 
-# 3. Tag all three — publish.yml fires for each
+# 3. Tag both active packages — publish.yml fires for each
 git tag core-v0.7.0
 git tag cli-v0.7.0
-git tag v0.7.0
 git push origin main --tags
 ```
 
@@ -118,13 +110,12 @@ git push origin main --tags
 
 ## Versioning Convention
 
-All three packages should stay in sync (same version number).
+The active publishable packages should stay in sync (same version number).
 
 | Component | File to update |
 |---|---|
 | `gitmap-core` | `packages/gitmap_core/pyproject.toml` |
 | `gitmap-cli` | `apps/cli/gitmap/pyproject.toml` + `apps/cli/gitmap/main.py` |
-| `gitmap` meta | `pyproject.toml` (root) |
 
 ---
 
@@ -133,8 +124,7 @@ All three packages should stay in sync (same version number).
 After tags are pushed and workflow runs succeed:
 
 ```bash
-pip install gitmap           # meta-package (installs core + cli)
+pip install gitmap-cli       # CLI (installs the gitmap command and core dependency)
 pip install gitmap-core      # core library only
-pip install gitmap-cli       # CLI only (also installs core)
 gitmap --version             # should show new version
 ```

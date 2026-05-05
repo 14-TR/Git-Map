@@ -19,10 +19,10 @@ Git-Map brings familiar Git-style workflows to ArcGIS Online and Portal for ArcG
 ## Quick Install
 
 ```bash
-pip install gitmap
+pip install gitmap-cli
 ```
 
-Then see the [Quickstart](getting-started/quickstart.md) to run your first commit in under 5 minutes.
+This installs the `gitmap` console command. Then see the [Quickstart](getting-started/quickstart.md) to run your first commit in under 5 minutes.
 
 ## Core Workflow
 

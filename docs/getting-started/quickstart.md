@@ -7,7 +7,7 @@ Get from zero to your first committed map version in under 5 minutes.
 Make sure you have gitmap installed:
 
 ```bash
-pip install gitmap
+pip install gitmap-cli
 gitmap --version
 ```
 

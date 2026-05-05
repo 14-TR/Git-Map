@@ -152,11 +152,13 @@ def validate_release_state() -> None:
         _validate_package_metadata(pyproject)
 
     workflow_text = PUBLISH_WORKFLOW.read_text()
-    for tag_pattern in ('- "core-v*"', '- "cli-v*"', '- "v*"'):
+    for tag_pattern in ('- "core-v*"', '- "cli-v*"'):
         assert tag_pattern in workflow_text, f"Missing publish tag pattern: {tag_pattern}"
-    for package_name in ("gitmap-core", "gitmap-cli", "gitmap"):
+    assert '- "v*"' not in workflow_text, "Root gitmap meta-package tags are not part of the active PyPI publish plan"
+    for package_name in ("gitmap-core", "gitmap-cli"):
         assert f"https://pypi.org/p/{package_name}" in workflow_text, f"Missing PyPI environment URL for {package_name}"
-    for dist_kind in ("core", "cli", "meta"):
+    assert "url: https://pypi.org/p/gitmap\n" not in workflow_text, "Root gitmap PyPI project is unavailable and must not be published"
+    for dist_kind in ("core", "cli"):
         assert f"python scripts/verify_dist_install.py {dist_kind}" in workflow_text, (
             f"Missing dist smoke-test step for {dist_kind}"
         )

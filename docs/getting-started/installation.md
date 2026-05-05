@@ -8,10 +8,10 @@
 ## Install from PyPI
 
 ```bash
-pip install gitmap
+pip install gitmap-cli
 ```
 
-This installs both the core library and the `gitmap` CLI command in one step.
+This installs both the core library dependency and the `gitmap` CLI command in one step.
 
 Verify the install:
 
@@ -21,7 +21,7 @@ gitmap --version
 
 !!! tip "Individual packages"
     If you only need the library (no CLI), install `gitmap-core` directly.
-    The `gitmap` meta-package is the recommended install for most users.
+    The `gitmap` PyPI name is not the default install path. Install `gitmap-core` only for library/API use.
 
 ## Install from Source
 
@@ -55,7 +55,7 @@ You can also store credentials in the repository config file — see [Working wi
 ## Upgrading
 
 ```bash
-pip install --upgrade gitmap
+pip install --upgrade gitmap-cli
 ```
 
 ---

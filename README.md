@@ -3,7 +3,7 @@
 **Version control for ArcGIS web maps.**
 
 [![CI](https://github.com/14-TR/Git-Map/actions/workflows/ci.yml/badge.svg)](https://github.com/14-TR/Git-Map/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/gitmap.svg)](https://pypi.org/project/gitmap/)
+[![PyPI](https://img.shields.io/pypi/v/gitmap-cli.svg)](https://pypi.org/project/gitmap-cli/)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-734%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
@@ -67,10 +67,10 @@ GitMap adds version-control primitives GIS teams already understand:
 ### Recommended: install from PyPI
 
 ```bash
-pip install gitmap
+pip install gitmap-cli
 ```
 
-Verify the CLI is available:
+This installs the `gitmap` console command. Verify the CLI is available:
 
 ```bash
 gitmap --version
