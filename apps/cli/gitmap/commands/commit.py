@@ -102,6 +102,8 @@ def commit(
             console.print()
             console.print(f"[dim]Branch '{current_branch}' updated to {new_commit.id[:8]}[/dim]")
 
+    except click.ClickException:
+        raise
     except Exception as commit_error:
         msg = f"Commit failed: {commit_error}"
         raise click.ClickException(msg) from commit_error

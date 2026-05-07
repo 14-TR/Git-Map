@@ -124,6 +124,8 @@ def status(fmt: str) -> None:
         else:
             console.print("[green]Nothing to commit, working tree clean[/green]")
 
+    except click.ClickException:
+        raise
     except Exception as status_error:
         msg = f"Failed to get status: {status_error}"
         raise click.ClickException(msg) from status_error

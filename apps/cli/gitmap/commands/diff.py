@@ -324,6 +324,8 @@ def diff(
 
         _print_diff(map_diff, label_a, label_b, verbose, fmt, output)
 
+    except click.ClickException:
+        raise
     except Exception as diff_error:
         msg = f"Diff failed: {diff_error}"
         raise click.ClickException(msg) from diff_error
