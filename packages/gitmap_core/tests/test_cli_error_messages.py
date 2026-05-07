@@ -28,9 +28,15 @@ if str(_cli_dir) not in sys.path:
     sys.path.insert(0, str(_cli_dir))
 
 import gitmap_cli.commands.branch as branch_module  # noqa: E402
+import gitmap_cli.commands.commit as commit_module  # noqa: E402
+import gitmap_cli.commands.diff as diff_module  # noqa: E402
+import gitmap_cli.commands.status as status_module  # noqa: E402
 import gitmap_cli.commands.tag as tag_module  # noqa: E402
 
 branch = branch_module.branch
+commit = commit_module.commit
+diff = diff_module.diff
+status = status_module.status
 tag = tag_module.tag
 
 
@@ -66,3 +72,46 @@ def test_tag_without_name_surfaces_usage_instead_of_generic_wrapper(
     assert result.exit_code != 0
     assert "Usage: gitmap tag <name> [commit] or gitmap tag --list" in result.output
     assert "Tag operation failed:" not in result.output
+
+
+def test_status_outside_repository_surfaces_actionable_click_error(
+    monkeypatch: pytest.MonkeyPatch,
+    runner: CliRunner,
+) -> None:
+    monkeypatch.setattr(status_module, "find_repository", lambda: None)
+
+    result = runner.invoke(status, [])
+
+    assert result.exit_code != 0
+    assert "Not a GitMap repository. Run 'gitmap init' to create one." in result.output
+    assert "Failed to get status:" not in result.output
+
+
+def test_commit_outside_repository_surfaces_actionable_click_error(
+    monkeypatch: pytest.MonkeyPatch,
+    runner: CliRunner,
+) -> None:
+    monkeypatch.setattr(commit_module, "find_repository", lambda: None)
+
+    result = runner.invoke(commit, ["-m", "test commit"])
+
+    assert result.exit_code != 0
+    assert "Not a GitMap repository. Run 'gitmap init' to create one." in result.output
+    assert "Commit failed:" not in result.output
+
+
+def test_diff_missing_ref_surfaces_actionable_click_error(
+    monkeypatch: pytest.MonkeyPatch,
+    runner: CliRunner,
+) -> None:
+    repo = Mock()
+    repo.get_index.return_value = {"operationalLayers": []}
+    repo.list_branches.return_value = []
+    repo.get_commit.return_value = None
+    monkeypatch.setattr(diff_module, "find_repository", lambda: repo)
+
+    result = runner.invoke(diff, ["missing-branch"])
+
+    assert result.exit_code != 0
+    assert "Branch or commit not found: 'missing-branch'" in result.output
+    assert "Diff failed:" not in result.output
