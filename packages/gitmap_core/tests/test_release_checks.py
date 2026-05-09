@@ -63,7 +63,6 @@ def test_release_metadata_requires_existing_readmes_and_typed_markers() -> None:
     [
         ("refs/tags/core-v1.2.3", "1.2.3"),
         ("cli-v1.2.3", "1.2.3"),
-        ("v1.2.3", "1.2.3"),
     ],
 )
 def test_validate_release_tag_accepts_matching_tags(ref_name: str, expected_version: str) -> None:
@@ -95,7 +94,12 @@ def test_validate_release_tag_accepts_matching_tags(ref_name: str, expected_vers
         (
             "v0.0.1",
             {"root_version": "1.2.3", "core_version": "1.2.3", "cli_version": "1.2.3"},
-            "expected version 1.2.3",
+            "Root release tags are not published",
+        ),
+        (
+            "refs/tags/v1.2.3",
+            {"root_version": "1.2.3", "core_version": "1.2.3", "cli_version": "1.2.3"},
+            "Use core-v<version> or cli-v<version>",
         ),
         (
             "refs/heads/main",
