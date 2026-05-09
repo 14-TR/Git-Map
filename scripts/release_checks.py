@@ -111,16 +111,20 @@ def _validate_package_metadata(pyproject: Path) -> None:
 
 def validate_release_tag(ref_name: str, state: dict[str, str | list[str]] | None = None) -> None:
     normalized_ref = ref_name.removeprefix("refs/tags/")
-    tag_match = re.fullmatch(r"(?:(core|cli)-)?v(.+)", normalized_ref)
+    root_tag_match = re.fullmatch(r"v(.+)", normalized_ref)
+    assert not root_tag_match, (
+        "Root release tags are not published by the active PyPI workflow. "
+        f"Use core-v<version> or cli-v<version> instead: {ref_name}"
+    )
+
+    tag_match = re.fullmatch(r"(core|cli)-v(.+)", normalized_ref)
     assert tag_match, (
-        "Release tag must be one of core-v<version>, cli-v<version>, or v<version>: "
-        f"{ref_name}"
+        f"Release tag must be one of core-v<version> or cli-v<version>: {ref_name}"
     )
 
     package_prefix, tag_version = tag_match.groups()
     state = state or collect_release_state()
     expected_versions = {
-        None: state["root_version"],
         "core": state["core_version"],
         "cli": state["cli_version"],
     }
