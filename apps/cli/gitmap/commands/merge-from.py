@@ -148,10 +148,7 @@ def merge_from(
         if merge_result.has_conflicts:
             # Separate table conflicts from layer conflicts
             merged_tables = merge_result.merged_data.get("tables", [])
-            merged_layers = merge_result.merged_data.get("operationalLayers", [])
-
             table_ids = {table.get("id") for table in merged_tables if table.get("id")}
-            layer_ids = {layer.get("id") for layer in merged_layers if layer.get("id")}
 
             table_conflicts = [c for c in merge_result.conflicts if c.layer_id in table_ids]
             layer_conflicts = [c for c in merge_result.conflicts if c.layer_id not in table_ids]

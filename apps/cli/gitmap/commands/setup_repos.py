@@ -179,7 +179,6 @@ def setup_repos(
             for idx, webmap_info in enumerate(webmaps, 1):
                 item_id = webmap_info.get("id", "")
                 title = webmap_info.get("title", "Unknown")
-                map_owner = webmap_info.get("owner", "")
 
                 task = progress.add_task(f"[{idx}/{len(webmaps)}] Cloning '{title}'...", total=None)
 
