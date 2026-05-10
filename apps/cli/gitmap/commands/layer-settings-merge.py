@@ -537,9 +537,8 @@ def layer_settings_merge(
         current_repo = find_repository()
 
         # Only require repository if not using folder options
-        if not local_folder and not remote_folder:
-            if not current_repo:
-                raise click.ClickException("Not a GitMap repository")
+        if not local_folder and not remote_folder and not current_repo:
+            raise click.ClickException("Not a GitMap repository")
 
         # Resolve source map
         console.print(f"[dim]Resolving source: {source}[/dim]")
@@ -877,7 +876,7 @@ def _resolve_folder_id(
     if len(folder_identifier) > 8 and " " not in folder_identifier:
         # Try using it as a folder ID first
         try:
-            items = user.items(folder=folder_identifier)
+            user.items(folder=folder_identifier)
             # If this works, it's a valid folder ID
             return folder_identifier
         except Exception:
@@ -1299,7 +1298,7 @@ def _transfer_to_remote_folder(
             # Pull latest from Portal to ensure main is up to date
             try:
                 remote_ops = RemoteOperations(repo, connection)
-                portal_map_data = remote_ops.pull("main")
+                remote_ops.pull("main")
                 # If index changed, commit to main
                 if repo.has_uncommitted_changes():
                     repo.create_commit(

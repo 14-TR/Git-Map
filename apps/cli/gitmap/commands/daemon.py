@@ -230,22 +230,21 @@ def execute_auto_pull(config: dict[str, Any], logger: logging.Logger) -> None:
 
                 # Auto-commit if enabled
                 commit_id = None
-                if auto_commit:
-                    if repo.has_uncommitted_changes():
-                        # Generate commit message
-                        if commit_message:
-                            msg = commit_message.replace("{repo}", repo_name)
-                            msg = msg.replace("{date}", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-                        else:
-                            msg = f"Auto-pull from Portal ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
+                if auto_commit and repo.has_uncommitted_changes():
+                    # Generate commit message
+                    if commit_message:
+                        msg = commit_message.replace("{repo}", repo_name)
+                        msg = msg.replace("{date}", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                    else:
+                        msg = f"Auto-pull from Portal ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
 
-                        # Create commit
-                        new_commit = repo.create_commit(
-                            message=msg,
-                            author=None,
-                            rationale=None,
-                        )
-                        commit_id = new_commit.id[:8]
+                    # Create commit
+                    new_commit = repo.create_commit(
+                        message=msg,
+                        author=None,
+                        rationale=None,
+                    )
+                    commit_id = new_commit.id[:8]
 
                 # Log success
                 if commit_id:

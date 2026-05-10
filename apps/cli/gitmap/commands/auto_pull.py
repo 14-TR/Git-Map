@@ -205,25 +205,23 @@ def auto_pull(
 
                     # Auto-commit if enabled
                     commit_id = None
-                    if auto_commit:
-                        # Check if there are changes to commit
-                        if repo.has_uncommitted_changes():
-                            # Generate commit message
-                            if commit_message:
-                                # Replace template variables
-                                msg = commit_message.replace("{repo}", repo_name)
-                                msg = msg.replace("{date}", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-                            else:
-                                # Default commit message
-                                msg = f"Auto-pull from Portal ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
+                    if auto_commit and repo.has_uncommitted_changes():
+                        # Generate commit message
+                        if commit_message:
+                            # Replace template variables
+                            msg = commit_message.replace("{repo}", repo_name)
+                            msg = msg.replace("{date}", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                        else:
+                            # Default commit message
+                            msg = f"Auto-pull from Portal ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})"
 
-                            # Create commit
-                            new_commit = repo.create_commit(
-                                message=msg,
-                                author=None,
-                                rationale=None,
-                            )
-                            commit_id = new_commit.id[:8]
+                        # Create commit
+                        new_commit = repo.create_commit(
+                            message=msg,
+                            author=None,
+                            rationale=None,
+                        )
+                        commit_id = new_commit.id[:8]
 
                     # Update progress display
                     if commit_id:

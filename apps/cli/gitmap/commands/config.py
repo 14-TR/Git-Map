@@ -73,18 +73,16 @@ def config(
         if (unset_production or production_branch) and not config_obj.remote:
             raise click.ClickException("No remote configured. Use 'gitmap clone' first.")
 
-        if unset_production:
-            if config_obj.remote:
-                config_obj.remote.production_branch = None
-                changes_made = True
-                console.print("[green]Production branch setting removed[/green]")
+        if unset_production and config_obj.remote:
+            config_obj.remote.production_branch = None
+            changes_made = True
+            console.print("[green]Production branch setting removed[/green]")
 
-        if production_branch:
-            if config_obj.remote:
-                config_obj.remote.production_branch = production_branch
-                changes_made = True
-                console.print(f"[green]Production branch set to '{production_branch}'[/green]")
-                console.print("[dim]Pushes to this branch will trigger notifications to all users in map groups[/dim]")
+        if production_branch and config_obj.remote:
+            config_obj.remote.production_branch = production_branch
+            changes_made = True
+            console.print(f"[green]Production branch set to '{production_branch}'[/green]")
+            console.print("[dim]Pushes to this branch will trigger notifications to all users in map groups[/dim]")
 
         if auto_visualize is not None:
             config_obj.auto_visualize = auto_visualize

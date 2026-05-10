@@ -26,13 +26,8 @@ from rich.syntax import Syntax
 from rich.table import Table
 from rich.text import Text
 
-from gitmap_core.diff import diff_maps
-from gitmap_core.diff import format_diff_html
-from gitmap_core.diff import format_diff_stats
-from gitmap_core.diff import format_diff_summary
-from gitmap_core.diff import format_diff_visual
-from gitmap_core.repository import find_repository
-from gitmap_core.repository import Repository
+from gitmap_core.diff import diff_maps, format_diff_html, format_diff_stats, format_diff_summary, format_diff_visual
+from gitmap_core.repository import Repository, find_repository
 
 console = Console()
 
