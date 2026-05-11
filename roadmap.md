@@ -1,127 +1,258 @@
-# Git-Map Roadmap
+# GitMap Roadmap
 
-**Vision:** Open-source version control for ArcGIS web maps. The git for GIS.
+GitMap is open-source version control for ArcGIS web maps: **the git for GIS**.
 
-**Goal:** Community adoption: real GIS users can safely try Git-Map, understand
-what it changes, and decide whether it fits their workflow.
+The next product goal is community adoption: help real GIS users safely try
+GitMap, understand the workflow, trust what it changes, and find clear ways to
+contribute.
 
-## Shipped Foundation
+## Current project foundation
 
-- **Shipped:** README overhaul with install, source install, quickstart,
-  examples, and demo workflow.
+Shipped or substantially in place:
+
+- **Shipped:** README with install, source install, quickstart, examples, and
+  demo workflow.
 - **Shipped:** PyPI packaging and release guardrails for `gitmap`.
 - **Shipped:** CI smoke/package checks for built distributions.
 - **Shipped:** CLI error-message polish and ruff cleanup.
-- **Shipped:** Documentation pages for installation, quickstart, commands, and
-  diff review.
-- **Shipped:** Landing page with value proposition and install instructions.
-- **Shipped:** Branch/JSON diff foundations for reviewable map-state changes,
-  including terminal, JSON, and HTML report output.
+- **Shipped:** Documentation pages for installation, quickstart, commands,
+  Portal usage, and diff review.
+- **Shipped:** Landing page content with value proposition and install
+  instructions.
+- **Shipped:** Branch, commit, merge, revert, and JSON diff foundations for
+  reviewable map-state changes, including terminal, JSON, and HTML report
+  output.
 - **Prototype:** ArcGIS Pro Python toolbox exists and is documented, but still
   needs an explicit validation/polish pass before it is treated as a primary
   adoption path.
 - **Prototype:** OpenClaw integration exists, but needs path/config and
   parameter cleanup before being promoted as a reliable agent integration.
+- **Prototype:** MCP/agent workflow surfaces exist, but should stay secondary
+  until the core GIS-user onboarding path is validated.
 
-## Roadmap Tracks
+## Roadmap principles
 
-### Track 1: First-User Onboarding
+1. **Adoption before polish loops.** Prioritize the first successful user
+   workflow before major new features.
+2. **Safe by default.** Make it obvious when a command only reads local state
+   versus when it changes Portal content.
+3. **Show the workflow.** A short demo is more valuable than another feature if
+   it helps GIS users understand the value.
+4. **Validate with real GIS users.** Let onboarding friction guide feature
+   priorities.
+5. **Keep contributor work small.** Turn roadmap tracks into clear, labeled,
+   PR-sized issues.
 
-**Status:** Next
+## Near-term tracks
 
-Make a GIS user successful on a safe, non-production web map in under 10
+### Track 1: First-user onboarding
+
+**Goal:** A GIS user can try GitMap on a non-production web map in under 10
 minutes.
 
-- Add "find your ArcGIS web map item ID" guidance.
-- Add a visible safe-map warning: start with a disposable or non-production map.
-- Explain exactly what `gitmap push` modifies in ArcGIS Online or Portal.
-- Add a first-run troubleshooting checklist for credentials, package install,
-  and Portal/AGOL connection issues.
-- Re-test the quickstart from a clean environment.
+**Status:** Next.
 
-### Track 2: Demo and Trust Assets
+**Why it matters:** The current docs are solid, but a first-time user still
+needs more help identifying a safe map, finding an ArcGIS item ID, and
+understanding what `gitmap push` changes.
 
-**Status:** Next
+**Planned work:**
 
-Show the core value in 60-90 seconds before asking users to install anything.
+- Add "use a non-production test map first" guidance to the quickstart.
+- Explain where to find the web map item ID in ArcGIS Online / Portal.
+- Clarify which commands read Portal state and which commands write back to
+  Portal.
+- Add first-run troubleshooting for credentials, Portal URL, package install,
+  and missing item IDs.
+- Test the quickstart on a clean machine or clean virtual environment.
 
-- Write a demo script covering clone, branch, edit/pull, diff, commit, merge,
-  push, and revert.
-- Record a terminal GIF or short video using a non-production map.
-- Link the asset from the README and documentation landing page.
-- Keep the demo workflow aligned with commands that a new user can repeat.
+**Success signal:** A new user can complete clone, branch, pull/edit, diff,
+commit, merge, and push on a test map without private help.
 
-### Track 3: Real-User Validation
+### Track 2: Demo and trust assets
 
-**Status:** Next
+**Goal:** Show the core value in 60-90 seconds.
 
-Put Git-Map in front of 1-3 GIS users before larger feature investment.
+**Status:** Next.
 
-- Create a low-risk test protocol using a non-critical web map.
-- Ask users where onboarding, trust, or terminology breaks down.
-- Convert observed friction into GitHub issues.
-- Re-rank later roadmap tracks after feedback.
+**Planned work:**
 
-### Track 4: Diff and Review UX
+- Write a short demo script for clone, branch, diff, commit, merge, push, and
+  revert.
+- Record a terminal GIF or video using a safe sample workflow.
+- Embed the demo in the README, docs home page, and landing page.
+- Add a short "what this proves" caption for GIS analysts, GIS managers, and
+  developers.
 
-**Status:** Later
+**Success signal:** A visitor can understand GitMap's purpose without reading
+the full docs.
 
-Make map changes reviewable for GIS users, not only developers.
+### Track 3: Real-user validation loop
+
+**Goal:** Get feedback from 1-3 GIS users before investing in larger feature
+work.
+
+**Status:** Next after onboarding/demo assets.
+
+**Planned work:**
+
+- Prepare a low-risk test protocol using a non-critical ArcGIS web map.
+- Ask users to complete the quickstart while noting friction.
+- Collect feedback on install, credentials, item IDs, diff readability, and
+  push safety.
+- Convert friction into GitHub issues and reprioritize this roadmap.
+
+**Success signal:** Roadmap priorities are backed by observed GIS-user friction
+instead of assumptions.
+
+### Track 4: Diff and review UX
+
+**Goal:** Make map changes reviewable by GIS users, not only developers.
+
+**Status:** Later.
+
+**Planned work:**
 
 - Improve branch comparison beyond the current structured JSON/HTML diff
   foundations.
-- Add sample before/after review artifacts.
-- Document a team review workflow for high-impact map changes.
-- Explore visual comparison output only after first-user validation confirms it
-  is the highest-leverage adoption blocker.
+- Produce a shareable HTML or visual review artifact for stakeholders.
+- Highlight layer additions/removals, visibility changes, renderer changes,
+  popup changes, and basemap changes.
+- Add docs showing how a team reviews a branch before merge/push.
 
-### Track 5: ArcGIS Pro Status and Polish
+**Success signal:** A GIS manager or analyst can answer "what changed?" from a
+GitMap diff without inspecting raw JSON.
 
-**Status:** Prototype
+### Track 5: ArcGIS Pro integration status and polish
 
-Clarify whether the ArcGIS Pro toolbox is shipped, prototype, or future-facing,
-then polish the matching path.
+**Goal:** Make the ArcGIS Pro story honest and testable.
 
-- Validate install from an ArcGIS Pro Python environment.
-- Preserve the "no extension license required" trust note.
-- Align README, docs, technical paper, and roadmap language.
+**Status:** Prototype / needs validation.
+
+**Context:** The repo already includes ArcGIS Pro toolbox documentation, so this
+should not be treated as purely future work. The next step is to verify what
+works in a real ArcGIS Pro Python environment and document the status clearly.
+
+**Planned work:**
+
+- Confirm whether the toolbox is shipped, prototype, or experimental.
+- Test install in the ArcGIS Pro Python environment.
+- Align README, docs, technical paper, and roadmap language with the verified
+  status.
+- Preserve clear notes about no ArcGIS extension license requirement and when
+  `arcpy` is needed.
 - Document limitations clearly if the toolbox remains prototype-stage.
 
-### Track 6: OpenClaw and Agent Integration Repair
+**Success signal:** Users know whether the ArcGIS Pro toolbox is ready to try
+and what limitations to expect.
 
-**Status:** Prototype
+### Track 6: OpenClaw and agent integration repair
 
-Turn the existing OpenClaw integration from prototype code into a reliable local
-agent tool.
+**Goal:** Make GitMap usable as a reliable agent/OpenClaw tool surface.
 
-- Remove hardcoded `~/Desktop/Git-Map` assumptions.
-- Normalize `repo_path` and `cwd` parameter naming across TypeScript, Python,
-  and docs.
-- Add a health smoke path.
-- Ensure OpenClaw integration tests complete without environment-dependent
-  hangs.
-- Demonstrate one successful agent-driven `gitmap_status` against a local repo.
+**Status:** Prototype / repair needed.
 
-### Track 7: Contributor Activation
+**Context:** `integrations/openclaw/` includes a Python server, TypeScript
+plugin, tool wrappers, and tests. It is real, but it still has prototype
+assumptions that need cleanup before launch.
 
-**Status:** Later
+**Known repair targets:**
 
-Make it obvious how an outside contributor can help.
+- Replace hardcoded `~/Desktop/Git-Map` assumptions with configurable or
+  project-relative paths.
+- Normalize parameter names between TypeScript and Python (`repo_path` vs
+  `cwd`).
+- Make the server URL configurable from plugin config.
+- Add or verify a health smoke test.
+- Ensure the OpenClaw test suite completes without hanging.
+- Demonstrate one successful agent-driven `gitmap_status` against a local test
+  repo.
 
-- Add 5-10 good-first-issue candidates tied to these roadmap tracks.
-- Add targeted test commands by area: docs, CLI, core, ArcGIS Pro, OpenClaw.
-- Add a "first PR in 30 minutes" path.
-- Use labels for onboarding, docs, diff/review, ArcGIS Pro, OpenClaw, and
-  contributor experience.
+**Success signal:** OpenClaw can call GitMap tools against a local repo with
+predictable parameters and no path assumptions.
 
-## Next Three PRs
+### Track 7: Contributor activation
 
-1. **First-user quickstart safety pass**: update README and quickstart with
-   item-ID discovery, safe-map guidance, `push` behavior, and first-run fixes.
-2. **Demo script asset**: add a reusable 60-90 second demo script and wire a
-   placeholder/link into README/docs.
-3. **Real-user validation packet**: add the non-production test protocol and a
-   short feedback questionnaire.
+**Goal:** Make it easy for external contributors to help.
+
+**Status:** Later.
+
+**Planned work:**
+
+- Create 5-10 good-first-issue candidates across docs, tests, diff UX,
+  OpenClaw, and ArcGIS Pro polish.
+- Add labels that match roadmap tracks.
+- Expand contributing docs with targeted test commands for each project area.
+- Add a "first PR in 30 minutes" path for docs/test-only contributors.
+
+**Success signal:** A new contributor can pick an issue, run the relevant
+checks, and open a small PR without project-specific coaching.
+
+## Recommended execution order
+
+1. First-user onboarding pass.
+2. Demo script and video/GIF asset.
+3. Real-user validation with 1-3 GIS users.
+4. Roadmap reprioritization from feedback.
+5. Diff/review UX improvements.
+6. ArcGIS Pro validation/polish.
+7. OpenClaw/agent integration repair.
+8. Contributor activation and issue labeling.
+
+## Next three PRs
+
+### PR 1: First-user quickstart safety pass
+
+**Files:**
+
+- `README.md`
+- `docs/getting-started/quickstart.md`
+- `docs/guides/portals.md`
+
+**Scope:** Add safe test-map guidance, item-ID discovery, Portal write warnings,
+and first-run troubleshooting.
+
+### PR 2: Demo script and asset placeholder
+
+**Files:**
+
+- `marketing/demo-script.md`
+- `README.md`
+- `docs/index.md`
+
+**Scope:** Write the 60-90 second demo script and add placeholders for the
+recording.
+
+### PR 3: Real-user validation packet
+
+**Files:**
+
+- `docs/validation/first-user-test.md`
+- `docs/validation/feedback-questionnaire.md`
+
+**Scope:** Add the non-production test protocol and a short feedback
+questionnaire.
+
+### PR 4: OpenClaw prototype repair plan
+
+**Files:**
+
+- `integrations/openclaw/README.md`
+- `integrations/openclaw/tools.py`
+- `integrations/openclaw/server.py`
+- `integrations/openclaw/index.ts`
+- `integrations/openclaw/tests/test_tools.py`
+
+**Scope:** Normalize path and parameter assumptions, then add a reliable
+health/status smoke test.
+
+## Later opportunities
+
+- Hosted demo map or synthetic sample map fixture.
+- Rich web-based diff viewer.
+- Case-study blog post after the first real user succeeds.
+- GIS team workflow guide for staging/production maps.
+- Release notes cadence and GitHub Discussions/community support loop.
 
 ## Constraints
 
