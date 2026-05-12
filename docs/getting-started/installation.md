@@ -4,6 +4,7 @@
 
 - Python 3.11, 3.12, 3.13, or 3.14
 - ArcGIS Online account **or** Portal for ArcGIS 10.8+
+- A non-production test web map for your first clone/push workflow
 
 ## Install from PyPI
 
@@ -18,6 +19,8 @@ Verify the install:
 ```bash
 gitmap --version
 ```
+
+If the command is not found, confirm the Python environment's `bin` directory is on your `PATH`, or run GitMap from the same virtual environment where you installed `gitmap-cli`.
 
 !!! tip "Individual packages"
     If you only need the library (no CLI), install `gitmap-core` directly.
@@ -51,6 +54,8 @@ Git-Map reads credentials from environment variables when no config is set:
 | `PORTAL_URL` | Your Portal URL (defaults to `https://www.arcgis.com`) |
 
 You can also store credentials in the repository config file — see [Working with Portals](../guides/portals.md).
+
+Do not commit `.env` files or credentials. GitMap commands such as `status`, `diff`, `log`, and `commit` operate on the local repository, while `pull` reads from ArcGIS and `push` can update ArcGIS content.
 
 ## Upgrading
 

@@ -49,6 +49,8 @@ When you `push`, Git-Map creates a `GitMap` folder in your Portal content and na
 
 This keeps branches organized and easy to find.
 
+For first-time testing, use a non-production web map and confirm your account has the expected item permissions. `gitmap clone` reads the current web map into a local repository, while `gitmap push` can publish the current branch state back to ArcGIS-managed content.
+
 ## Notifications
 
 When pushing to the configured production branch, Git-Map can send Portal notifications to all users in groups that have access to the map. Use `--no-notify` to suppress this.
