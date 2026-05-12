@@ -11,7 +11,7 @@
 
 ## Abstract
 
-Web maps published through ArcGIS Online (AGOL) and ArcGIS Enterprise Portal are stateful, JSON-encoded GIS artifacts whose operational layer configurations, symbology, popups, and cartographic properties evolve continuously. Despite this complexity, Esri's platform offers no native mechanism to snapshot, branch, or revert a web map's JSON definition—leaving GIS professionals dependent on ad hoc strategies such as item cloning, manual change logs, or informal naming conventions ("Map_v3_FINAL_2"). This paper presents **Git-Map** (v0.6.0+), a Python-based version control system that applies Git's conceptual model—commits, branches, merges, cherry-picks, stashes, reverts, and tags—to ArcGIS web map items. The system stores content-addressed snapshots of a map's operational layer JSON at each commit, implements a three-way merge algorithm at layer granularity, provides a `DeepDiff`-backed property-level diff engine, exposes operations through a Model Context Protocol (MCP) server for AI-agent workflows, wraps nine operations as a native ArcGIS Pro Python Toolbox, maintains an SQLite-backed event graph (`ContextStore`) for episodic memory and context awareness, and ships as a pip-installable monorepo with 660+ tests achieving ~96% coverage. The architecture is publicly documented and distributed under the MIT license, targeting community adoption among the GIS professional community.
+Web maps published through ArcGIS Online (AGOL) and ArcGIS Enterprise Portal are stateful, JSON-encoded GIS artifacts whose operational layer configurations, symbology, popups, and cartographic properties evolve continuously. Despite this complexity, Esri's platform offers no native mechanism to snapshot, branch, or revert a web map's JSON definition—leaving GIS professionals dependent on ad hoc strategies such as item cloning, manual change logs, or informal naming conventions ("Map_v3_FINAL_2"). This paper presents **Git-Map** (v0.6.0+), a Python-based version control system that applies Git's conceptual model—commits, branches, merges, cherry-picks, stashes, reverts, and tags—to ArcGIS web map items. The system stores content-addressed snapshots of a map's operational layer JSON at each commit, implements a three-way merge algorithm at layer granularity, provides a `DeepDiff`-backed property-level diff engine, exposes operations through a Model Context Protocol (MCP) server for AI-agent workflows, wraps nine operations as a native ArcGIS Pro Python Toolbox, maintains an SQLite-backed event graph (`ContextStore`) for episodic memory and context awareness, and ships as a pip-installable monorepo with 785+ tests. The architecture is publicly documented and distributed under the MIT license, targeting community adoption among the GIS professional community.
 
 ---
 
@@ -753,7 +753,7 @@ gitmap setup-repos
 Three packages published to PyPI:
 
 ```bash
-pip install gitmap-core    # Core library: 660+ tests, 96% coverage
+pip install gitmap-core    # Core library: 785+ tests
 pip install gitmap-cli     # CLI: installs 'gitmap' command
 pip install gitmap-mcp     # MCP server for AI agents
 ```
@@ -1015,7 +1015,7 @@ git-map/
 │   ├── maps.py           merge.py     models.py
 │   ├── remote.py         repository.py  visualize.py
 │   ├── pyproject.toml
-│   └── tests/ (660+ tests)
+│   └── tests/ (785+ tests)
 ├── docs/
 │   ├── getting-started/   commands/   guides/
 ├── documentation/project_specs/
@@ -1096,14 +1096,12 @@ deepdiff>=6.0.0
 
 ### 10.4 Test Coverage Summary
 
-As of March 2026:
+As of May 2026:
 
 | Package | Tests | Coverage |
 |---------|-------|---------|
-| `gitmap_core` | 640+ | ~96% |
-| `gitmap_cli` | 20+ | ~70% |
-| `gitmap_mcp` | 15+ | ~65% |
-| **Total** | **660+** | **~90% (aggregate)** |
+| `gitmap_core` | 785+ | Measured in CI |
+| **Total** | **785+** | Measured in CI |
 
 Test coverage is measured via `pytest-cov`. The core library achieves high coverage through dedicated test modules for each source file: `test_models.py`, `test_repository.py`, `test_diff.py`, `test_merge.py`, `test_graph.py`, `test_context.py`, `test_remote.py`, `test_communication.py`, `test_compat.py`, `test_connection.py`, `test_visualize.py`, `test_maps.py`, `test_stash_mcp.py`, and `test_show_command.py`.
 
