@@ -44,3 +44,5 @@ Changes staged. Use 'gitmap diff' to review and 'gitmap commit' to save.
 
 - `pull` only updates the index. You still need to `commit` to record the version.
 - Review changes with `gitmap diff` before committing.
+- Repositories cloned from a single web map can pull the original Portal item into
+  the current local branch before any GitMap remote folder has been created.

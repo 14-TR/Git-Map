@@ -1054,18 +1054,55 @@ class TestPullOperations:
         assert result == sample_map_data
         mock_repository.update_index.assert_called_once_with(sample_map_data)
 
-    def test_pull_raises_without_folder_when_not_main(
+    def test_pull_feature_branch_falls_back_to_item_without_folder(
         self,
         mock_repository: MagicMock,
         mock_connection: MagicMock,
+        sample_map_data: dict,
     ) -> None:
-        """Test pull raises error for feature branch without folder_id."""
+        """Test feature branch pull can use cloned item when no folder is configured."""
         config = RepoConfig(
             project_name="Test",
             remote=Remote(
                 name="origin",
                 url="https://test.com",
                 folder_id=None,  # No folder configured
+                item_id="original-item-id",
+            ),
+        )
+        mock_repository.get_config.return_value = config
+        mock_repository.get_current_branch.return_value = "feature/test"
+        mock_repository.get_head_commit.return_value = "commit-123"
+        mock_repository.remotes_dir = Path(tempfile.mkdtemp()) / "remotes"
+        mock_repository.remotes_dir.mkdir(parents=True)
+
+        original_item = MagicMock()
+        original_item.type = "Web Map"
+        original_item.get_data.return_value = sample_map_data
+        mock_connection.gis.content.get.return_value = original_item
+
+        ops = RemoteOperations(mock_repository, mock_connection)
+        result = ops.pull()
+
+        assert result == sample_map_data
+        mock_connection.gis.content.get.assert_called_once_with("original-item-id")
+        mock_repository.update_index.assert_called_once_with(sample_map_data)
+
+        ref_path = mock_repository.remotes_dir / "origin" / "feature_test"
+        assert ref_path.read_text() == "commit-123"
+
+    def test_pull_raises_without_folder_or_item_when_not_main(
+        self,
+        mock_repository: MagicMock,
+        mock_connection: MagicMock,
+    ) -> None:
+        """Test feature branch pull still needs a folder when no cloned item exists."""
+        config = RepoConfig(
+            project_name="Test",
+            remote=Remote(
+                name="origin",
+                url="https://test.com",
+                folder_id=None,
                 item_id=None,
             ),
         )
