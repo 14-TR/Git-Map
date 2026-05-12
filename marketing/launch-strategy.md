@@ -20,9 +20,10 @@ Before posting anywhere, nail the first-impression UX:
   - Update README badge: `pip install gitmap-core`
   - Make `pip install gitmap-core && gitmap --help` work flawlessly
 
-- [ ] **Quick-start that actually works**
+- [ ] **Quick-start validation with a real user**
+  - Safety guidance and first-run troubleshooting are in place
   - Test the README quickstart on a clean machine with a real (or mock) Portal
-  - The first 5 minutes MUST work without reading docs
+  - The first 5 minutes MUST work without private coaching
 
 - [ ] **Landing page live** at ingramgeoai.com/gitmap or gitmap.io
   - One-liner value prop
