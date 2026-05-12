@@ -562,6 +562,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#first-run-safety-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First-Run Safety Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1842,6 +1853,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#first-run-safety-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First-Run Safety Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1974,6 +1996,15 @@
 <h1 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h1>
 <p>Get from zero to your first committed map version in under 5 minutes.</p>
 <p>For the first run, use a non-production test web map that you own or can safely modify. Most GitMap commands are local-only, but <code>gitmap push</code> can update ArcGIS content.</p>
+<h2 id="first-run-safety-checklist">First-Run Safety Checklist<a class="headerlink" href="#first-run-safety-checklist" title="Permanent link">&para;</a></h2>
+<p>Before running the workflow for the first time:</p>
+<ul>
+<li>Use a non-production web map that you own or can safely modify.</li>
+<li>Confirm you copied the web map item ID from the ArcGIS item URL, not the map title or a layer ID.</li>
+<li>Remember that <code>clone</code>, <code>status</code>, <code>diff</code>, <code>log</code>, and <code>commit</code> are local/review operations.</li>
+<li>Treat <code>pull</code> as a read from ArcGIS and <code>push</code> as the step that can update ArcGIS-managed content.</li>
+<li>Review <code>gitmap diff</code> before any <code>gitmap push</code>.</li>
+</ul>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <p>Make sure you have gitmap installed:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gitmap-cli
