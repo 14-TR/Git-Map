@@ -24,13 +24,22 @@ pip install gitmap-cli
 
 This installs the `gitmap` console command. Then see the [Quickstart](getting-started/quickstart.md) to run your first commit in under 5 minutes.
 
+## Demo Script
+
+The first public demo is being prepared in `marketing/demo-script.md`. It walks through a safe test-map workflow: clone, branch, pull/edit, diff, commit, merge, and push.
+
 ## Core Workflow
 
 ```bash
-gitmap init          # Start tracking a directory
+gitmap clone <ITEM_ID> --directory my-test-map
+gitmap branch feature/map-update
+gitmap checkout feature/map-update
 gitmap pull          # Fetch current map from Portal
-gitmap commit -m "My change"
-gitmap push          # Deploy to Portal
+gitmap diff main feature/map-update --format visual
+gitmap commit -m "Review map update"
+gitmap checkout main
+gitmap merge feature/map-update
+gitmap push          # Publish the approved state to Portal
 ```
 
 ## Feature Highlights

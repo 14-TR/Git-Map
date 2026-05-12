@@ -80,15 +80,19 @@ commit, merge, and push on a test map without private help.
 
 **Goal:** Show the core value in 60-90 seconds.
 
-**Status:** Next.
+**Status:** In progress; demo script and placeholders are in place, recording still needed.
 
-**Planned work:**
+**Shipped / substantially in place:**
 
-- Write a short demo script for clone, branch, diff, commit, merge, push, and
-  revert.
+- Demo script for clone, branch, pull/edit, diff, commit, merge, push, and
+  trust captions.
+- README and docs placeholders pointing visitors toward the script.
+
+**Remaining work:**
+
 - Record a terminal GIF or video using a safe sample workflow.
 - Embed the demo in the README, docs home page, and landing page.
-- Add a short "what this proves" caption for GIS analysts, GIS managers, and
+- Add final captions or thumbnails for GIS analysts, GIS managers, and
   developers.
 
 **Success signal:** A visitor can understand GitMap's purpose without reading
