@@ -50,21 +50,28 @@ Shipped or substantially in place:
 **Goal:** A GIS user can try GitMap on a non-production web map in under 10
 minutes.
 
-**Status:** Next.
+**Status:** In progress / safety guidance substantially shipped; needs clean
+first-user validation.
 
-**Why it matters:** The current docs are solid, but a first-time user still
-needs more help identifying a safe map, finding an ArcGIS item ID, and
-understanding what `gitmap push` changes.
+**Why it matters:** The docs now cover the main first-run safety issues, but
+the workflow still needs validation from a clean environment and real GIS
+users.
 
-**Planned work:**
+**Shipped / substantially in place:**
 
-- Add "use a non-production test map first" guidance to the quickstart.
-- Explain where to find the web map item ID in ArcGIS Online / Portal.
-- Clarify which commands read Portal state and which commands write back to
-  Portal.
-- Add first-run troubleshooting for credentials, Portal URL, package install,
-  and missing item IDs.
+- Non-production test-map guidance in README, installation docs, quickstart,
+  and Portal docs.
+- Web map item-ID discovery guidance in README and quickstart.
+- Local/read/write command safety language, including clear `gitmap push`
+  warnings.
+- First-run troubleshooting for credentials, install/path issues, item IDs,
+  wrong directories, and permissions.
+
+**Remaining work:**
+
 - Test the quickstart on a clean machine or clean virtual environment.
+- Ask 1-3 GIS users to complete the quickstart without coaching.
+- Convert observed friction into follow-up issues.
 
 **Success signal:** A new user can complete clone, branch, pull/edit, diff,
 commit, merge, and push on a test map without private help.

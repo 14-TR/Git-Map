@@ -4,6 +4,16 @@ Get from zero to your first committed map version in under 5 minutes.
 
 For the first run, use a non-production test web map that you own or can safely modify. Most GitMap commands are local-only, but `gitmap push` can update ArcGIS content.
 
+## First-Run Safety Checklist
+
+Before running the workflow for the first time:
+
+- Use a non-production web map that you own or can safely modify.
+- Confirm you copied the web map item ID from the ArcGIS item URL, not the map title or a layer ID.
+- Remember that `clone`, `status`, `diff`, `log`, and `commit` are local/review operations.
+- Treat `pull` as a read from ArcGIS and `push` as the step that can update ArcGIS-managed content.
+- Review `gitmap diff` before any `gitmap push`.
+
 ## Prerequisites
 
 Make sure you have gitmap installed:

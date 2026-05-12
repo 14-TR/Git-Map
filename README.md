@@ -94,6 +94,8 @@ pip install -e apps/cli/gitmap
 
 This walkthrough starts with an existing ArcGIS web map and finishes by pushing an approved main-branch state back to Portal. For your first run, use a non-production test web map that you own or can safely modify.
 
+Before you start, verify that the item ID comes from the ArcGIS web map item URL and that the map is safe to test against. `gitmap clone` reads from Portal and creates a local repository; `gitmap push` is the step that can update ArcGIS-managed content.
+
 ### 1. Configure Portal credentials
 
 GitMap can read credentials from environment variables or from a local `.env` file. The repo includes a template:
