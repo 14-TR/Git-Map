@@ -92,7 +92,7 @@ pip install -e apps/cli/gitmap
 
 ## Quickstart: first successful workflow
 
-This walkthrough starts with an existing ArcGIS web map and finishes by pushing an approved main-branch state back to Portal.
+This walkthrough starts with an existing ArcGIS web map and finishes by pushing an approved main-branch state back to Portal. For your first run, use a non-production test web map that you own or can safely modify.
 
 ### 1. Configure Portal credentials
 
@@ -123,6 +123,10 @@ ARCGIS_PASSWORD=your_password
 
 Copy the web map item ID from ArcGIS Online or Portal, then clone it:
 
+- Open the web map item page in ArcGIS Online or Portal.
+- Copy the `id` value from the URL, such as `...?id=abc123def456`.
+- Use a test map first. `clone`, `status`, `diff`, `log`, and `commit` work locally, but `push` can update ArcGIS content.
+
 ```bash
 gitmap clone abc123def456
 cd YourMapTitle
@@ -134,6 +138,8 @@ To choose the local folder name yourself:
 gitmap clone abc123def456 --directory flood-risk-map
 cd flood-risk-map
 ```
+
+The clone command creates a local GitMap repository containing the web map JSON, GitMap metadata, and an initial commit for the current Portal state. It does not modify the Portal item.
 
 ### 3. Check the starting state
 
@@ -193,6 +199,8 @@ gitmap checkout main
 gitmap merge feature/hydrology-update
 gitmap push
 ```
+
+`gitmap push` publishes the current branch state back to the configured ArcGIS item or Portal-managed GitMap item, depending on repository configuration. Review diffs before pushing, and use a test web map until you are comfortable with the workflow.
 
 That is the core GitMap loop: **clone → branch → pull or edit → diff → commit → merge → push**.
 
