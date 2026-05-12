@@ -4480,7 +4480,7 @@
 <strong>Version:</strong> 3.0</p>
 <hr />
 <h2 id="abstract">Abstract<a class="headerlink" href="#abstract" title="Permanent link">&para;</a></h2>
-<p>Web maps published through ArcGIS Online (AGOL) and ArcGIS Enterprise Portal are stateful, JSON-encoded GIS artifacts whose operational layer configurations, symbology, popups, and cartographic properties evolve continuously. Despite this complexity, Esri's platform offers no native mechanism to snapshot, branch, or revert a web map's JSON definition—leaving GIS professionals dependent on ad hoc strategies such as item cloning, manual change logs, or informal naming conventions ("Map_v3_FINAL_2"). This paper presents <strong>Git-Map</strong> (v0.6.0+), a Python-based version control system that applies Git's conceptual model—commits, branches, merges, cherry-picks, stashes, reverts, and tags—to ArcGIS web map items. The system stores content-addressed snapshots of a map's operational layer JSON at each commit, implements a three-way merge algorithm at layer granularity, provides a <code>DeepDiff</code>-backed property-level diff engine, exposes operations through a Model Context Protocol (MCP) server for AI-agent workflows, wraps nine operations as a native ArcGIS Pro Python Toolbox, maintains an SQLite-backed event graph (<code>ContextStore</code>) for episodic memory and context awareness, and ships as a pip-installable monorepo with 660+ tests achieving ~96% coverage. The architecture is publicly documented and distributed under the MIT license, targeting community adoption among the GIS professional community.</p>
+<p>Web maps published through ArcGIS Online (AGOL) and ArcGIS Enterprise Portal are stateful, JSON-encoded GIS artifacts whose operational layer configurations, symbology, popups, and cartographic properties evolve continuously. Despite this complexity, Esri's platform offers no native mechanism to snapshot, branch, or revert a web map's JSON definition—leaving GIS professionals dependent on ad hoc strategies such as item cloning, manual change logs, or informal naming conventions ("Map_v3_FINAL_2"). This paper presents <strong>Git-Map</strong> (v0.6.0+), a Python-based version control system that applies Git's conceptual model—commits, branches, merges, cherry-picks, stashes, reverts, and tags—to ArcGIS web map items. The system stores content-addressed snapshots of a map's operational layer JSON at each commit, implements a three-way merge algorithm at layer granularity, provides a <code>DeepDiff</code>-backed property-level diff engine, exposes operations through a Model Context Protocol (MCP) server for AI-agent workflows, wraps nine operations as a native ArcGIS Pro Python Toolbox, maintains an SQLite-backed event graph (<code>ContextStore</code>) for episodic memory and context awareness, and ships as a pip-installable monorepo with 785+ tests. The architecture is publicly documented and distributed under the MIT license, targeting community adoption among the GIS professional community.</p>
 <hr />
 <h2 id="1-introduction">1. Introduction<a class="headerlink" href="#1-introduction" title="Permanent link">&para;</a></h2>
 <h3 id="11-problem-statement">1.1 Problem Statement<a class="headerlink" href="#11-problem-statement" title="Permanent link">&para;</a></h3>
@@ -5369,7 +5369,7 @@
 </code></pre></div>
 <h3 id="43-pypi-package-distribution">4.3 PyPI Package Distribution<a class="headerlink" href="#43-pypi-package-distribution" title="Permanent link">&para;</a></h3>
 <p>Three packages published to PyPI:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gitmap-core<span class="w">    </span><span class="c1"># Core library: 660+ tests, 96% coverage</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gitmap-core<span class="w">    </span><span class="c1"># Core library: 785+ tests</span>
 <a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>pip<span class="w"> </span>install<span class="w"> </span>gitmap-cli<span class="w">     </span><span class="c1"># CLI: installs &#39;gitmap&#39; command</span>
 <a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>pip<span class="w"> </span>install<span class="w"> </span>gitmap-mcp<span class="w">     </span><span class="c1"># MCP server for AI agents</span>
 </code></pre></div>
@@ -5534,7 +5534,7 @@
 <a id="__codelineno-24-34" name="__codelineno-24-34" href="#__codelineno-24-34"></a>│   ├── maps.py           merge.py     models.py
 <a id="__codelineno-24-35" name="__codelineno-24-35" href="#__codelineno-24-35"></a>│   ├── remote.py         repository.py  visualize.py
 <a id="__codelineno-24-36" name="__codelineno-24-36" href="#__codelineno-24-36"></a>│   ├── pyproject.toml
-<a id="__codelineno-24-37" name="__codelineno-24-37" href="#__codelineno-24-37"></a>│   └── tests/ (660+ tests)
+<a id="__codelineno-24-37" name="__codelineno-24-37" href="#__codelineno-24-37"></a>│   └── tests/ (785+ tests)
 <a id="__codelineno-24-38" name="__codelineno-24-38" href="#__codelineno-24-38"></a>├── docs/
 <a id="__codelineno-24-39" name="__codelineno-24-39" href="#__codelineno-24-39"></a>│   ├── getting-started/   commands/   guides/
 <a id="__codelineno-24-40" name="__codelineno-24-40" href="#__codelineno-24-40"></a>├── documentation/project_specs/
@@ -5614,7 +5614,7 @@
 </tbody>
 </table>
 <h3 id="104-test-coverage-summary">10.4 Test Coverage Summary<a class="headerlink" href="#104-test-coverage-summary" title="Permanent link">&para;</a></h3>
-<p>As of March 2026:</p>
+<p>As of May 2026:</p>
 <table>
 <thead>
 <tr>
@@ -5626,23 +5626,13 @@
 <tbody>
 <tr>
 <td><code>gitmap_core</code></td>
-<td>640+</td>
-<td>~96%</td>
-</tr>
-<tr>
-<td><code>gitmap_cli</code></td>
-<td>20+</td>
-<td>~70%</td>
-</tr>
-<tr>
-<td><code>gitmap_mcp</code></td>
-<td>15+</td>
-<td>~65%</td>
+<td>785+</td>
+<td>Measured in CI</td>
 </tr>
 <tr>
 <td><strong>Total</strong></td>
-<td><strong>660+</strong></td>
-<td><strong>~90% (aggregate)</strong></td>
+<td><strong>785+</strong></td>
+<td>Measured in CI</td>
 </tr>
 </tbody>
 </table>
