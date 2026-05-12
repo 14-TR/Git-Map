@@ -37,6 +37,12 @@ $ gitmap push
 Pushed main to Portal
 ```
 
+## Demo
+
+A 60-90 second demo script is available at [`marketing/demo-script.md`](marketing/demo-script.md). The planned recording will show the safe test-map workflow: clone, branch, pull/edit, diff, commit, merge, and push.
+
+Until the video or GIF is recorded, the script documents the exact commands, narration, and safety notes for the first public demo.
+
 ## Why GIS teams use GitMap
 
 ArcGIS web maps are JSON documents with real history, but most teams still manage them like opaque Portal items. That creates familiar problems:

@@ -11,7 +11,8 @@
 Before posting anywhere, nail the first-impression UX:
 
 ### Must-haves
-- [ ] **Demo GIF / video** (60–90 sec) showing the core workflow: init → commit → branch → diff → merge
+- [ ] **Demo GIF / video** (60-90 sec) showing the core workflow: clone -> branch -> diff -> commit -> merge -> push
+  - Demo script lives in `marketing/demo-script.md`
   - Use `terminalizer` or `asciinema` for terminal recording
   - Embed in README and landing page
   - Upload to YouTube for portability
