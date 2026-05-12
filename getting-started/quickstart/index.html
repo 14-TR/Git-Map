@@ -660,6 +660,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#first-run-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First-Run Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1929,6 +1940,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#first-run-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First-Run Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1951,11 +1973,13 @@
 
 <h1 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h1>
 <p>Get from zero to your first committed map version in under 5 minutes.</p>
+<p>For the first run, use a non-production test web map that you own or can safely modify. Most GitMap commands are local-only, but <code>gitmap push</code> can update ArcGIS content.</p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <p>Make sure you have gitmap installed:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gitmap-cli
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>gitmap<span class="w"> </span>--version
 </code></pre></div>
+<p>You also need an ArcGIS Online or Portal web map item ID. Open the web map item page and copy the <code>id</code> value from the URL, such as <code>...?id=abc123def456</code>.</p>
 <h2 id="1-set-up-credentials">1. Set Up Credentials<a class="headerlink" href="#1-set-up-credentials" title="Permanent link">&para;</a></h2>
 <p>Before connecting to Portal, export your credentials:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PORTAL_URL</span><span class="o">=</span>https://your-org.maps.arcgis.com
@@ -1972,7 +1996,7 @@
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">cd</span><span class="w"> </span>YourMapTitle
 </code></pre></div>
 <p>Replace <code>abc123def456</code> with your web map's item ID (visible in the Portal URL).</p>
-<p>This creates a local repository with the map's current state as the initial commit.</p>
+<p>This creates a local repository with the map's current state as the initial commit. The local folder contains GitMap metadata and tracked web map JSON. Cloning reads from Portal; it does not change the Portal item.</p>
 <h2 id="3-check-status">3. Check Status<a class="headerlink" href="#3-check-status" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>gitmap<span class="w"> </span>status
 </code></pre></div>
@@ -1982,6 +2006,7 @@
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>╰─────────────────╯
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Nothing to commit, working tree clean
 </code></pre></div>
+<p>If you see an error here, check that you are inside the folder created by <code>gitmap clone</code> and that the clone completed successfully.</p>
 <h2 id="4-create-a-branch-and-experiment">4. Create a Branch and Experiment<a class="headerlink" href="#4-create-a-branch-and-experiment" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>gitmap<span class="w"> </span>branch<span class="w"> </span>feature/new-basemap
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>gitmap<span class="w"> </span>checkout<span class="w"> </span>feature/new-basemap
@@ -2015,7 +2040,15 @@
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>gitmap<span class="w"> </span>merge<span class="w"> </span>feature/new-basemap
 <a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>gitmap<span class="w"> </span>push
 </code></pre></div>
-<p>The map is now live in Portal.</p>
+<p><code>gitmap push</code> is the step that can update ArcGIS content. Review the diff before pushing, and keep using a test map until the workflow is familiar.</p>
+<h2 id="first-run-troubleshooting">First-Run Troubleshooting<a class="headerlink" href="#first-run-troubleshooting" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Missing credentials: set <code>ARCGIS_USERNAME</code>, <code>ARCGIS_PASSWORD</code>, and <code>PORTAL_URL</code>, or create a local <code>.env</code> file.</li>
+<li>Missing command: install with <code>pip install gitmap-cli</code>, then run <code>gitmap --version</code>.</li>
+<li>Wrong item ID: copy the web map item ID from the ArcGIS item page URL, not the map title or layer ID.</li>
+<li>Wrong directory: run GitMap commands from the folder created by <code>gitmap clone</code>.</li>
+<li>Permission denied: confirm your ArcGIS account can read the map and can edit it before trying <code>gitmap push</code>.</li>
+</ul>
 <hr />
 <p>Next: <a href="../concepts/">Core Concepts →</a></p>
 
