@@ -10,8 +10,8 @@ Key Features:
     - Returns dict with stdout, stderr, returncode, and parsed data
 
 Dependencies:
-    - gitmap CLI (pip install -e ~/Desktop/Git-Map/apps/cli/gitmap)
-    - gitmap_core (pip install -e ~/Desktop/Git-Map/packages/gitmap_core)
+    - gitmap CLI (pip install -e $GITMAP_ROOT/apps/cli/gitmap)
+    - gitmap_core (pip install -e $GITMAP_ROOT/packages/gitmap_core)
 
 Metadata:
     Author: OpenClaw
@@ -21,16 +21,34 @@ Metadata:
 from __future__ import annotations
 
 import os
-import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Optional
 
 
 # ---- Constants -----------------------------------------------------------------------
+def _default_gitmap_root() -> Path:
+    """
+    Resolve the GitMap source tree used by local fallback imports.
 
-GITMAP_CLI_DIR = Path.home() / "Desktop" / "Git-Map"
+    Returns:
+        Path: GitMap repository root, preferring GITMAP_ROOT when set and
+            otherwise walking upward from this integration directory.
+    """
+    configured_root = os.environ.get("GITMAP_ROOT")
+    if configured_root:
+        return Path(configured_root).expanduser().resolve()
+
+    for candidate in Path(__file__).resolve().parents:
+        if (candidate / "apps" / "cli" / "gitmap").exists() and (candidate / "packages" / "gitmap_core").exists():
+            return candidate
+
+    return Path.home() / "Desktop" / "Git-Map"
+
+
+GITMAP_CLI_DIR = _default_gitmap_root()
 GITMAP_CORE_PKG = str(GITMAP_CLI_DIR / "packages" / "gitmap_core")
 GITMAP_CLI_PKG = str(GITMAP_CLI_DIR / "apps" / "cli" / "gitmap")
 
@@ -49,8 +67,9 @@ def _find_gitmap() -> list[str]:
     if shutil.which("gitmap"):
         return ["gitmap"]
 
-    # Fallback: run as Python module from the source directory
-    python = shutil.which("python3") or shutil.which("python") or "python3"
+    # Fallback: run as Python module from the source directory using the
+    # interpreter that is running the skill server so installed dependencies match.
+    python = sys.executable or shutil.which("python3") or shutil.which("python") or "python3"
     main_py = GITMAP_CLI_DIR / "apps" / "cli" / "gitmap" / "main.py"
     if main_py.exists():
         return [python, str(main_py)]
@@ -81,6 +100,14 @@ def _run(
     full_cmd = cmd_prefix + args
 
     env = os.environ.copy()
+    gitmap_python_paths = [
+        str(GITMAP_CLI_DIR / "packages"),
+        str(GITMAP_CLI_DIR / "apps" / "cli"),
+    ]
+    existing_pythonpath = env.get("PYTHONPATH")
+    if existing_pythonpath:
+        gitmap_python_paths.append(existing_pythonpath)
+    env["PYTHONPATH"] = os.pathsep.join(gitmap_python_paths)
     if extra_env:
         env.update(extra_env)
 
@@ -188,10 +215,10 @@ def gitmap_list(
     """
     import sys
 
-    # Add Git-Map packages to path
-    gitmap_dir = os.path.expanduser("~/Desktop/Git-Map")
-    sys.path.insert(0, os.path.join(gitmap_dir, "packages"))
-    sys.path.insert(0, os.path.join(gitmap_dir, "apps", "cli"))
+    # Add GitMap packages to path
+    gitmap_dir = GITMAP_CLI_DIR
+    sys.path.insert(0, str(gitmap_dir / "packages"))
+    sys.path.insert(0, str(gitmap_dir / "apps" / "cli"))
 
     try:
         from gitmap_core.connection import get_connection
@@ -418,10 +445,10 @@ def gitmap_log(
     """
     import sys
 
-    # Add Git-Map packages to path
-    gitmap_dir = os.path.expanduser("~/Desktop/Git-Map")
-    sys.path.insert(0, os.path.join(gitmap_dir, "packages"))
-    sys.path.insert(0, os.path.join(gitmap_dir, "apps", "cli"))
+    # Add GitMap packages to path
+    gitmap_dir = GITMAP_CLI_DIR
+    sys.path.insert(0, str(gitmap_dir / "packages"))
+    sys.path.insert(0, str(gitmap_dir / "apps" / "cli"))
 
     try:
         from gitmap_core.repository import find_repository

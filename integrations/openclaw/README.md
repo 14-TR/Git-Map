@@ -4,10 +4,11 @@ OpenClaw plugin for Git-Map version control. Provides 8 tools for managing ArcGI
 
 ## Prerequisites
 
-- **Git-Map installed** — `~/Desktop/Git-Map` with packages installed:
+- **Git-Map installed** — this repository checkout, or another checkout pointed to by `GITMAP_ROOT`:
   ```bash
-  pip install -e ~/Desktop/Git-Map/packages/gitmap_core
-  pip install -e ~/Desktop/Git-Map/apps/cli/gitmap
+  export GITMAP_ROOT="/path/to/git-map"  # optional when running from this integration directory
+  pip install -e "$GITMAP_ROOT/packages/gitmap_core"
+  pip install -e "$GITMAP_ROOT/apps/cli/gitmap"
   ```
 
 - **OpenClaw installed** — Gateway running with plugin support
@@ -23,7 +24,8 @@ OpenClaw plugin for Git-Map version control. Provides 8 tools for managing ArcGI
 
 1. **Start the GitMap skill server:**
    ```bash
-   cd ~/Desktop/Git-Map/integrations/openclaw
+   cd /path/to/git-map/integrations/openclaw
+   export GITMAP_ROOT="$(cd ../.. && pwd)"
    python3 server.py
    ```
    Or use the installer script:
@@ -58,9 +60,14 @@ OpenClaw plugin for Git-Map version control. Provides 8 tools for managing ArcGI
 
 | Variable | Description |
 |----------|-------------|
+| `GITMAP_ROOT` | GitMap source checkout used by local fallback imports; optional when the server runs from this repo |
 | `PORTAL_URL` | ArcGIS Portal or AGOL URL (required) |
 | `ARCGIS_USERNAME` | Portal username |
 | `ARCGIS_PASSWORD` | Portal password |
+
+The OpenClaw plugin schema also supports `serverUrl` for pointing the TypeScript
+plugin at a non-default GitMap skill server URL. The default is
+`http://localhost:7400`.
 
 Alternatively, pass credentials directly to tools as parameters.
 
@@ -85,6 +92,7 @@ Alternatively, pass credentials directly to tools as parameters.
 
 ## Troubleshooting
 
-- **Server not starting**: Check Python dependencies are installed
+- **Server not starting**: Check Python dependencies are installed and `GITMAP_ROOT` points at a valid GitMap checkout if you are not running from this repository
+- **Wrong repo path**: OpenClaw sends `repo_path`; the Python server normalizes it to the CLI wrapper `cwd` parameter
 - **Tools not working**: Ensure `PORTAL_URL` is set and credentials are valid
 - **Plugin not loading**: Run `openclaw plugins list` to verify installation
