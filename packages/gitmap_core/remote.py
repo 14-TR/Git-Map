@@ -24,12 +24,12 @@ from typing import TYPE_CHECKING, Any
 from gitmap_core.communication import notify_item_group_users
 from gitmap_core.compat import create_folder as compat_create_folder
 from gitmap_core.compat import get_user_folders
-from gitmap_core.connection import PortalConnection
-from gitmap_core.models import Remote
 
 if TYPE_CHECKING:
     from arcgis.gis import GIS, Item
 
+    from gitmap_core.connection import PortalConnection
+    from gitmap_core.models import Remote
     from gitmap_core.repository import Repository
 
 
@@ -462,11 +462,12 @@ class RemoteOperations:
             prefixed_title = f"{self.config.project_name}_{item_title}"
 
             for item in items:
-                if item.type == "Web Map":
-                    if item.title == prefixed_title or item.title == item_title:
-                        # Verify it's a GitMap item by checking tags
-                        if "GitMap" in (item.tags or []):
-                            return item
+                if (
+                    item.type == "Web Map"
+                    and (item.title == prefixed_title or item.title == item_title)
+                    and "GitMap" in (item.tags or [])
+                ):
+                    return item
 
             return None
 
@@ -609,8 +610,9 @@ class RemoteOperations:
                 msg = "No remote configured"
                 raise RuntimeError(msg)
 
-            # For main branch, if we have the original item_id, pull from it directly
-            if branch == "main" and self.remote.item_id:
+            # Single-item clone workflows may not have a GitMap remote folder yet.
+            # In that case, pull the cloned Portal item into the requested local branch.
+            if self.remote.item_id and (branch == "main" or not self.remote.folder_id):
                 try:
                     original_item = self.gis.content.get(self.remote.item_id)
                     if original_item and original_item.type == "Web Map":
