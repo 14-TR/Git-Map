@@ -1,12 +1,21 @@
 /**
  * Git-Map OpenClaw Plugin
- * Proxies tool calls to the gitmap-skill Python server on port 7400.
+ * Proxies tool calls to the gitmap-skill Python server on port 7400 by default.
  */
 
-const SERVER_URL = "http://localhost:7400";
+const DEFAULT_SERVER_URL = "http://localhost:7400";
 
-async function callTool(name: string, args: Record<string, unknown>) {
-  const res = await fetch(`${SERVER_URL}/tools/${name}`, {
+function getServerUrl(api: any): string {
+  const config = api?.config ?? api?.getConfig?.() ?? {};
+  const configuredUrl = config?.serverUrl;
+
+  return typeof configuredUrl === "string" && configuredUrl.length > 0
+    ? configuredUrl
+    : DEFAULT_SERVER_URL;
+}
+
+async function callTool(serverUrl: string, name: string, args: Record<string, unknown>) {
+  const res = await fetch(`${serverUrl}/tools/${name}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(args),
@@ -17,6 +26,8 @@ async function callTool(name: string, args: Record<string, unknown>) {
 }
 
 export default function (api: any) {
+  const serverUrl = getServerUrl(api);
+
   api.registerTool(
     {
       name: "gitmap_list",
@@ -31,7 +42,7 @@ export default function (api: any) {
         },
       },
       async execute(_id: string, params: Record<string, unknown>) {
-        return callTool("gitmap_list", params);
+        return callTool(serverUrl, "gitmap_list", params);
       },
     },
     { optional: true },
@@ -48,7 +59,7 @@ export default function (api: any) {
         },
       },
       async execute(_id: string, params: Record<string, unknown>) {
-        return callTool("gitmap_status", params);
+        return callTool(serverUrl, "gitmap_status", params);
       },
     },
     { optional: true },
@@ -68,7 +79,7 @@ export default function (api: any) {
         required: ["message"],
       },
       async execute(_id: string, params: Record<string, unknown>) {
-        return callTool("gitmap_commit", params);
+        return callTool(serverUrl, "gitmap_commit", params);
       },
     },
     { optional: true },
@@ -88,7 +99,7 @@ export default function (api: any) {
         required: ["action"],
       },
       async execute(_id: string, params: Record<string, unknown>) {
-        return callTool("gitmap_branch", params);
+        return callTool(serverUrl, "gitmap_branch", params);
       },
     },
     { optional: true },
@@ -107,7 +118,7 @@ export default function (api: any) {
         },
       },
       async execute(_id: string, params: Record<string, unknown>) {
-        return callTool("gitmap_diff", params);
+        return callTool(serverUrl, "gitmap_diff", params);
       },
     },
     { optional: true },
@@ -124,7 +135,7 @@ export default function (api: any) {
         },
       },
       async execute(_id: string, params: Record<string, unknown>) {
-        return callTool("gitmap_push", params);
+        return callTool(serverUrl, "gitmap_push", params);
       },
     },
     { optional: true },
@@ -141,7 +152,7 @@ export default function (api: any) {
         },
       },
       async execute(_id: string, params: Record<string, unknown>) {
-        return callTool("gitmap_pull", params);
+        return callTool(serverUrl, "gitmap_pull", params);
       },
     },
     { optional: true },
@@ -160,7 +171,7 @@ export default function (api: any) {
         },
       },
       async execute(_id: string, params: Record<string, unknown>) {
-        return callTool("gitmap_log", params);
+        return callTool(serverUrl, "gitmap_log", params);
       },
     },
     { optional: true },

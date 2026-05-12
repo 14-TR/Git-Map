@@ -14,16 +14,62 @@ from __future__ import annotations
 
 import importlib.util
 import subprocess
+import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 TOOLS_PATH = Path(__file__).resolve().parents[1] / "tools.py"
+SERVER_PATH = Path(__file__).resolve().parents[1] / "server.py"
 TOOLS_SPEC = importlib.util.spec_from_file_location("gitmap_openclaw_tools", TOOLS_PATH)
 gitmap_tools = importlib.util.module_from_spec(TOOLS_SPEC)
 assert TOOLS_SPEC.loader is not None
 TOOLS_SPEC.loader.exec_module(gitmap_tools)
+
+SERVER_SPEC = importlib.util.spec_from_file_location("gitmap_openclaw_server", SERVER_PATH)
+gitmap_server = importlib.util.module_from_spec(SERVER_SPEC)
+assert SERVER_SPEC.loader is not None
+SERVER_SPEC.loader.exec_module(gitmap_server)
+
+
+class TestGitmapRoot:
+    """Tests for GitMap source tree discovery."""
+
+    def test_default_root_is_current_repository(self) -> None:
+        """Default fallback resolves to the checked-out GitMap repository."""
+        repo_root = Path(__file__).resolve().parents[3]
+
+        assert repo_root == gitmap_tools.GITMAP_CLI_DIR
+
+
+class TestServerParameterNormalization:
+    """Tests for OpenClaw plugin parameter compatibility."""
+
+    def test_repo_path_is_normalized_to_cwd(self) -> None:
+        """OpenClaw's repo_path parameter is accepted by Python tools as cwd."""
+        params = gitmap_server.normalize_tool_params(
+            "gitmap_status",
+            {"repo_path": "/tmp/map-repo"},
+        )
+
+        assert params == {"cwd": "/tmp/map-repo"}
+
+    def test_branch_action_delete_is_normalized(self) -> None:
+        """OpenClaw's branch action enum maps to Python branch arguments."""
+        params = gitmap_server.normalize_tool_params(
+            "gitmap_branch",
+            {"repo_path": "/tmp/map-repo", "action": "delete", "name": "old"},
+        )
+
+        assert params == {"cwd": "/tmp/map-repo", "name": "old", "delete": True}
+
+    def test_diff_target_is_normalized_to_branch(self) -> None:
+        """OpenClaw's diff target parameter maps to the Python branch parameter."""
+        params = gitmap_server.normalize_tool_params(
+            "gitmap_diff",
+            {"repo_path": "/tmp/map-repo", "target": "main", "verbose": True},
+        )
+
+        assert params == {"cwd": "/tmp/map-repo", "branch": "main"}
 
 
 # ---- _find_gitmap() ------------------------------------------------------------------
@@ -40,12 +86,10 @@ class TestFindGitmap:
 
     def test_falls_back_to_main_py_when_not_in_path(self, tmp_path: Path) -> None:
         """Falls back to python main.py when gitmap not in PATH."""
-        # Patch shutil.which: gitmap absent, python3 present
+        # Patch shutil.which: gitmap absent; fallback should use current Python.
         def which_side_effect(name: str):
             if name == "gitmap":
                 return None
-            if name == "python3":
-                return "/usr/bin/python3"
             return None
 
         # Patch GITMAP_CLI_DIR so the main.py path exists
@@ -57,7 +101,7 @@ class TestFindGitmap:
              patch.object(gitmap_tools, "GITMAP_CLI_DIR", tmp_path):
             result = gitmap_tools._find_gitmap()
 
-        assert "/usr/bin/python3" in result[0]
+        assert result[0] == sys.executable
         assert str(fake_main) in result[-1]
 
     def test_falls_back_to_module_when_main_py_missing(self) -> None:
@@ -150,6 +194,15 @@ class TestRun:
         mock_run.assert_called_once()
         call_kwargs = mock_run.call_args[1]
         assert call_kwargs["cwd"] == str(tmp_path)
+
+    def test_adds_gitmap_paths_to_pythonpath(self) -> None:
+        """Fallback CLI subprocesses can import gitmap_core from the source tree."""
+        with patch("subprocess.run", return_value=self._mock_completed_process()) as mock_run:
+            gitmap_tools._run(["status"])
+
+        pythonpath = mock_run.call_args[1]["env"]["PYTHONPATH"]
+        assert str(gitmap_tools.GITMAP_CLI_DIR / "packages") in pythonpath
+        assert str(gitmap_tools.GITMAP_CLI_DIR / "apps" / "cli") in pythonpath
 
     def test_merges_extra_env(self) -> None:
         """Extra environment variables are merged into the subprocess env."""

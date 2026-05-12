@@ -112,6 +112,40 @@ TOOL_REGISTRY = {
 }
 
 
+# ---- Parameter compatibility ----------------------------------------------------------
+def normalize_tool_params(tool_name: str, params: dict) -> dict:
+    """
+    Normalize OpenClaw plugin parameters to the Python tool function API.
+
+    Args:
+        tool_name: Tool being called.
+        params: Raw JSON body from the OpenClaw plugin.
+
+    Returns:
+        dict: Parameters safe to pass to the target Python tool function.
+    """
+    normalized = dict(params)
+
+    repo_path = normalized.pop("repo_path", None)
+    if repo_path is not None and "cwd" not in normalized:
+        normalized["cwd"] = repo_path
+
+    if tool_name == "gitmap_branch":
+        action = normalized.pop("action", None)
+        if action == "delete":
+            normalized["delete"] = True
+        elif action in {"list", "create", None}:
+            normalized.pop("delete", None)
+
+    if tool_name == "gitmap_diff":
+        target = normalized.pop("target", None)
+        normalized.pop("verbose", None)
+        if target and "branch" not in normalized and "commit" not in normalized:
+            normalized["branch"] = target
+
+    return normalized
+
+
 # ---- HTTP Handler --------------------------------------------------------------------
 
 class GitMapHandler(BaseHTTPRequestHandler):
@@ -189,7 +223,7 @@ class GitMapHandler(BaseHTTPRequestHandler):
             )
             return
 
-        params = self.read_body()
+        params = normalize_tool_params(tool_name, self.read_body())
         tool_fn = TOOL_REGISTRY[tool_name]["fn"]
 
         try:
