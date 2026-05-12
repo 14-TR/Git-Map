@@ -470,6 +470,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#demo-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Demo Script
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#core-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1804,6 +1815,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#demo-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Demo Script
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#core-workflow" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1895,11 +1917,18 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gitmap-cli
 </code></pre></div>
 <p>This installs the <code>gitmap</code> console command. Then see the <a href="getting-started/quickstart/">Quickstart</a> to run your first commit in under 5 minutes.</p>
+<h2 id="demo-script">Demo Script<a class="headerlink" href="#demo-script" title="Permanent link">&para;</a></h2>
+<p>The first public demo is being prepared in <code>marketing/demo-script.md</code>. It walks through a safe test-map workflow: clone, branch, pull/edit, diff, commit, merge, and push.</p>
 <h2 id="core-workflow">Core Workflow<a class="headerlink" href="#core-workflow" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>gitmap<span class="w"> </span>init<span class="w">          </span><span class="c1"># Start tracking a directory</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>gitmap<span class="w"> </span>pull<span class="w">          </span><span class="c1"># Fetch current map from Portal</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>gitmap<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;My change&quot;</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>gitmap<span class="w"> </span>push<span class="w">          </span><span class="c1"># Deploy to Portal</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>gitmap<span class="w"> </span>clone<span class="w"> </span>&lt;ITEM_ID&gt;<span class="w"> </span>--directory<span class="w"> </span>my-test-map
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>gitmap<span class="w"> </span>branch<span class="w"> </span>feature/map-update
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>gitmap<span class="w"> </span>checkout<span class="w"> </span>feature/map-update
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>gitmap<span class="w"> </span>pull<span class="w">          </span><span class="c1"># Fetch current map from Portal</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>gitmap<span class="w"> </span>diff<span class="w"> </span>main<span class="w"> </span>feature/map-update<span class="w"> </span>--format<span class="w"> </span>visual
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>gitmap<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Review map update&quot;</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>gitmap<span class="w"> </span>checkout<span class="w"> </span>main
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>gitmap<span class="w"> </span>merge<span class="w"> </span>feature/map-update
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>gitmap<span class="w"> </span>push<span class="w">          </span><span class="c1"># Publish the approved state to Portal</span>
 </code></pre></div>
 <h2 id="feature-highlights">Feature Highlights<a class="headerlink" href="#feature-highlights" title="Permanent link">&para;</a></h2>
 <ul>
