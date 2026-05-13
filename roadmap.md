@@ -30,6 +30,43 @@ Shipped or substantially in place:
 - **Prototype:** MCP/agent workflow surfaces exist, but should stay secondary
   until the core GIS-user onboarding path is validated.
 
+## May 2026 GIS product roadmap refresh
+
+This refresh narrows GitMap's next product proof to one outcome: a real GIS
+analyst can use GitMap on a disposable ArcGIS web map, understand what changed,
+and trust the review path before anything is pushed back to Portal.
+
+### Near-term user-facing proof
+
+- Publish a 60-90 second demo that shows clone, branch, edit, diff, review,
+  merge, and push against a safe sample map.
+- Run the quickstart from a clean environment and document every friction point
+  a first user would hit around install, credentials, item IDs, and push safety.
+- Turn one disposable sample workflow into a repeatable validation packet with
+  expected command output and screenshots or terminal capture.
+- Ask 1-3 GIS users to complete the quickstart without coaching, then convert
+  observed blockers into labeled GitHub issues.
+
+### Reliability gates before broader adoption
+
+- Full pytest suite and mkdocs strict build pass on every adoption/docs PR.
+- Clean-environment install smoke verifies the published package and source
+  install path both reach `gitmap --help`.
+- Sample workflow proves `gitmap diff` and `gitmap push` warnings are clear
+  before any Portal write.
+- Public docs and PR text contain no private hosts, tokens, tailnet URLs, or
+  production map IDs.
+
+### Repo and docs gaps
+
+- README and docs have demo placeholders, but no final recorded demo asset yet.
+- ArcGIS Pro and OpenClaw integrations are real prototypes; their docs must keep
+  prototype language until each path is validated end-to-end.
+- Contributor activation needs issue labels and small scoped issue templates tied
+  to the tracks below.
+- The technical paper and marketing surfaces need one more pass after real-user
+  validation so they reflect observed adoption friction rather than assumptions.
+
 ## Roadmap principles
 
 1. **Adoption before polish loops.** Prioritize the first successful user
