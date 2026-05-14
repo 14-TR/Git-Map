@@ -768,6 +768,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#first-run-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First-run checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#notes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1809,6 +1820,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#first-run-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First-run checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#notes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1841,6 +1863,9 @@
 
 <h1 id="gitmap-clone">gitmap clone<a class="headerlink" href="#gitmap-clone" title="Permanent link">&para;</a></h1>
 <p>Clone a web map from Portal into a new local repository.</p>
+<p>Use a non-production test web map for your first clone. <code>clone</code> reads the
+Portal item and creates a local GitMap repository; it does not modify the
+Portal item.</p>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gitmap<span class="w"> </span>clone<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>ITEM_ID<span class="w"> </span><span class="o">[</span>PATH<span class="o">]</span>
 </code></pre></div>
@@ -1881,10 +1906,19 @@
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Clone from a specific Portal</span>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>gitmap<span class="w"> </span>clone<span class="w"> </span>abc123def456<span class="w"> </span>--url<span class="w"> </span>https://portal.example.com
 </code></pre></div>
+<h2 id="first-run-checklist">First-run checklist<a class="headerlink" href="#first-run-checklist" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Open the web map item page in ArcGIS Online or Portal.</li>
+<li>Copy the item ID from the URL, such as <code>...?id=abc123def456</code>.</li>
+<li>Confirm the map is safe to test against before cloning it.</li>
+<li>Configure credentials through <code>PORTAL_URL</code> and <code>ARCGIS_USERNAME</code>, or through the matching GitMap config values.</li>
+<li>Run <code>gitmap status</code> after cloning to confirm the new repository is on <code>main</code> with a clean working tree.</li>
+</ol>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>clone</code> initializes a new repo, connects to Portal, pulls the specified item, and creates an initial commit — all in one step.</li>
 <li>Equivalent to <code>gitmap init &amp;&amp; gitmap pull &amp;&amp; gitmap commit -m "Initial clone"</code>.</li>
+<li>The generated <code>.gitmap/</code> directory contains local repository state for the cloned map. Keep it with the project folder if you want to preserve history.</li>
 </ul>
 
 
