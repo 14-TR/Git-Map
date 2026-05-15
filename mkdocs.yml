@@ -73,6 +73,9 @@ nav:
     - Branching Strategy: guides/branching.md
     - Working with Portals: guides/portals.md
     - Python API Reference: guides/api-reference.md
+  - Validation:
+    - First-User Test: validation/first-user-test.md
+    - Feedback Questionnaire: validation/feedback-questionnaire.md
   - Contributing: contributing.md
   - Technical Paper: technical-paper.md
 
