@@ -9,16 +9,16 @@ Portal item.
 ## Usage
 
 ```bash
-gitmap clone [OPTIONS] ITEM_ID [PATH]
+gitmap clone [OPTIONS] ITEM_ID
 ```
 
 ## Options
 
 | Option | Short | Description |
 |--------|-------|-------------|
-| `--url` | `-u` | Portal URL |
-| `--username` | | Portal username |
-| `--branch` | `-b` | Branch name to create (default: `main`) |
+| `--directory` | `-d` | Directory to clone into (defaults to map title) |
+| `--url` | `-u` | Portal URL (defaults to ArcGIS Online) |
+| `--username` | | Portal username, or use `ARCGIS_USERNAME` |
 
 ## Examples
 
@@ -27,7 +27,7 @@ gitmap clone [OPTIONS] ITEM_ID [PATH]
 gitmap clone abc123def456
 
 # Clone to a named directory
-gitmap clone abc123def456 my-project
+gitmap clone abc123def456 --directory my-project
 
 # Clone from a specific Portal
 gitmap clone abc123def456 --url https://portal.example.com
