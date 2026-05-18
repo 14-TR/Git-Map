@@ -18,6 +18,7 @@ from __future__ import annotations
 # The package dir is named 'gitmap' but the package name is 'gitmap_cli' (via pyproject.toml mapping)
 # When not pip-installed, we register it manually as a module alias
 import os
+import re
 import subprocess
 import sys
 import types
@@ -194,6 +195,22 @@ class TestCommandRegistration:
         assert "Try 'gitmap --help' for help." in combined_output
         assert "Run 'gitmap --help' to see the full command list." in combined_output
         assert "Try 'main.py --help' for help." not in combined_output
+
+    def test_documented_diff_options_exist_in_cli_help(self, runner: CliRunner) -> None:
+        """Documented gitmap diff examples should not mention stale options."""
+        repo_root = Path(__file__).resolve().parents[3]
+        diff_help = runner.invoke(cli, ["diff", "--help"])
+        assert diff_help.exit_code == 0, f"diff --help failed:\n{diff_help.output}"
+
+        documented_options: set[str] = set()
+        for doc_path in (repo_root / "docs").rglob("*.md"):
+            for line in doc_path.read_text(encoding="utf-8").splitlines():
+                if not line.strip().startswith("gitmap diff"):
+                    continue
+                documented_options.update(re.findall(r"(?<!\\w)--[a-z][a-z-]*", line))
+
+        missing = sorted(option for option in documented_options if option not in diff_help.output)
+        assert not missing, f"Documented gitmap diff options missing from CLI help: {missing}"
 
     @pytest.mark.parametrize(
         ("mistyped", "expected"),

@@ -107,7 +107,7 @@ Branch 'feature/new-basemap' updated to a3f2c1b0
 ## 6. Review What Changed
 
 ```bash
-gitmap diff --branch main
+gitmap diff main feature/new-basemap --format visual
 ```
 
 Shows a layer-by-layer comparison between your feature branch and `main`.
