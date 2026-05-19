@@ -69,6 +69,8 @@ def clone(
     The map JSON is fetched from Portal and stored as the initial commit.
 
     Examples:
+
+    \b
         gitmap clone abc123def456
         gitmap clone abc123def456 --directory my-project
         gitmap clone abc123def456 --url https://portal.example.com

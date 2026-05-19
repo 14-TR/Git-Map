@@ -70,6 +70,8 @@ def pull(
     then save with 'gitmap commit'.
 
     Examples:
+
+    \b
         gitmap pull
         gitmap pull --branch main
         gitmap pull --url https://portal.example.com

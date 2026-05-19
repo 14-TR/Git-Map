@@ -256,6 +256,8 @@ def diff(
     commits directly — the staging area is not involved.
 
     Examples:
+
+    \b
         gitmap diff                               # Index vs HEAD
         gitmap diff main                          # Index vs main
         gitmap diff abc123                        # Index vs commit abc123
