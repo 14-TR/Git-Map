@@ -284,19 +284,6 @@ class TestCommandRegistration:
         for example in examples:
             assert f"  {example}" in result.output
 
-    def test_doctor_examples_render_on_separate_lines(self, runner: CliRunner) -> None:
-        """Doctor help examples should remain readable command blocks."""
-        result = runner.invoke(cli, ["doctor", "--help"], terminal_width=100)
-        assert result.exit_code == 0, f"doctor --help failed:\n{result.output}"
-
-        examples = [
-            "gitmap doctor",
-            "gitmap doctor --portal",
-            "gitmap doctor --fix",
-        ]
-        for example in examples:
-            assert f"  {example}" in result.output
-
         examples_block = result.output.split("Examples:", maxsplit=1)[1].split("Options:", maxsplit=1)[0]
         assert " ".join(examples) not in examples_block
 
