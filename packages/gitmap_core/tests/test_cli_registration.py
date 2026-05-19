@@ -213,6 +213,56 @@ class TestCommandRegistration:
         assert not missing, f"Documented gitmap diff options missing from CLI help: {missing}"
 
     @pytest.mark.parametrize(
+        ("command", "examples"),
+        [
+            (
+                "clone",
+                [
+                    "gitmap clone abc123def456",
+                    "gitmap clone abc123def456 --directory my-project",
+                    "gitmap clone abc123def456 --url https://portal.example.com",
+                ],
+            ),
+            (
+                "pull",
+                [
+                    "gitmap pull",
+                    "gitmap pull --branch main",
+                    "gitmap pull --url https://portal.example.com",
+                    'gitmap pull -r "Syncing production changes"',
+                ],
+            ),
+            (
+                "diff",
+                [
+                    "gitmap diff                               # Index vs HEAD",
+                    "gitmap diff main                          # Index vs main",
+                    "gitmap diff abc123                        # Index vs commit abc123",
+                    "gitmap diff main feature/new-layer        # Branch vs branch",
+                    "gitmap diff main feature --format visual  # Visual table view",
+                    "gitmap diff main feature --format json    # Machine-readable JSON",
+                    "gitmap diff abc123 def456                 # Commit vs commit",
+                ],
+            ),
+        ],
+    )
+    def test_first_user_command_examples_render_on_separate_lines(
+        self,
+        runner: CliRunner,
+        command: str,
+        examples: list[str],
+    ) -> None:
+        """First-user command help examples should remain readable command blocks."""
+        result = runner.invoke(cli, [command, "--help"], terminal_width=100)
+        assert result.exit_code == 0, f"{command} --help failed:\n{result.output}"
+
+        for example in examples:
+            assert f"  {example}" in result.output
+
+        examples_block = result.output.split("Examples:", maxsplit=1)[1].split("Options:", maxsplit=1)[0]
+        assert " ".join(examples) not in examples_block
+
+    @pytest.mark.parametrize(
         ("mistyped", "expected"),
         [
             ("statsu", "status"),
