@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import importlib.util
+import os
+import re
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -56,6 +60,46 @@ def test_release_metadata_requires_existing_readmes_and_typed_markers() -> None:
     release_checks._validate_package_metadata(release_checks.ROOT_PYPROJECT)
     release_checks._validate_package_metadata(release_checks.CORE_PYPROJECT)
     release_checks._validate_package_metadata(release_checks.CLI_PYPROJECT)
+
+
+def test_public_validation_evidence_matches_collected_core_tests() -> None:
+    """Public proof claims should stay in sync with pytest collection."""
+    env = {
+        **os.environ,
+        "PYTHONPATH": os.pathsep.join([str(REPO_ROOT / "packages"), str(REPO_ROOT)]),
+    }
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "--collect-only",
+            "-q",
+            "packages/gitmap_core/tests",
+        ],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    match = re.search(r"(\d+) tests collected", result.stdout)
+    assert match, result.stdout
+    collected_count = int(match.group(1))
+
+    public_claims = {
+        "README.md": f"tests-{collected_count}%2B",
+        "docs/contributing.md": f"{collected_count}+ tests",
+        "docs/technical-paper.md": f"{collected_count} collected core tests",
+        "marketing/blog-post.md": f"{collected_count}+ tests",
+        "marketing/launch-strategy.md": f"{collected_count}+ tests",
+        "marketing/reddit-rgis-post.md": f"{collected_count}+ tests",
+    }
+    for relative_path, expected_text in public_claims.items():
+        text = (REPO_ROOT / relative_path).read_text(encoding="utf-8")
+        assert expected_text in text, f"{relative_path} missing {expected_text!r}"
 
 
 @pytest.mark.parametrize(

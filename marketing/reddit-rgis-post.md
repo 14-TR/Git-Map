@@ -2,7 +2,7 @@
 
 ## Title Options (pick one)
 1. **I got tired of "who changed the basemap?" and built Git for ArcGIS web maps [OC]**
-2. **GitMap v0.6.0 — open-source version control for ArcGIS Online/Enterprise web maps**
+2. **GitMap v0.7.0 public alpha — open-source version control for ArcGIS Online/Enterprise web maps**
 3. **Branch, commit, diff, and merge ArcGIS web maps like Git — open source tool I built**
 
 ---
@@ -41,7 +41,7 @@ It stores snapshots of your web map JSON locally (in a `.gitmap/` directory), so
 - Get diff visualizations in Mermaid/git-graph/HTML
 
 **Current state:**
-- v0.6.0+, 785+ tests, Python 3.11/3.12/3.13/3.14
+- v0.7.0 public alpha, 791+ tests, Python 3.11/3.12/3.13/3.14
 - 18 Git-like commands
 - ArcGIS Pro toolbox (9 native tools)
 - MCP server for AI agent integration
@@ -82,7 +82,7 @@ GitMap works with both. Set `PORTAL_URL` to either your Enterprise instance or `
 Currently it versions the *web map item JSON* (layer references, symbology, extent, etc.) — not the underlying data. Feature service data versioning is a separate problem.
 
 **"Is it production-ready?"**
-It's v0.6.0+ with 785+ tests. I use it on real projects. I'd call it "production-ready for developers" — it needs more UX polish before recommending it to non-technical GIS staff.
+It's v0.7.0 public alpha with 791+ tests. I use it on real projects. I'd call it "production-ready for developers" — it needs more UX polish before recommending it to non-technical GIS staff.
 
 **"Why not just use ArcGIS Versioning?"**
 ArcGIS Versioning is for geodatabase data. This is for web map *configuration* — which layers are shown, how they're symbolized, pop-up templates, extents, etc. Different problem.

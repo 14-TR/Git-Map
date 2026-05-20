@@ -81,7 +81,7 @@ Before posting anywhere, nail the first-impression UX:
 ### GitHub hygiene
 - **Issues:** Create 5–10 "good first issue" items for contributors
 - **Discussions:** Enable GitHub Discussions for Q&A
-- **Releases:** Tag v0.6.0 properly with release notes pulled from CHANGELOG
+- **Releases:** Tag v0.7.0 properly with release notes pulled from CHANGELOG
 - **Stars goal:** 100 stars = meaningful social proof, 500+ = credibility with enterprise
 
 ### Content cadence
@@ -130,7 +130,7 @@ Before posting anywhere, nail the first-impression UX:
 >
 > I built GitMap — an open-source CLI that gives Git-like version control to ArcGIS web maps. You can commit snapshots, branch, diff, merge, and revert — same mental model as Git, but operating on web map JSON from Portal.
 >
-> It's at v0.6.0+ with 785+ tests: https://github.com/14-TR/Git-Map
+> It's at v0.7.0 public alpha with 791+ tests: https://github.com/14-TR/Git-Map
 >
 > Would you be willing to try it on a non-critical map and give me 10 minutes of feedback? I'm specifically looking to understand what's broken or missing before a wider launch.
 >

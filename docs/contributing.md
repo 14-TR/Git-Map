@@ -27,7 +27,7 @@ pip install click rich
 pytest packages/gitmap_core/tests -v
 ```
 
-All 785+ tests must pass before opening a PR. The CI pipeline runs the same suite on Python 3.11, 3.12, 3.13, and 3.14.
+All 791+ tests must pass before opening a PR. The CI pipeline runs the same suite on Python 3.11, 3.12, 3.13, and 3.14.
 
 ## Project Structure
 
@@ -35,7 +35,7 @@ All 785+ tests must pass before opening a PR. The CI pipeline runs the same suit
 Git-Map/
 ├── packages/
 │   └── gitmap_core/        # Core library — version control engine
-│       └── tests/          # 785+ tests live here
+│       └── tests/          # 791+ tests live here
 ├── apps/
 │   ├── cli/gitmap/         # `gitmap` CLI (Click + Rich)
 │   ├── mcp/                # MCP server for AI agent integration
