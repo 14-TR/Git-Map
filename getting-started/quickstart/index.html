@@ -2146,6 +2146,7 @@
 <p>Make sure you have gitmap installed:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gitmap-cli
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>gitmap<span class="w"> </span>--version
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>gitmap<span class="w"> </span>doctor
 </code></pre></div>
 <p>You also need an ArcGIS Online or Portal web map item ID. Open the web map item page and copy the <code>id</code> value from the URL, such as <code>...?id=abc123def456</code>.</p>
 <h2 id="1-set-up-credentials">1. Set Up Credentials<a class="headerlink" href="#1-set-up-credentials" title="Permanent link">&para;</a></h2>
@@ -2158,60 +2159,64 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cp<span class="w"> </span>configs/env.example<span class="w"> </span>.env
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># edit .env with your credentials</span>
 </code></pre></div>
+<p>Check the Portal connection before cloning:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>gitmap<span class="w"> </span>doctor<span class="w"> </span>--portal
+</code></pre></div>
+<p><code>gitmap doctor</code> is read-only. It verifies the local environment, credential variables, current directory, and, with <code>--portal</code>, whether GitMap can connect to the configured ArcGIS organization.</p>
 <h2 id="2-clone-an-existing-map">2. Clone an Existing Map<a class="headerlink" href="#2-clone-an-existing-map" title="Permanent link">&para;</a></h2>
 <p>The quickest way to start is cloning a map directly from Portal:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>gitmap<span class="w"> </span>clone<span class="w"> </span>abc123def456
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">cd</span><span class="w"> </span>YourMapTitle
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>gitmap<span class="w"> </span>clone<span class="w"> </span>abc123def456
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">cd</span><span class="w"> </span>YourMapTitle
 </code></pre></div>
 <p>Replace <code>abc123def456</code> with your web map's item ID (visible in the Portal URL).</p>
 <p>This creates a local repository with the map's current state as the initial commit. The local folder contains GitMap metadata and tracked web map JSON. Cloning reads from Portal; it does not change the Portal item.</p>
 <h2 id="3-check-status">3. Check Status<a class="headerlink" href="#3-check-status" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>gitmap<span class="w"> </span>status
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>gitmap<span class="w"> </span>status
 </code></pre></div>
 <p>Expected output:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>╭─ GitMap Status ─╮
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>│ On branch: main │
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>╰─────────────────╯
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Nothing to commit, working tree clean
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>╭─ GitMap Status ─╮
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>│ On branch: main │
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>╰─────────────────╯
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>Nothing to commit, working tree clean
 </code></pre></div>
 <p>If you see an error here, check that you are inside the folder created by <code>gitmap clone</code> and that the clone completed successfully.</p>
 <h2 id="4-create-a-branch-and-experiment">4. Create a Branch and Experiment<a class="headerlink" href="#4-create-a-branch-and-experiment" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>gitmap<span class="w"> </span>branch<span class="w"> </span>feature/new-basemap
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>gitmap<span class="w"> </span>checkout<span class="w"> </span>feature/new-basemap
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>gitmap<span class="w"> </span>branch<span class="w"> </span>feature/new-basemap
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>gitmap<span class="w"> </span>checkout<span class="w"> </span>feature/new-basemap
 </code></pre></div>
 <p>Edit the map in Portal, then pull the changes down:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>gitmap<span class="w"> </span>pull
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>gitmap<span class="w"> </span>status
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>gitmap<span class="w"> </span>pull
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>gitmap<span class="w"> </span>status
 </code></pre></div>
 <h2 id="5-commit-your-changes">5. Commit Your Changes<a class="headerlink" href="#5-commit-your-changes" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>gitmap<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Switched to dark basemap&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>gitmap<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Switched to dark basemap&quot;</span>
 </code></pre></div>
 <p>Output:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Created commit a3f2c1b0
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  Message: Switched to dark basemap
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  Author:  Your Name
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>  Layers:  4
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>Branch &#39;feature/new-basemap&#39; updated to a3f2c1b0
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Created commit a3f2c1b0
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>  Message: Switched to dark basemap
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>  Author:  Your Name
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>  Layers:  4
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>Branch &#39;feature/new-basemap&#39; updated to a3f2c1b0
 </code></pre></div>
 <h2 id="6-review-what-changed">6. Review What Changed<a class="headerlink" href="#6-review-what-changed" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>gitmap<span class="w"> </span>diff<span class="w"> </span>main<span class="w"> </span>feature/new-basemap<span class="w"> </span>--format<span class="w"> </span>visual
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>gitmap<span class="w"> </span>diff<span class="w"> </span>main<span class="w"> </span>feature/new-basemap<span class="w"> </span>--format<span class="w"> </span>visual
 </code></pre></div>
 <p>Shows a layer-by-layer comparison between your feature branch and <code>main</code>.</p>
 <h2 id="7-view-history">7. View History<a class="headerlink" href="#7-view-history" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>gitmap<span class="w"> </span>log<span class="w"> </span>--oneline
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>gitmap<span class="w"> </span>log<span class="w"> </span>--oneline
 </code></pre></div>
 <h2 id="8-merge-and-deploy">8. Merge and Deploy<a class="headerlink" href="#8-merge-and-deploy" title="Permanent link">&para;</a></h2>
 <p>When the feature looks good, merge it back to <code>main</code> and push:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>gitmap<span class="w"> </span>checkout<span class="w"> </span>main
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>gitmap<span class="w"> </span>merge<span class="w"> </span>feature/new-basemap
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>gitmap<span class="w"> </span>push
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>gitmap<span class="w"> </span>checkout<span class="w"> </span>main
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>gitmap<span class="w"> </span>merge<span class="w"> </span>feature/new-basemap
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>gitmap<span class="w"> </span>push
 </code></pre></div>
 <p><code>gitmap push</code> is the step that can update ArcGIS content. Review the diff before pushing, and keep using a test map until the workflow is familiar.</p>
 <h2 id="first-run-troubleshooting">First-Run Troubleshooting<a class="headerlink" href="#first-run-troubleshooting" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Missing credentials: set <code>ARCGIS_USERNAME</code>, <code>ARCGIS_PASSWORD</code>, and <code>PORTAL_URL</code>, or create a local <code>.env</code> file.</li>
+<li>Missing credentials: set <code>ARCGIS_USERNAME</code>, <code>ARCGIS_PASSWORD</code>, and <code>PORTAL_URL</code>, or create a local <code>.env</code> file, then run <code>gitmap doctor --portal</code>.</li>
 <li>Missing command: install with <code>pip install gitmap-cli</code>, then run <code>gitmap --version</code>.</li>
 <li>Wrong item ID: copy the web map item ID from the ArcGIS item page URL, not the map title or layer ID.</li>
 <li>Wrong directory: run GitMap commands from the folder created by <code>gitmap clone</code>.</li>
