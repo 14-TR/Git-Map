@@ -6,7 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/gitmap-cli.svg)](https://pypi.org/project/gitmap-cli/)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-792%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
+[![Tests](https://img.shields.io/badge/tests-793%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
 
 GitMap brings familiar Git workflows to ArcGIS Online and Portal for ArcGIS. Clone a web map, make changes in a branch, inspect exactly what changed, merge safely, and push the approved version back to Portal.
 
@@ -24,12 +24,14 @@ Switched to branch feature/new-basemap
 $ gitmap pull
 Pulled latest web map JSON from Portal
 
-$ gitmap diff main feature/new-basemap --format visual
+$ gitmap diff --format visual
 ~ operationalLayers[2].visibility: false -> true
 + operationalLayers[5]: "Hydrants"
 
 $ gitmap commit -m "Add hydrants layer and enable parcels"
 [feature/new-basemap 8f2a1d9] Add hydrants layer and enable parcels
+
+$ gitmap diff main feature/new-basemap --format visual
 
 $ gitmap checkout main
 $ gitmap merge feature/new-basemap
@@ -189,19 +191,26 @@ Review the branch against `main`:
 
 ```bash
 gitmap status
-gitmap diff main feature/hydrology-update --format visual
+gitmap diff --format visual
 ```
 
 For a shareable stakeholder review artifact:
 
 ```bash
-gitmap diff main feature/hydrology-update --format html --output hydrology-review.html
+gitmap diff --format html --output hydrology-review.html
 ```
 
 ### 6. Commit the approved change
 
 ```bash
 gitmap commit -m "Update hydrology layers"
+```
+
+After committing the feature branch, you can compare the saved branch tip against
+`main`:
+
+```bash
+gitmap diff main feature/hydrology-update --format visual
 ```
 
 Optional rationale text can be saved with the commit:
@@ -233,8 +242,9 @@ gitmap checkout feature/try-imagery-basemap
 
 # make the map change in ArcGIS, then sync it locally
 gitmap pull
-gitmap diff main feature/try-imagery-basemap --format visual
+gitmap diff --format visual
 gitmap commit -m "Try imagery basemap"
+gitmap diff main feature/try-imagery-basemap --format visual
 ```
 
 ### Review changes before release

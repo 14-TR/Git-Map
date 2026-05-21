@@ -17,8 +17,9 @@ gitmap branch feature/validation-change
 gitmap checkout feature/validation-change
 gitmap pull
 gitmap status
-gitmap diff main feature/validation-change --format visual
+gitmap diff --format visual
 gitmap commit -m "Validate GitMap workflow"
+gitmap diff main feature/validation-change --format visual
 gitmap checkout main
 gitmap merge feature/validation-change
 gitmap push

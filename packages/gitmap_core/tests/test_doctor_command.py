@@ -104,3 +104,18 @@ def test_first_user_docs_include_doctor_preflight() -> None:
         text = doc_path.read_text(encoding="utf-8")
         assert "gitmap doctor" in text, f"{doc_path} should mention gitmap doctor"
         assert "gitmap doctor --portal" in text, f"{doc_path} should mention the Portal preflight"
+
+
+def test_first_user_validation_diff_order_matches_staged_workflow() -> None:
+    """The first-user flow should diff staged changes before branch comparison."""
+    repo_root = Path(__file__).resolve().parents[3]
+    doc_path = repo_root / "docs/validation/first-user-test.md"
+    text = doc_path.read_text(encoding="utf-8")
+
+    pull_index = text.index("gitmap pull")
+    status_index = text.index("gitmap status")
+    staged_diff_index = text.index("gitmap diff --format visual")
+    commit_index = text.index('gitmap commit -m "Validate GitMap workflow"')
+    branch_diff_index = text.index("gitmap diff main feature/validation-change --format visual")
+
+    assert pull_index < status_index < staged_diff_index < commit_index < branch_diff_index
