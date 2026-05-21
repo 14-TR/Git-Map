@@ -89,3 +89,18 @@ class TestDoctorCommand:
         """doctor must appear in top-level --help output."""
         result = runner.invoke(cli, ["--help"])
         assert "doctor" in result.output, f"'doctor' not found in CLI help:\n{result.output}"
+
+
+def test_first_user_docs_include_doctor_preflight() -> None:
+    """First-user docs should keep the diagnostic preflight visible."""
+    repo_root = Path(__file__).resolve().parents[3]
+    docs_to_check = [
+        repo_root / "README.md",
+        repo_root / "docs/getting-started/quickstart.md",
+        repo_root / "docs/validation/first-user-test.md",
+    ]
+
+    for doc_path in docs_to_check:
+        text = doc_path.read_text(encoding="utf-8")
+        assert "gitmap doctor" in text, f"{doc_path} should mention gitmap doctor"
+        assert "gitmap doctor --portal" in text, f"{doc_path} should mention the Portal preflight"

@@ -12,7 +12,7 @@
 
 ArcGIS Online and ArcGIS Enterprise web maps are mutable JSON artifacts that encode operational layers, tables, popups, renderers, basemaps, extents, and map-level configuration. In many professional GIS teams, these artifacts function as production software assets, yet they are commonly governed through manual naming conventions, cloned Portal items, screenshots, and informal change logs. GitMap addresses this governance gap by adapting distributed version control concepts to ArcGIS web map state. The system stores immutable full-map JSON snapshots in a local `.gitmap` repository, provides branch, commit, diff, merge, revert, cherry-pick, stash, tag, push, and pull workflows, and exposes map-aware review artifacts through terminal, JSON, visual, and HTML diff outputs.
 
-This paper describes the May 2026 implementation of GitMap v0.7.0. The current public system is a Python monorepo composed of `gitmap-core`, `gitmap-cli`, integration prototypes for ArcGIS Pro and OpenClaw, and MkDocs documentation. Its central technical claim is pragmatic rather than theoretical: treating ArcGIS web map JSON as a first-class versioned artifact enables safer review and rollback workflows for map configuration changes that are not covered by geodatabase versioning. Current validation consists of 791 collected core tests, 66 collected integration tests for ArcGIS Pro/OpenClaw surfaces, CLI/package smoke coverage, documentation builds, and repository-level adoption roadmaps. The primary remaining threats to validity are limited real-user validation, dependence on ArcGIS Portal API behavior, prototype-stage integration surfaces, and the absence of a production multi-user remote service.
+This paper describes the May 2026 implementation of GitMap v0.7.0. The current public system is a Python monorepo composed of `gitmap-core`, `gitmap-cli`, integration prototypes for ArcGIS Pro and OpenClaw, and MkDocs documentation. Its central technical claim is pragmatic rather than theoretical: treating ArcGIS web map JSON as a first-class versioned artifact enables safer review and rollback workflows for map configuration changes that are not covered by geodatabase versioning. Current validation consists of 792 collected core tests, 66 collected integration tests for ArcGIS Pro/OpenClaw surfaces, CLI/package smoke coverage, documentation builds, and repository-level adoption roadmaps. The primary remaining threats to validity are limited real-user validation, dependence on ArcGIS Portal API behavior, prototype-stage integration surfaces, and the absence of a production multi-user remote service.
 
 ---
 
@@ -210,7 +210,7 @@ The May 13, 2026 development checkout reports:
 
 - Version: `gitmap, version 0.7.0`.
 - Python support: `>=3.11,<3.15` in package metadata.
-- Core tests collected: 791 under `packages/gitmap_core/tests`.
+- Core tests collected: 792 under `packages/gitmap_core/tests`.
 - Integration tests collected: 66 across `integrations/openclaw/tests/test_tools.py` and `integrations/arcgis_pro/test_toolbox.py`.
 - Public docs: README, MkDocs command pages, quickstart, Portal guide, roadmap, and marketing demo script.
 - Recent git history: May 2026 work focused on first-user safety, demo placeholders, roadmap/adoption tracks, path normalization, and CLI/doc polish.
@@ -342,7 +342,7 @@ This update replaces stale March 2026 claims with evidence from the May 13, 2026
 - Updated project status from v0.6.0+ to v0.7.0 public alpha.
 - Updated Python support from 3.10+ to `>=3.11,<3.15`.
 - Reframed MCP/OpenClaw and ArcGIS Pro work as integration/prototype surfaces rather than primary validated adoption paths.
-- Updated validation evidence to 791 collected core tests and 66 collected integration tests.
+- Updated validation evidence to 792 collected core tests and 66 collected integration tests.
 - Added the May 2026 product focus: first-user onboarding, short demo asset, and real GIS-user validation.
 - Reorganized limitations around adoption validity, Portal API dependence, layer identity, conservative merge semantics, storage growth, path safety, and privacy.
 

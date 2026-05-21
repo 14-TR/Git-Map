@@ -43,9 +43,11 @@ gitmap push
 2. Confirm the tester can sign in to the ArcGIS organization in a browser.
 3. Confirm the tester can safely modify the disposable web map.
 4. Create a clean terminal session with no prior GitMap repository state.
-5. Have the tester open the GitMap README and quickstart, but do not coach the
+5. Have the tester run `gitmap doctor` after install and `gitmap doctor --portal`
+   after credentials are configured.
+6. Have the tester open the GitMap README and quickstart, but do not coach the
    command sequence unless they are blocked.
-6. Start a timer when the tester begins reading the install instructions.
+7. Start a timer when the tester begins reading the install instructions.
 
 ## Observer Checklist
 
@@ -54,7 +56,9 @@ Record short notes for each step:
 | Step | Pass criteria | Notes to collect |
 |------|---------------|------------------|
 | Install | `gitmap --help` works | Python version, shell, install command, error text |
+| Doctor | `gitmap doctor` completes | Missing package, env var, or current-directory warning |
 | Credentials | GitMap connects to Portal | Env var or `.env` path used, unclear field names |
+| Portal preflight | `gitmap doctor --portal` succeeds or gives a clear blocker | Auth, URL, permission, or package blocker |
 | Item ID | Tester finds the web map item ID | Where they looked, any URL confusion |
 | Clone | Local repo is created | Output clarity, directory confusion |
 | Branch | Feature branch is active | Whether branch naming made sense |
@@ -99,6 +103,8 @@ Stop the test and preserve notes if:
 - ArcGIS target: disposable test web map
 - Completed core loop: yes/no
 - Time to `gitmap --help`:
+- Time to `gitmap doctor`:
+- `gitmap doctor --portal` result:
 - Time to clone:
 - Time to first diff:
 - Pushed to test item knowingly: yes/no/not attempted

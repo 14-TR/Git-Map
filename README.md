@@ -6,7 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/gitmap-cli.svg)](https://pypi.org/project/gitmap-cli/)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-791%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
+[![Tests](https://img.shields.io/badge/tests-792%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
 
 GitMap brings familiar Git workflows to ArcGIS Online and Portal for ArcGIS. Clone a web map, make changes in a branch, inspect exactly what changed, merge safely, and push the approved version back to Portal.
 
@@ -81,6 +81,7 @@ This installs the `gitmap` console command. Verify the CLI is available:
 ```bash
 gitmap --version
 gitmap --help
+gitmap doctor
 ```
 
 ### Install from source
@@ -148,6 +149,15 @@ cd flood-risk-map
 ```
 
 The clone command creates a local GitMap repository containing the web map JSON, GitMap metadata, and an initial commit for the current Portal state. It does not modify the Portal item.
+
+If install, package, credential, or current-directory checks are unclear before cloning, run:
+
+```bash
+gitmap doctor
+gitmap doctor --portal
+```
+
+`gitmap doctor` checks the local environment without writing to Portal. The `--portal` option attempts a connectivity check against the configured ArcGIS organization.
 
 ### 3. Check the starting state
 
