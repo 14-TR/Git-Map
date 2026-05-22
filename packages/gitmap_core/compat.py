@@ -401,8 +401,5 @@ def get_item_data(item: Any) -> dict[str, Any] | None:
         return None
 
 
-# ---- Initialize on import -----------------------------------------------------------------------------------
-
-
-# Run compatibility check when module is imported
-validate_or_warn()
+# Compatibility checks are intentionally explicit. Importing gitmap_core.compat
+# must stay quiet so CLI help can render without Portal/ArcGIS diagnostics.

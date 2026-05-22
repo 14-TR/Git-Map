@@ -16,6 +16,8 @@ Dependencies:
 
 from __future__ import annotations
 
+import os
+import subprocess
 import sys
 import types
 from pathlib import Path
@@ -41,6 +43,7 @@ if "gitmap_cli" not in sys.modules:
 if str(_cli_dir) not in sys.path:
     sys.path.insert(0, str(_cli_dir))
 
+from gitmap_cli.commands import doctor as doctor_module  # noqa: E402
 from main import cli  # noqa: E402
 
 
@@ -57,6 +60,43 @@ class TestDoctorCommand:
         result = runner.invoke(cli, ["doctor", "--help"])
         assert result.exit_code == 0, f"doctor --help failed:\n{result.output}"
         assert "environment" in result.output.lower() or "check" in result.output.lower()
+        assert "ArcGIS compatibility" not in result.output
+
+    def test_doctor_help_examples_render_on_separate_lines(self, runner: CliRunner) -> None:
+        """doctor --help should keep examples readable for first users."""
+        result = runner.invoke(cli, ["doctor", "--help"], terminal_width=100)
+        assert result.exit_code == 0, f"doctor --help failed:\n{result.output}"
+
+        examples = [
+            "gitmap doctor",
+            "gitmap doctor --portal",
+            "gitmap doctor --fix",
+        ]
+        for example in examples:
+            assert f"  {example}" in result.output
+
+        examples_block = result.output.split("Examples:", maxsplit=1)[1].split("Options:", maxsplit=1)[0]
+        assert " ".join(examples) not in examples_block
+
+    def test_doctor_help_source_execution_is_warning_free(self) -> None:
+        """Direct source help should not emit ArcGIS compatibility warnings."""
+        repo_root = Path(__file__).resolve().parents[3]
+        env = os.environ.copy()
+        env["PYTHONPATH"] = f"{repo_root / 'packages'}:{repo_root}"
+        result = subprocess.run(
+            [sys.executable, "-m", "apps.cli.gitmap.main", "doctor", "--help"],
+            cwd=repo_root,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        combined_output = result.stdout + result.stderr
+
+        assert result.returncode == 0, combined_output
+        assert "Usage:" in combined_output
+        assert "ArcGIS compatibility" not in combined_output
+        assert not combined_output.lstrip().startswith("ArcGIS compatibility")
 
     def test_doctor_runs_in_empty_dir(self, runner: CliRunner, tmp_path) -> None:
         """doctor should complete without unhandled exceptions in a non-repo dir."""
@@ -90,6 +130,24 @@ class TestDoctorCommand:
         result = runner.invoke(cli, ["--help"])
         assert "doctor" in result.output, f"'doctor' not found in CLI help:\n{result.output}"
 
+    def test_doctor_portal_missing_arcgis_reports_issue(
+        self, runner: CliRunner, tmp_path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """doctor --portal should fail clearly when Portal connectivity cannot be tested."""
+
+        def fake_pkg_installed(import_name: str) -> bool:
+            return import_name != "arcgis"
+
+        monkeypatch.setattr(doctor_module, "_pkg_installed", fake_pkg_installed)
+
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            result = runner.invoke(cli, ["doctor", "--portal"])
+
+        assert result.exit_code == 1
+        assert "arcgis package not installed" in result.output
+        assert "Portal connectivity check could not run" in result.output
+        assert "No issues found" not in result.output
+
 
 def test_first_user_docs_include_doctor_preflight() -> None:
     """First-user docs should keep the diagnostic preflight visible."""
@@ -104,6 +162,10 @@ def test_first_user_docs_include_doctor_preflight() -> None:
         text = doc_path.read_text(encoding="utf-8")
         assert "gitmap doctor" in text, f"{doc_path} should mention gitmap doctor"
         assert "gitmap doctor --portal" in text, f"{doc_path} should mention the Portal preflight"
+
+    validation_text = (repo_root / "docs/validation/first-user-test.md").read_text(encoding="utf-8")
+    assert validation_text.index("gitmap doctor") < validation_text.index("gitmap clone <TEST_ITEM_ID>")
+    assert validation_text.index("gitmap doctor --portal") < validation_text.index("gitmap clone <TEST_ITEM_ID>")
 
 
 def test_first_user_validation_diff_order_matches_staged_workflow() -> None:

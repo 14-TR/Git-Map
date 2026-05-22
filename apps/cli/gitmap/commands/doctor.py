@@ -88,6 +88,8 @@ def doctor(check_portal: bool, show_fixes: bool) -> None:
     and optionally tests Portal connectivity.
 
     Examples:
+
+    \b
         gitmap doctor
         gitmap doctor --portal
         gitmap doctor --fix
@@ -188,6 +190,8 @@ def doctor(check_portal: bool, show_fixes: bool) -> None:
         if not _pkg_installed("arcgis"):
             console.print("  [yellow]⊘[/yellow] arcgis package not installed — cannot test connectivity")
             console.print("  [dim]Install with: pip install arcgis[/dim]")
+            issues.append("Portal connectivity check could not run because the arcgis package is not installed")
+            all_ok = False
         else:
             try:
                 from gitmap_core.connection import get_connection

@@ -11,6 +11,8 @@ A first-time user can complete the core GitMap loop on a non-production ArcGIS
 web map:
 
 ```bash
+gitmap doctor
+gitmap doctor --portal
 gitmap clone <TEST_ITEM_ID> --directory gitmap-validation-map
 cd gitmap-validation-map
 gitmap branch feature/validation-change
