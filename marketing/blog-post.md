@@ -2,7 +2,7 @@
 
 If you've ever spent 20 minutes trying to remember why someone changed the basemap on a production web map, this post is for you.
 
-I'm a GIS developer who got frustrated enough to build **GitMap** — an open-source command-line tool that brings Git-style version control to ArcGIS Online and Enterprise Portal web maps. After about a year of development, it's now at v0.7.0 public alpha with 794+ tests and real workflows. I want to share what I built, why, and what I learned.
+I'm a GIS developer who got frustrated enough to build **GitMap** — an open-source command-line tool that brings Git-style version control to ArcGIS Online and Enterprise Portal web maps. After about a year of development, it's now at v0.7.0 public alpha with 796+ tests and real workflows. I want to share what I built, why, and what I learned.
 
 ---
 
@@ -107,7 +107,7 @@ After 6 months of iteration, GitMap now has:
 - **Context visualization**: Mermaid flowcharts, git-graph, ASCII, HTML of your repo history
 - **ArcGIS Pro toolbox**: 9 native tools if you work in Pro
 - **MCP server**: Expose GitMap as tools for AI agents (Claude, etc.)
-- **794+ tests** running in CI
+- **796+ tests** running in CI
 - **Docker support** for team deployments
 - **CI via GitHub Actions** on Python 3.11, 3.12, 3.13, and 3.14
 
@@ -125,7 +125,7 @@ Code merges work line-by-line. JSON merges need to work property-by-property, un
 Portal/ArcGIS Online authentication has multiple modes: username/password, OAuth, IWA, PKI. Getting the connection setup to be simple enough for non-developers while supporting all the enterprise edge cases is still a work in progress.
 
 **4. Tests are your friend.**  
-Because I can't run tests against a real Portal, everything is mocked. This forced me to think carefully about interfaces and made refactoring much safer. Going from 0 to 794+ tests made a real difference in confidence.
+Because I can't run tests against a real Portal, everything is mocked. This forced me to think carefully about interfaces and made refactoring much safer. Going from 0 to 796+ tests made a real difference in confidence.
 
 ---
 

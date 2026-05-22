@@ -88,6 +88,8 @@ def doctor(check_portal: bool, show_fixes: bool) -> None:
     and optionally tests Portal connectivity.
 
     Examples:
+
+    \b
         gitmap doctor
         gitmap doctor --portal
         gitmap doctor --fix

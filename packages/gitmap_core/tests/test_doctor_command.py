@@ -16,6 +16,8 @@ Dependencies:
 
 from __future__ import annotations
 
+import os
+import subprocess
 import sys
 import types
 from pathlib import Path
@@ -58,6 +60,43 @@ class TestDoctorCommand:
         result = runner.invoke(cli, ["doctor", "--help"])
         assert result.exit_code == 0, f"doctor --help failed:\n{result.output}"
         assert "environment" in result.output.lower() or "check" in result.output.lower()
+        assert "ArcGIS compatibility" not in result.output
+
+    def test_doctor_help_examples_render_on_separate_lines(self, runner: CliRunner) -> None:
+        """doctor --help should keep examples readable for first users."""
+        result = runner.invoke(cli, ["doctor", "--help"], terminal_width=100)
+        assert result.exit_code == 0, f"doctor --help failed:\n{result.output}"
+
+        examples = [
+            "gitmap doctor",
+            "gitmap doctor --portal",
+            "gitmap doctor --fix",
+        ]
+        for example in examples:
+            assert f"  {example}" in result.output
+
+        examples_block = result.output.split("Examples:", maxsplit=1)[1].split("Options:", maxsplit=1)[0]
+        assert " ".join(examples) not in examples_block
+
+    def test_doctor_help_source_execution_is_warning_free(self) -> None:
+        """Direct source help should not emit ArcGIS compatibility warnings."""
+        repo_root = Path(__file__).resolve().parents[3]
+        env = os.environ.copy()
+        env["PYTHONPATH"] = f"{repo_root / 'packages'}:{repo_root}"
+        result = subprocess.run(
+            [sys.executable, "-m", "apps.cli.gitmap.main", "doctor", "--help"],
+            cwd=repo_root,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        combined_output = result.stdout + result.stderr
+
+        assert result.returncode == 0, combined_output
+        assert "Usage:" in combined_output
+        assert "ArcGIS compatibility" not in combined_output
+        assert not combined_output.lstrip().startswith("ArcGIS compatibility")
 
     def test_doctor_runs_in_empty_dir(self, runner: CliRunner, tmp_path) -> None:
         """doctor should complete without unhandled exceptions in a non-repo dir."""
