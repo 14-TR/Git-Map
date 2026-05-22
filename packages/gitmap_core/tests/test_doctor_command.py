@@ -41,6 +41,7 @@ if "gitmap_cli" not in sys.modules:
 if str(_cli_dir) not in sys.path:
     sys.path.insert(0, str(_cli_dir))
 
+from gitmap_cli.commands import doctor as doctor_module  # noqa: E402
 from main import cli  # noqa: E402
 
 
@@ -90,6 +91,24 @@ class TestDoctorCommand:
         result = runner.invoke(cli, ["--help"])
         assert "doctor" in result.output, f"'doctor' not found in CLI help:\n{result.output}"
 
+    def test_doctor_portal_missing_arcgis_reports_issue(
+        self, runner: CliRunner, tmp_path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """doctor --portal should fail clearly when Portal connectivity cannot be tested."""
+
+        def fake_pkg_installed(import_name: str) -> bool:
+            return import_name != "arcgis"
+
+        monkeypatch.setattr(doctor_module, "_pkg_installed", fake_pkg_installed)
+
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            result = runner.invoke(cli, ["doctor", "--portal"])
+
+        assert result.exit_code == 1
+        assert "arcgis package not installed" in result.output
+        assert "Portal connectivity check could not run" in result.output
+        assert "No issues found" not in result.output
+
 
 def test_first_user_docs_include_doctor_preflight() -> None:
     """First-user docs should keep the diagnostic preflight visible."""
@@ -104,6 +123,10 @@ def test_first_user_docs_include_doctor_preflight() -> None:
         text = doc_path.read_text(encoding="utf-8")
         assert "gitmap doctor" in text, f"{doc_path} should mention gitmap doctor"
         assert "gitmap doctor --portal" in text, f"{doc_path} should mention the Portal preflight"
+
+    validation_text = (repo_root / "docs/validation/first-user-test.md").read_text(encoding="utf-8")
+    assert validation_text.index("gitmap doctor") < validation_text.index("gitmap clone <TEST_ITEM_ID>")
+    assert validation_text.index("gitmap doctor --portal") < validation_text.index("gitmap clone <TEST_ITEM_ID>")
 
 
 def test_first_user_validation_diff_order_matches_staged_workflow() -> None:
