@@ -30,6 +30,11 @@ PORT = 7400
 # ---- Tool registry -------------------------------------------------------------------
 
 TOOL_REGISTRY = {
+    "gitmap_health": {
+        "fn": gitmap_tools.gitmap_health,
+        "description": "Check local GitMap/OpenClaw integration readiness without contacting Portal",
+        "params": {},
+    },
     "gitmap_list": {
         "fn": gitmap_tools.gitmap_list,
         "description": "List available web maps from Portal or ArcGIS Online",
@@ -187,7 +192,11 @@ class GitMapHandler(BaseHTTPRequestHandler):
         path = urllib.parse.urlparse(self.path).path.rstrip("/")
 
         if path == "/health":
-            self.send_json({"ok": True, "service": "gitmap-skill", "port": PORT})
+            self.send_json({
+                "service": "gitmap-skill",
+                "port": PORT,
+                **gitmap_tools._health(),
+            })
 
         elif path == "/tools":
             tool_list = [

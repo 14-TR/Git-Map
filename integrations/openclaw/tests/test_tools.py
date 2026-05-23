@@ -18,6 +18,8 @@ import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 TOOLS_PATH = Path(__file__).resolve().parents[1] / "tools.py"
 SERVER_PATH = Path(__file__).resolve().parents[1] / "server.py"
 TOOLS_SPEC = importlib.util.spec_from_file_location("gitmap_openclaw_tools", TOOLS_PATH)
@@ -39,6 +41,22 @@ class TestGitmapRoot:
         repo_root = Path(__file__).resolve().parents[3]
 
         assert repo_root == gitmap_tools.GITMAP_CLI_DIR
+
+    def test_missing_root_requires_explicit_config(self, tmp_path: Path) -> None:
+        """Root discovery fails closed instead of assuming a Desktop checkout."""
+        with patch.dict("os.environ", {"GITMAP_ROOT": str(tmp_path)}), \
+             pytest.raises(RuntimeError, match="GITMAP_ROOT"):
+            gitmap_tools._default_gitmap_root()
+
+    def test_health_reports_local_source_tree(self) -> None:
+        """Health reports non-secret local integration readiness."""
+        health = gitmap_tools.gitmap_health()
+
+        assert health["ok"] is True
+        assert health["checks"]["root_exists"] is True
+        assert health["checks"]["core_package_exists"] is True
+        assert health["checks"]["cli_package_exists"] is True
+        assert "cli_command" in health
 
 
 class TestServerParameterNormalization:
@@ -70,6 +88,10 @@ class TestServerParameterNormalization:
         )
 
         assert params == {"cwd": "/tmp/map-repo", "branch": "main"}
+
+    def test_health_tool_is_registered(self) -> None:
+        """Server exposes a health tool for OpenClaw-level smoke checks."""
+        assert "gitmap_health" in gitmap_server.TOOL_REGISTRY
 
 
 # ---- _find_gitmap() ------------------------------------------------------------------

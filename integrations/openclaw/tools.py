@@ -39,13 +39,18 @@ def _default_gitmap_root() -> Path:
     """
     configured_root = os.environ.get("GITMAP_ROOT")
     if configured_root:
-        return Path(configured_root).expanduser().resolve()
+        root = Path(configured_root).expanduser().resolve()
+        if (root / "apps" / "cli" / "gitmap").exists() and (root / "packages" / "gitmap_core").exists():
+            return root
+        raise RuntimeError(f"GITMAP_ROOT does not point to a GitMap checkout: {root}")
 
     for candidate in Path(__file__).resolve().parents:
         if (candidate / "apps" / "cli" / "gitmap").exists() and (candidate / "packages" / "gitmap_core").exists():
             return candidate
 
-    return Path.home() / "Desktop" / "Git-Map"
+    raise RuntimeError(
+        "Unable to locate GitMap source tree. Set GITMAP_ROOT to the GitMap checkout path."
+    )
 
 
 GITMAP_CLI_DIR = _default_gitmap_root()
@@ -76,6 +81,33 @@ def _find_gitmap() -> list[str]:
 
     # Last resort: try the module directly
     return [python, "-m", "gitmap_cli.main"]
+
+
+def _health() -> dict:
+    """
+    Return non-secret local readiness details for the OpenClaw integration.
+
+    This intentionally avoids Portal connectivity so health checks stay safe in
+    unauthenticated and CI environments.
+    """
+    root = GITMAP_CLI_DIR
+    core_dir = root / "packages" / "gitmap_core"
+    cli_dir = root / "apps" / "cli" / "gitmap"
+    cli_command = _find_gitmap()
+
+    checks = {
+        "root_exists": root.exists(),
+        "core_package_exists": core_dir.exists(),
+        "cli_package_exists": cli_dir.exists(),
+        "cli_entry_exists": (cli_dir / "main.py").exists(),
+    }
+
+    return {
+        "ok": all(checks.values()),
+        "root": str(root),
+        "cli_command": cli_command,
+        "checks": checks,
+    }
 
 
 def _run(
@@ -184,6 +216,28 @@ def _portal_flags(
 
 
 # ---- Tools ---------------------------------------------------------------------------
+
+def gitmap_health() -> dict:
+    """
+    Check local GitMap/OpenClaw integration readiness without contacting Portal.
+
+    Returns:
+        dict: ok, root, cli command, and local source-tree checks.
+    """
+    health = _health()
+    output = (
+        "GitMap integration ready"
+        if health["ok"]
+        else "GitMap integration is not ready"
+    )
+    return {
+        "ok": health["ok"],
+        "returncode": 0 if health["ok"] else -1,
+        "stdout": output,
+        "stderr": "" if health["ok"] else output,
+        "output": output,
+        **health,
+    }
 
 def gitmap_list(
         query: Optional[str] = None,

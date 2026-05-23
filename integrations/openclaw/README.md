@@ -1,6 +1,6 @@
 # Git-Map OpenClaw Integration
 
-OpenClaw plugin for Git-Map version control. Provides 8 tools for managing ArcGIS web maps using Git-like operations.
+OpenClaw plugin for Git-Map version control. Provides 9 tools for managing ArcGIS web maps using Git-like operations.
 
 ## Prerequisites
 
@@ -47,6 +47,7 @@ OpenClaw plugin for Git-Map version control. Provides 8 tools for managing ArcGI
 
 | Tool | Description |
 |------|-------------|
+| `gitmap_health` | Check local GitMap/OpenClaw integration readiness without contacting Portal |
 | `gitmap_list` | List available web maps from ArcGIS Portal/AGOL |
 | `gitmap_status` | Show working tree status for a GitMap repository |
 | `gitmap_commit` | Commit the current map state |
@@ -93,6 +94,7 @@ Alternatively, pass credentials directly to tools as parameters.
 ## Troubleshooting
 
 - **Server not starting**: Check Python dependencies are installed and `GITMAP_ROOT` points at a valid GitMap checkout if you are not running from this repository
+- **Health check failing**: Run `curl http://localhost:7400/health` or call `gitmap_health`; both report the resolved GitMap root and local CLI/source-tree checks without contacting Portal
 - **Wrong repo path**: OpenClaw sends `repo_path`; the Python server normalizes it to the CLI wrapper `cwd` parameter
 - **Tools not working**: Ensure `PORTAL_URL` is set and credentials are valid
 - **Plugin not loading**: Run `openclaw plugins list` to verify installation
