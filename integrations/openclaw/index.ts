@@ -30,6 +30,21 @@ export default function (api: any) {
 
   api.registerTool(
     {
+      name: "gitmap_health",
+      description: "Check local GitMap/OpenClaw integration readiness without contacting Portal.",
+      parameters: {
+        type: "object",
+        properties: {},
+      },
+      async execute() {
+        return callTool(serverUrl, "gitmap_health", {});
+      },
+    },
+    { optional: true },
+  );
+
+  api.registerTool(
+    {
       name: "gitmap_list",
       description: "List available web maps from ArcGIS Portal/AGOL.",
       parameters: {
