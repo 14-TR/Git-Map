@@ -12,7 +12,7 @@
 
 ArcGIS Online and ArcGIS Enterprise web maps are mutable JSON artifacts that encode operational layers, tables, popups, renderers, basemaps, extents, and map-level configuration. In many professional GIS teams, these artifacts function as production software assets, yet they are commonly governed through manual naming conventions, cloned Portal items, screenshots, and informal change logs. GitMap addresses this governance gap by adapting distributed version control concepts to ArcGIS web map state. The system stores immutable full-map JSON snapshots in a local `.gitmap` repository, provides branch, commit, diff, merge, revert, cherry-pick, stash, tag, push, and pull workflows, and exposes map-aware review artifacts through terminal, JSON, visual, and HTML diff outputs.
 
-This paper describes the May 2026 implementation of GitMap v0.7.0. The current public system is a Python monorepo composed of `gitmap-core`, `gitmap-cli`, integration prototypes for ArcGIS Pro and OpenClaw, and MkDocs documentation. Its central technical claim is pragmatic rather than theoretical: treating ArcGIS web map JSON as a first-class versioned artifact enables safer review and rollback workflows for map configuration changes that are not covered by geodatabase versioning. Current validation consists of 796 collected core tests, 66 collected integration tests for ArcGIS Pro/OpenClaw surfaces, CLI/package smoke coverage, documentation builds, and repository-level adoption roadmaps. The primary remaining threats to validity are limited real-user validation, dependence on ArcGIS Portal API behavior, prototype-stage integration surfaces, and the absence of a production multi-user remote service.
+This paper describes the May 2026 implementation of GitMap v0.7.0. The current public system is a Python monorepo composed of `gitmap-core`, `gitmap-cli`, integration prototypes for ArcGIS Pro and OpenClaw, and MkDocs documentation. Its central technical claim is pragmatic rather than theoretical: treating ArcGIS web map JSON as a first-class versioned artifact enables safer review and rollback workflows for map configuration changes that are not covered by geodatabase versioning. Current validation consists of 796 collected core tests, 69 collected integration tests for ArcGIS Pro/OpenClaw surfaces, CLI/package smoke coverage, documentation builds, and repository-level adoption roadmaps. The primary remaining threats to validity are limited real-user validation, dependence on ArcGIS Portal API behavior, prototype-stage integration surfaces, and the absence of a production multi-user remote service.
 
 ---
 
@@ -111,7 +111,7 @@ The `gitmap` CLI is the primary supported user interface. The current command su
 
 The ArcGIS Pro toolbox in `integrations/arcgis_pro/GitMap.pyt` wraps nine operations for an ArcGIS Pro UI flow: initialize repository, commit map, status, create branch, checkout branch, log history, diff maps, push, and pull. Its README correctly presents this as a toolbox workflow and notes that `arcpy` imports occur inside tool execution so the toolbox can be tested outside ArcGIS Pro.
 
-The OpenClaw integration in `integrations/openclaw/` exposes eight tool wrappers through a local Python server and TypeScript plugin. Recent docs and tests show repaired path/config normalization, including `GITMAP_ROOT`, `serverUrl`, and `repo_path` to `cwd` translation. This surface remains prototype-stage until demonstrated as a reliable agent-driven workflow against a test repository.
+The OpenClaw integration in `integrations/openclaw/` exposes nine tool wrappers through a local Python server and TypeScript plugin, including the non-Portal `gitmap_health` readiness check. Recent docs and tests show repaired path/config normalization, including `GITMAP_ROOT`, `serverUrl`, and `repo_path` to `cwd` translation. The local health path has been smoke-tested from a clean checkout; Portal-mutating workflows remain prototype-stage until demonstrated against an approved test repository.
 
 ---
 
@@ -211,7 +211,7 @@ The May 13, 2026 development checkout reports:
 - Version: `gitmap, version 0.7.0`.
 - Python support: `>=3.11,<3.15` in package metadata.
 - Core tests collected: 796 under `packages/gitmap_core/tests`.
-- Integration tests collected: 66 across `integrations/openclaw/tests/test_tools.py` and `integrations/arcgis_pro/test_toolbox.py`.
+- Integration tests collected: 69 across `integrations/openclaw/tests/test_tools.py` (40) and `integrations/arcgis_pro/test_toolbox.py` (29).
 - Public docs: README, MkDocs command pages, quickstart, Portal guide, roadmap, and marketing demo script.
 - Recent git history: May 2026 work focused on first-user safety, demo placeholders, roadmap/adoption tracks, path normalization, and CLI/doc polish.
 
@@ -342,7 +342,7 @@ This update replaces stale March 2026 claims with evidence from the May 13, 2026
 - Updated project status from v0.6.0+ to v0.7.0 public alpha.
 - Updated Python support from 3.10+ to `>=3.11,<3.15`.
 - Reframed MCP/OpenClaw and ArcGIS Pro work as integration/prototype surfaces rather than primary validated adoption paths.
-- Updated validation evidence to 796 collected core tests and 66 collected integration tests.
+- Updated validation evidence to 796 collected core tests and 69 collected integration tests.
 - Added the May 2026 product focus: first-user onboarding, short demo asset, and real GIS-user validation.
 - Reorganized limitations around adoption validity, Portal API dependence, layer identity, conservative merge semantics, storage growth, path safety, and privacy.
 
