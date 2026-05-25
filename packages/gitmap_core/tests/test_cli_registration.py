@@ -139,14 +139,11 @@ class TestCommandRegistration:
         assert "gitmap completions" in result.output
 
         footer = result.output.split("Getting started:", maxsplit=1)[1]
-        expected_new_repo = (
-            "New repository: gitmap init -> gitmap status -> "
-            'gitmap commit -m "Initial snapshot"'
-        )
+        expected_new_repo = 'New repository: gitmap init -> gitmap status -> gitmap commit -m "Initial snapshot"'
         assert expected_new_repo in footer
         assert "Existing web map: gitmap clone <item-id> --url <portal-url>" in footer
         assert "Need shell completions? Run: gitmap completions" in footer
-        assert "snapshot\" Need shell completions?" not in footer
+        assert 'snapshot" Need shell completions?' not in footer
 
     def test_help_uses_gitmap_prog_name(self, runner: CliRunner) -> None:
         """Help output should show the installed command name, not the internal function name."""
