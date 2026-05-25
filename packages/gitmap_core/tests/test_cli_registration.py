@@ -139,7 +139,11 @@ class TestCommandRegistration:
         assert "gitmap completions" in result.output
 
         footer = result.output.split("Getting started:", maxsplit=1)[1]
-        assert 'New repository: gitmap init -> gitmap status -> gitmap commit -m "Initial snapshot"' in footer
+        expected_new_repo = (
+            "New repository: gitmap init -> gitmap status -> "
+            'gitmap commit -m "Initial snapshot"'
+        )
+        assert expected_new_repo in footer
         assert "Existing web map: gitmap clone <item-id> --url <portal-url>" in footer
         assert "Need shell completions? Run: gitmap completions" in footer
         assert "snapshot\" Need shell completions?" not in footer
