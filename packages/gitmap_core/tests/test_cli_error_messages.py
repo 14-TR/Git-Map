@@ -115,3 +115,11 @@ def test_diff_missing_ref_surfaces_actionable_click_error(
     assert result.exit_code != 0
     assert "Branch or commit not found: 'missing-branch'" in result.output
     assert "Diff failed:" not in result.output
+
+
+def test_diff_output_without_html_format_surfaces_actionable_click_error(runner: CliRunner) -> None:
+    result = runner.invoke(diff, ["--output", "review.html"])
+
+    assert result.exit_code != 0
+    assert "--output can only be used with --format html." in result.output
+    assert "Diff failed:" not in result.output

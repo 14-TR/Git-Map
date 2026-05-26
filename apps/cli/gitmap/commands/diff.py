@@ -267,6 +267,9 @@ def diff(
         gitmap diff abc123 def456                 # Commit vs commit
     """
     try:
+        if output and fmt.lower() != "html":
+            raise click.ClickException("--output can only be used with --format html.")
+
         repo = find_repository()
 
         if not repo:
