@@ -21,7 +21,7 @@ gitmap diff [SOURCE] [TARGET] [OPTIONS]
 |--------|-------|---------|-------------|
 | `--verbose` | `-v` | false | Show property-level field changes |
 | `--format` | | `text` | Output format: `text`, `visual`, `html`, or `json` |
-| `--output` | `-o` | `diff-report.html` | Output file path (used with `--format html`) |
+| `--output` | `-o` | `diff-report.html` | Output file path; only valid with `--format html` |
 
 ## Modes
 
