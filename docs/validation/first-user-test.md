@@ -77,6 +77,8 @@ Tag each issue with one or more categories:
 
 - `install`: Python, package, PATH, shell, virtual environment.
 - `credentials`: Portal URL, username/password variables, `.env`, auth errors.
+- `portal-preflight`: `gitmap doctor --portal` cannot verify the target
+  Portal before clone, pull, or push.
 - `item-id`: finding the web map ID or choosing the right item.
 - `working-directory`: knowing where the GitMap repo lives.
 - `branching`: understanding current branch and branch names.
@@ -91,6 +93,8 @@ Stop the test and preserve notes if:
 
 - The tester would need to use a production map to continue.
 - Credentials or tokens would need to be shared with the observer.
+- `gitmap doctor --portal` reports a credential, URL, permission, or package
+  blocker that the tester cannot resolve without observer access to secrets.
 - `gitmap push` would update an unknown or unintended item.
 - The tester hits an unhandled exception or repeated authentication failure.
 - The observer has already coached the same step twice.
@@ -107,6 +111,7 @@ Stop the test and preserve notes if:
 - Completed core loop: yes/no
 - Time to `gitmap --help`:
 - Time to `gitmap doctor`:
+- `gitmap doctor` result:
 - `gitmap doctor --portal` result:
 - Time to clone:
 - Time to first diff:
