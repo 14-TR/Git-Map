@@ -6,7 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/gitmap-cli.svg)](https://pypi.org/project/gitmap-cli/)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-797%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
+[![Tests](https://img.shields.io/badge/tests-798%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
 
 GitMap brings familiar Git workflows to ArcGIS Online and Portal for ArcGIS. Clone a web map, make changes in a branch, inspect exactly what changed, merge safely, and push the approved version back to Portal.
 

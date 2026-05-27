@@ -125,6 +125,24 @@ class TestDoctorCommand:
             result = runner.invoke(cli, ["doctor", "--fix"])
         assert result.exit_code in (0, 1)
 
+    def test_doctor_portal_requires_credentials(
+        self,
+        runner: CliRunner,
+        tmp_path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """doctor --portal should not treat anonymous Portal access as credential success."""
+        for var_name in ("PORTAL_USER", "PORTAL_PASSWORD", "ARCGIS_USERNAME", "ARCGIS_PASSWORD"):
+            monkeypatch.delenv(var_name, raising=False)
+
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            result = runner.invoke(cli, ["doctor", "--portal"])
+
+        assert result.exit_code == 1
+        assert "Missing Portal credentials" in result.output
+        assert "credential preflight" in result.output
+        assert "Connected (anonymous)" not in result.output
+
     def test_doctor_registered_in_help(self, runner: CliRunner) -> None:
         """doctor must appear in top-level --help output."""
         result = runner.invoke(cli, ["--help"])
@@ -139,6 +157,8 @@ class TestDoctorCommand:
             return import_name != "arcgis"
 
         monkeypatch.setattr(doctor_module, "_pkg_installed", fake_pkg_installed)
+        monkeypatch.setenv("ARCGIS_USERNAME", "test_user")
+        monkeypatch.setenv("ARCGIS_PASSWORD", "test_password")
 
         with runner.isolated_filesystem(temp_dir=tmp_path):
             result = runner.invoke(cli, ["doctor", "--portal"])
