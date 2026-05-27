@@ -2168,6 +2168,8 @@ web map:</p>
 <ul>
 <li><code>install</code>: Python, package, PATH, shell, virtual environment.</li>
 <li><code>credentials</code>: Portal URL, username/password variables, <code>.env</code>, auth errors.</li>
+<li><code>portal-preflight</code>: <code>gitmap doctor --portal</code> cannot verify the target
+  Portal before clone, pull, or push.</li>
 <li><code>item-id</code>: finding the web map ID or choosing the right item.</li>
 <li><code>working-directory</code>: knowing where the GitMap repo lives.</li>
 <li><code>branching</code>: understanding current branch and branch names.</li>
@@ -2181,6 +2183,8 @@ web map:</p>
 <ul>
 <li>The tester would need to use a production map to continue.</li>
 <li>Credentials or tokens would need to be shared with the observer.</li>
+<li><code>gitmap doctor --portal</code> reports a credential, URL, permission, or package
+  blocker that the tester cannot resolve without observer access to secrets.</li>
 <li><code>gitmap push</code> would update an unknown or unintended item.</li>
 <li>The tester hits an unhandled exception or repeated authentication failure.</li>
 <li>The observer has already coached the same step twice.</li>
@@ -2195,19 +2199,20 @@ web map:</p>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">-</span><span class="w"> </span>Completed core loop: yes/no
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="k">-</span><span class="w"> </span>Time to <span class="sb">`gitmap --help`</span>:
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="k">-</span><span class="w"> </span>Time to <span class="sb">`gitmap doctor`</span>:
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">-</span><span class="w"> </span><span class="sb">`gitmap doctor --portal`</span> result:
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="k">-</span><span class="w"> </span>Time to clone:
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="k">-</span><span class="w"> </span>Time to first diff:
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="k">-</span><span class="w"> </span>Pushed to test item knowingly: yes/no/not attempted
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="gu">### Top blockers</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="k">-</span><span class="w"> </span>[category] short description
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="gu">### Confusing but recoverable</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="k">-</span><span class="w"> </span>[category] short description
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="gu">### Follow-up issues to create</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="k">- [ ]</span> title
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">-</span><span class="w"> </span><span class="sb">`gitmap doctor`</span> result:
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="k">-</span><span class="w"> </span><span class="sb">`gitmap doctor --portal`</span> result:
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="k">-</span><span class="w"> </span>Time to clone:
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="k">-</span><span class="w"> </span>Time to first diff:
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="k">-</span><span class="w"> </span>Pushed to test item knowingly: yes/no/not attempted
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="gu">### Top blockers</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="k">-</span><span class="w"> </span>[category] short description
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="gu">### Confusing but recoverable</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="k">-</span><span class="w"> </span>[category] short description
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="gu">### Follow-up issues to create</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="k">- [ ]</span> title
 </code></pre></div>
 
 
