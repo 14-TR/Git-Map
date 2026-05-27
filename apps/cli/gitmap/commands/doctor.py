@@ -50,6 +50,9 @@ ENV_VARS: list[tuple[str, str, bool]] = [
     ("ARCGIS_PASSWORD", "Portal password (or use keyring)", False),
 ]
 
+PORTAL_USERNAME_VARS = ("PORTAL_USER", "ARCGIS_USERNAME")
+PORTAL_PASSWORD_VARS = ("PORTAL_PASSWORD", "ARCGIS_PASSWORD")
+
 
 def _check(ok: bool) -> str:
     return "[green]✓[/green]" if ok else "[red]✗[/red]"
@@ -60,7 +63,18 @@ def _warn(value: bool) -> str:
 
 
 def _pkg_installed(import_name: str) -> bool:
-    return importlib.util.find_spec(import_name) is not None
+    try:
+        return importlib.util.find_spec(import_name) is not None
+    except ValueError:
+        return False
+
+
+def _first_set_env(var_names: tuple[str, ...]) -> str | None:
+    for var_name in var_names:
+        value = os.environ.get(var_name)
+        if value:
+            return value
+    return None
 
 
 # ---- Doctor Command -----------------------------------------------------------------------------------------
@@ -184,23 +198,37 @@ def doctor(check_portal: bool, show_fixes: bool) -> None:
     if check_portal:
         console.print("[bold dim]─── Portal Connectivity ───[/bold dim]")
         portal_url = os.environ.get("PORTAL_URL", "https://www.arcgis.com")
-        username = os.environ.get("ARCGIS_USERNAME", "")
-        password = os.environ.get("ARCGIS_PASSWORD", "")
+        username = _first_set_env(PORTAL_USERNAME_VARS)
+        password = _first_set_env(PORTAL_PASSWORD_VARS)
 
-        if not _pkg_installed("arcgis"):
+        if not username or not password:
+            missing = []
+            if not username:
+                missing.append("ARCGIS_USERNAME or PORTAL_USER")
+            if not password:
+                missing.append("ARCGIS_PASSWORD or PORTAL_PASSWORD")
+            missing_text = "; ".join(missing)
+            console.print(f"  {_check(False)} Missing Portal credentials: {missing_text}")
+            console.print("  [dim]Set credentials before using doctor --portal as a credential preflight.[/dim]")
+            issues.append(f"Portal credential preflight missing credentials: {missing_text}")
+            all_ok = False
+            console.print()
+            check_portal = False
+
+        if check_portal and not _pkg_installed("arcgis"):
             console.print("  [yellow]⊘[/yellow] arcgis package not installed — cannot test connectivity")
             console.print("  [dim]Install with: pip install arcgis[/dim]")
             issues.append("Portal connectivity check could not run because the arcgis package is not installed")
             all_ok = False
-        else:
+        elif check_portal:
             try:
                 from gitmap_core.connection import get_connection
 
                 console.print(f"  [dim]Connecting to {portal_url} ...[/dim]")
                 conn = get_connection(
                     url=portal_url,
-                    username=username or None,
-                    password=password or None,
+                    username=username,
+                    password=password,
                 )
                 if conn.username:
                     console.print(f"  {_check(True)} Connected as [cyan]{conn.username}[/cyan]")
