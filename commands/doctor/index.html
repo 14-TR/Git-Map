@@ -2056,14 +2056,14 @@
 <li><strong>Optional packages</strong> — notes if <code>apscheduler</code> or <code>arcgis</code> are missing (with context about what they enable)</li>
 <li><strong>Environment variables</strong> — shows which Portal credentials are set (<code>PORTAL_URL</code>, <code>ARCGIS_USERNAME</code>, <code>ARCGIS_PASSWORD</code>)</li>
 <li><strong>Current directory</strong> — detects if you're inside a GitMap repository and shows branch/commit count</li>
-<li><strong>Portal connectivity</strong> <em>(with <code>--portal</code>)</em> — attempts an authenticated connection to your configured Portal</li>
+<li><strong>Portal connectivity</strong> <em>(with <code>--portal</code>)</em> — verifies named-user or ArcGIS Pro-backed access to your configured Portal and fails closed on anonymous fallback</li>
 </ol>
 <p>Exit code is <code>0</code> when no issues are found, <code>1</code> otherwise — useful for scripting.</p>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Basic environment check</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>gitmap<span class="w"> </span>doctor
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Also test Portal connectivity</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Also verify that Portal credentials really work</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>gitmap<span class="w"> </span>doctor<span class="w"> </span>--portal
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Show install commands for missing packages</span>
@@ -2087,7 +2087,7 @@
 <a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>─── Environment Variables ───
 <a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>  ✓ PORTAL_URL=https://myorg.maps.arcgis.com
 <a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>  ✓ ARCGIS_USERNAME=myuser
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>  ⊘ ARCGIS_PASSWORD  (not set)
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>  ✓ ARCGIS_PASSWORD=***
 <a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>
 <a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>─── Current Directory ───
 <a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>  ✓ In a GitMap repository  (/home/user/my-map)
@@ -2096,6 +2096,7 @@
 <a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>
 <a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>✓ No issues found. GitMap is ready to use.
 </code></pre></div>
+<p>If <code>gitmap doctor --portal</code> says it connected anonymously, treat that as a blocker for first-user validation. Set <code>ARCGIS_USERNAME</code> and <code>ARCGIS_PASSWORD</code> (or <code>PORTAL_USER</code> and <code>PORTAL_PASSWORD</code>), or sign in through ArcGIS Pro before proceeding with clone/pull/push testing.</p>
 <h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../init/"><code>gitmap init</code></a> — initialize a new repository</li>

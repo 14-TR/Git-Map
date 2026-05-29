@@ -2146,7 +2146,6 @@
 <p>Make sure you have gitmap installed:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gitmap-cli
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>gitmap<span class="w"> </span>--version
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>gitmap<span class="w"> </span>doctor
 </code></pre></div>
 <p>You also need an ArcGIS Online or Portal web map item ID. Open the web map item page and copy the <code>id</code> value from the URL, such as <code>...?id=abc123def456</code>.</p>
 <h2 id="1-set-up-credentials">1. Set Up Credentials<a class="headerlink" href="#1-set-up-credentials" title="Permanent link">&para;</a></h2>
@@ -2159,10 +2158,10 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cp<span class="w"> </span>configs/env.example<span class="w"> </span>.env
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># edit .env with your credentials</span>
 </code></pre></div>
-<p>Check the Portal connection before cloning:</p>
+<p>Before cloning, verify the auth path explicitly:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>gitmap<span class="w"> </span>doctor<span class="w"> </span>--portal
 </code></pre></div>
-<p><code>gitmap doctor</code> is read-only. It verifies the local environment, credential variables, current directory, and, with <code>--portal</code>, whether GitMap can connect to the configured ArcGIS organization.</p>
+<p>This check should confirm a named user or ArcGIS Pro-backed session. If it reports anonymous access, stop and fix credentials before first-user validation.</p>
 <h2 id="2-clone-an-existing-map">2. Clone an Existing Map<a class="headerlink" href="#2-clone-an-existing-map" title="Permanent link">&para;</a></h2>
 <p>The quickest way to start is cloning a map directly from Portal:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>gitmap<span class="w"> </span>clone<span class="w"> </span>abc123def456
@@ -2216,7 +2215,7 @@
 <p><code>gitmap push</code> is the step that can update ArcGIS content. Review the diff before pushing, and keep using a test map until the workflow is familiar.</p>
 <h2 id="first-run-troubleshooting">First-Run Troubleshooting<a class="headerlink" href="#first-run-troubleshooting" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Missing credentials: set <code>ARCGIS_USERNAME</code>, <code>ARCGIS_PASSWORD</code>, and <code>PORTAL_URL</code>, or create a local <code>.env</code> file, then run <code>gitmap doctor --portal</code>.</li>
+<li>Missing credentials: set <code>ARCGIS_USERNAME</code>, <code>ARCGIS_PASSWORD</code>, and <code>PORTAL_URL</code>, or create a local <code>.env</code> file.</li>
 <li>Missing command: install with <code>pip install gitmap-cli</code>, then run <code>gitmap --version</code>.</li>
 <li>Wrong item ID: copy the web map item ID from the ArcGIS item page URL, not the map title or layer ID.</li>
 <li>Wrong directory: run GitMap commands from the folder created by <code>gitmap clone</code>.</li>
