@@ -18,6 +18,7 @@ Metadata:
 from __future__ import annotations
 
 import json
+from typing import TYPE_CHECKING, Any
 
 import click
 from rich.console import Console
@@ -26,8 +27,10 @@ from rich.syntax import Syntax
 from rich.table import Table
 from rich.text import Text
 
-from gitmap_core.diff import diff_maps, format_diff_html, format_diff_stats, format_diff_summary, format_diff_visual
-from gitmap_core.repository import Repository, find_repository
+from gitmap_core.repository import find_repository
+
+if TYPE_CHECKING:
+    from gitmap_core.repository import Repository
 
 console = Console()
 
@@ -56,7 +59,7 @@ def _resolve_ref(
 
 
 def _print_diff_table(
-    map_diff,
+    map_diff: Any,
     label_a: str,
     label_b: str,
     verbose: bool,
@@ -72,6 +75,8 @@ def _print_diff_table(
     if not map_diff.has_changes:
         console.print("[green]✓ No differences[/green]")
         return
+
+    from gitmap_core.diff import format_diff_stats, format_diff_visual
 
     stats = format_diff_stats(map_diff)
     rows = format_diff_visual(map_diff, label_a, label_b)
@@ -125,7 +130,7 @@ def _print_diff_table(
 
 
 def _print_diff_html(
-    map_diff,
+    map_diff: Any,
     label_a: str,
     label_b: str,
     output_path: str | None,
@@ -139,6 +144,7 @@ def _print_diff_html(
         output_path: File path to write HTML; defaults to diff-report.html.
     """
     import os
+    from gitmap_core.diff import format_diff_html
 
     out = output_path or "diff-report.html"
     title = f"GitMap Diff: {label_a} → {label_b}"
@@ -150,7 +156,7 @@ def _print_diff_html(
 
 
 def _print_diff(
-    map_diff,
+    map_diff: Any,
     label_a: str,
     label_b: str,
     verbose: bool,
@@ -181,6 +187,8 @@ def _print_diff(
     if not map_diff.has_changes:
         console.print("[green]No differences[/green]")
         return
+
+    from gitmap_core.diff import format_diff_summary
 
     console.print(
         Panel(
@@ -267,8 +275,7 @@ def diff(
         gitmap diff abc123 def456                 # Commit vs commit
     """
     try:
-        if output and fmt.lower() != "html":
-            raise click.ClickException("--output can only be used with --format html.")
+        from gitmap_core.diff import diff_maps
 
         repo = find_repository()
 

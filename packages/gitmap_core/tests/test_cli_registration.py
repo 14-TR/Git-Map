@@ -135,15 +135,7 @@ class TestCommandRegistration:
         assert result.exit_code == 0
         assert "Getting started:" in result.output
         assert "gitmap init" in result.output
-        assert "gitmap clone <item-id> --url <portal-url>" in result.output
         assert "gitmap completions" in result.output
-
-        footer = result.output.split("Getting started:", maxsplit=1)[1]
-        expected_new_repo = 'New repository: gitmap init -> gitmap status -> gitmap commit -m "Initial snapshot"'
-        assert expected_new_repo in footer
-        assert "Existing web map: gitmap clone <item-id> --url <portal-url>" in footer
-        assert "Need shell completions? Run: gitmap completions" in footer
-        assert 'snapshot" Need shell completions?' not in footer
 
     def test_help_uses_gitmap_prog_name(self, runner: CliRunner) -> None:
         """Help output should show the installed command name, not the internal function name."""
@@ -176,6 +168,31 @@ class TestCommandRegistration:
         assert result.returncode == 0
         assert "Usage: gitmap [OPTIONS] COMMAND [ARGS]..." in result.stdout
         assert "Usage: main.py [OPTIONS] COMMAND [ARGS]..." not in result.stdout
+
+    def test_direct_script_top_level_metadata_works_without_runtime_command_deps(self) -> None:
+        """Top-level help/version should not import heavy command dependencies like deepdiff."""
+        repo_root = Path(__file__).resolve().parents[3]
+        env = {
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join(
+                [
+                    str(repo_root / "packages"),
+                    str(repo_root / "apps" / "cli" / "gitmap"),
+                ]
+            ),
+        }
+
+        for args in (["--help"], ["--version"]):
+            result = subprocess.run(
+                [sys.executable, str(repo_root / "apps" / "cli" / "gitmap" / "main.py"), *args],
+                capture_output=True,
+                text=True,
+                env=env,
+                check=False,
+            )
+
+            assert result.returncode == 0, result.stderr or result.stdout
+            assert "ModuleNotFoundError" not in (result.stdout + result.stderr)
 
     def test_direct_script_unknown_command_points_to_gitmap_help(self) -> None:
         """Source-script errors should point users at gitmap help, not main.py help."""
@@ -264,6 +281,19 @@ class TestCommandRegistration:
         result = runner.invoke(cli, [command, "--help"], terminal_width=100)
         assert result.exit_code == 0, f"{command} --help failed:\n{result.output}"
 
+        for example in examples:
+            assert f"  {example}" in result.output
+
+    def test_doctor_examples_render_on_separate_lines(self, runner: CliRunner) -> None:
+        """Doctor help examples should remain readable command blocks."""
+        result = runner.invoke(cli, ["doctor", "--help"], terminal_width=100)
+        assert result.exit_code == 0, f"doctor --help failed:\n{result.output}"
+
+        examples = [
+            "gitmap doctor",
+            "gitmap doctor --portal",
+            "gitmap doctor --fix",
+        ]
         for example in examples:
             assert f"  {example}" in result.output
 

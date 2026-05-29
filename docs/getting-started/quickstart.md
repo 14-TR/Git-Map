@@ -21,7 +21,6 @@ Make sure you have gitmap installed:
 ```bash
 pip install gitmap-cli
 gitmap --version
-gitmap doctor
 ```
 
 You also need an ArcGIS Online or Portal web map item ID. Open the web map item page and copy the `id` value from the URL, such as `...?id=abc123def456`.
@@ -43,13 +42,13 @@ cp configs/env.example .env
 # edit .env with your credentials
 ```
 
-Check the Portal connection before cloning:
+Before cloning, verify the auth path explicitly:
 
 ```bash
 gitmap doctor --portal
 ```
 
-`gitmap doctor` is read-only. It verifies the local environment, credential variables, current directory, and, with `--portal`, whether GitMap can connect to the configured ArcGIS organization.
+This check should confirm a named user or ArcGIS Pro-backed session. If it reports anonymous access, stop and fix credentials before first-user validation.
 
 ## 2. Clone an Existing Map
 
@@ -141,7 +140,7 @@ gitmap push
 
 ## First-Run Troubleshooting
 
-- Missing credentials: set `ARCGIS_USERNAME`, `ARCGIS_PASSWORD`, and `PORTAL_URL`, or create a local `.env` file, then run `gitmap doctor --portal`.
+- Missing credentials: set `ARCGIS_USERNAME`, `ARCGIS_PASSWORD`, and `PORTAL_URL`, or create a local `.env` file.
 - Missing command: install with `pip install gitmap-cli`, then run `gitmap --version`.
 - Wrong item ID: copy the web map item ID from the ArcGIS item page URL, not the map title or layer ID.
 - Wrong directory: run GitMap commands from the folder created by `gitmap clone`.

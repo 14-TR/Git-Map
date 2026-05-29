@@ -19,6 +19,7 @@ Metadata:
 from __future__ import annotations
 
 import json
+from typing import Any
 
 import click
 from rich.console import Console
@@ -28,7 +29,6 @@ from rich.syntax import Syntax
 from rich.table import Table
 from rich.text import Text
 
-from gitmap_core.diff import diff_maps, format_diff_stats
 from gitmap_core.repository import find_repository
 
 console = Console()
@@ -92,8 +92,10 @@ def _print_layer_summary(commit) -> None:
     console.print(f"  [dim]{len(layers)} layer(s), {len(tables)} table(s)[/dim]")
 
 
-def _print_diff_section(commit, parent_commit, verbose: bool, fmt: str) -> None:
+def _print_diff_section(commit: Any, parent_commit: Any, verbose: bool, fmt: str) -> None:
     """Print the diff between commit and its parent."""
+    from gitmap_core.diff import diff_maps, format_diff_stats
+
     console.print()
     console.print(Rule("[dim]Changes vs Parent[/dim]", style="dim"))
 
