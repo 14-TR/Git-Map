@@ -31,51 +31,180 @@ if "gitmap_cli" not in sys.modules:
     sys.modules["gitmap_cli"] = _pkg
 
 import click
-from gitmap_cli.commands.auto_pull import auto_pull
-from gitmap_cli.commands.branch import branch
-from gitmap_cli.commands.checkout import checkout
-from gitmap_cli.commands.cherry_pick import cherry_pick
-from gitmap_cli.commands.clone import clone
-from gitmap_cli.commands.commit import commit
-from gitmap_cli.commands.completions import completions
-from gitmap_cli.commands.config import config
-from gitmap_cli.commands.context import context
-from gitmap_cli.commands.daemon import daemon
-from gitmap_cli.commands.diff import diff
-from gitmap_cli.commands.doctor import doctor
-from gitmap_cli.commands.init import init
-from gitmap_cli.commands.list import list_maps
-from gitmap_cli.commands.log import log
-from gitmap_cli.commands.merge import merge
-from gitmap_cli.commands.notify import notify
-from gitmap_cli.commands.pull import pull
-from gitmap_cli.commands.push import push
-from gitmap_cli.commands.revert import revert
-from gitmap_cli.commands.setup_repos import setup_repos
-from gitmap_cli.commands.show import show
-from gitmap_cli.commands.stash import stash
-from gitmap_cli.commands.status import status
-from gitmap_cli.commands.tag import tag
 from gitmap_cli.help_formatter import GroupedHelpGroup
 
-# Import hyphenated modules using importlib.util (kebab-case filenames)
-_layer_settings_merge_path = Path(__file__).parent / "commands" / "layer-settings-merge.py"
-_layer_settings_merge_spec = importlib.util.spec_from_file_location(
-    "layer_settings_merge",
-    _layer_settings_merge_path,
-)
-_layer_settings_merge_module = importlib.util.module_from_spec(_layer_settings_merge_spec)
-_layer_settings_merge_spec.loader.exec_module(_layer_settings_merge_module)
-layer_settings_merge = _layer_settings_merge_module.layer_settings_merge
+COMMAND_SPECS: dict[str, dict[str, str]] = {
+    "init": {
+        "module": "gitmap_cli.commands.init",
+        "attr": "init",
+        "short_help": "Initialize a new GitMap repository.",
+    },
+    "clone": {
+        "module": "gitmap_cli.commands.clone",
+        "attr": "clone",
+        "short_help": "Clone a web map from ArcGIS Portal.",
+    },
+    "cherry-pick": {
+        "module": "gitmap_cli.commands.cherry_pick",
+        "attr": "cherry_pick",
+        "short_help": "Apply a specific commit onto the current branch.",
+    },
+    "status": {
+        "module": "gitmap_cli.commands.status",
+        "attr": "status",
+        "short_help": "Show working tree and branch status.",
+    },
+    "branch": {
+        "module": "gitmap_cli.commands.branch",
+        "attr": "branch",
+        "short_help": "Create or list branches.",
+    },
+    "checkout": {
+        "module": "gitmap_cli.commands.checkout",
+        "attr": "checkout",
+        "short_help": "Switch branches or restore commits.",
+    },
+    "commit": {
+        "module": "gitmap_cli.commands.commit",
+        "attr": "commit",
+        "short_help": "Commit the staged map state.",
+    },
+    "config": {
+        "module": "gitmap_cli.commands.config",
+        "attr": "config",
+        "short_help": "View or set GitMap configuration.",
+    },
+    "context": {
+        "module": "gitmap_cli.commands.context",
+        "attr": "context",
+        "short_help": "Inspect or manage map context annotations.",
+    },
+    "daemon": {
+        "module": "gitmap_cli.commands.daemon",
+        "attr": "daemon",
+        "short_help": "Run the GitMap automation daemon.",
+    },
+    "diff": {
+        "module": "gitmap_cli.commands.diff",
+        "attr": "diff",
+        "short_help": "Show ArcGIS-aware diffs between map states.",
+    },
+    "doctor": {
+        "module": "gitmap_cli.commands.doctor",
+        "attr": "doctor",
+        "short_help": "Check environment, config, and auth readiness.",
+    },
+    "lsm": {
+        "path": str(Path(__file__).parent / "commands" / "layer-settings-merge.py"),
+        "module_name": "gitmap_cli.commands.layer_settings_merge",
+        "attr": "layer_settings_merge",
+        "short_help": "Merge layer settings between web maps.",
+    },
+    "list": {
+        "module": "gitmap_cli.commands.list",
+        "attr": "list_maps",
+        "short_help": "List available web maps from Portal.",
+    },
+    "log": {
+        "module": "gitmap_cli.commands.log",
+        "attr": "log",
+        "short_help": "Show commit history.",
+    },
+    "show": {
+        "module": "gitmap_cli.commands.show",
+        "attr": "show",
+        "short_help": "Display a commit or map snapshot.",
+    },
+    "completions": {
+        "module": "gitmap_cli.commands.completions",
+        "attr": "completions",
+        "short_help": "Generate shell completion scripts.",
+    },
+    "merge": {
+        "module": "gitmap_cli.commands.merge",
+        "attr": "merge",
+        "short_help": "Merge another branch into the current branch.",
+    },
+    "merge-from": {
+        "path": str(Path(__file__).parent / "commands" / "merge-from.py"),
+        "module_name": "gitmap_cli.commands.merge_from",
+        "attr": "merge_from",
+        "short_help": "Merge commits from one ref into another.",
+    },
+    "notify": {
+        "module": "gitmap_cli.commands.notify",
+        "attr": "notify",
+        "short_help": "Send Portal notifications for a map item.",
+    },
+    "push": {
+        "module": "gitmap_cli.commands.push",
+        "attr": "push",
+        "short_help": "Push the current branch state to Portal.",
+    },
+    "pull": {
+        "module": "gitmap_cli.commands.pull",
+        "attr": "pull",
+        "short_help": "Pull the latest Portal state into the index.",
+    },
+    "revert": {
+        "module": "gitmap_cli.commands.revert",
+        "attr": "revert",
+        "short_help": "Revert a commit by creating an inverse commit.",
+    },
+    "stash": {
+        "module": "gitmap_cli.commands.stash",
+        "attr": "stash",
+        "short_help": "Temporarily stash working changes.",
+    },
+    "tag": {
+        "module": "gitmap_cli.commands.tag",
+        "attr": "tag",
+        "short_help": "Create or list tags.",
+    },
+    "auto-pull": {
+        "module": "gitmap_cli.commands.auto_pull",
+        "attr": "auto_pull",
+        "short_help": "Bulk-pull multiple repositories from Portal.",
+    },
+    "setup-repos": {
+        "module": "gitmap_cli.commands.setup_repos",
+        "attr": "setup_repos",
+        "short_help": "Create multiple GitMap repos from a manifest.",
+    },
+}
 
-_merge_from_path = Path(__file__).parent / "commands" / "merge-from.py"
-_merge_from_spec = importlib.util.spec_from_file_location(
-    "merge_from",
-    _merge_from_path,
-)
-_merge_from_module = importlib.util.module_from_spec(_merge_from_spec)
-_merge_from_spec.loader.exec_module(_merge_from_module)
-merge_from = _merge_from_module.merge_from
+
+def _load_command(spec: dict[str, str]) -> click.Command:
+    if "module" in spec:
+        module = __import__(spec["module"], fromlist=[spec["attr"]])
+        return getattr(module, spec["attr"])
+
+    module_name = spec["module_name"]
+    loaded = sys.modules.get(module_name)
+    if loaded is None:
+        module_path = spec["path"]
+        module_spec = importlib.util.spec_from_file_location(module_name, module_path)
+        if module_spec is None or module_spec.loader is None:
+            raise ImportError(f"Unable to load command module from {module_path}")
+        loaded = importlib.util.module_from_spec(module_spec)
+        sys.modules[module_name] = loaded
+        module_spec.loader.exec_module(loaded)
+    return getattr(loaded, spec["attr"])
+
+
+class LazyCommandGroup(GroupedHelpGroup):
+    """Grouped help plus on-demand command imports for lightweight top-level CLI startup."""
+
+    lazy_command_summaries = {name: spec["short_help"] for name, spec in COMMAND_SPECS.items()}
+
+    def list_commands(self, ctx: click.Context) -> list[str]:
+        return sorted(COMMAND_SPECS)
+
+    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
+        spec = COMMAND_SPECS.get(cmd_name)
+        if spec is None:
+            return None
+        return _load_command(spec)
 
 
 # ---- CLI Group ----------------------------------------------------------------------------------------------
@@ -83,7 +212,7 @@ merge_from = _merge_from_module.merge_from
 # ---- Grouped Help ------------------------------------------------------------------------------------------
 
 
-@click.group(name="gitmap", cls=GroupedHelpGroup)
+@click.group(name="gitmap", cls=LazyCommandGroup)
 @click.version_option(version="0.7.0", prog_name="gitmap")
 def cli() -> None:
     """GitMap - Version control for ArcGIS web maps.
@@ -93,38 +222,6 @@ def cli() -> None:
     using familiar workflows.
     """
     pass
-
-
-# ---- Register Commands --------------------------------------------------------------------------------------
-
-
-cli.add_command(init)
-cli.add_command(clone)
-cli.add_command(cherry_pick, name="cherry-pick")
-cli.add_command(status)
-cli.add_command(branch)
-cli.add_command(checkout)
-cli.add_command(commit)
-cli.add_command(config)
-cli.add_command(context)
-cli.add_command(daemon)
-cli.add_command(diff)
-cli.add_command(doctor)
-cli.add_command(layer_settings_merge)
-cli.add_command(list_maps, name="list")
-cli.add_command(log)
-cli.add_command(show)
-cli.add_command(completions)
-cli.add_command(merge)
-cli.add_command(merge_from, name="merge-from")
-cli.add_command(notify)
-cli.add_command(push)
-cli.add_command(pull)
-cli.add_command(revert)
-cli.add_command(stash)
-cli.add_command(tag)
-cli.add_command(auto_pull, name="auto-pull")
-cli.add_command(setup_repos, name="setup-repos")
 
 
 # ---- Main Function ------------------------------------------------------------------------------------------

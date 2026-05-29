@@ -63,18 +63,28 @@ def _warn(value: bool) -> str:
 
 
 def _pkg_installed(import_name: str) -> bool:
-    try:
-        return importlib.util.find_spec(import_name) is not None
-    except ValueError:
-        return False
+    return importlib.util.find_spec(import_name) is not None
 
 
-def _first_set_env(var_names: tuple[str, ...]) -> str | None:
+def _first_set_env(var_names: tuple[str, ...]) -> tuple[str | None, str | None]:
     for var_name in var_names:
         value = os.environ.get(var_name)
         if value:
-            return value
-    return None
+            return var_name, value
+    return None, None
+
+
+def _portal_credential_state() -> dict[str, str | bool | None]:
+    username_var, username = _first_set_env(PORTAL_USERNAME_VARS)
+    password_var, password = _first_set_env(PORTAL_PASSWORD_VARS)
+    return {
+        "username_var": username_var,
+        "username": username,
+        "password_var": password_var,
+        "password": password,
+        "has_username": bool(username),
+        "has_password": bool(password),
+    }
 
 
 # ---- Doctor Command -----------------------------------------------------------------------------------------
@@ -198,46 +208,50 @@ def doctor(check_portal: bool, show_fixes: bool) -> None:
     if check_portal:
         console.print("[bold dim]─── Portal Connectivity ───[/bold dim]")
         portal_url = os.environ.get("PORTAL_URL", "https://www.arcgis.com")
-        username = _first_set_env(PORTAL_USERNAME_VARS)
-        password = _first_set_env(PORTAL_PASSWORD_VARS)
+        cred_state = _portal_credential_state()
+        username = cred_state["username"]
+        password = cred_state["password"]
 
-        if not username or not password:
-            missing = []
-            if not username:
-                missing.append("ARCGIS_USERNAME or PORTAL_USER")
-            if not password:
-                missing.append("ARCGIS_PASSWORD or PORTAL_PASSWORD")
-            missing_text = "; ".join(missing)
-            console.print(f"  {_check(False)} Missing Portal credentials: {missing_text}")
-            console.print("  [dim]Set credentials before using doctor --portal as a credential preflight.[/dim]")
-            issues.append(f"Portal credential preflight missing credentials: {missing_text}")
-            all_ok = False
-            console.print()
-            check_portal = False
-
-        if check_portal and not _pkg_installed("arcgis"):
+        if not _pkg_installed("arcgis"):
             console.print("  [yellow]⊘[/yellow] arcgis package not installed — cannot test connectivity")
             console.print("  [dim]Install with: pip install arcgis[/dim]")
-            issues.append("Portal connectivity check could not run because the arcgis package is not installed")
-            all_ok = False
-        elif check_portal:
-            try:
-                from gitmap_core.connection import get_connection
-
-                console.print(f"  [dim]Connecting to {portal_url} ...[/dim]")
-                conn = get_connection(
-                    url=portal_url,
-                    username=username,
-                    password=password,
+        else:
+            if cred_state["has_username"] != cred_state["has_password"]:
+                missing_var = "ARCGIS_PASSWORD or PORTAL_PASSWORD"
+                present_var = cred_state["username_var"]
+                if cred_state["has_password"]:
+                    missing_var = "ARCGIS_USERNAME or PORTAL_USER"
+                    present_var = cred_state["password_var"]
+                console.print(
+                    f"  {_check(False)} Incomplete Portal credentials: found {present_var} but missing {missing_var}"
                 )
-                if conn.username:
-                    console.print(f"  {_check(True)} Connected as [cyan]{conn.username}[/cyan]")
-                else:
-                    console.print(f"  {_check(True)} Connected (anonymous)")
-            except Exception as conn_err:
-                console.print(f"  {_check(False)} Connection failed: {conn_err}")
-                issues.append(f"Portal connectivity check failed: {conn_err}")
+                issues.append("Portal credential check failed: username/password variables are incomplete")
                 all_ok = False
+                console.print()
+            else:
+                try:
+                    from gitmap_core.connection import get_connection
+
+                    console.print(f"  [dim]Connecting to {portal_url} ...[/dim]")
+                    conn = get_connection(
+                        url=portal_url,
+                        username=username or None,
+                        password=password or None,
+                    )
+                    if conn.username:
+                        console.print(f"  {_check(True)} Connected as [cyan]{conn.username}[/cyan]")
+                    else:
+                        console.print("  [yellow]⚠[/yellow] Connected anonymously; credential verification not proven")
+                        console.print(
+                            "  [dim]Set ARCGIS_USERNAME/ARCGIS_PASSWORD (or PORTAL_USER/PORTAL_PASSWORD),"
+                            " or sign in through ArcGIS Pro before rerunning.[/dim]"
+                        )
+                        issues.append("Portal credential check failed: connection fell back to anonymous access")
+                        all_ok = False
+                except Exception as conn_err:
+                    console.print(f"  {_check(False)} Connection failed: {conn_err}")
+                    issues.append(f"Portal connectivity check failed: {conn_err}")
+                    all_ok = False
         console.print()
 
     # ---- Summary ----------------------------------------------------------------------------------------

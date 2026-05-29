@@ -52,11 +52,10 @@ COMMAND_SECTIONS: list[tuple[str, list[str]]] = [
     ),
 ]
 
-HELP_FOOTER_LINES = [
-    'New repository: gitmap init -> gitmap status -> gitmap commit -m "Initial snapshot"',
-    "Existing web map: gitmap clone <item-id> --url <portal-url>",
-    "Need shell completions? Run: gitmap completions",
-]
+HELP_FOOTER = (
+    'Getting started: gitmap init → gitmap status → gitmap commit -m "Initial snapshot"\n'
+    "Need shell completions? Run: gitmap completions"
+)
 
 
 class GroupedHelpGroup(click.Group):
@@ -67,19 +66,26 @@ class GroupedHelpGroup(click.Group):
 
     def format_commands(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
         """Render commands in named sections instead of a flat list."""
-        available: dict[str, click.BaseCommand | None] = {
-            name: self.get_command(ctx, name) for name in self.list_commands(ctx)
-        }
+        summaries: dict[str, str] | None = getattr(self, "lazy_command_summaries", None)
+        available_names = list(self.list_commands(ctx))
+        available: dict[str, click.BaseCommand | None] = {}
+        if summaries is None:
+            available = {name: self.get_command(ctx, name) for name in available_names}
 
         placed: set[str] = set()
 
         for section_title, cmd_names in COMMAND_SECTIONS:
             rows: list[tuple[str, str]] = []
             for name in cmd_names:
-                cmd = available.get(name)
-                if cmd is None:
+                if name not in available_names:
                     continue
-                help_text = cmd.get_short_help_str(limit=60)
+                if summaries is not None:
+                    help_text = summaries.get(name, "")
+                else:
+                    cmd = available.get(name)
+                    if cmd is None:
+                        continue
+                    help_text = cmd.get_short_help_str(limit=60)
                 rows.append((name, help_text))
                 placed.add(name)
 
@@ -90,11 +96,14 @@ class GroupedHelpGroup(click.Group):
                 formatter.write_dl(rows)
 
         remainder: list[tuple[str, str]] = []
-        for name in sorted(available):
+        for name in sorted(available_names):
             if name not in placed:
-                cmd = available[name]
-                if cmd is not None:
-                    remainder.append((name, cmd.get_short_help_str(limit=60)))
+                if summaries is not None:
+                    remainder.append((name, summaries.get(name, "")))
+                else:
+                    cmd = available[name]
+                    if cmd is not None:
+                        remainder.append((name, cmd.get_short_help_str(limit=60)))
 
         if remainder:
             with formatter.section("Other"):
@@ -102,13 +111,9 @@ class GroupedHelpGroup(click.Group):
 
     def format_epilog(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
         """Append a short getting-started footer to top-level help."""
-        if HELP_FOOTER_LINES:
+        if HELP_FOOTER:
             formatter.write_paragraph()
-            formatter.write("Getting started:\n")
-            formatter.indent()
-            for line in HELP_FOOTER_LINES:
-                formatter.write(f"  {line}\n")
-            formatter.dedent()
+            formatter.write_text(HELP_FOOTER)
 
     def resolve_command(self, ctx: click.Context, args: list[str]) -> tuple[str, click.Command, list[str]]:
         """Add suggestions when the user mistypes a command name."""

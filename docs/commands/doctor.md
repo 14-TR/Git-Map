@@ -25,7 +25,7 @@ gitmap doctor [OPTIONS]
 3. **Optional packages** — notes if `apscheduler` or `arcgis` are missing (with context about what they enable)
 4. **Environment variables** — shows which Portal credentials are set (`PORTAL_URL`, `ARCGIS_USERNAME`, `ARCGIS_PASSWORD`)
 5. **Current directory** — detects if you're inside a GitMap repository and shows branch/commit count
-6. **Portal connectivity** *(with `--portal`)* — attempts an authenticated connection to your configured Portal
+6. **Portal connectivity** *(with `--portal`)* — verifies named-user or ArcGIS Pro-backed access to your configured Portal and fails closed on anonymous fallback
 
 Exit code is `0` when no issues are found, `1` otherwise — useful for scripting.
 
@@ -35,7 +35,7 @@ Exit code is `0` when no issues are found, `1` otherwise — useful for scriptin
 # Basic environment check
 gitmap doctor
 
-# Also test Portal connectivity
+# Also verify that Portal credentials really work
 gitmap doctor --portal
 
 # Show install commands for missing packages
@@ -62,7 +62,7 @@ GitMap Doctor — environment diagnostics
 ─── Environment Variables ───
   ✓ PORTAL_URL=https://myorg.maps.arcgis.com
   ✓ ARCGIS_USERNAME=myuser
-  ⊘ ARCGIS_PASSWORD  (not set)
+  ✓ ARCGIS_PASSWORD=***
 
 ─── Current Directory ───
   ✓ In a GitMap repository  (/home/user/my-map)
@@ -71,6 +71,8 @@ GitMap Doctor — environment diagnostics
 
 ✓ No issues found. GitMap is ready to use.
 ```
+
+If `gitmap doctor --portal` says it connected anonymously, treat that as a blocker for first-user validation. Set `ARCGIS_USERNAME` and `ARCGIS_PASSWORD` (or `PORTAL_USER` and `PORTAL_PASSWORD`), or sign in through ArcGIS Pro before proceeding with clone/pull/push testing.
 
 ## See Also
 

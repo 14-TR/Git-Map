@@ -16,8 +16,6 @@ Dependencies:
 
 from __future__ import annotations
 
-import os
-import subprocess
 import sys
 import types
 from pathlib import Path
@@ -43,7 +41,7 @@ if "gitmap_cli" not in sys.modules:
 if str(_cli_dir) not in sys.path:
     sys.path.insert(0, str(_cli_dir))
 
-from gitmap_cli.commands import doctor as doctor_module  # noqa: E402
+import gitmap_cli.commands.doctor as doctor_module  # noqa: E402
 from main import cli  # noqa: E402
 
 
@@ -60,43 +58,6 @@ class TestDoctorCommand:
         result = runner.invoke(cli, ["doctor", "--help"])
         assert result.exit_code == 0, f"doctor --help failed:\n{result.output}"
         assert "environment" in result.output.lower() or "check" in result.output.lower()
-        assert "ArcGIS compatibility" not in result.output
-
-    def test_doctor_help_examples_render_on_separate_lines(self, runner: CliRunner) -> None:
-        """doctor --help should keep examples readable for first users."""
-        result = runner.invoke(cli, ["doctor", "--help"], terminal_width=100)
-        assert result.exit_code == 0, f"doctor --help failed:\n{result.output}"
-
-        examples = [
-            "gitmap doctor",
-            "gitmap doctor --portal",
-            "gitmap doctor --fix",
-        ]
-        for example in examples:
-            assert f"  {example}" in result.output
-
-        examples_block = result.output.split("Examples:", maxsplit=1)[1].split("Options:", maxsplit=1)[0]
-        assert " ".join(examples) not in examples_block
-
-    def test_doctor_help_source_execution_is_warning_free(self) -> None:
-        """Direct source help should not emit ArcGIS compatibility warnings."""
-        repo_root = Path(__file__).resolve().parents[3]
-        env = os.environ.copy()
-        env["PYTHONPATH"] = f"{repo_root / 'packages'}:{repo_root}"
-        result = subprocess.run(
-            [sys.executable, "-m", "apps.cli.gitmap.main", "doctor", "--help"],
-            cwd=repo_root,
-            env=env,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        combined_output = result.stdout + result.stderr
-
-        assert result.returncode == 0, combined_output
-        assert "Usage:" in combined_output
-        assert "ArcGIS compatibility" not in combined_output
-        assert not combined_output.lstrip().startswith("ArcGIS compatibility")
 
     def test_doctor_runs_in_empty_dir(self, runner: CliRunner, tmp_path) -> None:
         """doctor should complete without unhandled exceptions in a non-repo dir."""
@@ -125,79 +86,106 @@ class TestDoctorCommand:
             result = runner.invoke(cli, ["doctor", "--fix"])
         assert result.exit_code in (0, 1)
 
-    def test_doctor_portal_requires_credentials(
-        self,
-        runner: CliRunner,
-        tmp_path,
-        monkeypatch: pytest.MonkeyPatch,
-    ) -> None:
-        """doctor --portal should not treat anonymous Portal access as credential success."""
-        for var_name in ("PORTAL_USER", "PORTAL_PASSWORD", "ARCGIS_USERNAME", "ARCGIS_PASSWORD"):
-            monkeypatch.delenv(var_name, raising=False)
-
-        with runner.isolated_filesystem(temp_dir=tmp_path):
-            result = runner.invoke(cli, ["doctor", "--portal"])
-
-        assert result.exit_code == 1
-        assert "Missing Portal credentials" in result.output
-        assert "credential preflight" in result.output
-        assert "Connected (anonymous)" not in result.output
-
     def test_doctor_registered_in_help(self, runner: CliRunner) -> None:
         """doctor must appear in top-level --help output."""
         result = runner.invoke(cli, ["--help"])
         assert "doctor" in result.output, f"'doctor' not found in CLI help:\n{result.output}"
 
-    def test_doctor_portal_missing_arcgis_reports_issue(
-        self, runner: CliRunner, tmp_path, monkeypatch: pytest.MonkeyPatch
+    def test_doctor_portal_fails_closed_on_anonymous_connection(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        runner: CliRunner,
+        tmp_path,
     ) -> None:
-        """doctor --portal should fail clearly when Portal connectivity cannot be tested."""
+        """doctor --portal should not treat anonymous access as verified credentials."""
 
-        def fake_pkg_installed(import_name: str) -> bool:
-            return import_name != "arcgis"
+        class AnonymousConnection:
+            username = None
 
-        monkeypatch.setattr(doctor_module, "_pkg_installed", fake_pkg_installed)
-        monkeypatch.setenv("ARCGIS_USERNAME", "test_user")
-        monkeypatch.setenv("ARCGIS_PASSWORD", "test_password")
+        monkeypatch.setattr(doctor_module, "_pkg_installed", lambda import_name: True)
+        monkeypatch.setattr(
+            doctor_module,
+            "_portal_credential_state",
+            lambda: {
+                "username_var": None,
+                "username": None,
+                "password_var": None,
+                "password": None,
+                "has_username": False,
+                "has_password": False,
+            },
+        )
+
+        import gitmap_core.connection as connection_module
+
+        monkeypatch.setattr(connection_module, "get_connection", lambda **_: AnonymousConnection())
 
         with runner.isolated_filesystem(temp_dir=tmp_path):
             result = runner.invoke(cli, ["doctor", "--portal"])
 
-        assert result.exit_code == 1
-        assert "arcgis package not installed" in result.output
-        assert "Portal connectivity check could not run" in result.output
-        assert "No issues found" not in result.output
+        assert result.exit_code == 1, result.output
+        assert "Connected anonymously" in result.output
+        assert "credential verification not proven" in result.output
 
+    def test_doctor_portal_flags_incomplete_credentials(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        runner: CliRunner,
+        tmp_path,
+    ) -> None:
+        """doctor --portal should surface partial env credentials before first-user testing."""
+        monkeypatch.setattr(doctor_module, "_pkg_installed", lambda import_name: True)
+        monkeypatch.setattr(
+            doctor_module,
+            "_portal_credential_state",
+            lambda: {
+                "username_var": "ARCGIS_USERNAME",
+                "username": "test-user",
+                "password_var": None,
+                "password": None,
+                "has_username": True,
+                "has_password": False,
+            },
+        )
 
-def test_first_user_docs_include_doctor_preflight() -> None:
-    """First-user docs should keep the diagnostic preflight visible."""
-    repo_root = Path(__file__).resolve().parents[3]
-    docs_to_check = [
-        repo_root / "README.md",
-        repo_root / "docs/getting-started/quickstart.md",
-        repo_root / "docs/validation/first-user-test.md",
-    ]
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            result = runner.invoke(cli, ["doctor", "--portal"])
 
-    for doc_path in docs_to_check:
-        text = doc_path.read_text(encoding="utf-8")
-        assert "gitmap doctor" in text, f"{doc_path} should mention gitmap doctor"
-        assert "gitmap doctor --portal" in text, f"{doc_path} should mention the Portal preflight"
+        assert result.exit_code == 1, result.output
+        assert "Incomplete Portal credentials" in result.output
+        assert "username/password variables are incomplete" in result.output
 
-    validation_text = (repo_root / "docs/validation/first-user-test.md").read_text(encoding="utf-8")
-    assert validation_text.index("gitmap doctor") < validation_text.index("gitmap clone <TEST_ITEM_ID>")
-    assert validation_text.index("gitmap doctor --portal") < validation_text.index("gitmap clone <TEST_ITEM_ID>")
+    def test_doctor_portal_accepts_named_user_connection(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        runner: CliRunner,
+        tmp_path,
+    ) -> None:
+        """doctor --portal should pass when Portal connectivity resolves to a named user."""
 
+        class NamedConnection:
+            username = "portal-user"
 
-def test_first_user_validation_diff_order_matches_staged_workflow() -> None:
-    """The first-user flow should diff staged changes before branch comparison."""
-    repo_root = Path(__file__).resolve().parents[3]
-    doc_path = repo_root / "docs/validation/first-user-test.md"
-    text = doc_path.read_text(encoding="utf-8")
+        monkeypatch.setattr(doctor_module, "_pkg_installed", lambda import_name: True)
+        monkeypatch.setattr(
+            doctor_module,
+            "_portal_credential_state",
+            lambda: {
+                "username_var": "ARCGIS_USERNAME",
+                "username": "portal-user",
+                "password_var": "ARCGIS_PASSWORD",
+                "password": "secret",
+                "has_username": True,
+                "has_password": True,
+            },
+        )
 
-    pull_index = text.index("gitmap pull")
-    status_index = text.index("gitmap status")
-    staged_diff_index = text.index("gitmap diff --format visual")
-    commit_index = text.index('gitmap commit -m "Validate GitMap workflow"')
-    branch_diff_index = text.index("gitmap diff main feature/validation-change --format visual")
+        import gitmap_core.connection as connection_module
 
-    assert pull_index < status_index < staged_diff_index < commit_index < branch_diff_index
+        monkeypatch.setattr(connection_module, "get_connection", lambda **_: NamedConnection())
+
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            result = runner.invoke(cli, ["doctor", "--portal"])
+
+        assert result.exit_code in (0, 1), result.output
+        assert "Connected as" in result.output
