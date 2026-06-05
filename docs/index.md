@@ -19,10 +19,18 @@ Git-Map brings familiar Git-style workflows to ArcGIS Online and Portal for ArcG
 ## Quick Install
 
 ```bash
-pip install gitmap-cli
+git clone https://github.com/14-TR/Git-Map.git
+cd Git-Map
+/opt/homebrew/bin/python3.13 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e "packages/gitmap_core[dev]"
+python -m pip install -e apps/cli/gitmap
 ```
 
-This installs the `gitmap` console command. Then see the [Quickstart](getting-started/quickstart.md) to run your first commit in under 5 minutes.
+Use a Python 3.11+ interpreter when creating the virtual environment. If `python3` on your machine is older, use an explicit executable such as `python3.11`, `python3.12`, or `python3.13`.
+
+This installs the `gitmap` command from the current checkout. Then see the [Quickstart](getting-started/quickstart.md) to run your first commit in under 5 minutes.
 
 ## Demo Script
 

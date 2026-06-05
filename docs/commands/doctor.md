@@ -23,7 +23,7 @@ gitmap doctor [OPTIONS]
 1. **Python version** — ensures you're running Python 3.11 or newer
 2. **Required packages** — verifies `click`, `rich`, and `deepdiff` are installed
 3. **Optional packages** — notes if `apscheduler` or `arcgis` are missing (with context about what they enable)
-4. **Environment variables** — shows which Portal credentials are set (`PORTAL_URL`, `ARCGIS_USERNAME`, `ARCGIS_PASSWORD`)
+4. **Environment variables** — shows which Portal credentials are set (`PORTAL_URL`, plus either `PORTAL_USER` / `PORTAL_PASSWORD` or `ARCGIS_USERNAME` / `ARCGIS_PASSWORD`)
 5. **Current directory** — detects if you're inside a GitMap repository and shows branch/commit count
 6. **Portal connectivity** *(with `--portal`)* — verifies named-user or ArcGIS Pro-backed access to your configured Portal and fails closed on anonymous fallback
 
@@ -61,8 +61,8 @@ GitMap Doctor — environment diagnostics
 
 ─── Environment Variables ───
   ✓ PORTAL_URL=https://myorg.maps.arcgis.com
-  ✓ ARCGIS_USERNAME=myuser
-  ✓ ARCGIS_PASSWORD=***
+  ✓ PORTAL_USER=myuser
+  ✓ PORTAL_PASSWORD=***
 
 ─── Current Directory ───
   ✓ In a GitMap repository  (/home/user/my-map)

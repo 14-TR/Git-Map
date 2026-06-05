@@ -31,6 +31,12 @@ if TYPE_CHECKING:
     from arcgis.gis import GIS
 
 
+PORTAL_CREDENTIAL_ENV_PAIRS = (
+    ("PORTAL_USER", "PORTAL_PASSWORD"),
+    ("ARCGIS_USERNAME", "ARCGIS_PASSWORD"),
+)
+
+
 # ---- Environment Loading ---------------------------------------------------------------------------------------
 
 
@@ -70,6 +76,104 @@ def _load_env_file(
             load_dotenv(parent_env, override=True)
             return
         current = parent
+
+
+def resolve_portal_env_credentials() -> dict[str, str | bool | None]:
+    """Resolve Portal credentials from supported env var pairs.
+
+    Returns a dictionary describing the resolved pair, whether any pair is
+    complete, and whether the environment configuration is invalid.
+    """
+    pair_states: list[dict[str, str | bool | None]] = []
+    for username_var, password_var in PORTAL_CREDENTIAL_ENV_PAIRS:
+        username = os.environ.get(username_var)
+        password = os.environ.get(password_var)
+        pair_states.append(
+            {
+                "username_var": username_var,
+                "username": username,
+                "password_var": password_var,
+                "password": password,
+                "has_username": bool(username),
+                "has_password": bool(password),
+                "is_complete": bool(username and password),
+            }
+        )
+
+    complete_pairs = [pair for pair in pair_states if pair["is_complete"]]
+    partial_pairs = [
+        pair for pair in pair_states if bool(pair["has_username"]) != bool(pair["has_password"])
+    ]
+    usernames_without_password = [pair for pair in pair_states if pair["has_username"] and not pair["has_password"]]
+    passwords_without_username = [pair for pair in pair_states if pair["has_password"] and not pair["has_username"]]
+
+    if len(complete_pairs) > 1:
+        first_pair = complete_pairs[0]
+        if any(
+            pair["username"] != first_pair["username"] or pair["password"] != first_pair["password"]
+            for pair in complete_pairs[1:]
+        ):
+            return {
+                "ok": False,
+                "kind": "conflicting_pairs",
+                "message": "Conflicting Portal credential env pairs are set; keep only one matching pair.",
+                "username_var": None,
+                "username": None,
+                "password_var": None,
+                "password": None,
+            }
+
+    if usernames_without_password and passwords_without_username:
+        return {
+            "ok": False,
+            "kind": "mixed_pairs",
+            "message": (
+                "Mixed Portal credential env pairs are set; use either "
+                "PORTAL_USER/PORTAL_PASSWORD or ARCGIS_USERNAME/ARCGIS_PASSWORD."
+            ),
+            "username_var": None,
+            "username": None,
+            "password_var": None,
+            "password": None,
+        }
+
+    if partial_pairs:
+        partial = partial_pairs[0]
+        missing_var = partial["password_var"] if partial["has_username"] else partial["username_var"]
+        present_var = partial["username_var"] if partial["has_username"] else partial["password_var"]
+        return {
+            "ok": False,
+            "kind": "incomplete_pair",
+            "message": f"Incomplete Portal credentials: found {present_var} but missing {missing_var}",
+            "present_var": present_var,
+            "missing_var": missing_var,
+            "username_var": partial["username_var"] if partial["has_username"] else None,
+            "username": partial["username"] if partial["has_username"] else None,
+            "password_var": partial["password_var"] if partial["has_password"] else None,
+            "password": partial["password"] if partial["has_password"] else None,
+        }
+
+    if complete_pairs:
+        pair = complete_pairs[0]
+        return {
+            "ok": True,
+            "kind": "complete_pair",
+            "message": None,
+            "username_var": pair["username_var"],
+            "username": pair["username"],
+            "password_var": pair["password_var"],
+            "password": pair["password"],
+        }
+
+    return {
+        "ok": True,
+        "kind": "no_env_credentials",
+        "message": None,
+        "username_var": None,
+        "username": None,
+        "password_var": None,
+        "password": None,
+    }
 
 
 # ---- Connection Classes -------------------------------------------------------------------------------------
@@ -154,9 +258,11 @@ class PortalConnection:
                 return self._gis
 
             # Try environment variables (from .env or shell)
-            # Check both PORTAL_USER/PORTAL_PASSWORD and ARCGIS_USERNAME/ARCGIS_PASSWORD
-            env_username = os.environ.get("PORTAL_USER") or os.environ.get("ARCGIS_USERNAME")
-            env_password = os.environ.get("PORTAL_PASSWORD") or os.environ.get("ARCGIS_PASSWORD")
+            env_creds = resolve_portal_env_credentials()
+            if not env_creds["ok"]:
+                raise RuntimeError(str(env_creds["message"]))
+            env_username = env_creds["username"]
+            env_password = env_creds["password"]
             if env_username and env_password:
                 self._gis = GIS(
                     url=self.url,

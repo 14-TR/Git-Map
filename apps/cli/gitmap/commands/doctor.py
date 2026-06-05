@@ -46,8 +46,6 @@ OPTIONAL_PACKAGES: list[tuple[str, str, str]] = [
 # Environment variables
 ENV_VARS: list[tuple[str, str, bool]] = [
     ("PORTAL_URL", "ArcGIS Portal / ArcGIS Online URL", False),
-    ("ARCGIS_USERNAME", "Portal username", False),
-    ("ARCGIS_PASSWORD", "Portal password (or use keyring)", False),
 ]
 
 PORTAL_USERNAME_VARS = ("PORTAL_USER", "ARCGIS_USERNAME")
@@ -66,25 +64,11 @@ def _pkg_installed(import_name: str) -> bool:
     return importlib.util.find_spec(import_name) is not None
 
 
-def _first_set_env(var_names: tuple[str, ...]) -> tuple[str | None, str | None]:
-    for var_name in var_names:
-        value = os.environ.get(var_name)
-        if value:
-            return var_name, value
-    return None, None
-
-
-def _portal_credential_state() -> dict[str, str | bool | None]:
-    username_var, username = _first_set_env(PORTAL_USERNAME_VARS)
-    password_var, password = _first_set_env(PORTAL_PASSWORD_VARS)
-    return {
-        "username_var": username_var,
-        "username": username,
-        "password_var": password_var,
-        "password": password,
-        "has_username": bool(username),
-        "has_password": bool(password),
-    }
+def _render_env_var(var_name: str, description: str, value: str | None) -> str:
+    if value:
+        display = "***" if "PASSWORD" in var_name or "TOKEN" in var_name else value
+        return f"  {_check(True)} {var_name}={display}  [dim]{description}[/dim]"
+    return f"  [yellow]⊘[/yellow] {var_name}  [dim]{description} (not set)[/dim]"
 
 
 # ---- Doctor Command -----------------------------------------------------------------------------------------
@@ -174,12 +158,30 @@ def doctor(check_portal: bool, show_fixes: bool) -> None:
             console.print(f"  {_check(False)} {var_name}  [dim]{description}[/dim]  [red](required)[/red]")
             issues.append(f"Required env var {var_name} is not set")
             all_ok = False
-        elif is_set:
-            # Mask password values
-            display = "***" if "PASSWORD" in var_name or "TOKEN" in var_name else value
-            console.print(f"  {_check(True)} {var_name}={display}  [dim]{description}[/dim]")
         else:
-            console.print(f"  [yellow]⊘[/yellow] {var_name}  [dim]{description} (not set)[/dim]")
+            console.print(_render_env_var(var_name, description, value))
+
+    cred_state = _portal_credential_state()
+    username_var = cred_state["username_var"] or "PORTAL_USER or ARCGIS_USERNAME"
+    password_var = cred_state["password_var"] or "PORTAL_PASSWORD or ARCGIS_PASSWORD"
+    console.print(
+        _render_env_var(
+            username_var,
+            "Portal username",
+            cred_state["username"] if isinstance(cred_state["username"], str) else None,
+        )
+    )
+    console.print(
+        _render_env_var(
+            password_var,
+            "Portal password (or use keyring)",
+            cred_state["password"] if isinstance(cred_state["password"], str) else None,
+        )
+    )
+    if not cred_state["ok"] and cred_state["message"]:
+        console.print(f"  {_check(False)} {cred_state['message']}")
+        issues.append(f"Portal credential check failed: {cred_state['message']}")
+        all_ok = False
     console.print()
 
     # ---- Repository check -------------------------------------------------------------------------------
@@ -216,16 +218,9 @@ def doctor(check_portal: bool, show_fixes: bool) -> None:
             console.print("  [yellow]⊘[/yellow] arcgis package not installed — cannot test connectivity")
             console.print("  [dim]Install with: pip install arcgis[/dim]")
         else:
-            if cred_state["has_username"] != cred_state["has_password"]:
-                missing_var = "ARCGIS_PASSWORD or PORTAL_PASSWORD"
-                present_var = cred_state["username_var"]
-                if cred_state["has_password"]:
-                    missing_var = "ARCGIS_USERNAME or PORTAL_USER"
-                    present_var = cred_state["password_var"]
-                console.print(
-                    f"  {_check(False)} Incomplete Portal credentials: found {present_var} but missing {missing_var}"
-                )
-                issues.append("Portal credential check failed: username/password variables are incomplete")
+            if not cred_state["ok"]:
+                console.print(f"  {_check(False)} {cred_state['message']}")
+                issues.append(f"Portal credential check failed: {cred_state['message']}")
                 all_ok = False
                 console.print()
             else:
@@ -241,7 +236,9 @@ def doctor(check_portal: bool, show_fixes: bool) -> None:
                     if conn.username:
                         console.print(f"  {_check(True)} Connected as [cyan]{conn.username}[/cyan]")
                     else:
-                        console.print("  [yellow]⚠[/yellow] Connected anonymously; credential verification not proven")
+                        console.print(
+                            "  [yellow]⚠[/yellow] Connected anonymously; credential verification not proven"
+                        )
                         console.print(
                             "  [dim]Set ARCGIS_USERNAME/ARCGIS_PASSWORD (or PORTAL_USER/PORTAL_PASSWORD),"
                             " or sign in through ArcGIS Pro before rerunning.[/dim]"
@@ -270,3 +267,9 @@ def doctor(check_portal: bool, show_fixes: bool) -> None:
 
     console.print()
     raise SystemExit(0 if all_ok else 1)
+
+
+def _portal_credential_state() -> dict[str, str | bool | None]:
+    from gitmap_core.connection import resolve_portal_env_credentials
+
+    return resolve_portal_env_credentials()

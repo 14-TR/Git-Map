@@ -15,10 +15,11 @@ Git-Map is open-source (MIT). Contributions are welcome from everyone — whethe
 ```bash
 git clone https://github.com/14-TR/Git-Map.git
 cd Git-Map
-python3 -m venv .venv
+/opt/homebrew/bin/python3.13 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -e "packages/gitmap_core[dev]"
-pip install click rich
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e "packages/gitmap_core[dev]"
+python -m pip install -e apps/cli/gitmap
 ```
 
 ## Running Tests

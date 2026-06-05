@@ -525,7 +525,7 @@
         <span class="proof-pill">Command docs and workflow guides included</span>
       </div>
       <div class="hero-actions">
-        <a class="btn-primary" href="#install">pip install gitmap</a>
+        <a class="btn-primary" href="#install">Source install guide</a>
         <a class="btn-secondary" href="https://14-tr.github.io/Git-Map/" target="_blank" rel="noreferrer">Read the docs →</a>
       </div>
       <p class="hero-note">Start with <code>gitmap clone &lt;item-id&gt;</code> for an existing web map or <code>gitmap init</code> for a new repo.</p>
@@ -668,18 +668,24 @@
   <section id="install">
     <div class="section-label">Install</div>
     <h2>Up and running in a few minutes.</h2>
-    <p class="section-desc">Install from PyPI, set your ArcGIS credentials, then clone a map and inspect its history like you would a code repo.</p>
+    <p class="section-desc">Install from the Git-Map checkout with Python 3.11+, set your ArcGIS credentials, then clone a map and inspect its history like you would a code repo.</p>
 
     <div class="install-shell">
       <div class="install-block">
-<div><span class="install-comment"># Install and confirm the CLI is available</span></div>
-<div><span class="install-cmd">pip install gitmap</span></div>
+<div><span class="install-comment"># Create a Python 3.11+ virtualenv and install from source</span></div>
+<div><span class="install-cmd">git clone https://github.com/14-TR/Git-Map.git</span></div>
+<div><span class="install-cmd">cd Git-Map</span></div>
+<div><span class="install-cmd">python3.13 -m venv .venv</span></div>
+<div><span class="install-cmd">source .venv/bin/activate</span></div>
+<div><span class="install-cmd">python -m pip install --upgrade pip setuptools wheel</span></div>
+<div><span class="install-cmd">python -m pip install -e "packages/gitmap_core[dev]"</span></div>
+<div><span class="install-cmd">python -m pip install -e "apps/cli/gitmap"</span></div>
 <div><span class="install-cmd">gitmap --version</span></div>
 <br />
 <div><span class="install-comment"># Set ArcGIS Online or Portal credentials</span></div>
 <div><span class="install-cmd">export PORTAL_URL=https://your-org.maps.arcgis.com</span></div>
-<div><span class="install-cmd">export ARCGIS_USERNAME=your_username</span></div>
-<div><span class="install-cmd">export ARCGIS_PASSWORD=your_password</span></div>
+<div><span class="install-cmd">export PORTAL_USER=your_username</span></div>
+<div><span class="install-cmd">export PORTAL_PASSWORD=your_password</span></div>
 <br />
 <div><span class="install-comment"># Clone a map, branch, and review the diff</span></div>
 <div><span class="install-cmd">gitmap clone abc123def456</span></div>
@@ -695,6 +701,7 @@
             <li>Python 3.11, 3.12, 3.13, or 3.14</li>
             <li>ArcGIS Online or Portal for ArcGIS access</li>
             <li>A web map item ID to clone or a new map to initialize</li>
+            <li>Install from the repo checkout until published CLI installs are re-verified</li>
           </ul>
         </div>
         <div class="card">
@@ -707,7 +714,6 @@
         </div>
         <div class="badges">
           <img src="https://github.com/14-TR/Git-Map/actions/workflows/ci.yml/badge.svg" alt="CI status" />
-          <img src="https://img.shields.io/pypi/v/gitmap.svg" alt="PyPI version" />
           <img src="https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue" alt="Supported Python versions" />
           <img src="https://img.shields.io/badge/tests-734%2B-brightgreen" alt="Test coverage count" />
         </div>
