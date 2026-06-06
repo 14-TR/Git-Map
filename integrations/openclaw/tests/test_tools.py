@@ -93,6 +93,18 @@ class TestServerParameterNormalization:
         """Server exposes a health tool for OpenClaw-level smoke checks."""
         assert "gitmap_health" in gitmap_server.TOOL_REGISTRY
 
+    def test_server_ignores_preloaded_tools_module(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Server imports sibling tools.py even if another tools module is loaded."""
+        monkeypatch.setitem(sys.modules, "tools", MagicMock())
+
+        spec = importlib.util.spec_from_file_location("gitmap_openclaw_server_collision", SERVER_PATH)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+
+        assert "gitmap_health" in module.TOOL_REGISTRY
+        assert module.TOOL_REGISTRY["gitmap_health"]["fn"].__name__ == "gitmap_health"
+
 
 # ---- _find_gitmap() ------------------------------------------------------------------
 

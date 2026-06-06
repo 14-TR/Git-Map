@@ -15,15 +15,17 @@ Endpoints:
 from __future__ import annotations
 
 import json
-import sys
+import importlib.util
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
-# Add skill dir to path for sibling imports
-sys.path.insert(0, str(Path(__file__).parent))
-
-import tools as gitmap_tools
+TOOLS_PATH = Path(__file__).with_name("tools.py")
+TOOLS_SPEC = importlib.util.spec_from_file_location("gitmap_openclaw_tools_runtime", TOOLS_PATH)
+if TOOLS_SPEC is None or TOOLS_SPEC.loader is None:
+    raise RuntimeError(f"Unable to load OpenClaw GitMap tools from {TOOLS_PATH}")
+gitmap_tools = importlib.util.module_from_spec(TOOLS_SPEC)
+TOOLS_SPEC.loader.exec_module(gitmap_tools)
 
 PORT = 7400
 
