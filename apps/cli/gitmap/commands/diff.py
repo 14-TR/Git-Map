@@ -277,6 +277,9 @@ def diff(
     try:
         from gitmap_core.diff import diff_maps
 
+        if output and fmt != "html":
+            raise click.ClickException("--output can only be used with --format html.")
+
         repo = find_repository()
 
         if not repo:
