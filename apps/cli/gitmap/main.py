@@ -37,8 +37,8 @@ if "gitmap_cli" not in sys.modules:
     _pkg.__package__ = "gitmap_cli"
     sys.modules["gitmap_cli"] = _pkg
 
-import click
-from gitmap_cli.help_formatter import GroupedHelpGroup
+import click  # noqa: E402
+from gitmap_cli.help_formatter import GroupedHelpGroup  # noqa: E402
 
 COMMAND_SPECS: dict[str, dict[str, str]] = {
     "init": {
