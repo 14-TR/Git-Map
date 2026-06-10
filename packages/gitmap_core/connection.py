@@ -101,9 +101,7 @@ def resolve_portal_env_credentials() -> dict[str, str | bool | None]:
         )
 
     complete_pairs = [pair for pair in pair_states if pair["is_complete"]]
-    partial_pairs = [
-        pair for pair in pair_states if bool(pair["has_username"]) != bool(pair["has_password"])
-    ]
+    partial_pairs = [pair for pair in pair_states if bool(pair["has_username"]) != bool(pair["has_password"])]
     usernames_without_password = [pair for pair in pair_states if pair["has_username"] and not pair["has_password"]]
     passwords_without_username = [pair for pair in pair_states if pair["has_password"] and not pair["has_username"]]
 

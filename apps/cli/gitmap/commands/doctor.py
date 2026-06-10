@@ -236,9 +236,7 @@ def doctor(check_portal: bool, show_fixes: bool) -> None:
                     if conn.username:
                         console.print(f"  {_check(True)} Connected as [cyan]{conn.username}[/cyan]")
                     else:
-                        console.print(
-                            "  [yellow]⚠[/yellow] Connected anonymously; credential verification not proven"
-                        )
+                        console.print("  [yellow]⚠[/yellow] Connected anonymously; credential verification not proven")
                         console.print(
                             "  [dim]Set ARCGIS_USERNAME/ARCGIS_PASSWORD (or PORTAL_USER/PORTAL_PASSWORD),"
                             " or sign in through ArcGIS Pro before rerunning.[/dim]"

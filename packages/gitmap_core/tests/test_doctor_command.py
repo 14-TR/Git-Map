@@ -130,15 +130,19 @@ class TestDoctorCommand:
             username = None
 
         monkeypatch.setattr(doctor_module, "_pkg_installed", lambda import_name: True)
-        monkeypatch.setattr(doctor_module, "_portal_credential_state", lambda: {
-            "ok": True,
-            "kind": "no_env_credentials",
-            "message": None,
-            "username_var": None,
-            "username": None,
-            "password_var": None,
-            "password": None,
-        })
+        monkeypatch.setattr(
+            doctor_module,
+            "_portal_credential_state",
+            lambda: {
+                "ok": True,
+                "kind": "no_env_credentials",
+                "message": None,
+                "username_var": None,
+                "username": None,
+                "password_var": None,
+                "password": None,
+            },
+        )
 
         import gitmap_core.connection as connection_module
 
@@ -163,15 +167,19 @@ class TestDoctorCommand:
             "_pkg_installed",
             lambda import_name: False if import_name == "arcgis" else True,
         )
-        monkeypatch.setattr(doctor_module, "_portal_credential_state", lambda: {
-            "ok": False,
-            "kind": "incomplete_pair",
-            "message": "Incomplete Portal credentials: found ARCGIS_USERNAME but missing ARCGIS_PASSWORD",
-            "username_var": "ARCGIS_USERNAME",
-            "username": "test-user",
-            "password_var": None,
-            "password": None,
-        })
+        monkeypatch.setattr(
+            doctor_module,
+            "_portal_credential_state",
+            lambda: {
+                "ok": False,
+                "kind": "incomplete_pair",
+                "message": "Incomplete Portal credentials: found ARCGIS_USERNAME but missing ARCGIS_PASSWORD",
+                "username_var": "ARCGIS_USERNAME",
+                "username": "test-user",
+                "password_var": None,
+                "password": None,
+            },
+        )
 
         with runner.isolated_filesystem(temp_dir=tmp_path):
             result = runner.invoke(cli, ["doctor"])
@@ -192,15 +200,19 @@ class TestDoctorCommand:
     ) -> None:
         """doctor --portal should surface partial env credentials before first-user testing."""
         monkeypatch.setattr(doctor_module, "_pkg_installed", lambda import_name: True)
-        monkeypatch.setattr(doctor_module, "_portal_credential_state", lambda: {
-            "ok": False,
-            "kind": "incomplete_pair",
-            "message": "Incomplete Portal credentials: found ARCGIS_USERNAME but missing ARCGIS_PASSWORD",
-            "username_var": "ARCGIS_USERNAME",
-            "username": "test-user",
-            "password_var": None,
-            "password": None,
-        })
+        monkeypatch.setattr(
+            doctor_module,
+            "_portal_credential_state",
+            lambda: {
+                "ok": False,
+                "kind": "incomplete_pair",
+                "message": "Incomplete Portal credentials: found ARCGIS_USERNAME but missing ARCGIS_PASSWORD",
+                "username_var": "ARCGIS_USERNAME",
+                "username": "test-user",
+                "password_var": None,
+                "password": None,
+            },
+        )
 
         with runner.isolated_filesystem(temp_dir=tmp_path):
             result = runner.invoke(cli, ["doctor", "--portal"])
@@ -222,15 +234,19 @@ class TestDoctorCommand:
             username = "portal-user"
 
         monkeypatch.setattr(doctor_module, "_pkg_installed", lambda import_name: True)
-        monkeypatch.setattr(doctor_module, "_portal_credential_state", lambda: {
-            "ok": True,
-            "kind": "complete_pair",
-            "message": None,
-            "username_var": "ARCGIS_USERNAME",
-            "username": "portal-user",
-            "password_var": "ARCGIS_PASSWORD",
-            "password": "secret",
-        })
+        monkeypatch.setattr(
+            doctor_module,
+            "_portal_credential_state",
+            lambda: {
+                "ok": True,
+                "kind": "complete_pair",
+                "message": None,
+                "username_var": "ARCGIS_USERNAME",
+                "username": "portal-user",
+                "password_var": "ARCGIS_PASSWORD",
+                "password": "secret",
+            },
+        )
 
         import gitmap_core.connection as connection_module
 
@@ -250,18 +266,22 @@ class TestDoctorCommand:
     ) -> None:
         """doctor --portal should fail closed on split Portal env naming pairs."""
         monkeypatch.setattr(doctor_module, "_pkg_installed", lambda import_name: True)
-        monkeypatch.setattr(doctor_module, "_portal_credential_state", lambda: {
-            "ok": False,
-            "kind": "mixed_pairs",
-            "message": (
-                "Mixed Portal credential env pairs are set; use either "
-                "PORTAL_USER/PORTAL_PASSWORD or ARCGIS_USERNAME/ARCGIS_PASSWORD."
-            ),
-            "username_var": None,
-            "username": None,
-            "password_var": None,
-            "password": None,
-        })
+        monkeypatch.setattr(
+            doctor_module,
+            "_portal_credential_state",
+            lambda: {
+                "ok": False,
+                "kind": "mixed_pairs",
+                "message": (
+                    "Mixed Portal credential env pairs are set; use either "
+                    "PORTAL_USER/PORTAL_PASSWORD or ARCGIS_USERNAME/ARCGIS_PASSWORD."
+                ),
+                "username_var": None,
+                "username": None,
+                "password_var": None,
+                "password": None,
+            },
+        )
 
         with runner.isolated_filesystem(temp_dir=tmp_path):
             result = runner.invoke(cli, ["doctor", "--portal"])
