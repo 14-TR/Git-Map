@@ -52,10 +52,14 @@ COMMAND_SECTIONS: list[tuple[str, list[str]]] = [
     ),
 ]
 
-HELP_FOOTER = (
-    'Getting started: gitmap init → gitmap status → gitmap commit -m "Initial snapshot"\n'
-    "Need shell completions? Run: gitmap completions"
-)
+HELP_FOOTER_LINES = [
+    "Getting started:",
+    "  gitmap init",
+    "  gitmap status",
+    '  gitmap commit -m "Initial snapshot"',
+    "",
+    "Need shell completions? Run: gitmap completions",
+]
 
 
 class GroupedHelpGroup(click.Group):
@@ -111,9 +115,10 @@ class GroupedHelpGroup(click.Group):
 
     def format_epilog(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
         """Append a short getting-started footer to top-level help."""
-        if HELP_FOOTER:
+        if HELP_FOOTER_LINES:
             formatter.write_paragraph()
-            formatter.write_text(HELP_FOOTER)
+            formatter.write("\n".join(HELP_FOOTER_LINES))
+            formatter.write("\n")
 
     def resolve_command(self, ctx: click.Context, args: list[str]) -> tuple[str, click.Command, list[str]]:
         """Add suggestions when the user mistypes a command name."""

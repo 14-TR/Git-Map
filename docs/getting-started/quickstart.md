@@ -150,6 +150,7 @@ gitmap push
 
 - Missing credentials: set `PORTAL_URL` plus either `PORTAL_USER` / `PORTAL_PASSWORD` or `ARCGIS_USERNAME` / `ARCGIS_PASSWORD`, or create a local `.env` file.
 - Missing command: reactivate the Python 3.11+ virtualenv you used for install, then rerun `gitmap --version`.
+- Installed core-only package: `python -m pip install -e "packages/gitmap_core"` does not install the `gitmap` CLI; install `apps/cli/gitmap` as well for command-line use.
 - Wrong item ID: copy the web map item ID from the ArcGIS item page URL, not the map title or layer ID.
 - Wrong directory: run GitMap commands from the folder created by `gitmap clone`.
 - Permission denied: confirm your ArcGIS account can read the map and can edit it before trying `gitmap push`.

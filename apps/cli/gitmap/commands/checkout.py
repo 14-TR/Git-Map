@@ -49,6 +49,8 @@ def checkout(
     branch's latest commit state into the working tree.
 
     Examples:
+
+    \b
         gitmap checkout main
         gitmap checkout feature/new-layer
         gitmap checkout -b feature/new-layer  # Create and checkout

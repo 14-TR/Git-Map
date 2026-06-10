@@ -22,9 +22,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from gitmap_core.context import ContextStore
+    from .context import ContextStore
 
-from gitmap_core.models import Branch, Commit, RepoConfig
+from .models import Branch, Commit, RepoConfig
 
 # ---- Constants ----------------------------------------------------------------------------------------------
 
@@ -160,7 +160,7 @@ class Repository:
             Caller is responsible for closing the store when done,
             or use it as a context manager.
         """
-        from gitmap_core.context import ContextStore
+        from .context import ContextStore
 
         return ContextStore(self.context_db_path)
 
@@ -181,7 +181,7 @@ class Repository:
             Path to generated file, or None if generation failed.
         """
         try:
-            from gitmap_core.visualize import visualize_context
+            from .visualize import visualize_context
 
             config = self.get_config()
             title = f"{config.project_name} Context Graph" if config.project_name else "Context Graph"
@@ -289,7 +289,7 @@ class Repository:
             (self.heads_dir / "main").write_text("")
 
             # Initialize context database
-            from gitmap_core.context import ContextStore
+            from .context import ContextStore
 
             with ContextStore(self.context_db_path):
                 pass  # Schema created on init

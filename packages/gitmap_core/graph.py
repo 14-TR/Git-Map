@@ -21,8 +21,8 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from gitmap_core.models import Commit
-    from gitmap_core.repository import Repository
+    from .models import Commit
+    from .repository import Repository
 
 
 # ---- Data Classes -------------------------------------------------------------------------------------------

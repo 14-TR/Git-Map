@@ -41,10 +41,13 @@ If the command is not found, confirm the virtual environment is activated, or ru
 python -m pip install -e "packages/gitmap_core"
 ```
 
-Verify:
+This path installs the reusable Python library only. It does **not** install
+the `gitmap` CLI entrypoint.
+
+Verify the package import instead:
 
 ```bash
-gitmap --version
+python -c "import gitmap_core; print(gitmap_core.__version__)"
 ```
 
 ## Environment Variables

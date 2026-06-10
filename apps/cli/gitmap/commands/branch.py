@@ -85,6 +85,8 @@ def branch(
     creates a new branch pointing to HEAD.
 
     Examples:
+
+    \b
         gitmap branch              # List branches
         gitmap branch -v           # List branches with commit details
         gitmap branch feature/x    # Create branch 'feature/x'

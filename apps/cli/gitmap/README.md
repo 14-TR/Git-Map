@@ -5,18 +5,25 @@ Command-line interface for GitMap - Git-like version control for ArcGIS web maps
 ## Installation
 
 ```bash
-# From the repository root
-pip install -e apps/cli/gitmap
-
-# Or with the core library
-pip install -e packages/gitmap_core
-pip install -e apps/cli/gitmap
+python -m pip install -e "packages/gitmap_core"
+python -m pip install -e "apps/cli/gitmap"
 ```
+
+Install both editable packages from the repository root. `packages/gitmap_core`
+provides the reusable library, while `apps/cli/gitmap` installs the public
+`gitmap` command.
 
 ## Usage
 
 ```bash
 gitmap <command> [options]
+```
+
+Verify the install:
+
+```bash
+gitmap --version
+gitmap --help
 ```
 
 ## Commands

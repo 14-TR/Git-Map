@@ -72,7 +72,7 @@ ruff check packages/gitmap_core
 The site is built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/). Preview locally:
 
 ```bash
-pip install mkdocs-material
+pip install "mkdocs-material" "mkdocs<2"
 mkdocs serve
 ```
 
