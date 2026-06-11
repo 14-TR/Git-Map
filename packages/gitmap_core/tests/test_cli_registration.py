@@ -289,6 +289,59 @@ class TestCommandRegistration:
                     "gitmap checkout -b feature/new-layer  # Create and checkout",
                 ],
             ),
+            (
+                "cherry-pick",
+                [
+                    "gitmap cherry-pick abc12345",
+                    'gitmap cherry-pick abc12345 -r "Backporting critical fix"',
+                ],
+            ),
+            (
+                "commit",
+                [
+                    'gitmap commit -m "Initial commit"',
+                    'gitmap commit -m "Added new layer" --author "John Doe"',
+                    'gitmap commit -m "Fixed symbology" -r "Client requested higher contrast"',
+                ],
+            ),
+            (
+                "init",
+                [
+                    "gitmap init",
+                    'gitmap init --project-name "My Project" --user-name "John Doe"',
+                    "gitmap init /path/to/project",
+                ],
+            ),
+            (
+                "merge",
+                [
+                    "gitmap merge feature/new-layer",
+                    "gitmap merge main --no-commit",
+                ],
+            ),
+            (
+                "push",
+                [
+                    "gitmap push",
+                    "gitmap push --branch feature/new-layer",
+                    "gitmap push --url https://portal.example.com",
+                    "gitmap push --no-notify  # Skip notifications even for production branch",
+                    'gitmap push -r "Deploying accessibility improvements"',
+                ],
+            ),
+            (
+                "revert",
+                [
+                    "gitmap revert abc12345",
+                    'gitmap revert abc12345 -r "Reverted due to breaking changes"',
+                ],
+            ),
+            (
+                "status",
+                [
+                    "gitmap status",
+                ],
+            ),
         ],
     )
     def test_first_user_command_examples_render_on_separate_lines(

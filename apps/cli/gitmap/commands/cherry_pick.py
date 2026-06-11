@@ -50,6 +50,8 @@ def cherry_pick(
     from one branch to another.
 
     Examples:
+
+    \b
         gitmap cherry-pick abc12345
         gitmap cherry-pick abc12345 -r "Backporting critical fix"
     """

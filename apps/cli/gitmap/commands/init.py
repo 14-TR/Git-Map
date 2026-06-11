@@ -93,6 +93,8 @@ def init(
     (defaults to current directory).
 
     Example:
+
+    \b
         gitmap init
         gitmap init --project-name "My Project" --user-name "John Doe"
         gitmap init /path/to/project

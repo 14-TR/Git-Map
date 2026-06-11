@@ -79,6 +79,8 @@ def push(
     Use --no-notify to skip notifications for this push.
 
     Examples:
+
+    \b
         gitmap push
         gitmap push --branch feature/new-layer
         gitmap push --url https://portal.example.com

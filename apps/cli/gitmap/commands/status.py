@@ -49,6 +49,8 @@ def status(fmt: str) -> None:
     and a summary of modifications in the staging area.
 
     Example:
+
+    \b
         gitmap status
     """
     try:
