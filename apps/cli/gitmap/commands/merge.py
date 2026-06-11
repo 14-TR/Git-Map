@@ -88,6 +88,8 @@ def merge(
     same layer is modified in both branches.
 
     Examples:
+
+    \b
         gitmap merge feature/new-layer
         gitmap merge main --no-commit
     """

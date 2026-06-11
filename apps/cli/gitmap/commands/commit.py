@@ -58,6 +58,8 @@ def commit(
     A commit message is required.
 
     Examples:
+
+    \b
         gitmap commit -m "Initial commit"
         gitmap commit -m "Added new layer" --author "John Doe"
         gitmap commit -m "Fixed symbology" -r "Client requested higher contrast"

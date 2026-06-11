@@ -49,6 +49,8 @@ def revert(
     specified commit. Does not remove history - adds an inverse commit.
 
     Examples:
+
+    \b
         gitmap revert abc12345
         gitmap revert abc12345 -r "Reverted due to breaking changes"
     """
