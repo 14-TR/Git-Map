@@ -19,6 +19,7 @@ from gitmap_core.connection import (
     _load_env_file,
     get_agol_connection,
     get_connection,
+    resolve_portal_env_credentials,
 )
 
 # ---- Fixtures -----------------------------------------------------------------------------------------
@@ -200,6 +201,30 @@ class TestPortalConnection:
             password="portal_pass",
         )
 
+    def test_connect_rejects_mixed_env_pairs(self, monkeypatch):
+        """Mixed Portal env pairs should fail closed before GIS auth."""
+        monkeypatch.setenv("PORTAL_USER", "portal_user")
+        monkeypatch.delenv("PORTAL_PASSWORD", raising=False)
+        monkeypatch.delenv("ARCGIS_USERNAME", raising=False)
+        monkeypatch.setenv("ARCGIS_PASSWORD", "arcgis_pass")
+
+        conn = PortalConnection(url="https://test.portal.com")
+
+        with pytest.raises(RuntimeError, match="Mixed Portal credential env pairs"):
+            conn.connect()
+
+    def test_connect_rejects_conflicting_complete_pairs(self, monkeypatch):
+        """Two different complete env pairs should fail closed."""
+        monkeypatch.setenv("PORTAL_USER", "portal_user")
+        monkeypatch.setenv("PORTAL_PASSWORD", "portal_pass")
+        monkeypatch.setenv("ARCGIS_USERNAME", "other_user")
+        monkeypatch.setenv("ARCGIS_PASSWORD", "other_pass")
+
+        conn = PortalConnection(url="https://test.portal.com")
+
+        with pytest.raises(RuntimeError, match="Conflicting Portal credential env pairs"):
+            conn.connect()
+
     def test_connect_anonymous(self, mock_gis_class, monkeypatch):
         """Test anonymous connection (no credentials)."""
         # Clear any env vars
@@ -286,6 +311,48 @@ class TestGetConnection:
         """Test connection failure raises RuntimeError."""
         with patch("arcgis.gis.GIS", side_effect=Exception("Auth failed")), pytest.raises(RuntimeError):
             get_connection(username="bad", password="creds")
+
+
+class TestResolvePortalEnvCredentials:
+    """Tests for Portal env credential pair resolution."""
+
+    def test_prefers_complete_portal_pair(self, monkeypatch):
+        monkeypatch.setenv("PORTAL_USER", "portal_user")
+        monkeypatch.setenv("PORTAL_PASSWORD", "portal_pass")
+        monkeypatch.delenv("ARCGIS_USERNAME", raising=False)
+        monkeypatch.delenv("ARCGIS_PASSWORD", raising=False)
+
+        result = resolve_portal_env_credentials()
+
+        assert result["ok"] is True
+        assert result["username_var"] == "PORTAL_USER"
+        assert result["password_var"] == "PORTAL_PASSWORD"
+        assert result["username"] == "portal_user"
+        assert result["password"] == "portal_pass"
+
+    def test_rejects_mixed_pairs(self, monkeypatch):
+        monkeypatch.setenv("PORTAL_USER", "portal_user")
+        monkeypatch.delenv("PORTAL_PASSWORD", raising=False)
+        monkeypatch.delenv("ARCGIS_USERNAME", raising=False)
+        monkeypatch.setenv("ARCGIS_PASSWORD", "arcgis_pass")
+
+        result = resolve_portal_env_credentials()
+
+        assert result["ok"] is False
+        assert result["kind"] == "mixed_pairs"
+        assert "Mixed Portal credential env pairs" in str(result["message"])
+
+    def test_rejects_conflicting_complete_pairs(self, monkeypatch):
+        monkeypatch.setenv("PORTAL_USER", "portal_user")
+        monkeypatch.setenv("PORTAL_PASSWORD", "portal_pass")
+        monkeypatch.setenv("ARCGIS_USERNAME", "other_user")
+        monkeypatch.setenv("ARCGIS_PASSWORD", "other_pass")
+
+        result = resolve_portal_env_credentials()
+
+        assert result["ok"] is False
+        assert result["kind"] == "conflicting_pairs"
+        assert "Conflicting Portal credential env pairs" in str(result["message"])
 
 
 class TestGetAgolConnection:

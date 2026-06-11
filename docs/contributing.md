@@ -15,10 +15,11 @@ Git-Map is open-source (MIT). Contributions are welcome from everyone — whethe
 ```bash
 git clone https://github.com/14-TR/Git-Map.git
 cd Git-Map
-python3 -m venv .venv
+/opt/homebrew/bin/python3.13 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -e "packages/gitmap_core[dev]"
-pip install click rich
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e "packages/gitmap_core[dev]"
+python -m pip install -e apps/cli/gitmap
 ```
 
 ## Running Tests
@@ -27,7 +28,7 @@ pip install click rich
 pytest packages/gitmap_core/tests -v
 ```
 
-All 797+ tests must pass before opening a PR. The CI pipeline runs the same suite on Python 3.11, 3.12, 3.13, and 3.14.
+All 807+ tests must pass before opening a PR. The CI pipeline runs the same suite on Python 3.11, 3.12, 3.13, and 3.14.
 
 ## Project Structure
 
@@ -35,7 +36,7 @@ All 797+ tests must pass before opening a PR. The CI pipeline runs the same suit
 Git-Map/
 ├── packages/
 │   └── gitmap_core/        # Core library — version control engine
-│       └── tests/          # 797+ tests live here
+│       └── tests/          # 807+ tests live here
 ├── apps/
 │   ├── cli/gitmap/         # `gitmap` CLI (Click + Rich)
 │   ├── mcp/                # MCP server for AI agent integration
@@ -71,7 +72,7 @@ ruff check packages/gitmap_core
 The site is built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/). Preview locally:
 
 ```bash
-pip install mkdocs-material
+pip install "mkdocs-material" "mkdocs<2"
 mkdocs serve
 ```
 

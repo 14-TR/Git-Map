@@ -6,7 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/gitmap-cli.svg)](https://pypi.org/project/gitmap-cli/)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-797%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
+[![Tests](https://img.shields.io/badge/tests-807%2B-brightgreen)](https://github.com/14-TR/Git-Map/actions)
 
 GitMap brings familiar Git workflows to ArcGIS Online and Portal for ArcGIS. Clone a web map, make changes in a branch, inspect exactly what changed, merge safely, and push the approved version back to Portal.
 
@@ -72,13 +72,21 @@ GitMap adds version-control primitives GIS teams already understand:
 - Access to ArcGIS Online or Portal for ArcGIS
 - A web map item ID for the first repository you want to clone
 
-### Recommended: install from PyPI
+### Current supported install path
 
 ```bash
-pip install gitmap-cli
+git clone https://github.com/14-TR/Git-Map.git
+cd Git-Map
+/opt/homebrew/bin/python3.13 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e "packages/gitmap_core[dev]"
+python -m pip install -e apps/cli/gitmap
 ```
 
-This installs the `gitmap` console command. Verify the CLI is available:
+Use a Python 3.11+ interpreter when creating the virtual environment. On systems where `python3` still points to Python 3.9 or 3.10, use an explicit executable such as `python3.11`, `python3.12`, or `python3.13`.
+
+This installs the `gitmap` console command from the current checkout. Verify the CLI is available:
 
 ```bash
 gitmap --version
@@ -86,18 +94,7 @@ gitmap --help
 gitmap doctor
 ```
 
-### Install from source
-
-Use this when developing GitMap itself or testing unreleased changes:
-
-```bash
-git clone https://github.com/14-TR/Git-Map.git
-cd Git-Map
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e "packages/gitmap_core[dev]"
-pip install -e apps/cli/gitmap
-```
+The `gitmap-cli` PyPI package is not currently a supported first-user install path. Until published installs are verified for supported Python versions, use the source install flow above.
 
 ## Quickstart: first successful workflow
 
@@ -347,10 +344,11 @@ Each repository stores GitMap metadata in `.gitmap/config.json`.
 ```bash
 git clone https://github.com/14-TR/Git-Map.git
 cd Git-Map
-python3 -m venv .venv
+/opt/homebrew/bin/python3.13 -m venv .venv
 source .venv/bin/activate
-pip install -e "packages/gitmap_core[dev]"
-pip install -e apps/cli/gitmap
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e "packages/gitmap_core[dev]"
+python -m pip install -e apps/cli/gitmap
 python -m pytest packages/gitmap_core/tests integrations/openclaw/tests -x -q
 ```
 

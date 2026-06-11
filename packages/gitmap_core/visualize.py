@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from gitmap_core.context import Annotation, ContextStore, Edge, Event
+from .context import Annotation, ContextStore, Edge, Event
 
 # ---- Configuration Constants ---------------------------------------------------------------------------------
 

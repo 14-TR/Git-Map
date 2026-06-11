@@ -6,41 +6,48 @@
 - ArcGIS Online account **or** Portal for ArcGIS 10.8+
 - A non-production test web map for your first clone/push workflow
 
-## Install from PyPI
+## Install from source
 
 ```bash
-pip install gitmap-cli
+git clone https://github.com/14-TR/Git-Map.git
+cd Git-Map
+/opt/homebrew/bin/python3.13 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e "packages/gitmap_core[dev]"
+python -m pip install -e "apps/cli/gitmap"
 ```
 
-This installs both the core library dependency and the `gitmap` CLI command in one step.
+Use a Python 3.11+ interpreter when creating the virtual environment. If `python3` on your machine still resolves to Python 3.9 or 3.10, use an explicit executable such as `python3.11`, `python3.12`, or `python3.13`.
+
+This installs the `gitmap` CLI from the current checkout.
 
 Verify the install:
 
 ```bash
 gitmap --version
+gitmap --help
 ```
 
-If the command is not found, confirm the Python environment's `bin` directory is on your `PATH`, or run GitMap from the same virtual environment where you installed `gitmap-cli`.
+If the command is not found, confirm the virtual environment is activated, or run GitMap from the same shell where you installed the editable packages.
 
-!!! tip "Individual packages"
-    If you only need the library (no CLI), install `gitmap-core` directly.
-    The `gitmap` PyPI name is not the default install path. Install `gitmap-core` only for library/API use.
+!!! warning "PyPI install status"
+    The `gitmap-cli` PyPI package is not currently a supported first-user install path.
+    Use the source install flow above until published installs are verified for supported Python versions.
 
-## Install from Source
+## Library-only install
 
 ```bash
-git clone https://github.com/14-TR/Git-Map.git
-cd Git-Map
-
-# Install core library + CLI
-pip install -e "packages/gitmap_core"
-pip install -e "apps/cli/gitmap"
+python -m pip install -e "packages/gitmap_core"
 ```
 
-Verify:
+This path installs the reusable Python library only. It does **not** install
+the `gitmap` CLI entrypoint.
+
+Verify the package import instead:
 
 ```bash
-gitmap --version
+python -c "import gitmap_core; print(gitmap_core.__version__)"
 ```
 
 ## Environment Variables
@@ -49,9 +56,13 @@ Git-Map reads credentials from environment variables when no config is set:
 
 | Variable | Description |
 |----------|-------------|
-| `ARCGIS_USERNAME` | Your ArcGIS/Portal username |
-| `ARCGIS_PASSWORD` | Your ArcGIS/Portal password |
+| `PORTAL_USER` | Preferred Portal username variable |
+| `PORTAL_PASSWORD` | Preferred Portal password variable |
+| `ARCGIS_USERNAME` | Alternate ArcGIS/Portal username variable |
+| `ARCGIS_PASSWORD` | Alternate ArcGIS/Portal password variable |
 | `PORTAL_URL` | Your Portal URL (defaults to `https://www.arcgis.com`) |
+
+GitMap accepts either `PORTAL_USER` / `PORTAL_PASSWORD` or `ARCGIS_USERNAME` / `ARCGIS_PASSWORD`. Set only one username/password pair for a given shell or `.env` file so it is obvious which credentials GitMap will use.
 
 You can also store credentials in the repository config file — see [Working with Portals](../guides/portals.md).
 
@@ -60,7 +71,9 @@ Do not commit `.env` files or credentials. GitMap commands such as `status`, `di
 ## Upgrading
 
 ```bash
-pip install --upgrade gitmap-cli
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e "packages/gitmap_core[dev]"
+python -m pip install -e "apps/cli/gitmap"
 ```
 
 ---

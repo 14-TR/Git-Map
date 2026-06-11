@@ -58,8 +58,7 @@ Record short notes for each step:
 
 | Step | Pass criteria | Notes to collect |
 |------|---------------|------------------|
-| Install | `gitmap --help` works | Python version, shell, install command, error text |
-| Doctor | `gitmap doctor` completes | Missing package, env var, or current-directory warning |
+| Install | Python 3.11+ venv reaches `gitmap --help` | Python version, shell, install command, error text |
 | Credentials | GitMap connects to Portal | Env var or `.env` path used, unclear field names |
 | Portal preflight | `gitmap doctor --portal` succeeds or gives a clear blocker | Auth, URL, permission, or package blocker |
 | Item ID | Tester finds the web map item ID | Where they looked, any URL confusion |

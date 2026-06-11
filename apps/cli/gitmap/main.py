@@ -22,16 +22,23 @@ import sys
 import types
 from pathlib import Path
 
+_CLI_DIR = Path(__file__).resolve().parent
+_REPO_ROOT = _CLI_DIR.parents[2]
+_PACKAGES_DIR = _REPO_ROOT / "packages"
+
+if str(_PACKAGES_DIR) not in sys.path:
+    sys.path.insert(0, str(_PACKAGES_DIR))
+
 # Support direct source execution (`python apps/cli/gitmap/main.py`) in CI
 # before the CLI package itself is installed.
 if "gitmap_cli" not in sys.modules:
     _pkg = types.ModuleType("gitmap_cli")
-    _pkg.__path__ = [str(Path(__file__).resolve().parent)]
+    _pkg.__path__ = [str(_CLI_DIR)]
     _pkg.__package__ = "gitmap_cli"
     sys.modules["gitmap_cli"] = _pkg
 
-import click
-from gitmap_cli.help_formatter import GroupedHelpGroup
+import click  # noqa: E402
+from gitmap_cli.help_formatter import GroupedHelpGroup  # noqa: E402
 
 COMMAND_SPECS: dict[str, dict[str, str]] = {
     "init": {
@@ -95,7 +102,7 @@ COMMAND_SPECS: dict[str, dict[str, str]] = {
         "short_help": "Check environment, config, and auth readiness.",
     },
     "lsm": {
-        "path": str(Path(__file__).parent / "commands" / "layer-settings-merge.py"),
+        "path": str(_CLI_DIR / "commands" / "layer-settings-merge.py"),
         "module_name": "gitmap_cli.commands.layer_settings_merge",
         "attr": "layer_settings_merge",
         "short_help": "Merge layer settings between web maps.",
@@ -126,7 +133,7 @@ COMMAND_SPECS: dict[str, dict[str, str]] = {
         "short_help": "Merge another branch into the current branch.",
     },
     "merge-from": {
-        "path": str(Path(__file__).parent / "commands" / "merge-from.py"),
+        "path": str(_CLI_DIR / "commands" / "merge-from.py"),
         "module_name": "gitmap_cli.commands.merge_from",
         "attr": "merge_from",
         "short_help": "Merge commits from one ref into another.",

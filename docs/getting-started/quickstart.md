@@ -19,9 +19,17 @@ Before running the workflow for the first time:
 Make sure you have gitmap installed:
 
 ```bash
-pip install gitmap-cli
+git clone https://github.com/14-TR/Git-Map.git
+cd Git-Map
+/opt/homebrew/bin/python3.13 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e "packages/gitmap_core[dev]"
+python -m pip install -e apps/cli/gitmap
 gitmap --version
 ```
+
+Use a Python 3.11+ interpreter when creating the virtual environment. If `python3` on your machine is older, use an explicit executable such as `python3.11`, `python3.12`, or `python3.13`.
 
 You also need an ArcGIS Online or Portal web map item ID. Open the web map item page and copy the `id` value from the URL, such as `...?id=abc123def456`.
 
@@ -48,7 +56,7 @@ Before cloning, verify the auth path explicitly:
 gitmap doctor --portal
 ```
 
-This check should confirm a named user or ArcGIS Pro-backed session. If it reports anonymous access, stop and fix credentials before first-user validation.
+This check should confirm a named user or ArcGIS Pro-backed session. If it reports anonymous access, stop and fix credentials before first-user validation. GitMap accepts either `PORTAL_USER` / `PORTAL_PASSWORD` or `ARCGIS_USERNAME` / `ARCGIS_PASSWORD`.
 
 ## 2. Clone an Existing Map
 
@@ -140,8 +148,9 @@ gitmap push
 
 ## First-Run Troubleshooting
 
-- Missing credentials: set `ARCGIS_USERNAME`, `ARCGIS_PASSWORD`, and `PORTAL_URL`, or create a local `.env` file.
-- Missing command: install with `pip install gitmap-cli`, then run `gitmap --version`.
+- Missing credentials: set `PORTAL_URL` plus either `PORTAL_USER` / `PORTAL_PASSWORD` or `ARCGIS_USERNAME` / `ARCGIS_PASSWORD`, or create a local `.env` file.
+- Missing command: reactivate the Python 3.11+ virtualenv you used for install, then rerun `gitmap --version`.
+- Installed core-only package: `python -m pip install -e "packages/gitmap_core"` does not install the `gitmap` CLI; install `apps/cli/gitmap` as well for command-line use.
 - Wrong item ID: copy the web map item ID from the ArcGIS item page URL, not the map title or layer ID.
 - Wrong directory: run GitMap commands from the folder created by `gitmap clone`.
 - Permission denied: confirm your ArcGIS account can read the map and can edit it before trying `gitmap push`.

@@ -80,6 +80,33 @@ class TestDoctorCommand:
         assert "click" in result.output
         assert "rich" in result.output
 
+    def test_doctor_prefers_portal_env_names_when_set(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        runner: CliRunner,
+        tmp_path,
+    ) -> None:
+        """doctor should display the actual Portal credential variable names in use."""
+        monkeypatch.setenv("PORTAL_URL", "https://example.maps.arcgis.com")
+        monkeypatch.setenv("PORTAL_USER", "portal-user")
+        monkeypatch.setenv("PORTAL_PASSWORD", "secret")
+        monkeypatch.delenv("ARCGIS_USERNAME", raising=False)
+        monkeypatch.delenv("ARCGIS_PASSWORD", raising=False)
+        monkeypatch.setattr(
+            doctor_module,
+            "_pkg_installed",
+            lambda import_name: False if import_name == "arcgis" else True,
+        )
+
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            result = runner.invoke(cli, ["doctor"])
+
+        assert result.exit_code in (0, 1), result.output
+        assert "PORTAL_USER=portal-user" in result.output
+        assert "PORTAL_PASSWORD=***" in result.output
+        assert "ARCGIS_USERNAME" not in result.output
+        assert "ARCGIS_PASSWORD" not in result.output
+
     def test_doctor_fix_flag(self, runner: CliRunner, tmp_path) -> None:
         """doctor --fix should run without error."""
         with runner.isolated_filesystem(temp_dir=tmp_path):
@@ -107,12 +134,13 @@ class TestDoctorCommand:
             doctor_module,
             "_portal_credential_state",
             lambda: {
+                "ok": True,
+                "kind": "no_env_credentials",
+                "message": None,
                 "username_var": None,
                 "username": None,
                 "password_var": None,
                 "password": None,
-                "has_username": False,
-                "has_password": False,
             },
         )
 
@@ -127,6 +155,43 @@ class TestDoctorCommand:
         assert "Connected anonymously" in result.output
         assert "credential verification not proven" in result.output
 
+    def test_doctor_fails_closed_on_incomplete_credentials_without_portal_flag(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        runner: CliRunner,
+        tmp_path,
+    ) -> None:
+        """doctor should fail closed before connectivity checks on invalid env credentials."""
+        monkeypatch.setattr(
+            doctor_module,
+            "_pkg_installed",
+            lambda import_name: False if import_name == "arcgis" else True,
+        )
+        monkeypatch.setattr(
+            doctor_module,
+            "_portal_credential_state",
+            lambda: {
+                "ok": False,
+                "kind": "incomplete_pair",
+                "message": "Incomplete Portal credentials: found ARCGIS_USERNAME but missing ARCGIS_PASSWORD",
+                "username_var": "ARCGIS_USERNAME",
+                "username": "test-user",
+                "password_var": None,
+                "password": None,
+            },
+        )
+
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            result = runner.invoke(cli, ["doctor"])
+
+        assert result.exit_code == 1, result.output
+        assert "Incomplete Portal credentials" in result.output
+        normalized_output = " ".join(result.output.split())
+        assert (
+            "Portal credential check failed: Incomplete Portal credentials: found "
+            "ARCGIS_USERNAME but missing ARCGIS_PASSWORD"
+        ) in normalized_output
+
     def test_doctor_portal_flags_incomplete_credentials(
         self,
         monkeypatch: pytest.MonkeyPatch,
@@ -139,12 +204,13 @@ class TestDoctorCommand:
             doctor_module,
             "_portal_credential_state",
             lambda: {
+                "ok": False,
+                "kind": "incomplete_pair",
+                "message": "Incomplete Portal credentials: found ARCGIS_USERNAME but missing ARCGIS_PASSWORD",
                 "username_var": "ARCGIS_USERNAME",
                 "username": "test-user",
                 "password_var": None,
                 "password": None,
-                "has_username": True,
-                "has_password": False,
             },
         )
 
@@ -153,7 +219,8 @@ class TestDoctorCommand:
 
         assert result.exit_code == 1, result.output
         assert "Incomplete Portal credentials" in result.output
-        assert "username/password variables are incomplete" in result.output
+        assert "ARCGIS_USERNAME" in result.output
+        assert "ARCGIS_PASSWORD" in result.output
 
     def test_doctor_portal_accepts_named_user_connection(
         self,
@@ -171,12 +238,13 @@ class TestDoctorCommand:
             doctor_module,
             "_portal_credential_state",
             lambda: {
+                "ok": True,
+                "kind": "complete_pair",
+                "message": None,
                 "username_var": "ARCGIS_USERNAME",
                 "username": "portal-user",
                 "password_var": "ARCGIS_PASSWORD",
                 "password": "secret",
-                "has_username": True,
-                "has_password": True,
             },
         )
 
@@ -189,3 +257,34 @@ class TestDoctorCommand:
 
         assert result.exit_code in (0, 1), result.output
         assert "Connected as" in result.output
+
+    def test_doctor_portal_rejects_mixed_env_pairs(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        runner: CliRunner,
+        tmp_path,
+    ) -> None:
+        """doctor --portal should fail closed on split Portal env naming pairs."""
+        monkeypatch.setattr(doctor_module, "_pkg_installed", lambda import_name: True)
+        monkeypatch.setattr(
+            doctor_module,
+            "_portal_credential_state",
+            lambda: {
+                "ok": False,
+                "kind": "mixed_pairs",
+                "message": (
+                    "Mixed Portal credential env pairs are set; use either "
+                    "PORTAL_USER/PORTAL_PASSWORD or ARCGIS_USERNAME/ARCGIS_PASSWORD."
+                ),
+                "username_var": None,
+                "username": None,
+                "password_var": None,
+                "password": None,
+            },
+        )
+
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            result = runner.invoke(cli, ["doctor", "--portal"])
+
+        assert result.exit_code == 1, result.output
+        assert "Mixed Portal credential env pairs are set" in result.output

@@ -135,7 +135,10 @@ class TestCommandRegistration:
         assert result.exit_code == 0
         assert "Getting started:" in result.output
         assert "gitmap init" in result.output
+        assert "gitmap status" in result.output
+        assert 'gitmap commit -m "Initial snapshot"' in result.output
         assert "gitmap completions" in result.output
+        assert "\nNeed shell completions? Run: gitmap completions" in result.output
 
     def test_help_uses_gitmap_prog_name(self, runner: CliRunner) -> None:
         """Help output should show the installed command name, not the internal function name."""
@@ -267,6 +270,23 @@ class TestCommandRegistration:
                     "gitmap diff main feature --format visual  # Visual table view",
                     "gitmap diff main feature --format json    # Machine-readable JSON",
                     "gitmap diff abc123 def456                 # Commit vs commit",
+                ],
+            ),
+            (
+                "branch",
+                [
+                    "gitmap branch              # List branches",
+                    "gitmap branch -v           # List branches with commit details",
+                    "gitmap branch feature/x    # Create branch 'feature/x'",
+                    "gitmap branch -d feature/x # Delete branch 'feature/x'",
+                ],
+            ),
+            (
+                "checkout",
+                [
+                    "gitmap checkout main",
+                    "gitmap checkout feature/new-layer",
+                    "gitmap checkout -b feature/new-layer  # Create and checkout",
                 ],
             ),
         ],

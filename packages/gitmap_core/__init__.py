@@ -18,9 +18,9 @@ Metadata:
 from __future__ import annotations
 
 # Core data models - loaded eagerly for common use cases
-from gitmap_core.context import Annotation, ContextStore, Edge, Event
-from gitmap_core.models import Branch, Commit, Remote, RepoConfig
-from gitmap_core.visualize import GraphData
+from .context import Annotation, ContextStore, Edge, Event
+from .models import Branch, Commit, Remote, RepoConfig
+from .visualize import GraphData
 
 __version__ = "0.7.0"
 
@@ -55,48 +55,48 @@ __all__ = [
 
 def generate_ascii_graph(*args, **kwargs):
     """Generate ASCII representation of commit graph (lazy import)."""
-    from gitmap_core.visualize import generate_ascii_graph as _func
+    from .visualize import generate_ascii_graph as _func
 
     return _func(*args, **kwargs)
 
 
 def generate_ascii_timeline(*args, **kwargs):
     """Generate ASCII timeline visualization (lazy import)."""
-    from gitmap_core.visualize import generate_ascii_timeline as _func
+    from .visualize import generate_ascii_timeline as _func
 
     return _func(*args, **kwargs)
 
 
 def generate_html_visualization(*args, **kwargs):
     """Generate HTML visualization (lazy import)."""
-    from gitmap_core.visualize import generate_html_visualization as _func
+    from .visualize import generate_html_visualization as _func
 
     return _func(*args, **kwargs)
 
 
 def generate_mermaid_flowchart(*args, **kwargs):
     """Generate Mermaid flowchart (lazy import)."""
-    from gitmap_core.visualize import generate_mermaid_flowchart as _func
+    from .visualize import generate_mermaid_flowchart as _func
 
     return _func(*args, **kwargs)
 
 
 def generate_mermaid_git_graph(*args, **kwargs):
     """Generate Mermaid git graph (lazy import)."""
-    from gitmap_core.visualize import generate_mermaid_git_graph as _func
+    from .visualize import generate_mermaid_git_graph as _func
 
     return _func(*args, **kwargs)
 
 
 def generate_mermaid_timeline(*args, **kwargs):
     """Generate Mermaid timeline (lazy import)."""
-    from gitmap_core.visualize import generate_mermaid_timeline as _func
+    from .visualize import generate_mermaid_timeline as _func
 
     return _func(*args, **kwargs)
 
 
 def visualize_context(*args, **kwargs):
     """Visualize context graph (lazy import)."""
-    from gitmap_core.visualize import visualize_context as _func
+    from .visualize import visualize_context as _func
 
     return _func(*args, **kwargs)
