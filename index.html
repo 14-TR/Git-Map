@@ -2051,9 +2051,16 @@
 </tbody>
 </table>
 <h2 id="quick-install">Quick Install<a class="headerlink" href="#quick-install" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gitmap-cli
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/14-TR/Git-Map.git
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>Git-Map
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>/opt/homebrew/bin/python3.13<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip<span class="w"> </span>setuptools<span class="w"> </span>wheel
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;packages/gitmap_core[dev]&quot;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>apps/cli/gitmap
 </code></pre></div>
-<p>This installs the <code>gitmap</code> console command. Then see the <a href="getting-started/quickstart/">Quickstart</a> to run your first commit in under 5 minutes.</p>
+<p>Use a Python 3.11+ interpreter when creating the virtual environment. If <code>python3</code> on your machine is older, use an explicit executable such as <code>python3.11</code>, <code>python3.12</code>, or <code>python3.13</code>.</p>
+<p>This installs the <code>gitmap</code> command from the current checkout. Then see the <a href="getting-started/quickstart/">Quickstart</a> to run your first commit in under 5 minutes.</p>
 <h2 id="demo-script">Demo Script<a class="headerlink" href="#demo-script" title="Permanent link">&para;</a></h2>
 <p>The first public demo is being prepared in <code>marketing/demo-script.md</code>. It walks through a safe test-map workflow: clone, branch, pull/edit, diff, commit, merge, and push.</p>
 <h2 id="core-workflow">Core Workflow<a class="headerlink" href="#core-workflow" title="Permanent link">&para;</a></h2>

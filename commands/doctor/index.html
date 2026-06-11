@@ -2054,7 +2054,7 @@
 <li><strong>Python version</strong> — ensures you're running Python 3.11 or newer</li>
 <li><strong>Required packages</strong> — verifies <code>click</code>, <code>rich</code>, and <code>deepdiff</code> are installed</li>
 <li><strong>Optional packages</strong> — notes if <code>apscheduler</code> or <code>arcgis</code> are missing (with context about what they enable)</li>
-<li><strong>Environment variables</strong> — shows which Portal credentials are set (<code>PORTAL_URL</code>, <code>ARCGIS_USERNAME</code>, <code>ARCGIS_PASSWORD</code>)</li>
+<li><strong>Environment variables</strong> — shows which Portal credentials are set (<code>PORTAL_URL</code>, plus either <code>PORTAL_USER</code> / <code>PORTAL_PASSWORD</code> or <code>ARCGIS_USERNAME</code> / <code>ARCGIS_PASSWORD</code>)</li>
 <li><strong>Current directory</strong> — detects if you're inside a GitMap repository and shows branch/commit count</li>
 <li><strong>Portal connectivity</strong> <em>(with <code>--portal</code>)</em> — verifies named-user or ArcGIS Pro-backed access to your configured Portal and fails closed on anonymous fallback</li>
 </ol>
@@ -2086,8 +2086,8 @@
 <a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
 <a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>─── Environment Variables ───
 <a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>  ✓ PORTAL_URL=https://myorg.maps.arcgis.com
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>  ✓ ARCGIS_USERNAME=myuser
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>  ✓ ARCGIS_PASSWORD=***
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>  ✓ PORTAL_USER=myuser
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>  ✓ PORTAL_PASSWORD=***
 <a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>
 <a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>─── Current Directory ───
 <a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>  ✓ In a GitMap repository  (/home/user/my-map)
