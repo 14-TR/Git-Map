@@ -6,6 +6,16 @@ The next product goal is community adoption: help real GIS users safely try
 GitMap, understand the workflow, trust what it changes, and find clear ways to
 contribute.
 
+## June 2026 refinement focus
+
+Git-Map should optimize for trust and first-use clarity, not more protocol or
+integration breadth.
+
+- Put first-user proof, docs smoothness, and packaging reliability ahead of new product surface.
+- Treat help-text quality, install success, and safe sample workflows as product work.
+- Keep prototype integrations honest until they survive end-to-end validation.
+- Use real GIS-user friction to drive the next cleanup slice instead of adding abstractions.
+
 ## Current project foundation
 
 Shipped or substantially in place:

@@ -24,7 +24,6 @@ import click
 from rich.console import Console
 from rich.panel import Panel
 
-from gitmap_core.diff import diff_maps, format_diff_summary
 from gitmap_core.repository import find_repository
 
 console = Console()
@@ -67,6 +66,8 @@ def status(fmt: str) -> None:
         # Build diff if there are changes
         map_diff = None
         if has_changes:
+            from gitmap_core.diff import diff_maps, format_diff_summary
+
             index_data = repo.get_index()
             if head_commit:
                 commit = repo.get_commit(head_commit)
@@ -109,6 +110,8 @@ def status(fmt: str) -> None:
         console.print()
 
         if has_changes:
+            from gitmap_core.diff import format_diff_summary
+
             console.print("[yellow]Changes not committed:[/yellow]")
 
             if map_diff:
