@@ -197,6 +197,33 @@ class TestCommandRegistration:
             assert result.returncode == 0, result.stderr or result.stdout
             assert "ModuleNotFoundError" not in (result.stdout + result.stderr)
 
+    def test_direct_script_subcommand_help_works_without_optional_runtime_deps(self) -> None:
+        """Subcommand help should stay available from a source checkout without optional extras."""
+        repo_root = Path(__file__).resolve().parents[3]
+        env = {
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join(
+                [
+                    str(repo_root / "packages"),
+                    str(repo_root / "apps" / "cli" / "gitmap"),
+                ]
+            ),
+        }
+
+        for command in ("status", "show", "diff", "clone", "list", "pull", "push", "notify"):
+            result = subprocess.run(
+                [sys.executable, str(repo_root / "apps" / "cli" / "gitmap" / "main.py"), command, "--help"],
+                capture_output=True,
+                text=True,
+                env=env,
+                check=False,
+            )
+
+            assert result.returncode == 0, f"{command} --help failed:\n{result.stderr or result.stdout}"
+            assert "ModuleNotFoundError" not in (result.stdout + result.stderr), (
+                f"{command} --help imported an optional dependency too early:\n{result.stderr or result.stdout}"
+            )
+
     def test_direct_script_unknown_command_points_to_gitmap_help(self) -> None:
         """Source-script errors should point users at gitmap help, not main.py help."""
         repo_root = Path(__file__).resolve().parents[3]
