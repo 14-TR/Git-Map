@@ -47,6 +47,7 @@ if str(_cli_dir) not in sys.path:
     sys.path.insert(0, str(_cli_dir))
 
 from main import cli  # noqa: E402
+from gitmap_cli.commands import completions as completions_module  # noqa: E402
 
 # ---- Fixtures ------------------------------------------------------------------------------------------------
 
@@ -418,3 +419,78 @@ class TestCommandRegistration:
         assert expected in result.output
         assert "gitmap --help" in result.output
         assert "Try 'cli --help' for help." not in result.output
+
+    @pytest.mark.parametrize(
+        ("shell_path", "expected"),
+        [
+            ("/bin/bash", "bash"),
+            ("/usr/bin/zsh", "zsh"),
+            ("/opt/homebrew/bin/fish", "fish"),
+            ("/bin/sh", None),
+            ("", None),
+        ],
+    )
+    def test_completions_detect_shell_from_environment(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        shell_path: str,
+        expected: str | None,
+    ) -> None:
+        """Completion helper should recognize supported shells from SHELL."""
+        monkeypatch.setenv("SHELL", shell_path)
+
+        assert completions_module._detect_shell() == expected
+
+    @pytest.mark.parametrize(
+        ("shell", "expected_name"),
+        [
+            ("bash", ".bashrc"),
+            ("zsh", ".zshrc"),
+            ("fish", "gitmap.fish"),
+        ],
+    )
+    def test_completions_get_rc_file_uses_home(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        shell: str,
+        expected_name: str,
+    ) -> None:
+        """Completion install paths should be rooted under the user's home directory."""
+        monkeypatch.setenv("HOME", str(tmp_path))
+
+        rc_file = Path(completions_module._get_rc_file(shell))
+
+        assert rc_file.is_relative_to(tmp_path)
+        assert rc_file.name == expected_name
+
+    def test_completions_auto_install_bash_is_idempotent(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """Bash completion installer should append once and leave existing installs unchanged."""
+        monkeypatch.setenv("HOME", str(tmp_path))
+
+        completions_module._auto_install("bash")
+        first_install = (tmp_path / ".bashrc").read_text(encoding="utf-8")
+
+        completions_module._auto_install("bash")
+
+        assert (tmp_path / ".bashrc").read_text(encoding="utf-8") == first_install
+        assert first_install.count("_GITMAP_COMPLETE=bash_source gitmap") == 1
+
+    def test_completions_auto_install_fish_writes_completion_file(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """Fish completion installer should create the shell completion file."""
+        monkeypatch.setenv("HOME", str(tmp_path))
+
+        completions_module._auto_install("fish")
+
+        fish_completion = tmp_path / ".config" / "fish" / "completions" / "gitmap.fish"
+        assert fish_completion.read_text(encoding="utf-8") == (
+            "# gitmap shell completion\n_GITMAP_COMPLETE=fish_source gitmap | source\n"
+        )
