@@ -41,16 +41,33 @@ def _run(command: list[str], *, env: dict[str, str] | None = None) -> None:
     subprocess.run(command, check=True, env=env)
 
 
+def _artifact_search_dirs(kind: str) -> list[Path]:
+    search_dirs = [DIST_DIR / kind, DIST_DIR]
+    return [path for path in search_dirs if path.is_dir()]
+
+
 def _pick_artifact(prefix: str) -> Path:
+    search_dirs = _artifact_search_dirs(_prefix_kind(prefix))
     matches = sorted(
-        path for path in DIST_DIR.iterdir()
+        path
+        for directory in search_dirs
+        for path in directory.iterdir()
         if path.is_file() and path.name.startswith(prefix)
     )
     if not matches:
-        raise FileNotFoundError(f"No dist artifacts found for prefix {prefix!r} in {DIST_DIR}")
+        searched = ", ".join(str(path) for path in search_dirs) or str(DIST_DIR)
+        raise FileNotFoundError(f"No dist artifacts found for prefix {prefix!r} in {searched}")
 
     wheels = [path for path in matches if path.suffix == ".whl"]
     return wheels[0] if wheels else matches[0]
+
+
+def _prefix_kind(prefix: str) -> str:
+    if prefix == "gitmap-":
+        return "meta"
+    if prefix == "gitmap_cli-":
+        return "cli"
+    return "core"
 
 
 def verify(kind: str) -> None:

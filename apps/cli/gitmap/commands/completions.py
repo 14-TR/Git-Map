@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import os
 import sys
+from pathlib import Path
 
 import click
 from rich.console import Console
@@ -54,6 +55,8 @@ _GITMAP_COMPLETE=fish_source gitmap | source
 # Or run once to install permanently:
 _GITMAP_COMPLETE=fish_source gitmap > ~/.config/fish/completions/gitmap.fish""",
 }
+
+_CLI_MAIN = Path(__file__).resolve().parents[1] / "main.py"
 
 
 # ---- Completions Command ------------------------------------------------------------------------------------
@@ -121,18 +124,7 @@ def completions(
     target_shell = target_shell.lower()
 
     if print_script:
-        # Emit the raw script so the user can pipe it
-        import subprocess
-
-        env = os.environ.copy()
-        env[_COMPLETE_VAR[target_shell]] = f"{target_shell}_source"
-        result = subprocess.run(
-            [sys.executable, "-m", "gitmap_cli.main"],
-            env=env,
-            capture_output=True,
-            text=True,
-        )
-        click.echo(result.stdout, nl=False)
+        click.echo(_generate_completion_script(target_shell), nl=False)
         return
 
     if install_shell:
@@ -152,6 +144,49 @@ def completions(
     console.print()
     console.print(f"Or run [cyan]gitmap completions --install {target_shell}[/cyan] to add this automatically.")
     console.print()
+
+
+def _generate_completion_script(target_shell: str) -> str:
+    """Generate the raw completion script via the matching CLI entrypoint."""
+    import subprocess
+
+    env = os.environ.copy()
+    env[_COMPLETE_VAR[target_shell]] = f"{target_shell}_source"
+    command = _completion_command(env)
+    result = subprocess.run(command, env=env, capture_output=True, text=True, check=False)
+
+    if result.returncode != 0:
+        stderr = (result.stderr or "").strip()
+        raise click.ClickException(
+            "Failed to generate completion script"
+            + (f": {stderr}" if stderr else f" (exit {result.returncode})")
+        )
+
+    if not result.stdout:
+        stderr = (result.stderr or "").strip()
+        raise click.ClickException(
+            "Completion generator returned empty output"
+            + (f": {stderr}" if stderr else "")
+        )
+
+    return result.stdout
+
+
+def _completion_command(env: dict[str, str]) -> list[str]:
+    """Build the subprocess command for installed and source-checkout execution."""
+    if _CLI_MAIN.exists():
+        repo_root = _CLI_MAIN.parents[2]
+        pythonpath_entries = [
+            str(repo_root / "packages"),
+            str(_CLI_MAIN.parent),
+        ]
+        existing = env.get("PYTHONPATH")
+        if existing:
+            pythonpath_entries.append(existing)
+        env["PYTHONPATH"] = os.pathsep.join(pythonpath_entries)
+        return [sys.executable, str(_CLI_MAIN)]
+
+    return [sys.executable, "-m", "gitmap_cli.main"]
 
 
 def _detect_shell() -> str | None:

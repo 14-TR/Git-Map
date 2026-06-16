@@ -2,14 +2,19 @@
 
 GitMap uses **PyPI Trusted Publishing** (OIDC) — no API tokens needed once configured.
 
-GitMap currently publishes two user-facing packages. The root `gitmap` PyPI name is occupied by an unrelated project, so it is not part of the active publish contract unless that name is transferred or explicitly re-approved.
+GitMap is preparing two user-facing packages. The root `gitmap` PyPI name is occupied by an unrelated project, so it is not part of the active publish contract unless that name is transferred or explicitly re-approved.
 
 | PyPI Package | Tag Pattern | Install |
 |---|---|---|
 | `gitmap-core` | `core-v*` | `pip install gitmap-core` |
-| `gitmap-cli` | `cli-v*` | `pip install gitmap-cli` |
+| `gitmap-cli` | `cli-v*` | `pip install gitmap-cli` (after first successful publish) |
 
-> **Most users want `pip install gitmap-cli`** — it installs the `gitmap` console command and depends on `gitmap-core`. Use `pip install gitmap-core` only for library/API use.
+> **Current first-user install contract:** use the source install flow in
+> `docs/getting-started/installation.md` until `gitmap-cli` is visibly
+> available on PyPI and the published install path has been re-verified for the
+> supported Python 3.11-3.14 matrix. `gitmap-core` can be published
+> independently for library/API consumers, but it does not provide the `gitmap`
+> CLI entrypoint by itself.
 
 ---
 
@@ -61,14 +66,16 @@ Before tagging, run the local release guardrails:
 
 ```bash
 python3 scripts/release_checks.py
-python3 -m build packages/gitmap_core --outdir dist/
-python3 -m build apps/cli/gitmap --outdir dist/
+python3 -m build packages/gitmap_core --outdir dist/core
+python3 -m build apps/cli/gitmap --outdir dist/cli
+python3 -m build . --outdir dist/meta
 python3 scripts/verify_dist_install.py core
 python3 scripts/verify_dist_install.py cli
+python3 scripts/verify_dist_install.py meta
 ```
 
 This verifies that the published package versions, dependency pins, project metadata, publish workflow tag patterns, and dist-install smoke tests are still aligned.
-The publish workflow now runs the same clean-venv install smoke test for `core` and `cli` before uploading artifacts to PyPI.
+The publish workflow now runs the same clean-venv install smoke test against the real `dist/core`, `dist/cli`, and `dist/meta` layout before upload checks.
 
 ### Patch release (core fix)
 
@@ -124,7 +131,12 @@ The active publishable packages should stay in sync (same version number).
 After tags are pushed and workflow runs succeed:
 
 ```bash
-pip install gitmap-cli       # CLI (installs the gitmap command and core dependency)
-pip install gitmap-core      # core library only
-gitmap --version             # should show new version
+pip index versions gitmap-cli
+pip install gitmap-cli
+gitmap --version             # should show the new version once the CLI project exists
+pip install gitmap-core      # optional library-only verification
 ```
+
+If `pip index versions gitmap-cli` reports no matching distribution, the CLI
+publish did not land on PyPI yet. Keep the public install docs on the source
+install path and treat the release as incomplete until the package is available.

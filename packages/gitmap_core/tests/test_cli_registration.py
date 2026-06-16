@@ -24,6 +24,7 @@ import sys
 import types
 from pathlib import Path
 
+import click
 import pytest
 from click.testing import CliRunner
 
@@ -494,3 +495,47 @@ class TestCommandRegistration:
         assert fish_completion.read_text(encoding="utf-8") == (
             "# gitmap shell completion\n_GITMAP_COMPLETE=fish_source gitmap | source\n"
         )
+
+    def test_completions_print_emits_script_from_source_checkout(self) -> None:
+        """The real --print path should emit a completion script in a source checkout."""
+        repo_root = Path(__file__).resolve().parents[3]
+        env = {
+            **os.environ,
+            "PYTHONPATH": os.pathsep.join(
+                [
+                    str(repo_root / "packages"),
+                    str(repo_root / "apps" / "cli" / "gitmap"),
+                ]
+            ),
+        }
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(repo_root / "apps" / "cli" / "gitmap" / "main.py"),
+                "completions",
+                "--print",
+                "bash",
+            ],
+            capture_output=True,
+            text=True,
+            env=env,
+            check=False,
+        )
+
+        assert result.returncode == 0, result.stderr or result.stdout
+        assert result.stdout.strip()
+        assert "_gitmap_completion()" in result.stdout
+        assert "complete -o nosort -F _gitmap_completion gitmap" in result.stdout
+
+    def test_completions_print_raises_on_empty_output(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Silent empty completion output should surface as a user-facing error."""
+        completed = subprocess.CompletedProcess(args=["python"], returncode=0, stdout="", stderr="")
+
+        def fake_run(*args: object, **kwargs: object) -> subprocess.CompletedProcess[str]:
+            return completed
+
+        monkeypatch.setattr(subprocess, "run", fake_run)
+
+        with pytest.raises(click.ClickException, match="returned empty output"):
+            completions_module._generate_completion_script("bash")
