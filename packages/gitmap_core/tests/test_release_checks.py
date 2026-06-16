@@ -5,6 +5,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -12,10 +13,19 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 RELEASE_CHECKS_PATH = REPO_ROOT / "scripts/release_checks.py"
+VERIFY_DIST_INSTALL_PATH = REPO_ROOT / "scripts/verify_dist_install.py"
 
 
 def _load_release_checks_module():
     spec = importlib.util.spec_from_file_location("release_checks", RELEASE_CHECKS_PATH)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+def _load_verify_dist_install_module():
+    spec = importlib.util.spec_from_file_location("verify_dist_install", VERIFY_DIST_INSTALL_PATH)
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
     spec.loader.exec_module(module)
@@ -52,6 +62,48 @@ def test_ci_package_validation_smoke_tests_dist_installs() -> None:
         "python scripts/verify_dist_install.py meta",
     ):
         assert expected_command in ci_workflow_text
+
+
+@pytest.mark.parametrize(
+    ("kind", "prefix", "artifact_name"),
+    [
+        ("core", "gitmap_core-", "gitmap_core-1.2.3-py3-none-any.whl"),
+        ("cli", "gitmap_cli-", "gitmap_cli-1.2.3-py3-none-any.whl"),
+        ("meta", "gitmap-", "gitmap-1.2.3-py3-none-any.whl"),
+    ],
+)
+def test_verify_dist_install_prefers_kind_specific_dist_dirs(
+    kind: str,
+    prefix: str,
+    artifact_name: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    verify_dist_install = _load_verify_dist_install_module()
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        dist_dir = Path(tmpdir) / "dist"
+        kind_dir = dist_dir / kind
+        kind_dir.mkdir(parents=True)
+        expected_path = kind_dir / artifact_name
+        expected_path.write_text("wheel")
+        monkeypatch.setattr(verify_dist_install, "DIST_DIR", dist_dir)
+
+        assert verify_dist_install._pick_artifact(prefix) == expected_path
+
+
+def test_verify_dist_install_falls_back_to_top_level_dist(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    verify_dist_install = _load_verify_dist_install_module()
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        dist_dir = Path(tmpdir) / "dist"
+        dist_dir.mkdir()
+        expected_path = dist_dir / "gitmap_core-1.2.3-py3-none-any.whl"
+        expected_path.write_text("wheel")
+        monkeypatch.setattr(verify_dist_install, "DIST_DIR", dist_dir)
+
+        assert verify_dist_install._pick_artifact("gitmap_core-") == expected_path
 
 
 def test_release_metadata_requires_existing_readmes_and_typed_markers() -> None:
@@ -100,6 +152,21 @@ def test_public_validation_evidence_matches_collected_core_tests() -> None:
     for relative_path, expected_text in public_claims.items():
         text = (REPO_ROOT / relative_path).read_text(encoding="utf-8")
         assert expected_text in text, f"{relative_path} missing {expected_text!r}"
+
+
+def test_install_docs_and_publishing_doc_agree_on_current_cli_install_status() -> None:
+    installation_text = (
+        REPO_ROOT / "docs/getting-started/installation.md"
+    ).read_text(encoding="utf-8")
+    publishing_text = (REPO_ROOT / "PUBLISHING.md").read_text(encoding="utf-8")
+
+    expected_warning = (
+        "The `gitmap-cli` PyPI package is not currently a supported first-user install path."
+    )
+    assert expected_warning in installation_text
+    assert "use the source install flow" in publishing_text
+    assert "`gitmap-cli` is visibly" in publishing_text
+    assert "available on PyPI" in publishing_text
 
 
 @pytest.mark.parametrize(
